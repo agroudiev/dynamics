@@ -1,0 +1,17 @@
+[package]
+name = "dynamics"
+version = "0.1.0"
+edition = "2021"
+authors = ["Antoine Groudiev <antoine.groudiev@ens.psl.eu>"]
+readme = "README.md"
+description = "An experimental implementation of Rigid Body Dynamics algorithms."
+repository = "https://github.com/Red-Rapious/dynamics"
+
+[lib]
+name = "dynamics"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.23.1", features = ["extension-module"] }
+numpy = "0.23.0"
+ndarray = "0.16.1"
