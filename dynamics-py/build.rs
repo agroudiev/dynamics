@@ -1,5 +1,18 @@
 use std::process::Command;
 pub fn main() {
+    // Install pip
+    let output = Command::new("python")
+        .arg("-m")
+        .arg("ensurepip")
+        .output()
+        .expect("Failed to execute command");
+    if !output.status.success() {
+        eprintln!("Command failed with status: {}", output.status);
+        eprintln!("stdout: {}", String::from_utf8_lossy(&output.stdout));
+        eprintln!("stderr: {}", String::from_utf8_lossy(&output.stderr));
+        panic!("Installation of pip failed");
+    }
+
     // Install setuptools
     let output = Command::new("python")
         .arg("-m")
