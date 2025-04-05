@@ -14,9 +14,7 @@ pub fn main() {
     }
 
     // Install setuptools
-    let output = Command::new("python")
-        .arg("-m")
-        .arg("pip")
+    let output = Command::new("pip")
         .arg("install")
         .arg("setuptools")
         .output()
