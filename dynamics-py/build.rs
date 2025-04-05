@@ -8,6 +8,9 @@ pub fn main() {
         .output()
         .expect("Failed to execute command");
     if !output.status.success() {
+        eprintln!("Python command failed with status: {}", output.status);
+        eprintln!("stdout: {}", String::from_utf8_lossy(&output.stdout));
+        eprintln!("stderr: {}", String::from_utf8_lossy(&output.stderr));
         panic!("Python command failed");
     }
     let python_lib_path = String::from_utf8_lossy(&output.stdout);
