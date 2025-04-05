@@ -1,16 +1,24 @@
-[package]
-name = "dynamics"
+[workspace]
+resolver = "2"
+members = [
+    "crates/*",
+    "dynamics-py",
+]
+
+[workspace.package]
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 authors = ["Antoine Groudiev <antoine.groudiev@ens.psl.eu>"]
 readme = "README.md"
 description = "An experimental implementation of Rigid Body Dynamics algorithms."
 repository = "https://github.com/Red-Rapious/dynamics"
+license = "CC-BY-4.0"
+license-file = "LICENSE"
 
-[lib]
-name = "dynamics"
-crate-type = ["cdylib"]
+# [lib]
+# name = "dynamics"
+# crate-type = ["cdylib"]
 
-[dependencies]
+[workspace.dependencies]
 pyo3 = { version = "0.22", features = ["extension-module"] }
 numpy = "0.22"

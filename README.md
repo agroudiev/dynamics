@@ -15,7 +15,11 @@ This project uses [maturin](https://www.maturin.rs/) as the build system for the
 ```bash
 pip install maturin
 ```
-To build the Rust code and install it directly as a Python package in the current `ilqr_demo` virtual environment, run:
+To build the Rust code and install it directly as a Python package in the current `dynamics` virtual environment, run:
 ```bash
-maturin develop --release
+maturin develop --release -m dynamics-py/Cargo.toml
+```
+To run unit test of all crates, run:
+```bash
+cargo test
 ```
