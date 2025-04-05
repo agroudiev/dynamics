@@ -20,7 +20,7 @@ pub fn main() {
         .arg("-c")
         .arg(python_inline_script)
         .output()
-        .expect("Failed to execute command");
+        .expect("Failed to get LIBDIR");
     if !output.status.success() {
         eprintln!("Python command failed with status: {}", output.status);
         eprintln!("stdout: {}", String::from_utf8_lossy(&output.stdout));
