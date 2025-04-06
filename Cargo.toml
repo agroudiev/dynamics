@@ -11,13 +11,8 @@ edition = "2024"
 authors = ["Antoine Groudiev <antoine.groudiev@ens.psl.eu>"]
 readme = "README.md"
 description = "An experimental implementation of Rigid Body Dynamics algorithms."
-repository = "https://github.com/Red-Rapious/dynamics"
-license = "CC-BY-4.0"
+repository = "https://github.com/agroudiev/dynamics"
 license-file = "LICENSE"
-
-# [lib]
-# name = "dynamics"
-# crate-type = ["cdylib"]
 
 [workspace.dependencies]
 pyo3 = { version = "0.22", features = ["extension-module"] }
