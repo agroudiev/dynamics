@@ -17,3 +17,4 @@ license-file = "LICENSE"
 [workspace.dependencies]
 pyo3 = { version = "0.22", features = ["extension-module"] }
 numpy = "0.22"
+collider = { path = "../collider"}
