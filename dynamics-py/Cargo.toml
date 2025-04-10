@@ -8,4 +8,8 @@ name = "dynamics"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = "0.24.0"
+pyo3 = { workspace = true }
+collider = { workspace = true}
+
+model = { path = "../crates/model" }
+spatial = { path = "../crates/spatial" }

@@ -11,3 +11,4 @@ license-file.workspace = true
 [dependencies]
 collider = { workspace = true }
 nalgebra = { workspace = true }
+pyo3 = { workspace = true }

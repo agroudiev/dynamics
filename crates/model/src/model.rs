@@ -1,6 +1,7 @@
 //! The standard `Model`.
 
 use nalgebra::Isometry3;
+use pyo3::prelude::*;
 use std::collections::HashMap;
 
 /// A `Model` is a data structure that contains the information about the robot model,
@@ -41,6 +42,35 @@ impl Model {
             joint_placements,
             nq,
             nv,
+        }
+    }
+
+    /// Creates a new empty `Model`.
+    pub fn new_empty() -> Self {
+        Self {
+            name: String::new(),
+            joint_names: HashMap::new(),
+            joint_placements: HashMap::new(),
+            nq: 0,
+            nv: 0,
+        }
+    }
+}
+
+/// A `Model` is a data structure that contains the information about the robot model,
+/// including the joints models, placements, the link inertias, and the frames.
+#[pyclass(name = "Model")]
+pub struct PyModel {
+    inner: Model,
+}
+
+#[pymethods]
+impl PyModel {
+    /// Creates a new empty `Model`.
+    #[new]
+    fn new_empty() -> Self {
+        Self {
+            inner: Model::new_empty(),
         }
     }
 }
