@@ -32,6 +32,7 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 [[package]]
 name = "collider"
 version = "0.1.0"
+source = "git+https://github.com/agroudiev/collider#afe667e0e223555d6ff9247f830dda0045ec26c1"
 dependencies = [
  "shape",
 ]
@@ -284,6 +285,7 @@ dependencies = [
 [[package]]
 name = "shape"
 version = "0.1.0"
+source = "git+https://github.com/agroudiev/collider#afe667e0e223555d6ff9247f830dda0045ec26c1"
 dependencies = [
  "nalgebra",
  "pyo3",
