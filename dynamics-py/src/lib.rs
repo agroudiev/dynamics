@@ -5,7 +5,7 @@
 //! should be used to interact between `collider` and `dynamics`. In the future,
 //! this may be changed (using for instance serialization of the shapes).
 
-use model::{geometry_object::PyGeometryObject, model::PyModel};
+use model::{geometry_object::PyGeometryObject, model::PyModel, geometry_model::PyGeometryModel};
 use pyo3::prelude::*;
 
 use collider::shape::{
@@ -39,6 +39,7 @@ fn collider_py(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult<()> {
 
 fn add_dynamics_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult<()> {
     dynamics.add_class::<PyModel>()?;
+    dynamics.add_class::<PyGeometryModel>()?;
     dynamics.add_class::<PyGeometryObject>()?;
 
     add_spatial_bindings(py, dynamics)?;
