@@ -15,4 +15,4 @@ model = dynamics.Model()
 
 for i, geom in enumerate(geometries):
     placement = dynamics.SE3(np.eye(3), np.array([i, 0.0, 0.0]))
-    geom_obj = dynamics.GeometryObject(f"obj{i}", 0, 0, geom)#, placement)
+    geom_obj = dynamics.GeometryObject(f"obj{i}", 0, 0, geom, placement)

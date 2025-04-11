@@ -4,12 +4,13 @@ use numpy::{PyReadonlyArray1, PyReadonlyArray2};
 
 #[pyclass(name = "SE3")]
 pub struct PySE3 {
-    inner: Isometry3<f64>,
+    pub inner: Isometry3<f64>,
 }
 
 #[pymethods]
 impl PySE3 {
-    /// Creates a new isometry, that is an element of the special Euclidean group (`SE3`) with the given parameters.
+    /// Creates a new isometry, that is an element of the special Euclidean group (`SE3`) 
+    /// with the given rotation and translation.
     ///
     /// # Arguments
     ///

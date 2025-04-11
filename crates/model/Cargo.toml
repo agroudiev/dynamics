@@ -12,3 +12,5 @@ license-file.workspace = true
 collider = { workspace = true }
 nalgebra = { workspace = true }
 pyo3 = { workspace = true }
+
+spatial = { path = "../spatial" }

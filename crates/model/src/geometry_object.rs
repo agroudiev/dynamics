@@ -1,8 +1,9 @@
 //! Model for a geometry object, that is a shape or mesh with visualization properties.
 
 use collider::shape::*;
-use nalgebra::{Isometry, Isometry3, Vector4, geometry};
+use nalgebra::{Isometry3, Vector4};
 use pyo3::{exceptions::PyValueError, prelude::*, types::PyTuple};
+use spatial::se3::PySE3;
 
 /// A `GeometryObject` is a data structure that contains the information about the geometry object,
 /// used for visualization, collision detection and distance computation.
@@ -14,9 +15,9 @@ pub struct GeometryObject {
     /// The `collider` geometry object.
     pub geometry: ShapeWrapper,
     /// The RGBA color of the mesh.
-    pub mesh_color: Vector4<f32>,
+    pub mesh_color: Vector4<f64>,
     /// The placement of the geometry object in the parent frame.
-    pub placement: Isometry3<f32>,
+    pub placement: Isometry3<f64>,
 }
 
 impl GeometryObject {
@@ -34,7 +35,7 @@ impl GeometryObject {
         _parent_joint: usize,
         _parent_frame: usize,
         geometry: ShapeWrapper,
-        placement: Isometry3<f32>,
+        placement: Isometry3<f64>,
     ) -> Self {
         Self {
             name,
@@ -67,8 +68,7 @@ impl PyGeometryObject {
     #[new]
     #[pyo3(signature = (*py_args))]
     fn new(py_args: &Bound<'_, PyTuple>) -> PyResult<Self> {
-        // if py_args.len() == 5 {
-        if py_args.len() == 4 {
+        if py_args.len() == 5 {
             let name: String = py_args.get_item(0)?.extract()?;
             let _parent_joint: usize = py_args.get_item(1)?.extract()?;
             let _parent_frame: usize = py_args.get_item(2)?.extract()?;
@@ -96,12 +96,12 @@ impl PyGeometryObject {
                     }
                 } else {
                     return Err(PyValueError::new_err(format!(
-                        "expected a shape, but got {:?}",
+                        "expected a shape for 'geometry', but got {:?}.",
                         py_args
                     )));
                 };
 
-            // let placement = py_args.get_item(4)?.extract::<Isometry3<f32>>()?;
+            let placement = py_args.get_item(4)?.extract::<PyRef<PySE3>>()?;
 
             Ok(Self {
                 inner: GeometryObject::new(
@@ -109,14 +109,13 @@ impl PyGeometryObject {
                     _parent_joint,
                     _parent_frame,
                     geometry.inner.clone_box(),
-                    // placement,
-                    Isometry3::identity(),
+                    placement.inner,
                 ),
             })
         } else {
             Err(PyValueError::new_err(format!(
-                "expected the following signatures: (name: string, parent_joint: int, parent_frame: int, geometry: Shape, placement: SE3), but have {:?}",
-                py_args
+                "incorrect number of arguments, expected 5, but got {}.",
+                py_args.len()
             )))
         }
     }
