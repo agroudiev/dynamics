@@ -16,9 +16,8 @@ license-file = "LICENSE"
 
 [workspace.dependencies]
 nalgebra = "0.33.2"
-numpy = "*"
-pyo3 = { version = "0.23", features = ["extension-module"] }
-
+numpy = "0.24.0"
+pyo3 = { version = "0.24.1", features = ["extension-module"] }
 
 # collider = { path = "../collider/crates/collider" } # for local development
 collider = { git = "https://github.com/agroudiev/collider" }

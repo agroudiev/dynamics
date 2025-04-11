@@ -1,6 +1,6 @@
-use nalgebra::{Isometry3, Translation3, UnitQuaternion, Vector3};
-use pyo3::{exceptions::PyValueError, prelude::*};
+use nalgebra::{Isometry3, Translation3, UnitQuaternion};
 use numpy::{PyReadonlyArray1, PyReadonlyArray2};
+use pyo3::{exceptions::PyValueError, prelude::*};
 
 #[pyclass(name = "SE3")]
 pub struct PySE3 {
@@ -9,7 +9,7 @@ pub struct PySE3 {
 
 #[pymethods]
 impl PySE3 {
-    /// Creates a new isometry, that is an element of the special Euclidean group (`SE3`) 
+    /// Creates a new isometry, that is an element of the special Euclidean group (`SE3`)
     /// with the given rotation and translation.
     ///
     /// # Arguments
@@ -27,15 +27,16 @@ impl PySE3 {
 
         // Check the size of the input arrays
         if rotation.shape() != [3, 3] {
-            return Err(PyValueError::new_err(
-                format!("Invalid input size. Expected a rotation of shape (3,3), got {:?}", rotation.shape()),
-            ));
+            return Err(PyValueError::new_err(format!(
+                "Invalid input size. Expected a rotation of shape (3,3), got {:?}",
+                rotation.shape()
+            )));
         }
         if translation.len() != 3 {
-            return Err(PyValueError::new_err(
-                format!("Invalid input size. Expected a translation of shape (3,), got {}.",
-                translation.len()),
-            ));
+            return Err(PyValueError::new_err(format!(
+                "Invalid input size. Expected a translation of shape (3,), got {}.",
+                translation.len()
+            )));
         }
 
         // Create the translation and rotation components
@@ -46,9 +47,11 @@ impl PySE3 {
                 "The rotation matrix is not orthogonal.",
             ));
         }
-        let rotation = UnitQuaternion::from_rotation_matrix(&nalgebra::Rotation3::from_matrix_unchecked(rotation_matrix));
+        let rotation = UnitQuaternion::from_rotation_matrix(
+            &nalgebra::Rotation3::from_matrix_unchecked(rotation_matrix),
+        );
         let inner = Isometry3::from_parts(translation, rotation);
-        
+
         Ok(Self { inner })
     }
 }
