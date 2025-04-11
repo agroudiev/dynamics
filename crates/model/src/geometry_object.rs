@@ -47,11 +47,23 @@ impl GeometryObject {
     }
 }
 
+impl Clone for GeometryObject {
+    fn clone(&self) -> Self {
+        Self {
+            name: self.name.clone(),
+            disable_collision: self.disable_collision,
+            geometry: self.geometry.clone_box(),
+            mesh_color: self.mesh_color,
+            placement: self.placement,
+        }
+    }
+}
+
 /// A `GeometryObject` is a data structure that contains the information about the geometry object,
 /// used for visualization, collision detection and distance computation.
 #[pyclass(name = "GeometryObject")]
 pub struct PyGeometryObject {
-    inner: GeometryObject,
+    pub inner: GeometryObject,
 }
 
 #[pymethods]
