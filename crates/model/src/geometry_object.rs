@@ -21,9 +21,9 @@ pub struct GeometryObject {
 
 impl GeometryObject {
     /// Creates a new `GeometryObject` with the given parameters.
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `name` - The name of the geometry object.
     /// * `parent_joint` - The identifier of the parent joint.
     /// * `parent_frame` - The identifier of the parent frame.
@@ -56,9 +56,9 @@ pub struct PyGeometryObject {
 #[pymethods]
 impl PyGeometryObject {
     /// Creates a new `GeometryObject` with the given parameters.
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `name` - The name of the geometry object.
     /// * `parent_joint` - The identifier of the parent joint.
     /// * `parent_frame` - The identifier of the parent frame.

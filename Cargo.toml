@@ -15,8 +15,10 @@ repository = "https://github.com/agroudiev/dynamics"
 license-file = "LICENSE"
 
 [workspace.dependencies]
-pyo3 = { version = "0.23", features = ["extension-module"] }
 nalgebra = "0.33.2"
+numpy = "*"
+pyo3 = { version = "0.23", features = ["extension-module"] }
+
 
 # collider = { path = "../collider/crates/collider" } # for local development
 collider = { git = "https://github.com/agroudiev/collider" }

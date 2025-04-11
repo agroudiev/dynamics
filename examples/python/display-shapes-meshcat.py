@@ -1,6 +1,7 @@
 import dynamics
 import dynamics.collider as collider
 import meshcat
+import numpy as np
 
 geometries = [
     collider.Capsule(0.1, 0.8),
@@ -13,5 +14,5 @@ geometries = [
 model = dynamics.Model()
 
 for i, geom in enumerate(geometries):
-    # placement = dynamics.SE3(np.eye(3), np.array([i, 0, 0]))
+    placement = dynamics.SE3(np.eye(3), np.array([i, 0.0, 0.0]))
     geom_obj = dynamics.GeometryObject(f"obj{i}", 0, 0, geom)#, placement)
