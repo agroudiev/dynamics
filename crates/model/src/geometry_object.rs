@@ -1,7 +1,7 @@
 //! Model for a geometry object, that is a shape or mesh with visualization properties.
 
 use collider::shape::*;
-use nalgebra::{Isometry3, Vector4};
+use nalgebra::{IsometryMatrix3, Vector4};
 use pyo3::{exceptions::PyValueError, prelude::*, types::PyTuple};
 use spatial::se3::PySE3;
 
@@ -17,7 +17,7 @@ pub struct GeometryObject {
     /// The RGBA color of the mesh.
     pub mesh_color: Vector4<f64>,
     /// The placement of the geometry object in the parent frame.
-    pub placement: Isometry3<f64>,
+    pub placement: IsometryMatrix3<f64>,
 }
 
 impl GeometryObject {
@@ -35,7 +35,7 @@ impl GeometryObject {
         _parent_joint: usize,
         _parent_frame: usize,
         geometry: ShapeWrapper,
-        placement: Isometry3<f64>,
+        placement: IsometryMatrix3<f64>,
     ) -> Self {
         Self {
             name,

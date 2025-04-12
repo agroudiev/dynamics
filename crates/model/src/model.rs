@@ -73,4 +73,24 @@ impl PyModel {
             inner: Model::new_empty(),
         }
     }
+
+    #[getter]
+    fn name(&self) -> &str {
+        &self.inner.name
+    }
+
+    #[setter]
+    fn set_name(&mut self, name: String) {
+        self.inner.name = name;
+    }
+
+    #[getter]
+    fn nq(&self) -> usize {
+        self.inner.nq
+    }
+
+    #[getter]
+    fn nv(&self) -> usize {
+        self.inner.nv
+    }
 }

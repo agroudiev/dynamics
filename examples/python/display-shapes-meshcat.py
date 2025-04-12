@@ -1,6 +1,5 @@
 import dynamics
 import dynamics.collider as collider
-import meshcat
 import numpy as np
 
 geometries = [

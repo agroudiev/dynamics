@@ -1,4 +1,4 @@
-use nalgebra::{Isometry3, Translation3, UnitQuaternion};
+use nalgebra::{IsometryMatrix3, Translation3, Vector3};
 use numpy::{
     PyReadonlyArray1, PyReadonlyArray2, ToPyArray,
     ndarray::{Array1, Array2},
@@ -7,7 +7,7 @@ use pyo3::{exceptions::PyValueError, prelude::*};
 
 #[pyclass(name = "SE3")]
 pub struct PySE3 {
-    pub inner: Isometry3<f64>,
+    pub inner: IsometryMatrix3<f64>,
 }
 
 #[pymethods]
@@ -50,10 +50,8 @@ impl PySE3 {
                 "The rotation matrix is not orthogonal.",
             ));
         }
-        let rotation = UnitQuaternion::from_rotation_matrix(
-            &nalgebra::Rotation3::from_matrix_unchecked(rotation_matrix),
-        );
-        let inner = Isometry3::from_parts(translation, rotation);
+        let rotation = nalgebra::Rotation3::from_matrix_unchecked(rotation_matrix);
+        let inner = IsometryMatrix3::from_parts(translation, rotation);
 
         Ok(Self { inner })
     }
@@ -61,25 +59,32 @@ impl PySE3 {
     #[pyo3(name = "Identity")]
     #[staticmethod]
     pub fn identity() -> PySE3 {
-        let inner = Isometry3::identity();
+        let inner = IsometryMatrix3::identity();
         PySE3 { inner }
     }
 
     #[pyo3(name = "Random")]
     #[staticmethod]
     pub fn random() -> PySE3 {
-        let translation = Translation3::new(
+        let translation = Vector3::new(
             rand::random::<f64>() * 2.0 - 1.0,
             rand::random::<f64>() * 2.0 - 1.0,
             rand::random::<f64>() * 2.0 - 1.0,
         );
-        let rotation = UnitQuaternion::new(nalgebra::Vector3::new(
+        let axis_angle = nalgebra::Vector3::new(
             rand::random::<f64>() * 2.0 - 1.0,
             rand::random::<f64>() * 2.0 - 1.0,
             rand::random::<f64>() * 2.0 - 1.0,
-        ));
-        let inner = Isometry3::from_parts(translation, rotation);
+        );
+        let inner = IsometryMatrix3::new(translation, axis_angle);
         PySE3 { inner }
+    }
+
+    #[pyo3(name = "inverse")]
+    pub fn inverse(&self) -> PySE3 {
+        PySE3 {
+            inner: self.inner.inverse(),
+        }
     }
 
     #[getter]
@@ -94,7 +99,7 @@ impl PySE3 {
 
     #[getter]
     pub fn rotation(&self, py: Python) -> Py<PyAny> {
-        let rotation = self.inner.rotation.to_rotation_matrix();
+        let rotation = self.inner.rotation;
         Array2::from_shape_vec((3, 3), rotation.matrix().as_slice().to_vec())
             .unwrap()
             .to_pyarray(py)
