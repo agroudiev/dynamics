@@ -66,8 +66,8 @@ class MeshcatVisualizer:
             object = RotatedCylinder(2.0 * geometry.half_length, geometry.radius)
         elif str(geometry.shape_type) == "ShapeType.Cone":
             object = RotatedCylinder(2.0 * geometry.half_length, 0, geometry.radius, 0)
-        # elif str(geometry.shape_type) == "ShapeType.Cuboid":
-        #     object = mg.Box(npToTuple(2.0 * geometry.half_side))
+        elif str(geometry.shape_type) == "ShapeType.Cuboid":
+            object = mg.Box(tuple((2.0 * geometry.half_extents).tolist()))
         elif str(geometry.shape_type) == "ShapeType.Sphere":
             object = mg.Sphere(geometry.radius)
         else:
