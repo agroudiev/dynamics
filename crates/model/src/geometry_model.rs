@@ -49,4 +49,19 @@ impl PyGeometryModel {
     pub fn add_geometry_object(&mut self, object: &PyGeometryObject) {
         self.inner.add_geometry_object(object.inner.clone());
     }
+
+    /// Returns the list of geometry objects in the model.
+    #[getter]
+    pub fn geometry_objects(&self) -> Vec<PyGeometryObject> {
+        self.inner
+            .models
+            .iter()
+            .map(|obj| PyGeometryObject { inner: obj.clone() })
+            .collect()
+    }
+
+    /// Adds a new geometry object to the list of objects in the model.
+    pub fn add_geometry_object_from_py(&mut self, object: &PyGeometryObject) {
+        self.inner.add_geometry_object(object.inner.clone());
+    }
 }

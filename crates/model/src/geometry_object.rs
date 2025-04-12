@@ -2,6 +2,7 @@
 
 use collider::shape::*;
 use nalgebra::{IsometryMatrix3, Vector4};
+use numpy::{IntoPyArray, PyReadonlyArray1, ndarray::Array1};
 use pyo3::{exceptions::PyValueError, prelude::*, types::PyTuple};
 use spatial::se3::PySE3;
 
@@ -130,5 +131,44 @@ impl PyGeometryObject {
                 py_args.len()
             )))
         }
+    }
+
+    #[setter]
+    fn set_mesh_color(&mut self, color: PyReadonlyArray1<f64>) -> PyResult<()> {
+        let color = color.as_array();
+        if color.len() == 4 {
+            let r: f64 = color[0];
+            let g: f64 = color[1];
+            let b: f64 = color[2];
+            let a: f64 = color[3];
+            self.inner.mesh_color = Vector4::new(r, g, b, a);
+            Ok(())
+        } else {
+            Err(PyValueError::new_err(format!(
+                "expected a NumPy array of length 4 for 'color', but got {}.",
+                color.len()
+            )))
+        }
+    }
+
+    #[getter]
+    fn get_mesh_color(&self, py: Python) -> Py<PyAny> {
+        Array1::from_shape_vec(4, self.inner.mesh_color.as_slice().to_vec())
+            .unwrap()
+            .into_pyarray(py)
+            .into_any()
+            .unbind()
+    }
+
+    #[getter]
+    fn get_geometry(&self) -> PyShapeWrapper {
+        PyShapeWrapper {
+            inner: self.inner.geometry.clone_box(),
+        }
+    }
+
+    #[getter]
+    fn get_name(&self) -> String {
+        self.inner.name.clone()
     }
 }

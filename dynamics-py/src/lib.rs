@@ -9,7 +9,8 @@ use model::{geometry_model::PyGeometryModel, geometry_object::PyGeometryObject, 
 use pyo3::prelude::*;
 
 use collider::shape::{
-    capsule::PyCapsule, cone::PyCone, cuboid::PyCuboid, cylinder::PyCylinder, sphere::PySphere,
+    PyShapeWrapper, ShapeType, capsule::PyCapsule, cone::PyCone, cuboid::PyCuboid,
+    cylinder::PyCylinder, sphere::PySphere,
 };
 use spatial::se3::PySE3;
 
@@ -68,6 +69,9 @@ fn add_shapes_bindings(collider: &Bound<'_, PyModule>) -> PyResult<()> {
     collider.add_class::<PyCuboid>()?;
     collider.add_class::<PyCylinder>()?;
     collider.add_class::<PySphere>()?;
+    collider.add_class::<PyShapeWrapper>()?;
+
+    collider.add_class::<ShapeType>()?;
 
     Ok(())
 }
