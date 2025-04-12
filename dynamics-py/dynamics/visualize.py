@@ -71,8 +71,7 @@ class MeshcatVisualizer:
         elif str(geometry.shape_type) == "ShapeType.Sphere":
             object = mg.Sphere(geometry.radius)
         else:
-            # TODO: proper error
-            assert False, "Geometry type not supported for visualization (type: {})".format(geometry.shape_type)
+            raise TypeError("geometry type not supported for visualization (type: {})".format(geometry.shape_type))
 
         return object
 
@@ -82,10 +81,33 @@ class MeshcatVisualizer:
 
         if isinstance(geometry, collider.PyShapeWrapper):
             object = self.load_shape(geometry, geometry_type)
-            meshcat_node.set_object(object)
+
+            if isinstance(object, (mg.Geometry, mg.ReferenceSceneElement)):
+                # add information for placement and color
+                material = mg.MeshPhongMaterial()
+
+                def to_material_color(rgba) -> int:
+                    """Convert rgba color as list into rgba color as int"""
+                    return (
+                        int(rgba[0] * 255) * 256**2
+                        + int(rgba[1] * 255) * 256
+                        + int(rgba[2] * 255)
+                    )
+            
+                mesh_color = geometry_object.mesh_color
+                material.color = to_material_color(mesh_color)
+
+                # add transparency if needed
+                if float(mesh_color[3]) != 1.0:
+                    material.transparent = True
+                    material.opacity = float(mesh_color[3])
+
+                meshcat_node.set_object(object, material)
+            else:
+                # just add the object to the viewer
+                meshcat_node.set_object(object)
         else:
-            # TODO: proper error
-            assert False, "Geometry object is not a standard shape, cannot load it into viewer (type: {})".format(type(geometry))
+            raise NotImplementedError("geometry object is not a standard shape, cannot load it into viewer (type: {})".format(type(geometry)))
 
     def load_model(self):
         if self.visual_model is not None:
