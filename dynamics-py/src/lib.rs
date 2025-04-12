@@ -5,7 +5,7 @@
 //! should be used to interact between `collider` and `dynamics`. In the future,
 //! this may be changed (using for instance serialization of the shapes).
 
-use model::{geometry_object::PyGeometryObject, model::PyModel, geometry_model::PyGeometryModel};
+use model::{geometry_model::PyGeometryModel, geometry_object::PyGeometryObject, model::PyModel};
 use pyo3::prelude::*;
 
 use collider::shape::{
@@ -49,7 +49,6 @@ fn add_dynamics_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult
 
 fn add_spatial_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult<()> {
     let se3 = PyModule::new(dynamics.py(), "SE3")?;
-    se3.add_function(wrap_pyfunction!(spatial::se3::identity, &se3)?)?;
     dynamics.add_submodule(&se3)?;
 
     // adding the SE3 class between add_submodule and setting sys.modules

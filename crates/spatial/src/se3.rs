@@ -1,5 +1,8 @@
 use nalgebra::{Isometry3, Translation3, UnitQuaternion};
-use numpy::{PyReadonlyArray1, PyReadonlyArray2};
+use numpy::{
+    PyReadonlyArray1, PyReadonlyArray2, ToPyArray,
+    ndarray::{Array1, Array2},
+};
 use pyo3::{exceptions::PyValueError, prelude::*};
 
 #[pyclass(name = "SE3")]
@@ -54,12 +57,48 @@ impl PySE3 {
 
         Ok(Self { inner })
     }
-}
 
-/// The identity element of the special Euclidean group (`SE3`).
-/// This is the element that represents no translation or rotation.
-#[pyfunction(name = "Identity")]
-pub fn identity() -> PySE3 {
-    let inner = Isometry3::identity();
-    PySE3 { inner }
+    #[pyo3(name = "Identity")]
+    #[staticmethod]
+    pub fn identity() -> PySE3 {
+        let inner = Isometry3::identity();
+        PySE3 { inner }
+    }
+
+    #[pyo3(name = "Random")]
+    #[staticmethod]
+    pub fn random() -> PySE3 {
+        let translation = Translation3::new(
+            rand::random::<f64>() * 2.0 - 1.0,
+            rand::random::<f64>() * 2.0 - 1.0,
+            rand::random::<f64>() * 2.0 - 1.0,
+        );
+        let rotation = UnitQuaternion::new(nalgebra::Vector3::new(
+            rand::random::<f64>() * 2.0 - 1.0,
+            rand::random::<f64>() * 2.0 - 1.0,
+            rand::random::<f64>() * 2.0 - 1.0,
+        ));
+        let inner = Isometry3::from_parts(translation, rotation);
+        PySE3 { inner }
+    }
+
+    #[getter]
+    pub fn translation(&self, py: Python) -> Py<PyAny> {
+        let translation = self.inner.translation.vector;
+        Array1::from_shape_vec(3, translation.as_slice().to_vec())
+            .unwrap()
+            .to_pyarray(py)
+            .into_any()
+            .unbind()
+    }
+
+    #[getter]
+    pub fn rotation(&self, py: Python) -> Py<PyAny> {
+        let rotation = self.inner.rotation.to_rotation_matrix();
+        Array2::from_shape_vec((3, 3), rotation.matrix().as_slice().to_vec())
+            .unwrap()
+            .to_pyarray(py)
+            .into_any()
+            .unbind()
+    }
 }

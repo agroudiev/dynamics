@@ -16,9 +16,9 @@ impl GeometryModel {
     }
 
     /// Adds a new geometry model to the list of models.
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `object` - The geometry object to be added to the model.
     pub fn add_geometry_object(&mut self, object: GeometryObject) {
         self.models.push(object);
@@ -42,9 +42,9 @@ impl PyGeometryModel {
     }
 
     /// Adds a new geometry model to the list of models.
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `object` - The geometry object to be added to the model.
     pub fn add_geometry_object(&mut self, object: &PyGeometryObject) {
         self.inner.add_geometry_object(object.inner.clone());

@@ -18,7 +18,7 @@ for i, geom in enumerate(geometries):
     placement = dynamics.SE3(np.eye(3), np.array([i, 0.0, 0.0]))
     geom_obj = dynamics.GeometryObject(f"obj{i}", 0, 0, geom, placement)
 
-viz = dynamics.visualize.MeshcatVisualizer(model, geom_model, geom_model)
-viz.init_viewer(open=True, load_model=True)
+# viz = dynamics.visualize.MeshcatVisualizer(model, geom_model, geom_model)
+# viz.init_viewer(open=True, load_model=True)
 
-input("Press enter to continue...")
+# input("Press enter to continue...")
