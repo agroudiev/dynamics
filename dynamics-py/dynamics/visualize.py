@@ -9,6 +9,15 @@ class GeometryType(Enum):
     COLLISION = 1
     VISUAL = 2
 
+def homogeneous_transform(placement):
+    """Convert a placement into a homogeneous transformation matrix."""
+    R = placement.rotation
+    t = placement.translation
+    T = np.eye(4)
+    T[:3, :3] = R
+    T[:3, 3] = t
+    return T
+
 class MeshcatVisualizer:
     """A `dynamics` visualizer using Meshcat."""
     def __init__(
@@ -114,6 +123,8 @@ class MeshcatVisualizer:
             for visual in self.visual_model.geometry_objects:
                 self.load_viewer_geometry_object(visual, GeometryType.VISUAL)
 
+        self.display_visuals(True)
+
     def reset(self):
         self.viewer.delete()
 
@@ -125,3 +136,26 @@ class MeshcatVisualizer:
 
     def open(self):
         self.viewer.open()
+
+    def display_visuals(self, visibility: bool):
+        """Set whether to display visual objects or not."""
+
+        if self.visual_model is None:
+            self.display_visuals = False
+        else:
+            self.display_visuals = visibility
+
+        if self.display_visuals:
+            self.update_placements(GeometryType.VISUAL)
+
+    def update_placements(self, geometry_type: GeometryType):
+        """Update the placements of the geometry objects in the viewer."""
+        if geometry_type == GeometryType.VISUAL:
+            geom_model = self.visual_model
+        else:
+            geom_model = self.collision_model
+
+        # dynamics.update_geometry_placements(self.model, geom_model)
+        for visual in geom_model.geometry_objects:
+            T = homogeneous_transform(visual.placement)
+            self.viewer[visual.name].set_transform(T)

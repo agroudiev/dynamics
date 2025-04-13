@@ -171,4 +171,11 @@ impl PyGeometryObject {
     fn get_name(&self) -> String {
         self.inner.name.clone()
     }
+
+    #[getter]
+    fn get_placement(&self) -> PySE3 {
+        PySE3 {
+            inner: self.inner.placement.clone(),
+        }
+    }
 }
