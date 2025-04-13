@@ -1,7 +1,20 @@
 # dynamics
 An experimental implementation of Rigid Body Dynamics algorithms.
 
+## API
+The API is designed to be close to the [Pinocchio](https://github.com/stack-of-tasks/pinocchio) library. This project is not a direct port of Pinocchio, but rather an experimental attempt to create a similar API in Rust. The goal is to provide a high-level interface for rigid body dynamics, while also allowing for low-level access to the underlying algorithms. Examples of the Python API can be found in the [`examples/python`](https://github.com/agroudiev/dynamics/tree/main/examples/python) directory.
+
+Please note that this project is still in its early stages and is not recommended for production use. The API may change significantly in the future as the project evolves.
+
+## Python dependencies
+Along with classical dependencies like `numpy`, this project uses:
+- [`collider`](https://github.com/agroudiev/collider) for collision detection
+- [`meshcat`](https://github.com/meshcat-dev/meshcat-python/) for visualization
+Support for other visualization libraries might be added in the future.
+
 ## Installation
+This project is implemented using both Rust and Python. The Python bindings are created using [PyO3](https://pyo3.rs/), and [maturin](https://www.maturin.rs/) as the build system.
+
 The use of [miniconda](https://docs.conda.io/en/latest/miniconda.html) is recommended to manage the dependencies. To install the dependencies, run the following command:
 ```bash
 conda env create -f dynamics_env.yml
@@ -11,7 +24,7 @@ To activate the environment, run:
 conda activate dynamics
 ```
 
-This project uses [maturin](https://www.maturin.rs/) as the build system for the Rust and Python bindings. It can be installed directly using `pip`:
+[maturin](https://www.maturin.rs/) can be installed directly using `pip`:
 ```bash
 pip install maturin
 ```
