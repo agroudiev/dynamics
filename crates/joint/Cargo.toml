@@ -1,5 +1,5 @@
 [package]
-name = "model"
+name = "joint"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -9,10 +9,5 @@ repository.workspace = true
 license-file.workspace = true
 
 [dependencies]
-collider = { workspace = true }
 nalgebra = { workspace = true }
-numpy = { workspace = true }
 pyo3 = { workspace = true }
-
-joint = { path = "../joint" }
-spatial = { path = "../spatial" }

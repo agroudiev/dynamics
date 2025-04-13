@@ -5,6 +5,7 @@
 //! should be used to interact between `collider` and `dynamics`. In the future,
 //! this may be changed (using for instance serialization of the shapes).
 
+use joint::revolute::{PyJointModelRevolute, new_joint_model_revolute_x};
 use model::{geometry_model::PyGeometryModel, geometry_object::PyGeometryObject, model::PyModel};
 use pyo3::prelude::*;
 
@@ -42,6 +43,9 @@ fn add_dynamics_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult
     dynamics.add_class::<PyModel>()?;
     dynamics.add_class::<PyGeometryModel>()?;
     dynamics.add_class::<PyGeometryObject>()?;
+
+    dynamics.add_class::<PyJointModelRevolute>()?;
+    dynamics.add_function(wrap_pyfunction!(new_joint_model_revolute_x, dynamics)?)?;
 
     add_spatial_bindings(py, dynamics)?;
 

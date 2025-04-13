@@ -110,7 +110,7 @@ impl PyGeometryObject {
                 } else {
                     return Err(PyValueError::new_err(format!(
                         "expected a shape for 'geometry', but got {:?}.",
-                        py_args
+                        py_args.get_item(3)?.get_type()
                     )));
                 };
 
