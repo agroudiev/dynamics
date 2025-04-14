@@ -127,7 +127,7 @@ impl PyGeometryObject {
             })
         } else {
             Err(PyValueError::new_err(format!(
-                "incorrect number of arguments, expected 5, but got {}.",
+                "incorrect number of arguments, expected 5, but got {}. Signature: GeometryObject(name, parent_joint, parent_frame, geometry, placement)",
                 py_args.len()
             )))
         }

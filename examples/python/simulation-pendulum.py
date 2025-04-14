@@ -21,3 +21,32 @@ joint_name = "joint"
 joint_id = model.add_joint(
     parent_id, dyn.JointModelRX(), joint_placement, joint_name
 )
+
+# body_inertia = dyn.Inertia.FromSphere(body_mass, body_radius)
+body_placement = joint_placement.copy()
+body_placement.translation[2] = 1.0
+# model.append_body_to_joint(joint_id, body_inertia, body_placement)
+
+geom1_name = "ball"
+shape1 = col.Sphere(body_radius)
+geom1_obj = dyn.GeometryObject(geom1_name, joint_id, 0, shape1, body_placement)
+geom1_obj.mesh_color = np.ones(4)
+geom_model.add_geometry_object(geom1_obj)
+
+geom2_name = "bar"
+shape2 = col.Cylinder(body_radius / 4.0, body_placement.translation[2])
+shape2_placement = body_placement.copy()
+shape2_placement.translation[2] /= 2.0
+
+geom2_obj = dyn.GeometryObject(geom2_name, joint_id, 0, shape2, shape2_placement)
+geom2_obj.mesh_color = np.array([0.0, 0.0, 0.0, 1.0])
+geom_model.add_geometry_object(geom2_obj)
+
+parent_id = joint_id
+joint_placement = body_placement.copy()
+
+
+# initialize the viewer
+visual_model = geom_model
+viz = dyn.visualize.MeshcatVisualizer(model, geom_model, visual_model)
+viz.init_viewer()

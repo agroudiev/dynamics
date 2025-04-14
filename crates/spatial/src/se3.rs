@@ -106,4 +106,10 @@ impl PySE3 {
             .into_any()
             .unbind()
     }
+
+    pub fn copy(&self) -> PySE3 {
+        PySE3 {
+            inner: self.inner.clone(),
+        }
+    }
 }
