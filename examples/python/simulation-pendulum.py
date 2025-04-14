@@ -22,7 +22,7 @@ joint_id = model.add_joint(
     parent_id, dyn.JointModelRX(), joint_placement, joint_name
 )
 
-# body_inertia = dyn.Inertia.FromSphere(body_mass, body_radius)
+body_inertia = dyn.Inertia.FromSphere(body_mass, body_radius)
 body_placement = joint_placement.copy()
 body_placement.translation[2] = 1.0
 # model.append_body_to_joint(joint_id, body_inertia, body_placement)

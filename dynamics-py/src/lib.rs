@@ -5,6 +5,7 @@
 //! should be used to interact between `collider` and `dynamics`. In the future,
 //! this may be changed (using for instance serialization of the shapes).
 
+use inertia::inertia::PyInertia;
 use joint::revolute::{PyJointModelRevolute, new_joint_model_revolute_x};
 use model::{geometry_model::PyGeometryModel, geometry_object::PyGeometryObject, model::PyModel};
 use pyo3::prelude::*;
@@ -44,9 +45,8 @@ fn add_dynamics_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult
     dynamics.add_class::<PyGeometryModel>()?;
     dynamics.add_class::<PyGeometryObject>()?;
 
-    dynamics.add_class::<PyJointModelRevolute>()?;
-    dynamics.add_function(wrap_pyfunction!(new_joint_model_revolute_x, dynamics)?)?;
-
+    add_inertia_bindings(dynamics)?;
+    add_joint_bindings(dynamics)?;
     add_spatial_bindings(py, dynamics)?;
 
     Ok(())
@@ -63,6 +63,19 @@ fn add_spatial_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult<
     py.import("sys")?
         .getattr("modules")?
         .set_item("dynamics.SE3", se3)?;
+
+    Ok(())
+}
+
+fn add_joint_bindings(dynamics: &Bound<'_, PyModule>) -> PyResult<()> {
+    dynamics.add_class::<PyJointModelRevolute>()?;
+    dynamics.add_function(wrap_pyfunction!(new_joint_model_revolute_x, dynamics)?)?;
+
+    Ok(())
+}
+
+fn add_inertia_bindings(dynamics: &Bound<'_, PyModule>) -> PyResult<()> {
+    dynamics.add_class::<PyInertia>()?;
 
     Ok(())
 }

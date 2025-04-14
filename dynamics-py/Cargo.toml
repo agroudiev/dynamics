@@ -11,6 +11,7 @@ crate-type = ["cdylib"]
 pyo3 = { workspace = true }
 collider = { workspace = true}
 
+inertia = { path = "../crates/inertia" }
 joint = { path = "../crates/joint" }
 model = { path = "../crates/model" }
 spatial = { path = "../crates/spatial" }
