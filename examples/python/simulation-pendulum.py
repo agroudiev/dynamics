@@ -1,6 +1,8 @@
 import dynamics as dyn
 import dynamics.collider as col
 import numpy as np
+import math
+import time
 
 model = dyn.Model()
 geom_model = dyn.GeometryModel()
@@ -50,3 +52,42 @@ joint_placement = body_placement.copy()
 visual_model = geom_model
 viz = dyn.visualize.MeshcatVisualizer(model, geom_model, visual_model)
 viz.init_viewer()
+
+
+# display a valid robot configuration.
+q0 = dyn.neutral(model)
+# viz.display(q0)
+
+
+# # play a bit with the simulation
+# dt = 0.01
+# T = 5
+# N = math.floor(T / dt)
+
+# model.lower_position_limit.fill(-math.pi)
+# model.upper_position_limit.fill(+math.pi)
+
+# data_sim = model.create_data()
+
+# t = 0.0
+# q = dyn.random_configuration(model)
+# v = np.zeros(model.nv)
+# tau_control = np.zeros(model.nv)
+# damping_value = 0.1
+
+# for k in range(N):
+#     tic = time.time()
+#     tau_control = -damping_value * v  # small damping
+#     a = dyn.aba(model, data_sim, q, v, tau_control)  # Forward dynamics
+
+#     # Semi-explicit integration
+#     v += a * dt
+#     q = dyn.integrate(model, q, v * dt)  # Configuration integration
+
+#     viz.display(q)
+#     toc = time.time()
+#     ellapsed = toc - tic
+
+#     dt_sleep = max(0, dt - (ellapsed))
+#     time.sleep(dt_sleep)
+#     t += dt

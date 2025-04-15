@@ -69,7 +69,7 @@ impl Model {
 /// including the joints models, placements, the link inertias, and the frames.
 #[pyclass(name = "Model")]
 pub struct PyModel {
-    inner: Model,
+    pub inner: Model,
 }
 
 #[pymethods]

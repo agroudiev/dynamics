@@ -24,6 +24,10 @@ impl Joint for JointModelRevolute {
     fn nv(&self) -> usize {
         1
     }
+
+    fn neutral(&self) -> Vec<f64> {
+        vec![0.0]
+    }
 }
 
 #[pyclass(name = "JointModelRevolute")]

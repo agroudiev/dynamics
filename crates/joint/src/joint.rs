@@ -18,6 +18,9 @@ pub trait Joint {
 
     /// Returns the number of velocity variables.
     fn nv(&self) -> usize;
+
+    /// Returns the neutral configuration of the joint.
+    fn neutral(&self) -> Vec<f64>;
 }
 
 #[pyclass]

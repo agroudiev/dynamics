@@ -7,7 +7,7 @@
 
 use inertia::inertia::PyInertia;
 use joint::revolute::{PyJointModelRevolute, new_joint_model_revolute_x};
-use model::{geometry_model::PyGeometryModel, geometry_object::PyGeometryObject, model::PyModel};
+use model::{geometry_model::PyGeometryModel, geometry_object::PyGeometryObject, model::PyModel, neutral::py_neutral};
 use pyo3::prelude::*;
 
 use collider::shape::{
@@ -44,6 +44,7 @@ fn add_dynamics_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult
     dynamics.add_class::<PyModel>()?;
     dynamics.add_class::<PyGeometryModel>()?;
     dynamics.add_class::<PyGeometryObject>()?;
+    dynamics.add_function(wrap_pyfunction!(py_neutral, dynamics)?)?;
 
     add_inertia_bindings(dynamics)?;
     add_joint_bindings(dynamics)?;
