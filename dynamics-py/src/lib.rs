@@ -7,7 +7,10 @@
 
 use inertia::inertia::PyInertia;
 use joint::revolute::{PyJointModelRevolute, new_joint_model_revolute_x};
-use model::{geometry_model::PyGeometryModel, geometry_object::PyGeometryObject, model::PyModel, neutral::py_neutral};
+use model::{
+    geometry_model::PyGeometryModel, geometry_object::PyGeometryObject, model::PyModel,
+    neutral::py_neutral,
+};
 use pyo3::prelude::*;
 
 use collider::shape::{

@@ -20,6 +20,8 @@ pub struct Model {
     pub joint_placements: HashMap<usize, IsometryMatrix3<f64>>,
     /// The joint models.
     pub joint_models: HashMap<usize, JointWrapper>,
+    /// The order of the joints.
+    joint_order: Vec<usize>,
     /// The number of position variables.
     pub nq: usize,
     /// The number of velocity variables.
@@ -34,6 +36,7 @@ impl Model {
             joint_names: HashMap::new(),
             joint_placements: HashMap::new(),
             joint_models: HashMap::new(),
+            joint_order: Vec::new(),
             nq: 0,
             nv: 0,
         }
@@ -60,8 +63,18 @@ impl Model {
         self.nq += joint_model.nq();
         self.nv += joint_model.nv();
         self.joint_models.insert(id, joint_model);
+        self.joint_order.push(id);
 
         id
+    }
+
+    /// Returns an iterator over the joint models in the model.
+    /// This iterator is ordered in such a way that if the method is called twice,
+    /// and if no changes are made to the model, the order of the will remain the same.
+    pub fn iter_joint_models(&self) -> impl Iterator<Item = &JointWrapper> {
+        self.joint_order
+            .iter()
+            .map(move |id| self.joint_models.get(id).unwrap())
     }
 }
 
