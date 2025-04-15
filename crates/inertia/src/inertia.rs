@@ -34,10 +34,7 @@ pub struct PyInertia {
 impl PyInertia {
     #[pyo3(name = "FromSphere")]
     #[staticmethod]
-    pub fn from_sphere(
-        mass: f64,
-        radius: f64,
-    ) -> PyResult<Self> {
+    pub fn from_sphere(mass: f64, radius: f64) -> PyResult<Self> {
         if mass <= 0.0 {
             return Err(PyValueError::new_err("Mass must be positive."));
         }
@@ -46,11 +43,7 @@ impl PyInertia {
         }
 
         let inertia = (2.0 / 5.0) * mass * radius.powi(2);
-        let inertia_matrix = Matrix3::new(
-            inertia, 0.0, 0.0,
-            0.0, inertia, 0.0,
-            0.0, 0.0, inertia,
-        );
+        let inertia_matrix = Matrix3::new(inertia, 0.0, 0.0, 0.0, inertia, 0.0, 0.0, 0.0, inertia);
 
         Ok(Self {
             inner: Inertia::new(mass, Vector3::zeros(), inertia_matrix),
