@@ -128,4 +128,10 @@ impl PySE3 {
                 .unbind(),
         )
     }
+
+    fn __mul__(&self, other: &PySE3) -> PySE3 {
+        PySE3 {
+            inner: self.inner * other.inner,
+        }
+    }
 }
