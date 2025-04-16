@@ -1,0 +1,15 @@
+[package]
+name = "parse"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+readme.workspace = true
+description.workspace = true
+repository.workspace = true
+license-file.workspace = true
+
+[dependencies]
+joint = { path = "../joint" }
+model = { path = "../model" }
+pyo3 = { workspace = true }
+roxmltree = { version = "0.20.0" }
