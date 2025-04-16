@@ -1,6 +1,6 @@
 use nalgebra::{IsometryMatrix3, Translation3, Vector3};
 use numpy::{
-    PyReadonlyArray1, PyReadonlyArray2, ToPyArray,
+    PyArrayMethods, PyReadonlyArray1, PyReadonlyArray2, ToPyArray,
     ndarray::{Array1, Array2},
 };
 use pyo3::{exceptions::PyValueError, prelude::*};
@@ -98,18 +98,34 @@ impl PySE3 {
     }
 
     #[getter]
-    pub fn rotation(&self, py: Python) -> Py<PyAny> {
+    pub fn rotation(&self, py: Python) -> PyResult<Py<PyAny>> {
         let rotation = self.inner.rotation;
-        Array2::from_shape_vec((3, 3), rotation.matrix().as_slice().to_vec())
-            .unwrap()
-            .to_pyarray(py)
-            .into_any()
-            .unbind()
+        Ok(
+            Array2::from_shape_vec((3, 3), rotation.matrix().as_slice().to_vec())
+                .unwrap()
+                .to_pyarray(py)
+                .transpose()?
+                .into_any()
+                .unbind(),
+        )
     }
 
     pub fn copy(&self) -> PySE3 {
         PySE3 {
             inner: self.inner.clone(),
         }
+    }
+
+    #[getter]
+    pub fn get_homogeneous(&self, py: Python) -> PyResult<Py<PyAny>> {
+        let homogeneous = self.inner.to_homogeneous();
+        Ok(
+            Array2::from_shape_vec((4, 4), homogeneous.as_slice().to_vec())
+                .unwrap()
+                .to_pyarray(py)
+                .transpose()?
+                .into_any()
+                .unbind(),
+        )
     }
 }

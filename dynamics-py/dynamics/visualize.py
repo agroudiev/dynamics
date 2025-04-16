@@ -9,15 +9,6 @@ class GeometryType(Enum):
     COLLISION = 1
     VISUAL = 2
 
-def homogeneous_transform(placement):
-    """Convert a placement into a homogeneous transformation matrix."""
-    R = placement.rotation
-    t = placement.translation
-    T = np.eye(4)
-    T[:3, :3] = R
-    T[:3, 3] = t
-    return T
-
 def create_capsule(length, radius, radial_resolution=30, cap_resolution=10):
     nbv = np.array([max(radial_resolution, 4), max(cap_resolution, 4)])
     h = length
@@ -253,5 +244,5 @@ class MeshcatVisualizer:
 
         # dynamics.update_geometry_placements(self.model, geom_model)
         for visual in geom_model.geometry_objects:
-            T = homogeneous_transform(visual.placement)
+            T = visual.placement.homogeneous
             self.viewer[visual.name].set_transform(T)
