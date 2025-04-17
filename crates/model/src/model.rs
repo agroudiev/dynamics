@@ -29,6 +29,23 @@ pub struct Model {
 }
 
 impl Model {
+    /// Creates a new `Model` with given name.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - The name of the model.
+    pub fn new(name: String) -> Self {
+        Self {
+            name,
+            joint_names: HashMap::new(),
+            joint_placements: HashMap::new(),
+            joint_models: HashMap::new(),
+            joint_order: Vec::new(),
+            nq: 0,
+            nv: 0,
+        }
+    }
+
     /// Creates a new empty `Model`.
     pub fn new_empty() -> Self {
         Self {

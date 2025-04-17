@@ -4,4 +4,5 @@ use std::io;
 pub enum ParseError {
     IoError(io::Error),
     XmlError(roxmltree::Error),
+    NoRobotTag,
 }

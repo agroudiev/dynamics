@@ -13,3 +13,5 @@ joint = { path = "../joint" }
 model = { path = "../model" }
 pyo3 = { workspace = true }
 roxmltree = { version = "0.20.0" }
+collider = { workspace = true}
+nalgebra = { workspace = true }
