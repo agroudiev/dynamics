@@ -5,4 +5,8 @@ pub enum ParseError {
     IoError(io::Error),
     XmlError(roxmltree::Error),
     NoRobotTag,
+    VisualWithoutGeometry,
+    GeometryWithoutShape,
+    ShapeMissingParameter(String),
+    ShapeInvalidParameter(String),
 }
