@@ -178,7 +178,7 @@ impl PyGeometryObject {
     #[getter]
     fn get_placement(&self) -> PySE3 {
         PySE3 {
-            inner: self.inner.placement.clone(),
+            inner: self.inner.placement,
         }
     }
 }

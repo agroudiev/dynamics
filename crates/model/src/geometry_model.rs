@@ -9,6 +9,12 @@ pub struct GeometryModel {
     pub models: Vec<GeometryObject>,
 }
 
+impl Default for GeometryModel {
+    fn default() -> Self {
+        GeometryModel::new()
+    }
+}
+
 impl GeometryModel {
     /// Creates a new `GeometryModel` with an empty list of objects.
     pub fn new() -> Self {
@@ -29,6 +35,12 @@ impl GeometryModel {
 #[pyclass(name = "GeometryModel")]
 pub struct PyGeometryModel {
     pub inner: GeometryModel,
+}
+
+impl Default for PyGeometryModel {
+    fn default() -> Self {
+        PyGeometryModel::new()
+    }
 }
 
 #[pymethods]

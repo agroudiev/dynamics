@@ -112,7 +112,7 @@ impl PySE3 {
 
     pub fn copy(&self) -> PySE3 {
         PySE3 {
-            inner: self.inner.clone(),
+            inner: self.inner,
         }
     }
 

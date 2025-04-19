@@ -20,7 +20,7 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
     let robot_node = doc
         .descendants()
         .find(|n| n.tag_name().name() == "robot")
-        .ok_or_else(|| ParseError::NoRobotTag)?;
+        .ok_or(ParseError::NoRobotTag)?;
     let robot_name = robot_node.attribute("name").unwrap_or("").to_string();
     let model = Model::new(robot_name);
     let mut geom_model = GeometryModel::new();
@@ -30,11 +30,11 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
     for material_node in robot_node.children().filter(|n| n.has_tag_name("material")) {
         let material_name = material_node
             .attribute("name")
-            .ok_or_else(|| ParseError::MaterialWithoutName)?;
+            .ok_or(ParseError::MaterialWithoutName)?;
         let color_node = material_node
             .children()
             .find(|n| n.has_tag_name("color"))
-            .ok_or_else(|| ParseError::MaterialWithoutColor)?;
+            .ok_or(ParseError::MaterialWithoutColor)?;
         let rgba = extract_parameter_list::<f64>("rgba", &color_node, Some(4))?;
         let color = Vector4::new(rgba[0], rgba[1], rgba[2], rgba[3]);
         materials.insert(material_name, color);
@@ -62,7 +62,7 @@ fn parse_geometry(
     let geometry_node = visual_node
         .children()
         .find(|n| n.has_tag_name("geometry"))
-        .ok_or_else(|| ParseError::VisualWithoutGeometry)?;
+        .ok_or(ParseError::VisualWithoutGeometry)?;
 
     // extract the shape from the geometry node
     let shape: ShapeWrapper =
@@ -113,7 +113,7 @@ fn parse_geometry(
         if let Some(material_name) = material_node.attribute("name") {
             // if this material was already defined in the robot node
             if let Some(material_color) = materials.get(material_name) {
-                color = material_color.clone();
+                color = *material_color;
             }
             // else, check if it has a color node
             else if let Ok(rgba) = extract_parameter_list::<f64>("rgba", &material_node, Some(4))
