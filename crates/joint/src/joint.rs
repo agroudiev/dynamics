@@ -1,5 +1,7 @@
 //! This module defines a trait for joints and a wrapper type for dynamic dispatch.
 
+use crate::data::JointDataWrapper;
+use nalgebra::Vector3;
 use pyo3::prelude::*;
 
 /// A wrapper type for the Shape trait to allow dynamic dispatch.
@@ -21,10 +23,18 @@ pub trait Joint {
 
     /// Returns the neutral configuration of the joint.
     fn neutral(&self) -> Vec<f64>;
+
+    /// Creates the joint data.
+    fn create_joint_data(&self) -> JointDataWrapper;
+
+    /// Returns the axis of the joint, if applicable.
+    fn get_axis(&self) -> Option<Vector3<f64>> {
+        None
+    }
 }
 
 #[pyclass]
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum JointType {
     Revolute,
 }

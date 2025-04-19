@@ -1,5 +1,6 @@
 //! The standard `Model`.
 
+use crate::data::Data;
 use joint::{
     joint::{Joint, JointWrapper, PyJointWrapper},
     revolute::PyJointModelRevolute,
@@ -130,6 +131,24 @@ impl Model {
     /// The placement of the frame.
     pub fn get_frame_placement(&self, id: usize) -> Option<&IsometryMatrix3<f64>> {
         self.frames.get(&id)
+    }
+
+    /// Creates the data associated with the model.
+    ///
+    /// # Returns
+    ///
+    /// The data associated with the model.
+    pub fn create_data(&self) -> Data {
+        // let mut joints_data = HashMap::new();
+        // for (id, joint_model) in self.joint_models.iter() {
+        //     let joint_data = joint_model.create_data();
+        //     joints_data.insert(*id, joint_data);
+        // }
+        // // for (id, placement) in self.joint_placements.iter() {
+        // //     data.joints_placements.insert(*id, *placement);
+        // // }
+        // Data::new(joints_data, self.joint_placements.clone())
+        Data::default()
     }
 }
 

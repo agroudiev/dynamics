@@ -56,7 +56,7 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                 parent_frame_ids.insert(parent_link_name.to_string(), frame_id);
             }
             "revolute" => {
-                let axis = match extract_parameter_list::<f32>("axis", &joint_node, Some(3)) {
+                let axis = match extract_parameter_list::<f64>("axis", &joint_node, Some(3)) {
                     Ok(axis) => Vector3::new(axis[0], axis[1], axis[2]),
                     // default value if axis is not specified
                     Err(ParseError::MissingParameter(_)) => Vector3::new(1.0, 0.0, 0.0),

@@ -85,8 +85,10 @@ dependencies = [
 name = "joint"
 version = "0.1.0"
 dependencies = [
+ "approx",
  "nalgebra",
  "pyo3",
+ "spatial",
 ]
 
 [[package]]
