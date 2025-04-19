@@ -7,10 +7,10 @@ use model::{
     geometry_object::GeometryObject,
     model::{Model, PyModel},
 };
-use nalgebra::{IsometryMatrix3, Translation3, UnitQuaternion, Vector3};
+use nalgebra::{IsometryMatrix3, Translation3, Vector3, Vector4};
 use pyo3::prelude::*;
 use roxmltree::Document;
-use std::{fs, str::FromStr};
+use std::{collections::HashMap, fs, str::FromStr};
 
 /// Parses a URDF file and builds the corresponding `Model` and `GeometryModel`.
 pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), ParseError> {
@@ -25,10 +25,26 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
     let model = Model::new(robot_name);
     let mut geom_model = GeometryModel::new();
 
+    // parse the materials not attached to any geometry
+    let mut materials: HashMap<&str, Vector4<f64>> = HashMap::new();
+    for material_node in robot_node.children().filter(|n| n.has_tag_name("material")) {
+        let material_name = material_node
+            .attribute("name")
+            .ok_or_else(|| ParseError::MaterialWithoutName)?;
+        let color_node = material_node
+            .children()
+            .find(|n| n.has_tag_name("color"))
+            .ok_or_else(|| ParseError::MaterialWithoutColor)?;
+        let rgba = extract_parameter_list::<f64>("rgba", &color_node, Some(4))?;
+        let color = Vector4::new(rgba[0], rgba[1], rgba[2], rgba[3]);
+        materials.insert(material_name, color);
+    }
+
+    // parse the links and their geometries
     for link_node in robot_node.children().filter(|n| n.has_tag_name("link")) {
         if let Some(visual_node) = link_node.children().find(|n| n.has_tag_name("visual")) {
             let link_name = link_node.attribute("name").unwrap_or("").to_string();
-            let geom_obj = parse_geometry(link_name, &visual_node)?;
+            let geom_obj = parse_geometry(link_name, &visual_node, &materials)?;
             geom_model.add_geometry_object(geom_obj);
         }
     }
@@ -41,6 +57,7 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
 fn parse_geometry(
     link_name: String,
     visual_node: &roxmltree::Node,
+    materials: &HashMap<&str, Vector4<f64>>,
 ) -> Result<GeometryObject, ParseError> {
     let geometry_node = visual_node
         .children()
@@ -72,12 +89,13 @@ fn parse_geometry(
         };
 
     // extract the origin from the visual node
+    // TODO: convert the placement to a placement relative to the parent link
     let placement =
         if let Some(origin_node) = visual_node.children().find(|n| n.has_tag_name("origin")) {
             let xyz = extract_parameter_list::<f64>("xyz", &origin_node, Some(3))?;
             let rotation = match extract_parameter_list::<f64>("rpy", &origin_node, Some(3)) {
                 Ok(rpy) => nalgebra::UnitQuaternion::from_euler_angles(rpy[0], rpy[1], rpy[2]),
-                Err(ParseError::ShapeMissingParameter(_)) => nalgebra::UnitQuaternion::identity(),
+                Err(ParseError::MissingParameter(_)) => nalgebra::UnitQuaternion::identity(),
                 Err(e) => return Err(e),
             };
             let translation = Translation3::new(xyz[0], xyz[1], xyz[2]);
@@ -87,43 +105,58 @@ fn parse_geometry(
             IsometryMatrix3::identity()
         };
 
-    // TODO: convert the placement to a placement relative to the parent link
-    let geom_obj = GeometryObject::new(link_name, 0, 0, shape, placement);
+    // extract the material color
+    let mut color = Vector4::new(0.0, 0.0, 0.0, 1.0);
+    // if there is a material node
+    if let Some(material_node) = visual_node.children().find(|n| n.has_tag_name("material")) {
+        // if this material node has a name
+        if let Some(material_name) = material_node.attribute("name") {
+            // if this material was already defined in the robot node
+            if let Some(material_color) = materials.get(material_name) {
+                color = material_color.clone();
+            }
+            // else, check if it has a color node
+            else if let Ok(rgba) = extract_parameter_list::<f64>("rgba", &material_node, Some(4))
+            {
+                color = Vector4::new(rgba[0], rgba[1], rgba[2], rgba[3]);
+            }
+        } else if let Ok(rgba) = extract_parameter_list::<f64>("rgba", &material_node, Some(4)) {
+            color = Vector4::new(rgba[0], rgba[1], rgba[2], rgba[3]);
+        }
+    }
+
+    let geom_obj = GeometryObject::new(link_name, 0, 0, shape, color, placement);
     Ok(geom_obj)
 }
 
 /// Extracts a parameter from the XML node with the given name and converts it to the specified type.
 /// Returns an error if the parameter is missing or cannot be parsed.
-fn extract_parameter<T: FromStr>(
-    name: &str,
-    shape_node: &roxmltree::Node,
-) -> Result<T, ParseError> {
-    shape_node
-        .attribute(name)
-        .ok_or_else(|| ParseError::ShapeMissingParameter(name.to_string()))?
+fn extract_parameter<T: FromStr>(name: &str, node: &roxmltree::Node) -> Result<T, ParseError> {
+    node.attribute(name)
+        .ok_or_else(|| ParseError::MissingParameter(name.to_string()))?
         .parse::<T>()
-        .map_err(|_| ParseError::ShapeInvalidParameter(name.to_string()))
+        .map_err(|_| ParseError::InvalidParameter(name.to_string()))
 }
 
 /// Extracts a list of parameters from the XML node with the given name and converts them to the specified type.
 /// Returns an error if the parameter is missing or any value cannot be parsed.
 fn extract_parameter_list<T: FromStr>(
     name: &str,
-    shape_node: &roxmltree::Node,
+    node: &roxmltree::Node,
     expected_length: Option<usize>,
 ) -> Result<Vec<T>, ParseError> {
-    let vector = shape_node
+    let vector = node
         .attribute(name)
-        .ok_or_else(|| ParseError::ShapeMissingParameter(name.to_string()))?
+        .ok_or_else(|| ParseError::MissingParameter(name.to_string()))?
         .split_whitespace()
         .map(|s| {
             s.parse::<T>()
-                .map_err(|_| ParseError::ShapeInvalidParameter(name.to_string()))
+                .map_err(|_| ParseError::InvalidParameter(name.to_string()))
         })
         .collect::<Result<Vec<T>, ParseError>>()?;
     if let Some(expected_length) = expected_length {
         if vector.len() != expected_length {
-            return Err(ParseError::ShapeInvalidParameter(name.to_string()));
+            return Err(ParseError::InvalidParameter(name.to_string()));
         }
     }
     Ok(vector)

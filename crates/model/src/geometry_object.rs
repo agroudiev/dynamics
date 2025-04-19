@@ -30,19 +30,21 @@ impl GeometryObject {
     /// * `parent_joint` - The identifier of the parent joint.
     /// * `parent_frame` - The identifier of the parent frame.
     /// * `geometry` - The `collider` shape of the geometry object (used for collisions).
+    /// * `mesh_color` - The RGBA color of the mesh.
     /// * `placement` - The placement of the geometry object in the parent frame.
     pub fn new(
         name: String,
         _parent_joint: usize,
         _parent_frame: usize,
         geometry: ShapeWrapper,
+        mesh_color: Vector4<f64>,
         placement: IsometryMatrix3<f64>,
     ) -> Self {
         Self {
             name,
             disable_collision: false,
             geometry,
-            mesh_color: Vector4::new(0.0, 0.0, 0.0, 1.0),
+            mesh_color,
             placement,
         }
     }
@@ -122,6 +124,7 @@ impl PyGeometryObject {
                     _parent_joint,
                     _parent_frame,
                     geometry.inner.clone_box(),
+                    Vector4::new(0.0, 0.0, 0.0, 1.0),
                     placement.inner,
                 ),
             })

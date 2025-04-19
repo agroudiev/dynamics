@@ -32,6 +32,19 @@ mod tests {
         let (model, geom_model) = result.unwrap();
         assert_eq!(model.name, "origins");
         assert_eq!(geom_model.models.len(), 2);
+
+        // TODO: test placement
+    }
+
+    #[test]
+    fn test_materials() {
+        let filepath = "../../examples/descriptions/materials.urdf";
+        let result = build_models_from_urdf(filepath);
+        let (model, geom_model) = result.unwrap();
+        assert_eq!(model.name, "materials");
+        assert_eq!(geom_model.models.len(), 3);
+
+        // TODO: test materials
     }
 
     #[test]

@@ -7,6 +7,8 @@ pub enum ParseError {
     NoRobotTag,
     VisualWithoutGeometry,
     GeometryWithoutShape,
-    ShapeMissingParameter(String),
-    ShapeInvalidParameter(String),
+    MissingParameter(String),
+    InvalidParameter(String),
+    MaterialWithoutName,
+    MaterialWithoutColor,
 }
