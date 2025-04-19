@@ -19,9 +19,11 @@ pub struct Model {
     /// The placements of the joints.
     pub joint_placements: HashMap<usize, IsometryMatrix3<f64>>,
     /// The joint models.
-    pub joint_models: HashMap<usize, JointWrapper>,
+    joint_models: HashMap<usize, JointWrapper>,
     /// The order of the joints.
     joint_order: Vec<usize>,
+    /// The frames of the model.
+    frames: HashMap<usize, IsometryMatrix3<f64>>,
     /// The number of position variables.
     pub nq: usize,
     /// The number of velocity variables.
@@ -35,12 +37,16 @@ impl Model {
     ///
     /// * `name` - The name of the model.
     pub fn new(name: String) -> Self {
+        let mut frames = HashMap::new();
+        frames.insert(0, IsometryMatrix3::identity());
+
         Self {
             name,
             joint_names: HashMap::new(),
             joint_placements: HashMap::new(),
             joint_models: HashMap::new(),
             joint_order: Vec::new(),
+            frames,
             nq: 0,
             nv: 0,
         }
@@ -54,6 +60,7 @@ impl Model {
             joint_placements: HashMap::new(),
             joint_models: HashMap::new(),
             joint_order: Vec::new(),
+            frames: HashMap::new(),
             nq: 0,
             nv: 0,
         }
@@ -63,7 +70,7 @@ impl Model {
     ///
     /// # Arguments
     ///
-    /// * `parent_id` - The identifier of the parent joint.
+    /// * `parent_id` - The identifier of the parent joint. Use 0 for the root joint.
     /// * `joint_model` - The joint model to add.
     /// * `placement` - The placement of the joint in the parent frame.
     /// * `name` - The name of the joint.
@@ -74,7 +81,8 @@ impl Model {
         placement: IsometryMatrix3<f64>,
         name: String,
     ) -> usize {
-        let id = self.joint_names.len();
+        // the joint of id 0 is the root joint
+        let id = self.joint_names.len() + 1;
         self.joint_names.insert(id, name);
         self.joint_placements.insert(id, placement);
         self.nq += joint_model.nq();
@@ -92,6 +100,36 @@ impl Model {
         self.joint_order
             .iter()
             .map(move |id| self.joint_models.get(id).unwrap())
+    }
+
+    /// Adds a frame to the model.
+    ///
+    /// # Arguments
+    ///
+    /// * `placement` - The placement of the frame in the parent frame.
+    /// * `name` - The name of the frame.
+    ///
+    /// # Returns
+    ///
+    /// The identifier of the frame.
+    pub fn add_frame(&mut self, placement: IsometryMatrix3<f64>, name: String) -> usize {
+        let id = self.frames.len();
+        self.frames.insert(id, placement);
+        self.joint_names.insert(id, name);
+        id
+    }
+
+    /// Returns the placement of the frame with the given identifier.
+    ///
+    /// # Arguments
+    ///
+    /// * `id` - The identifier of the frame.
+    ///
+    /// # Returns
+    ///
+    /// The placement of the frame.
+    pub fn get_frame_placement(&self, id: usize) -> Option<&IsometryMatrix3<f64>> {
+        self.frames.get(&id)
     }
 }
 

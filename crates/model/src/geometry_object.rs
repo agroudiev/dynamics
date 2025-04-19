@@ -19,6 +19,10 @@ pub struct GeometryObject {
     pub mesh_color: Vector4<f64>,
     /// The placement of the geometry object in the parent frame.
     pub placement: IsometryMatrix3<f64>,
+    /// The identifier of the parent joint. If the object is not attached to a joint, this is set to 0 (WORLD).
+    pub parent_joint: usize,
+    /// The identifier of the parent frame. If the object is not attached to a frame, this is set to 0 (WORLD).
+    pub parent_frame: usize,
 }
 
 impl GeometryObject {
@@ -34,8 +38,8 @@ impl GeometryObject {
     /// * `placement` - The placement of the geometry object in the parent frame.
     pub fn new(
         name: String,
-        _parent_joint: usize,
-        _parent_frame: usize,
+        parent_joint: usize,
+        parent_frame: usize,
         geometry: ShapeWrapper,
         mesh_color: Vector4<f64>,
         placement: IsometryMatrix3<f64>,
@@ -46,6 +50,8 @@ impl GeometryObject {
             geometry,
             mesh_color,
             placement,
+            parent_joint,
+            parent_frame,
         }
     }
 }
@@ -58,6 +64,8 @@ impl Clone for GeometryObject {
             geometry: self.geometry.clone_box(),
             mesh_color: self.mesh_color,
             placement: self.placement,
+            parent_joint: self.parent_joint,
+            parent_frame: self.parent_frame,
         }
     }
 }

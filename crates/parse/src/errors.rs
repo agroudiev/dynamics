@@ -9,6 +9,7 @@ pub enum ParseError {
     GeometryWithoutShape,
     MissingParameter(String),
     InvalidParameter(String),
-    MaterialWithoutName,
+    NameMissing,
     MaterialWithoutColor,
+    UnknownJointType(String),
 }
