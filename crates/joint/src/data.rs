@@ -6,7 +6,7 @@ pub type JointDataWrapper = Box<dyn JointData + Send + Sync>;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum JointError {
-    MissingAttributeError(String)
+    MissingAttributeError(String),
 }
 
 pub trait JointData {

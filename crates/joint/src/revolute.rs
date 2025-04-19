@@ -49,11 +49,11 @@ pub struct JointDataRevolute {
 
 impl JointDataRevolute {
     /// Creates a new `JointDataRevolute` from given joint model, with the initial angle set to 0.0.
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `joint_model` - The revolute joint model.
-    /// 
+    ///
     /// # Returns
     /// A new `JointDataRevolute` object.
     pub fn new(joint_model: &JointModelRevolute) -> Self {
@@ -71,12 +71,12 @@ impl JointData for JointDataRevolute {
     }
 
     /// Updates the joint data with the given model and angle.
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `model` - The joint model.
     /// * `q` - The angle of rotation.
-    /// 
+    ///
     /// # Returns
     /// A `Result` indicating an error if the axis is not defined.
     fn update(&mut self, joint_model: &dyn Joint, q: f64) -> Result<(), JointError> {
@@ -86,7 +86,10 @@ impl JointData for JointDataRevolute {
             None => return Err(JointError::MissingAttributeError("axis".to_string())),
         };
 
-        self.placement = IsometryMatrix3::from_parts(Translation::identity(), Rotation3::from_axis_angle(&nalgebra::Unit::new_normalize(axis), q));
+        self.placement = IsometryMatrix3::from_parts(
+            Translation::identity(),
+            Rotation3::from_axis_angle(&nalgebra::Unit::new_normalize(axis), q),
+        );
         Ok(())
     }
 }
@@ -124,7 +127,9 @@ mod tests {
 
     #[test]
     fn test_joint_data_revolute_xaxis() {
-        let joint_model = JointModelRevolute { axis: *Vector3::x_axis() };
+        let joint_model = JointModelRevolute {
+            axis: *Vector3::x_axis(),
+        };
         let mut joint_data = joint_model.create_joint_data();
         let q = 1.0;
         joint_data.update(&joint_model, q).unwrap();

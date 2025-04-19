@@ -139,16 +139,22 @@ impl Model {
     ///
     /// The data associated with the model.
     pub fn create_data(&self) -> Data {
-        // let mut joints_data = HashMap::new();
-        // for (id, joint_model) in self.joint_models.iter() {
-        //     let joint_data = joint_model.create_data();
-        //     joints_data.insert(*id, joint_data);
-        // }
-        // // for (id, placement) in self.joint_placements.iter() {
-        // //     data.joints_placements.insert(*id, *placement);
-        // // }
-        // Data::new(joints_data, self.joint_placements.clone())
-        Data::default()
+        // create the data for each joint
+        let mut joints_data = HashMap::new();
+        for (id, joint_model) in self.joint_models.iter() {
+            let joint_data = joint_model.create_joint_data();
+            joints_data.insert(*id, joint_data);
+        }
+
+        // create the placements of the joints in the world frame
+        // by traversing the joint tree
+        let mut joint_placements = HashMap::new();
+        for (id, placement) in self.joint_placements.iter() {
+            // TODO: compute the placement in the world frame
+            joint_placements.insert(*id, *placement);
+        }
+
+        Data::new(joints_data, joint_placements)
     }
 }
 
