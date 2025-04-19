@@ -26,6 +26,15 @@ mod tests {
     }
 
     #[test]
+    fn test_origins() {
+        let filepath = "../../examples/descriptions/origins.urdf";
+        let result = build_models_from_urdf(filepath);
+        let (model, geom_model) = result.unwrap();
+        assert_eq!(model.name, "origins");
+        assert_eq!(geom_model.models.len(), 2);
+    }
+
+    #[test]
     fn test_double_pendulum_simple() {
         let filepath = "../../examples/descriptions/double_pendulum_simple.urdf";
         let result = build_models_from_urdf(filepath);

@@ -1,7 +1,7 @@
 import dynamics as dyn
 
 # load an URDF file
-model, geom_model = dyn.build_models_from_urdf("examples/descriptions/double_pendulum_simple.urdf")
+model, geom_model = dyn.build_models_from_urdf("examples/descriptions/origins.urdf")
 
 # create a visualizer
 viz = dyn.visualize.MeshcatVisualizer(model, geom_model, geom_model)

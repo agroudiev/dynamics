@@ -7,7 +7,7 @@ use model::{
     geometry_object::GeometryObject,
     model::{Model, PyModel},
 };
-use nalgebra::{IsometryMatrix3, Vector3};
+use nalgebra::{IsometryMatrix3, Translation3, UnitQuaternion, Vector3};
 use pyo3::prelude::*;
 use roxmltree::Document;
 use std::{fs, str::FromStr};
@@ -46,12 +46,11 @@ fn parse_geometry(
         .children()
         .find(|n| n.has_tag_name("geometry"))
         .ok_or_else(|| ParseError::VisualWithoutGeometry)?;
-    let geometry: ShapeWrapper =
+
+    // extract the shape from the geometry node
+    let shape: ShapeWrapper =
         if let Some(shape_node) = geometry_node.children().find(|n| n.has_tag_name("box")) {
-            let size = extract_parameter_list::<f32>("size", &shape_node)?;
-            if size.len() != 3 {
-                return Err(ParseError::ShapeInvalidParameter("size".to_string()));
-            }
+            let size = extract_parameter_list::<f32>("size", &shape_node, Some(3))?;
             let half_extents = Vector3::new(size[0] / 2.0, size[1] / 2.0, size[2] / 2.0);
             Box::new(collider::shape::Cuboid::new(half_extents))
         } else if let Some(shape_node) = geometry_node
@@ -71,7 +70,25 @@ fn parse_geometry(
         } else {
             return Err(ParseError::GeometryWithoutShape);
         };
-    let geom_obj = GeometryObject::new(link_name, 0, 0, geometry, IsometryMatrix3::identity());
+
+    // extract the origin from the visual node
+    let placement =
+        if let Some(origin_node) = visual_node.children().find(|n| n.has_tag_name("origin")) {
+            let xyz = extract_parameter_list::<f64>("xyz", &origin_node, Some(3))?;
+            let rotation = match extract_parameter_list::<f64>("rpy", &origin_node, Some(3)) {
+                Ok(rpy) => nalgebra::UnitQuaternion::from_euler_angles(rpy[0], rpy[1], rpy[2]),
+                Err(ParseError::ShapeMissingParameter(_)) => nalgebra::UnitQuaternion::identity(),
+                Err(e) => return Err(e),
+            };
+            let translation = Translation3::new(xyz[0], xyz[1], xyz[2]);
+
+            IsometryMatrix3::from_parts(translation, rotation.to_rotation_matrix())
+        } else {
+            IsometryMatrix3::identity()
+        };
+
+    // TODO: convert the placement to a placement relative to the parent link
+    let geom_obj = GeometryObject::new(link_name, 0, 0, shape, placement);
     Ok(geom_obj)
 }
 
@@ -93,8 +110,9 @@ fn extract_parameter<T: FromStr>(
 fn extract_parameter_list<T: FromStr>(
     name: &str,
     shape_node: &roxmltree::Node,
+    expected_length: Option<usize>,
 ) -> Result<Vec<T>, ParseError> {
-    shape_node
+    let vector = shape_node
         .attribute(name)
         .ok_or_else(|| ParseError::ShapeMissingParameter(name.to_string()))?
         .split_whitespace()
@@ -102,7 +120,13 @@ fn extract_parameter_list<T: FromStr>(
             s.parse::<T>()
                 .map_err(|_| ParseError::ShapeInvalidParameter(name.to_string()))
         })
-        .collect()
+        .collect::<Result<Vec<T>, ParseError>>()?;
+    if let Some(expected_length) = expected_length {
+        if vector.len() != expected_length {
+            return Err(ParseError::ShapeInvalidParameter(name.to_string()));
+        }
+    }
+    Ok(vector)
 }
 
 #[pyfunction(name = "build_models_from_urdf")]
