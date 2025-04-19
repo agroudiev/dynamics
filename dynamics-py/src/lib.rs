@@ -17,6 +17,7 @@ use collider::shape::{
     PyShapeWrapper, ShapeType, capsule::PyCapsule, cone::PyCone, cuboid::PyCuboid,
     cylinder::PyCylinder, sphere::PySphere,
 };
+use parse::urdf::build_models_from_urdf_py;
 use spatial::se3::PySE3;
 
 #[pymodule(name = "dynamics")]
@@ -48,6 +49,7 @@ fn add_dynamics_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult
     dynamics.add_class::<PyGeometryModel>()?;
     dynamics.add_class::<PyGeometryObject>()?;
     dynamics.add_function(wrap_pyfunction!(py_neutral, dynamics)?)?;
+    dynamics.add_function(wrap_pyfunction!(build_models_from_urdf_py, dynamics)?)?;
 
     add_inertia_bindings(dynamics)?;
     add_joint_bindings(dynamics)?;

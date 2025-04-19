@@ -45,6 +45,7 @@ dependencies = [
  "inertia",
  "joint",
  "model",
+ "parse",
  "pyo3",
  "spatial",
 ]

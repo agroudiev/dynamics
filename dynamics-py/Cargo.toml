@@ -14,4 +14,5 @@ collider = { workspace = true}
 inertia = { path = "../crates/inertia" }
 joint = { path = "../crates/joint" }
 model = { path = "../crates/model" }
+parse = { path = "../crates/parse" }
 spatial = { path = "../crates/spatial" }
