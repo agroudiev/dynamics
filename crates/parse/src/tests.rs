@@ -12,7 +12,7 @@ mod tests {
         assert_eq!(model.name, "myfirst");
 
         assert_eq!(geom_model.models.len(), 1);
-        let object = geom_model.models.first().unwrap();
+        let object = geom_model.models.get(&0).unwrap();
         assert_eq!(object.name, "base_link");
         assert_eq!(object.geometry.as_ref(), &Cylinder::new(0.2, 0.3));
     }

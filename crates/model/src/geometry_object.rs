@@ -8,6 +8,8 @@ use spatial::se3::PySE3;
 
 /// A `GeometryObject` is a data structure that contains the information about the geometry object,
 /// used for visualization, collision detection and distance computation.
+///
+/// A `GeometryObject` have a `parent_joint` as well as a `parent_frame` field. The parent joint field is used by default. If it is set to `WORLD`, the parent frame is used instead. Note that is both are set to `WORLD`, the two approaches are equivalent. The parent frame is mostly used for URDF files that use 'fixed' joints, which are treated as frames.
 pub struct GeometryObject {
     /// The name of the geometry object.
     pub name: String,

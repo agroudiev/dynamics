@@ -1,12 +1,18 @@
 //! Model for a geometry structure, containing multiple geometry objects.
 
-use crate::geometry_object::{GeometryObject, PyGeometryObject};
+use std::collections::HashMap;
+
+use crate::{
+    data::{Data, GeometryData},
+    geometry_object::{GeometryObject, PyGeometryObject},
+    model::Model,
+};
 use pyo3::prelude::*;
 
 /// A model for a geometry structure, containing multiple geometry objects.
 pub struct GeometryModel {
     /// The list of geometry objects contained in this model.
-    pub models: Vec<GeometryObject>,
+    pub models: HashMap<usize, GeometryObject>,
 }
 
 impl Default for GeometryModel {
@@ -18,7 +24,9 @@ impl Default for GeometryModel {
 impl GeometryModel {
     /// Creates a new `GeometryModel` with an empty list of objects.
     pub fn new() -> Self {
-        GeometryModel { models: Vec::new() }
+        GeometryModel {
+            models: HashMap::new(),
+        }
     }
 
     /// Adds a new geometry model to the list of models.
@@ -26,8 +34,16 @@ impl GeometryModel {
     /// # Arguments
     ///
     /// * `object` - The geometry object to be added to the model.
-    pub fn add_geometry_object(&mut self, object: GeometryObject) {
-        self.models.push(object);
+    pub fn add_geometry_object(&mut self, object: GeometryObject) -> usize {
+        let id = self.models.len();
+        self.models.insert(id, object);
+        id
+    }
+
+    pub fn create_data(&self, model: &Model, data: &Data) -> GeometryData {
+        let mut geom_data = GeometryData::default();
+        geom_data.update_geometry_data(model, data, self);
+        geom_data
     }
 }
 
@@ -67,7 +83,7 @@ impl PyGeometryModel {
     pub fn geometry_objects(&self) -> Vec<PyGeometryObject> {
         self.inner
             .models
-            .iter()
+            .values()
             .map(|obj| PyGeometryObject { inner: obj.clone() })
             .collect()
     }

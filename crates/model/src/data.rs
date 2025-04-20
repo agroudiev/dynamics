@@ -6,9 +6,14 @@ use joint::data::JointDataWrapper;
 use nalgebra::IsometryMatrix3;
 use std::collections::HashMap;
 
+use crate::{
+    geometry_model::GeometryModel,
+    model::{Model, WORLD_FRAME_ID},
+};
+
 #[derive(Default)]
 pub struct Data {
-    /// The data fo the joints
+    /// The data of the joints
     joints_data: HashMap<usize, JointDataWrapper>,
     /// The placements of the joints in the world frame
     joints_placements: HashMap<usize, IsometryMatrix3<f64>>,
@@ -56,5 +61,54 @@ impl Data {
     /// An `Option` containing the joint placement if it exists, otherwise `None`.
     pub fn get_joint_placement(&self, joint_index: usize) -> Option<&IsometryMatrix3<f64>> {
         self.joints_placements.get(&joint_index)
+    }
+}
+
+#[derive(Default)]
+pub struct GeometryData {
+    /// The placements of the objects in the world frame
+    object_placements: HashMap<usize, IsometryMatrix3<f64>>,
+}
+
+impl GeometryData {
+    /// Returns the placement of the object of given index in the world frame.
+    ///
+    /// # Arguments
+    ///
+    /// * `object_index` - The index of the object.
+    ///
+    /// # Returns
+    /// An `Option` containing the object placement if it exists, otherwise `None`.
+    pub fn get_object_placement(&self, object_index: usize) -> Option<&IsometryMatrix3<f64>> {
+        self.object_placements.get(&object_index)
+    }
+
+    /// Updates the geometry data with the given model and geometry model.
+    ///
+    /// # Arguments
+    ///
+    /// * `model` - The model containing the updated joint placements.
+    /// * `data` - The data containing the joint placements.
+    /// * `geom_model` - The geometry model containing the object placements.
+    ///
+    /// # Note
+    ///
+    /// As this function uses the joint placements from the model data (`data`), it should be called after the model data is updated.
+    pub fn update_geometry_data(&mut self, model: &Model, data: &Data, geom_model: &GeometryModel) {
+        self.object_placements.clear();
+
+        for (object_id, object) in geom_model.models.iter() {
+            if object.parent_joint == WORLD_FRAME_ID {
+                let parent_frame_id = object.parent_frame;
+                let parent_frame_placement = model.get_frame_placement(parent_frame_id).unwrap();
+                let object_placement = parent_frame_placement * object.placement;
+                self.object_placements.insert(*object_id, object_placement);
+            } else {
+                let parent_joint_id = object.parent_joint;
+                let parent_joint_placement = data.get_joint_placement(parent_joint_id).unwrap();
+                let object_placement = parent_joint_placement * object.placement;
+                self.object_placements.insert(*object_id, object_placement);
+            }
+        }
     }
 }
