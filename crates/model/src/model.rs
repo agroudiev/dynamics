@@ -10,6 +10,8 @@ use pyo3::{exceptions::PyValueError, prelude::*, types::PyTuple};
 use spatial::se3::PySE3;
 use std::collections::HashMap;
 
+pub const WORLD_FRAME_ID: usize = 0;
+
 /// A `Model` is a data structure that contains the information about the robot model,
 /// including the joints models, placements, the link inertias, and the frames.
 pub struct Model {
@@ -17,6 +19,8 @@ pub struct Model {
     pub name: String,
     /// The names of the joints.
     pub joint_names: HashMap<usize, String>,
+    /// The parent joint of each joint.
+    pub joint_parents: HashMap<usize, usize>,
     /// The placements of the joints.
     pub joint_placements: HashMap<usize, IsometryMatrix3<f64>>,
     /// The joint models.
@@ -38,30 +42,33 @@ impl Model {
     ///
     /// * `name` - The name of the model.
     pub fn new(name: String) -> Self {
-        let mut frames = HashMap::new();
-        frames.insert(0, IsometryMatrix3::identity());
-
-        Self {
-            name,
-            joint_names: HashMap::new(),
-            joint_placements: HashMap::new(),
-            joint_models: HashMap::new(),
-            joint_order: Vec::new(),
-            frames,
-            nq: 0,
-            nv: 0,
-        }
+        let mut model = Self::new_empty();
+        model.name = name;
+        model
     }
 
     /// Creates a new empty `Model`.
     pub fn new_empty() -> Self {
+        let mut frames = HashMap::new();
+        frames.insert(WORLD_FRAME_ID, IsometryMatrix3::identity());
+
+        let mut joint_parents = HashMap::new();
+        joint_parents.insert(WORLD_FRAME_ID, WORLD_FRAME_ID);
+
+        let mut joint_names = HashMap::new();
+        joint_names.insert(WORLD_FRAME_ID, "world".to_string());
+
+        let mut joint_placements = HashMap::new();
+        joint_placements.insert(WORLD_FRAME_ID, IsometryMatrix3::identity());
+
         Self {
             name: String::new(),
-            joint_names: HashMap::new(),
-            joint_placements: HashMap::new(),
+            joint_names,
+            joint_parents,
+            joint_placements,
             joint_models: HashMap::new(),
-            joint_order: Vec::new(),
-            frames: HashMap::new(),
+            joint_order: vec![WORLD_FRAME_ID],
+            frames,
             nq: 0,
             nv: 0,
         }
@@ -77,19 +84,26 @@ impl Model {
     /// * `name` - The name of the joint.
     pub fn add_joint(
         &mut self,
-        _parent_id: usize,
+        parent_id: usize,
         joint_model: JointWrapper,
         placement: IsometryMatrix3<f64>,
         name: String,
     ) -> usize {
-        // the joint of id 0 is the root joint
-        let id = self.joint_names.len() + 1;
+        let id = self.joint_order.len();
         self.joint_names.insert(id, name);
         self.joint_placements.insert(id, placement);
         self.nq += joint_model.nq();
         self.nv += joint_model.nv();
         self.joint_models.insert(id, joint_model);
         self.joint_order.push(id);
+
+        // add the joint to the parent
+        assert!(
+            self.joint_parents.contains_key(&parent_id),
+            "The parent joint id {} does not exist.",
+            parent_id
+        );
+        self.joint_parents.insert(id, parent_id);
 
         id
     }
@@ -149,9 +163,17 @@ impl Model {
         // create the placements of the joints in the world frame
         // by traversing the joint tree
         let mut joint_placements = HashMap::new();
-        for (id, placement) in self.joint_placements.iter() {
-            // TODO: compute the placement in the world frame
-            joint_placements.insert(*id, *placement);
+        joint_placements.insert(WORLD_FRAME_ID, IsometryMatrix3::identity());
+
+        for joint_id in self.joint_order.iter() {
+            let parent_id = self.joint_parents.get(joint_id).unwrap(); // we checked that the parent existed before
+            // get the placement of the parent join in the world frame
+            let parent_placement = joint_placements.get(parent_id).unwrap();
+            // get the placement of the joint in the parent frame
+            let joint_placement = self.joint_placements.get(joint_id).unwrap();
+            // compute the placement of the joint in the world frame
+            let joint_placement_in_world = parent_placement * joint_placement;
+            joint_placements.insert(*joint_id, joint_placement_in_world);
         }
 
         Data::new(joints_data, joint_placements)
@@ -168,6 +190,7 @@ pub struct PyModel {
 #[pymethods]
 impl PyModel {
     /// Creates a new empty `Model`.
+    // TODO: update this function for more flexibility
     #[new]
     fn new_empty() -> Self {
         Self {
