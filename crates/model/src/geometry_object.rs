@@ -11,6 +11,8 @@ use spatial::se3::PySE3;
 ///
 /// A `GeometryObject` have a `parent_joint` as well as a `parent_frame` field. The parent joint field is used by default. If it is set to `WORLD`, the parent frame is used instead. Note that is both are set to `WORLD`, the two approaches are equivalent. The parent frame is mostly used for URDF files that use 'fixed' joints, which are treated as frames.
 pub struct GeometryObject {
+    /// The identifier of the geometry object.
+    pub id: usize,
     /// The name of the geometry object.
     pub name: String,
     /// Whether to disable collision detection and distance check for this object.
@@ -47,6 +49,7 @@ impl GeometryObject {
         placement: IsometryMatrix3<f64>,
     ) -> Self {
         Self {
+            id: 0,
             name,
             disable_collision: false,
             geometry,
@@ -61,6 +64,7 @@ impl GeometryObject {
 impl Clone for GeometryObject {
     fn clone(&self) -> Self {
         Self {
+            id: self.id,
             name: self.name.clone(),
             disable_collision: self.disable_collision,
             geometry: self.geometry.clone_box(),
@@ -171,6 +175,11 @@ impl PyGeometryObject {
             .into_pyarray(py)
             .into_any()
             .unbind()
+    }
+
+    #[getter]
+    fn get_id(&self) -> usize {
+        self.inner.id
     }
 
     #[getter]

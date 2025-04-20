@@ -4,11 +4,13 @@
 
 use joint::data::JointDataWrapper;
 use nalgebra::IsometryMatrix3;
+use pyo3::{PyResult, pyclass, pymethods};
+use spatial::se3::PySE3;
 use std::collections::HashMap;
 
 use crate::{
-    geometry_model::GeometryModel,
-    model::{Model, WORLD_FRAME_ID},
+    geometry_model::{GeometryModel, PyGeometryModel},
+    model::{Model, PyModel, WORLD_FRAME_ID},
 };
 
 #[derive(Default)]
@@ -64,6 +66,30 @@ impl Data {
     }
 }
 
+#[pyclass(name = "Data")]
+/// A Python wrapper for the `Data` struct.
+pub struct PyData {
+    pub inner: Data,
+}
+
+#[pymethods]
+impl PyData {
+    #[new]
+    /// Creates a new `Data` object.
+    ///
+    /// # Arguments
+    ///
+    /// * `model` - The model object.
+    ///
+    /// # Returns
+    /// A new `Data` object corresponding to the given model.
+    pub fn new(model: &PyModel) -> Self {
+        PyData {
+            inner: model.inner.create_data(),
+        }
+    }
+}
+
 #[derive(Default)]
 pub struct GeometryData {
     /// The placements of the objects in the world frame
@@ -100,7 +126,7 @@ impl GeometryData {
         for (object_id, object) in geom_model.models.iter() {
             if object.parent_joint == WORLD_FRAME_ID {
                 let parent_frame_id = object.parent_frame;
-                let parent_frame_placement = model.get_frame_placement(parent_frame_id).unwrap();
+                let parent_frame_placement = model.frames.get(&parent_frame_id).unwrap();
                 let object_placement = parent_frame_placement * object.placement;
                 self.object_placements.insert(*object_id, object_placement);
             } else {
@@ -109,6 +135,50 @@ impl GeometryData {
                 let object_placement = parent_joint_placement * object.placement;
                 self.object_placements.insert(*object_id, object_placement);
             }
+        }
+    }
+}
+
+#[pyclass(name = "GeometryData")]
+/// A Python wrapper for the `GeometryData` struct.
+pub struct PyGeometryData {
+    pub inner: GeometryData,
+}
+
+#[pymethods]
+impl PyGeometryData {
+    #[new]
+    /// Creates a new `GeometryData` object.
+    ///
+    /// # Arguments
+    ///
+    /// * `model` - The model object.
+    /// * `data` - The data object.
+    /// * `geom_model` - The geometry model object.
+    ///
+    /// # Returns
+    /// A new `GeometryData` object.
+    pub fn new(model: &PyModel, data: &PyData, geom_model: &PyGeometryModel) -> Self {
+        let mut geom_data = GeometryData::default();
+        geom_data.update_geometry_data(&model.inner, &data.inner, &geom_model.inner);
+        PyGeometryData { inner: geom_data }
+    }
+
+    /// Returns the placement of the object of given index in the world frame.
+    ///
+    /// # Arguments
+    ///
+    /// * `object_index` - The index of the object.
+    ///
+    /// # Returns
+    /// The object placement if it exists, otherwise `None`.
+    pub fn get_object_placement(&self, object_index: usize) -> PyResult<PySE3> {
+        match self.inner.get_object_placement(object_index) {
+            Some(placement) => Ok(PySE3 { inner: *placement }),
+            None => Err(pyo3::exceptions::PyKeyError::new_err(format!(
+                "Object with index {} not found",
+                object_index
+            ))),
         }
     }
 }

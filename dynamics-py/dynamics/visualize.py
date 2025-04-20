@@ -109,6 +109,9 @@ class MeshcatVisualizer:
         model: dynamics.Model | None = dynamics.Model(),
         collision_model: dynamics.GeometryModel | None = None,
         visual_model: dynamics.GeometryModel | None = None,
+        data: dynamics.Data | None = None,
+        collision_data: dynamics.GeometryData | None = None,
+        visual_data: dynamics.GeometryData | None = None,
     ):
         # Check if the arguments are valid
         if collision_model is not None:
@@ -117,9 +120,21 @@ class MeshcatVisualizer:
         if visual_model is not None:
             assert isinstance(visual_model, dynamics.GeometryModel), \
                 "visual_model must be a GeometryModel"
+        if data is not None:
+            assert isinstance(data, dynamics.Data), \
+                "data must be a Data object"
+        if collision_data is not None:
+            assert isinstance(collision_data, dynamics.GeometryData), \
+                "collision_data must be a GeometryData object"
+        if visual_data is not None:
+            assert isinstance(visual_data, dynamics.GeometryData), \
+                "visual_data must be a GeometryData object"
         self.model = model
         self.collision_model = collision_model
         self.visual_model = visual_model
+        self.data = data
+        self.collision_data = collision_data
+        self.visual_data = visual_data
 
     def init_viewer(self,
             viewer: meshcat.Visualizer | None = None,
@@ -130,6 +145,13 @@ class MeshcatVisualizer:
         """Start a new meschat server and client."""
 
         self.viewer = meshcat.Visualizer(url) if viewer is None else viewer
+
+        if self.data is None:
+            self.data = dynamics.Data(self.model)
+        if self.collision_data is None and self.collision_model is not None:
+            self.collision_data = dynamics.GeometryData(self.model, self.data, self.collision_model)
+        if self.visual_data is None and self.visual_model is not None:
+            self.visual_data = dynamics.GeometryData(self.model, self.data, self.visual_model)
 
         if open:
             self.viewer.open()
@@ -244,5 +266,7 @@ class MeshcatVisualizer:
 
         # dynamics.update_geometry_placements(self.model, geom_model)
         for visual in geom_model.geometry_objects:
-            T = visual.placement.homogeneous
+            # placement in world frame
+            placement = self.visual_data.get_object_placement(visual.id)
+            T = placement.homogeneous
             self.viewer[visual.name].set_transform(T)

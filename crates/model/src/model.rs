@@ -28,7 +28,7 @@ pub struct Model {
     /// The order of the joints.
     joint_order: Vec<usize>,
     /// The frames of the model.
-    frames: HashMap<usize, IsometryMatrix3<f64>>,
+    pub frames: HashMap<usize, IsometryMatrix3<f64>>,
     /// The number of position variables.
     pub nq: usize,
     /// The number of velocity variables.
@@ -132,19 +132,6 @@ impl Model {
         self.frames.insert(id, placement);
         self.joint_names.insert(id, name);
         id
-    }
-
-    /// Returns the placement of the frame with the given identifier.
-    ///
-    /// # Arguments
-    ///
-    /// * `id` - The identifier of the frame.
-    ///
-    /// # Returns
-    ///
-    /// The placement of the frame.
-    pub fn get_frame_placement(&self, id: usize) -> Option<&IsometryMatrix3<f64>> {
-        self.frames.get(&id)
     }
 
     /// Creates the data associated with the model.

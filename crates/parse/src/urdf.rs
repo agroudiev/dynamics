@@ -27,7 +27,6 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
     let mut geom_model = GeometryModel::new();
 
     // parse the joints
-    let mut parent_child_names = HashMap::new();
     let mut parent_frame_ids = HashMap::new();
     for joint_node in robot_node.children().filter(|n| n.has_tag_name("joint")) {
         let joint_name = joint_node
@@ -42,18 +41,18 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
             .descendants()
             .find(|n| n.has_tag_name("parent"))
             .ok_or(ParseError::MissingParameter("parent".to_string()))?;
+        let parent_link_name = extract_parameter::<String>("link", &parent_node)?;
+
         let child_node = joint_node
             .descendants()
             .find(|n| n.has_tag_name("child"))
             .ok_or(ParseError::MissingParameter("child".to_string()))?;
-        let parent_link_name = extract_parameter::<String>("link", &parent_node)?;
         let child_link_name = extract_parameter::<String>("link", &child_node)?;
 
         match joint_type {
             "fixed" => {
-                parent_child_names.insert(child_link_name, parent_link_name.clone());
                 let frame_id = model.add_frame(placement, joint_name.to_string());
-                parent_frame_ids.insert(parent_link_name.to_string(), frame_id);
+                parent_frame_ids.insert(child_link_name.to_string(), frame_id);
             }
             "revolute" => {
                 let axis = match extract_parameter_list::<f64>("axis", &joint_node, Some(3)) {
@@ -64,7 +63,9 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                     Err(e) => return Err(e),
                 };
                 let joint_model = JointModelRevolute { axis };
-                model.add_joint(0, Box::new(joint_model), placement, joint_name.to_string());
+                let _joint_id =
+                    model.add_joint(0, Box::new(joint_model), placement, joint_name.to_string());
+                // TODO: handle parent-child joint relationship
             }
             _ => return Err(ParseError::UnknownJointType(joint_type.to_string())),
         }
@@ -89,9 +90,7 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
     for link_node in robot_node.children().filter(|n| n.has_tag_name("link")) {
         if let Some(visual_node) = link_node.children().find(|n| n.has_tag_name("visual")) {
             let link_name = link_node.attribute("name").unwrap_or("").to_string();
-            let parent_frame_id = parent_child_names
-                .get(&link_name)
-                .map(|parent_link_name| *parent_frame_ids.get(parent_link_name).unwrap());
+            let parent_frame_id = parent_frame_ids.get(&link_name).copied();
             let geom_obj = parse_geometry(link_name, &visual_node, &materials, parent_frame_id)?;
             geom_model.add_geometry_object(geom_obj);
         }
@@ -129,10 +128,6 @@ fn parse_geometry(
         } else if geometry_node.children().any(|n| n.has_tag_name("sphere")) {
             let radius = extract_parameter::<f32>("radius", &geometry_node)?;
             Box::new(Sphere::new(radius))
-        } else if geometry_node.children().any(|n| n.has_tag_name("capsule")) {
-            let radius = extract_parameter::<f32>("radius", &geometry_node)?;
-            let length = extract_parameter::<f32>("length", &geometry_node)?;
-            Box::new(Capsule::new(radius, length / 2.0))
         } else {
             return Err(ParseError::GeometryWithoutShape);
         };

@@ -34,8 +34,9 @@ impl GeometryModel {
     /// # Arguments
     ///
     /// * `object` - The geometry object to be added to the model.
-    pub fn add_geometry_object(&mut self, object: GeometryObject) -> usize {
+    pub fn add_geometry_object(&mut self, mut object: GeometryObject) -> usize {
         let id = self.models.len();
+        object.id = id;
         self.models.insert(id, object);
         id
     }
