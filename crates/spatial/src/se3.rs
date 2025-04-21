@@ -1,3 +1,9 @@
+//! Special Euclidean group SE(3) implementation.
+//!
+//! This module provides a Python wrapper for the SE(3) group,
+//! represented in Rust using the `IsometryMatrix3` type
+//! of the `nalgebra` crate.
+
 use nalgebra::{IsometryMatrix3, Translation3, Vector3};
 use numpy::{
     PyArrayMethods, PyReadonlyArray1, PyReadonlyArray2, ToPyArray,

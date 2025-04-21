@@ -1,4 +1,4 @@
-//! This file provides a parser for the URDF (Unified Robot Description Format) files.
+//! Parser for the URDF (Unified Robot Description Format) file format.
 
 use crate::errors::ParseError;
 use collider::shape::{Cylinder, ShapeWrapper, Sphere};
@@ -14,9 +14,18 @@ use roxmltree::Document;
 use std::{collections::HashMap, fs, str::FromStr};
 
 /// Parses a URDF file and builds the corresponding `Model` and `GeometryModel`.
-// TODO: rebuild the parser linearly
-// TODO: error if the same name is used multiple times
+///
+/// # Arguments
+///
+/// * `filepath` - The path to the URDF file.
+///
+/// # Returns
+///
+/// A tuple containing the `Model` and `GeometryModel` objects if successful.
+/// Returns a `ParseError` if there is an error during parsing.
 pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), ParseError> {
+    // TODO: rebuild the parser linearly
+    // TODO: error if the same name is used multiple times
     let contents = fs::read_to_string(filepath).map_err(ParseError::IoError)?;
     let doc = Document::parse(&contents).map_err(ParseError::XmlError)?;
 
@@ -90,7 +99,11 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                     // we use the same frame as the parent with a composed placement
                     (0, _) => {
                         let placement = parent_object.placement * link_origin;
-                        let frame_id = model.add_frame(placement, joint_name.to_string(), parent_object.parent_frame);
+                        let frame_id = model.add_frame(
+                            placement,
+                            joint_name.to_string(),
+                            parent_object.parent_frame,
+                        );
 
                         let child_object = match geom_model.indices.get(&child_link_name) {
                             Some(child_id) => geom_model.models.get_mut(child_id).unwrap(),
@@ -246,6 +259,7 @@ fn parse_origin(node: &roxmltree::Node) -> Result<IsometryMatrix3<f64>, ParseErr
     Ok(isometry)
 }
 
+/// A Python wrapper for the `build_models_from_urdf` function.
 #[pyfunction(name = "build_models_from_urdf")]
 pub fn build_models_from_urdf_py(filepath: &str) -> PyResult<(PyModel, PyGeometryModel)> {
     match build_models_from_urdf(filepath) {

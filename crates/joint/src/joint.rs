@@ -1,4 +1,4 @@
-//! This module defines a trait for joints and a wrapper type for dynamic dispatch.
+//! Trait for joints and a wrapper type for dynamic dispatch.
 
 use crate::data::JointDataWrapper;
 use nalgebra::Vector3;
@@ -33,6 +33,9 @@ pub trait Joint {
     }
 }
 
+/// Enum representing the type of joint.
+///
+/// Recall that fixed joints are treated as frames.
 #[pyclass]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum JointType {

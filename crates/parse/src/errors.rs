@@ -1,5 +1,6 @@
 use std::io;
 
+/// Error types for parsing URDF files.
 #[derive(Debug)]
 pub enum ParseError {
     IoError(io::Error),

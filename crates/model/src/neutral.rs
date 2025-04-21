@@ -6,6 +6,13 @@ use crate::model::PyModel;
 use numpy::{ToPyArray, ndarray::Array1};
 use pyo3::prelude::*;
 
+/// Computes the neutral configuration of a model.
+///
+/// # Arguments
+/// * `model` - A mutable reference to the model.
+///
+/// # Returns
+/// A `Configuration` object representing the neutral configuration of the model.
 pub fn neutral(model: &mut Model) -> Configuration {
     let mut q = Configuration::zeros(model.nq);
 
@@ -20,6 +27,7 @@ pub fn neutral(model: &mut Model) -> Configuration {
     q
 }
 
+/// Python wrapper for the `neutral` function.
 #[pyfunction(name = "neutral")]
 pub fn py_neutral(py: Python, model: &mut PyModel) -> Py<PyAny> {
     let q = neutral(&mut model.inner);

@@ -1,3 +1,5 @@
+//! Structures to represent the inertia of a rigid body.
+
 use nalgebra::{Matrix3, Vector3};
 use pyo3::{exceptions::PyValueError, prelude::*};
 
@@ -25,6 +27,7 @@ impl Inertia {
     }
 }
 
+/// A Python wrapper for the `Inertia` struct.
 #[pyclass(name = "Inertia")]
 pub struct PyInertia {
     pub inner: Inertia,
@@ -32,8 +35,18 @@ pub struct PyInertia {
 
 #[pymethods]
 impl PyInertia {
+    /// Creates a new `Inertia` object with the given parameters.
+    ///
+    /// # Arguments
+    ///
+    /// * `mass` - The mass of the sphere.
+    /// * `radius` - The radius of the sphere.
+    ///
+    /// # Returns
+    /// A new `Inertia` object representing a sphere.
     #[pyo3(name = "FromSphere")]
     #[staticmethod]
+    // TODO: implement this function for the pure Rust version and call it
     pub fn from_sphere(mass: f64, radius: f64) -> PyResult<Self> {
         if mass <= 0.0 {
             return Err(PyValueError::new_err("Mass must be positive."));

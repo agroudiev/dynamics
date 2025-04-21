@@ -1,3 +1,5 @@
+//! Revolute joint, constraining two objects to rotate around a given axis.
+
 use crate::{
     data::{JointData, JointDataWrapper, JointError},
     joint::{Joint, JointType, JointWrapper},
@@ -5,9 +7,12 @@ use crate::{
 use nalgebra::{IsometryMatrix3, Rotation3, Translation, Vector3};
 use pyo3::prelude::*;
 
-/// A revolute joint model.
+/// Model of a revolute joint.
+///
+/// This joint constraints two objects to rotate around a given axis.
 #[derive(Clone, Debug)]
 pub struct JointModelRevolute {
+    /// The axis of rotation expressed in the local frame of the joint.
     pub axis: Vector3<f64>,
 }
 
@@ -41,9 +46,12 @@ impl Joint for JointModelRevolute {
     }
 }
 
+/// Data structure containing the mutable properties of a revolute joint.
 #[derive(Default, Debug)]
 pub struct JointDataRevolute {
+    /// The angle of rotation.
     pub q: f64,
+    /// The placement of the joint in the local frame.
     pub placement: IsometryMatrix3<f64>,
 }
 
@@ -70,15 +78,6 @@ impl JointData for JointDataRevolute {
         self.placement
     }
 
-    /// Updates the joint data with the given model and angle.
-    ///
-    /// # Arguments
-    ///
-    /// * `model` - The joint model.
-    /// * `q` - The angle of rotation.
-    ///
-    /// # Returns
-    /// A `Result` indicating an error if the axis is not defined.
     fn update(&mut self, joint_model: &dyn Joint, q: f64) -> Result<(), JointError> {
         self.q = q;
         let axis = match joint_model.get_axis() {
@@ -94,11 +93,13 @@ impl JointData for JointDataRevolute {
     }
 }
 
+/// A Python wrapper for the `JointModelRevolute` struct.
 #[pyclass(name = "JointModelRevolute")]
 pub struct PyJointModelRevolute {
     pub inner: JointModelRevolute,
 }
 
+/// Creates a new revolute joint model with `x` as axis of rotation.
 #[pyfunction(name = "JointModelRX")]
 pub fn new_joint_model_revolute_x() -> PyJointModelRevolute {
     PyJointModelRevolute {

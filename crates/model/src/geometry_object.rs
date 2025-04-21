@@ -76,8 +76,7 @@ impl Clone for GeometryObject {
     }
 }
 
-/// A `GeometryObject` is a data structure that contains the information about the geometry object,
-/// used for visualization, collision detection and distance computation.
+/// A Python wrapper for the `GeometryObject` struct.
 #[pyclass(name = "GeometryObject")]
 pub struct PyGeometryObject {
     pub inner: GeometryObject,

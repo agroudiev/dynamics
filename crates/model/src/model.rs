@@ -53,9 +53,9 @@ impl Model {
     }
 
     /// Creates a new empty `Model`.
-    /// 
+    ///
     /// # Returns
-    /// 
+    ///
     /// A new empty `Model`.
     pub fn new_empty() -> Self {
         let mut joint_parents = HashMap::new();
@@ -141,7 +141,12 @@ impl Model {
     /// # Returns
     ///
     /// The identifier of the frame.
-    pub fn add_frame(&mut self, placement: IsometryMatrix3<f64>, name: String, parent_id: usize) -> usize {
+    pub fn add_frame(
+        &mut self,
+        placement: IsometryMatrix3<f64>,
+        name: String,
+        parent_id: usize,
+    ) -> usize {
         // TODO: frames should be able to have a joint as parent
         let id = self.frame_placements.len();
         self.frame_placements.insert(id, placement);
