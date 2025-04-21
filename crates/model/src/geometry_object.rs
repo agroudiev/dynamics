@@ -1,4 +1,4 @@
-//! Model for a geometry object, that is a shape or mesh with visualization properties.
+//! Geometry object structure, representing a primitive with visualization properties and collision properties.
 
 use collider::shape::*;
 use nalgebra::{IsometryMatrix3, Vector4};

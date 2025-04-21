@@ -1,3 +1,5 @@
+//! Algorithm to compute the neutral configuration of a model.
+
 use crate::Configuration;
 use crate::model::Model;
 use crate::model::PyModel;

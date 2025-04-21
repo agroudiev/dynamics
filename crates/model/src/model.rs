@@ -1,4 +1,4 @@
-//! The standard `Model`.
+//! `Model` structure containing the robot model and its immutable properties.
 
 use crate::data::Data;
 use joint::{
@@ -13,8 +13,8 @@ use std::collections::HashMap;
 pub const WORLD_FRAME_ID: usize = 0;
 pub const NO_PARENT_JOINT_ID: usize = 0;
 
-/// A `Model` is a data structure that contains the information about the robot model,
-/// including the joints models, placements, the link inertias, and the frames.
+/// Data structure that contains the immutable properties of the robot model.
+/// It contains information about the joints, frames, and their local placements.
 pub struct Model {
     /// The name of the model.
     pub name: String,
@@ -53,6 +53,10 @@ impl Model {
     }
 
     /// Creates a new empty `Model`.
+    /// 
+    /// # Returns
+    /// 
+    /// A new empty `Model`.
     pub fn new_empty() -> Self {
         let mut joint_parents = HashMap::new();
         joint_parents.insert(NO_PARENT_JOINT_ID, NO_PARENT_JOINT_ID);

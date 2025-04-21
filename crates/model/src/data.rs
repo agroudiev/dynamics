@@ -1,6 +1,4 @@
-//! Structures and traits for data representation.
-//! The `Model` object represents the properties of the robot model which are immutable and are not changed or computed by the algorithms.
-//! The `Data` object represents the properties of the robot model which are obtained by the algorithms, such as the joint positions, velocities, accelerations.
+//! `Data` structure containing the mutable properties of the robot.
 
 use joint::data::JointDataWrapper;
 use nalgebra::IsometryMatrix3;
@@ -13,6 +11,7 @@ use crate::{
     model::{PyModel, WORLD_FRAME_ID},
 };
 
+/// Structure containing the mutable properties of the robot.
 #[derive(Default)]
 pub struct Data {
     /// The data of the joints
@@ -46,8 +45,8 @@ impl Data {
     }
 }
 
-#[pyclass(name = "Data")]
 /// A Python wrapper for the `Data` struct.
+#[pyclass(name = "Data")]
 pub struct PyData {
     pub inner: Data,
 }
@@ -70,6 +69,7 @@ impl PyData {
     }
 }
 
+/// Structure containing the mutable geometric data of the models.
 #[derive(Default)]
 pub struct GeometryData {
     /// The placements of the objects in the world frame
@@ -98,7 +98,6 @@ impl GeometryData {
     /// * `geom_model` - The geometry model containing the object placements.
     ///
     /// # Note
-    ///
     /// As this function uses the joint placements from the model data (`data`), it should be called after the model data is updated.
     pub fn update_geometry_data(&mut self, data: &Data, geom_model: &GeometryModel) {
         self.object_placements.clear();
@@ -119,8 +118,8 @@ impl GeometryData {
     }
 }
 
-#[pyclass(name = "GeometryData")]
 /// A Python wrapper for the `GeometryData` struct.
+#[pyclass(name = "GeometryData")]
 pub struct PyGeometryData {
     pub inner: GeometryData,
 }

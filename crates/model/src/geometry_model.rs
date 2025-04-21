@@ -89,8 +89,12 @@ impl PyGeometryModel {
     /// # Arguments
     ///
     /// * `object` - The geometry object to be added to the model.
-    pub fn add_geometry_object(&mut self, object: &PyGeometryObject) {
-        self.inner.add_geometry_object(object.inner.clone());
+    /// 
+    /// # Returns
+    /// 
+    /// The index of the added geometry object.
+    pub fn add_geometry_object(&mut self, object: &PyGeometryObject) -> usize {
+        self.inner.add_geometry_object(object.inner.clone())
     }
 
     /// Returns the list of geometry objects in the model.
@@ -104,6 +108,10 @@ impl PyGeometryModel {
     }
 
     /// Adds a new geometry object to the list of objects in the model.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `object` - The geometry object to be added to the model.
     pub fn add_geometry_object_from_py(&mut self, object: &PyGeometryObject) {
         self.inner.add_geometry_object(object.inner.clone());
     }
