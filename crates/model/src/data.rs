@@ -10,15 +10,17 @@ use std::collections::HashMap;
 
 use crate::{
     geometry_model::{GeometryModel, PyGeometryModel},
-    model::{Model, PyModel, WORLD_FRAME_ID},
+    model::{PyModel, WORLD_FRAME_ID},
 };
 
 #[derive(Default)]
 pub struct Data {
     /// The data of the joints
-    joints_data: HashMap<usize, JointDataWrapper>,
+    pub joint_data: HashMap<usize, JointDataWrapper>,
     /// The placements of the joints in the world frame
-    joints_placements: HashMap<usize, IsometryMatrix3<f64>>,
+    pub joint_placements: HashMap<usize, IsometryMatrix3<f64>>,
+    /// The placements of the frames in the world frame
+    pub frame_placements: HashMap<usize, IsometryMatrix3<f64>>,
 }
 
 impl Data {
@@ -32,37 +34,15 @@ impl Data {
     /// # Returns
     /// A new `Data` object.
     pub fn new(
-        joints_data: HashMap<usize, JointDataWrapper>,
-        joints_placements: HashMap<usize, IsometryMatrix3<f64>>,
+        joint_data: HashMap<usize, JointDataWrapper>,
+        joint_placements: HashMap<usize, IsometryMatrix3<f64>>,
+        frame_placements: HashMap<usize, IsometryMatrix3<f64>>,
     ) -> Self {
         Self {
-            joints_data,
-            joints_placements,
+            joint_data,
+            joint_placements,
+            frame_placements,
         }
-    }
-
-    /// Returns the joint data for a given joint index.
-    ///
-    /// # Arguments
-    ///
-    /// * `joint_index` - The index of the joint.
-    ///
-    /// # Returns
-    /// An `Option` containing the joint data if it exists, otherwise `None`.
-    pub fn get_joint_data(&self, joint_index: usize) -> Option<&JointDataWrapper> {
-        self.joints_data.get(&joint_index)
-    }
-
-    /// Returns the joint placement for a given joint index.
-    ///
-    /// # Arguments
-    ///
-    /// * `joint_index` - The index of the joint.
-    ///
-    /// # Returns
-    /// An `Option` containing the joint placement if it exists, otherwise `None`.
-    pub fn get_joint_placement(&self, joint_index: usize) -> Option<&IsometryMatrix3<f64>> {
-        self.joints_placements.get(&joint_index)
     }
 }
 
@@ -120,18 +100,18 @@ impl GeometryData {
     /// # Note
     ///
     /// As this function uses the joint placements from the model data (`data`), it should be called after the model data is updated.
-    pub fn update_geometry_data(&mut self, model: &Model, data: &Data, geom_model: &GeometryModel) {
+    pub fn update_geometry_data(&mut self, data: &Data, geom_model: &GeometryModel) {
         self.object_placements.clear();
 
         for (object_id, object) in geom_model.models.iter() {
             if object.parent_joint == WORLD_FRAME_ID {
                 let parent_frame_id = object.parent_frame;
-                let parent_frame_placement = model.frames.get(&parent_frame_id).unwrap();
+                let parent_frame_placement = data.frame_placements.get(&parent_frame_id).unwrap();
                 let object_placement = parent_frame_placement * object.placement;
                 self.object_placements.insert(*object_id, object_placement);
             } else {
                 let parent_joint_id = object.parent_joint;
-                let parent_joint_placement = data.get_joint_placement(parent_joint_id).unwrap();
+                let parent_joint_placement = data.joint_placements.get(&parent_joint_id).unwrap();
                 let object_placement = parent_joint_placement * object.placement;
                 self.object_placements.insert(*object_id, object_placement);
             }
@@ -158,9 +138,9 @@ impl PyGeometryData {
     ///
     /// # Returns
     /// A new `GeometryData` object.
-    pub fn new(model: &PyModel, data: &PyData, geom_model: &PyGeometryModel) -> Self {
+    pub fn new(data: &PyData, geom_model: &PyGeometryModel) -> Self {
         let mut geom_data = GeometryData::default();
-        geom_data.update_geometry_data(&model.inner, &data.inner, &geom_model.inner);
+        geom_data.update_geometry_data(&data.inner, &geom_model.inner);
         PyGeometryData { inner: geom_data }
     }
 

@@ -11,6 +11,7 @@ use spatial::se3::PySE3;
 use std::collections::HashMap;
 
 pub const WORLD_FRAME_ID: usize = 0;
+pub const NO_PARENT_JOINT_ID: usize = 0;
 
 /// A `Model` is a data structure that contains the information about the robot model,
 /// including the joints models, placements, the link inertias, and the frames.
@@ -27,8 +28,12 @@ pub struct Model {
     joint_models: HashMap<usize, JointWrapper>,
     /// The order of the joints.
     joint_order: Vec<usize>,
-    /// The frames of the model.
-    pub frames: HashMap<usize, IsometryMatrix3<f64>>,
+    /// The placements frames of the model.
+    pub frame_placements: HashMap<usize, IsometryMatrix3<f64>>,
+    /// The parent frame of each frame.
+    pub frame_parents: HashMap<usize, usize>,
+    /// The names of the frames of the model.
+    pub frame_names: HashMap<usize, String>,
     /// The number of position variables.
     pub nq: usize,
     /// The number of velocity variables.
@@ -49,26 +54,31 @@ impl Model {
 
     /// Creates a new empty `Model`.
     pub fn new_empty() -> Self {
-        let mut frames = HashMap::new();
-        frames.insert(WORLD_FRAME_ID, IsometryMatrix3::identity());
-
         let mut joint_parents = HashMap::new();
-        joint_parents.insert(WORLD_FRAME_ID, WORLD_FRAME_ID);
-
-        let mut joint_names = HashMap::new();
-        joint_names.insert(WORLD_FRAME_ID, "world".to_string());
+        joint_parents.insert(NO_PARENT_JOINT_ID, NO_PARENT_JOINT_ID);
 
         let mut joint_placements = HashMap::new();
-        joint_placements.insert(WORLD_FRAME_ID, IsometryMatrix3::identity());
+        joint_placements.insert(NO_PARENT_JOINT_ID, IsometryMatrix3::identity());
+
+        let mut frame_parents = HashMap::new();
+        frame_parents.insert(WORLD_FRAME_ID, WORLD_FRAME_ID);
+
+        let mut frame_placements = HashMap::new();
+        frame_placements.insert(WORLD_FRAME_ID, IsometryMatrix3::identity());
+
+        let mut frame_names = HashMap::new();
+        frame_names.insert(WORLD_FRAME_ID, "world".to_string());
 
         Self {
             name: String::new(),
-            joint_names,
+            joint_names: HashMap::new(),
             joint_parents,
             joint_placements,
             joint_models: HashMap::new(),
-            joint_order: vec![WORLD_FRAME_ID],
-            frames,
+            joint_order: vec![NO_PARENT_JOINT_ID],
+            frame_placements,
+            frame_parents,
+            frame_names,
             nq: 0,
             nv: 0,
         }
@@ -99,8 +109,8 @@ impl Model {
 
         // add the joint to the parent
         assert!(
-            self.joint_parents.contains_key(&parent_id),
-            "The parent joint id {} does not exist.",
+            self.joint_names.contains_key(&parent_id),
+            "The parent joint index {} does not exist.",
             parent_id
         );
         self.joint_parents.insert(id, parent_id);
@@ -127,10 +137,17 @@ impl Model {
     /// # Returns
     ///
     /// The identifier of the frame.
-    pub fn add_frame(&mut self, placement: IsometryMatrix3<f64>, name: String) -> usize {
-        let id = self.frames.len();
-        self.frames.insert(id, placement);
-        self.joint_names.insert(id, name);
+    pub fn add_frame(&mut self, placement: IsometryMatrix3<f64>, name: String, parent_id: usize) -> usize {
+        // TODO: frames should be able to have a joint as parent
+        let id = self.frame_placements.len();
+        self.frame_placements.insert(id, placement);
+        self.frame_names.insert(id, name);
+        assert!(
+            self.frame_names.contains_key(&parent_id),
+            "The parent frame index {} does not exist.",
+            parent_id
+        );
+        self.frame_parents.insert(id, parent_id);
         id
     }
 
@@ -149,21 +166,37 @@ impl Model {
 
         // create the placements of the joints in the world frame
         // by traversing the joint tree
-        let mut joint_placements = HashMap::new();
-        joint_placements.insert(WORLD_FRAME_ID, IsometryMatrix3::identity());
+        let mut world_joint_placements = HashMap::new();
+        world_joint_placements.insert(NO_PARENT_JOINT_ID, IsometryMatrix3::identity());
 
         for joint_id in self.joint_order.iter() {
             let parent_id = self.joint_parents.get(joint_id).unwrap(); // we checked that the parent existed before
             // get the placement of the parent join in the world frame
-            let parent_placement = joint_placements.get(parent_id).unwrap();
+            let parent_placement = world_joint_placements.get(parent_id).unwrap();
             // get the placement of the joint in the parent frame
-            let joint_placement = self.joint_placements.get(joint_id).unwrap();
+            let local_joint_placement = self.joint_placements.get(joint_id).unwrap();
             // compute the placement of the joint in the world frame
-            let joint_placement_in_world = parent_placement * joint_placement;
-            joint_placements.insert(*joint_id, joint_placement_in_world);
+            world_joint_placements.insert(*joint_id, parent_placement * local_joint_placement);
         }
 
-        Data::new(joints_data, joint_placements)
+        // create the placements of the frames in the world frame
+        // by traversing the frame tree
+        let mut world_frame_placements = HashMap::new();
+        world_frame_placements.insert(WORLD_FRAME_ID, IsometryMatrix3::identity());
+
+        let mut frame_ids: Vec<&usize> = self.frame_placements.keys().collect();
+        frame_ids.sort();
+        for frame_id in frame_ids {
+            let parent_id = self.frame_parents.get(frame_id).unwrap();
+            // get the placement of the parent frame in the world frame
+            let parent_placement = world_frame_placements.get(parent_id).unwrap();
+            // get the placement of the frame in the parent frame
+            let local_frame_placement = self.frame_placements.get(frame_id).unwrap();
+            // compute the placement of the frame in the world frame
+            world_frame_placements.insert(*frame_id, parent_placement * local_frame_placement);
+        }
+
+        Data::new(joints_data, world_joint_placements, world_frame_placements)
     }
 }
 

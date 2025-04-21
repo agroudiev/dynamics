@@ -1,7 +1,7 @@
 //! This file provides a parser for the URDF (Unified Robot Description Format) files.
 
 use crate::errors::ParseError;
-use collider::shape::{Capsule, Cylinder, ShapeWrapper, Sphere};
+use collider::shape::{Cylinder, ShapeWrapper, Sphere};
 use joint::revolute::JointModelRevolute;
 use model::{
     geometry_model::{GeometryModel, PyGeometryModel},
@@ -14,6 +14,8 @@ use roxmltree::Document;
 use std::{collections::HashMap, fs, str::FromStr};
 
 /// Parses a URDF file and builds the corresponding `Model` and `GeometryModel`.
+// TODO: rebuild the parser linearly
+// TODO: error if the same name is used multiple times
 pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), ParseError> {
     let contents = fs::read_to_string(filepath).map_err(ParseError::IoError)?;
     let doc = Document::parse(&contents).map_err(ParseError::XmlError)?;
@@ -25,51 +27,6 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
     let robot_name = robot_node.attribute("name").unwrap_or("").to_string();
     let mut model = Model::new(robot_name);
     let mut geom_model = GeometryModel::new();
-
-    // parse the joints
-    let mut parent_frame_ids = HashMap::new();
-    for joint_node in robot_node.children().filter(|n| n.has_tag_name("joint")) {
-        let joint_name = joint_node
-            .attribute("name")
-            .ok_or(ParseError::NameMissing)?;
-        let joint_type = joint_node
-            .attribute("type")
-            .ok_or(ParseError::MissingParameter("type".to_string()))?;
-
-        let placement = parse_origin(&joint_node)?;
-        let parent_node = joint_node
-            .descendants()
-            .find(|n| n.has_tag_name("parent"))
-            .ok_or(ParseError::MissingParameter("parent".to_string()))?;
-        let parent_link_name = extract_parameter::<String>("link", &parent_node)?;
-
-        let child_node = joint_node
-            .descendants()
-            .find(|n| n.has_tag_name("child"))
-            .ok_or(ParseError::MissingParameter("child".to_string()))?;
-        let child_link_name = extract_parameter::<String>("link", &child_node)?;
-
-        match joint_type {
-            "fixed" => {
-                let frame_id = model.add_frame(placement, joint_name.to_string());
-                parent_frame_ids.insert(child_link_name.to_string(), frame_id);
-            }
-            "revolute" => {
-                let axis = match extract_parameter_list::<f64>("axis", &joint_node, Some(3)) {
-                    Ok(axis) => Vector3::new(axis[0], axis[1], axis[2]),
-                    // default value if axis is not specified
-                    Err(ParseError::MissingParameter(_)) => Vector3::new(1.0, 0.0, 0.0),
-                    // if the axis is specified but invalid
-                    Err(e) => return Err(e),
-                };
-                let joint_model = JointModelRevolute { axis };
-                let _joint_id =
-                    model.add_joint(0, Box::new(joint_model), placement, joint_name.to_string());
-                // TODO: handle parent-child joint relationship
-            }
-            _ => return Err(ParseError::UnknownJointType(joint_type.to_string())),
-        }
-    }
 
     // parse the materials not attached to any geometry
     let mut materials: HashMap<&str, Vector4<f64>> = HashMap::new();
@@ -90,9 +47,85 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
     for link_node in robot_node.children().filter(|n| n.has_tag_name("link")) {
         if let Some(visual_node) = link_node.children().find(|n| n.has_tag_name("visual")) {
             let link_name = link_node.attribute("name").unwrap_or("").to_string();
-            let parent_frame_id = parent_frame_ids.get(&link_name).copied();
-            let geom_obj = parse_geometry(link_name, &visual_node, &materials, parent_frame_id)?;
+            // let parent_frame_id = parent_frame_ids.get(&link_name).copied();
+            let geom_obj = parse_geometry(link_name, &visual_node, &materials)?;
             geom_model.add_geometry_object(geom_obj);
+        }
+    }
+
+    // parse the joints
+    for joint_node in robot_node.children().filter(|n| n.has_tag_name("joint")) {
+        let joint_name = joint_node
+            .attribute("name")
+            .ok_or(ParseError::NameMissing)?;
+        let joint_type = joint_node
+            .attribute("type")
+            .ok_or(ParseError::MissingParameter("type".to_string()))?;
+
+        let link_origin = parse_origin(&joint_node)?;
+        let parent_node = joint_node
+            .descendants()
+            .find(|n| n.has_tag_name("parent"))
+            .ok_or(ParseError::MissingParameter("parent".to_string()))?;
+        let parent_link_name = extract_parameter::<String>("link", &parent_node)?;
+
+        let child_node = joint_node
+            .descendants()
+            .find(|n| n.has_tag_name("child"))
+            .ok_or(ParseError::MissingParameter("child".to_string()))?;
+        let child_link_name = extract_parameter::<String>("link", &child_node)?;
+
+        match joint_type {
+            "fixed" => {
+                let parent_object = match geom_model.indices.get(&parent_link_name) {
+                    Some(parent_id) => geom_model.models.get(parent_id).unwrap(),
+                    None => {
+                        return Err(ParseError::MissingParameter(
+                            "parent link not found".to_string(),
+                        ));
+                    }
+                };
+
+                match (parent_object.parent_joint, parent_object.parent_frame) {
+                    // we use the same frame as the parent with a composed placement
+                    (0, _) => {
+                        let placement = parent_object.placement * link_origin;
+                        let frame_id = model.add_frame(placement, joint_name.to_string(), parent_object.parent_frame);
+
+                        let child_object = match geom_model.indices.get(&child_link_name) {
+                            Some(child_id) => geom_model.models.get_mut(child_id).unwrap(),
+                            None => {
+                                return Err(ParseError::MissingParameter(
+                                    "child link not found".to_string(),
+                                ));
+                            }
+                        };
+                        child_object.parent_frame = frame_id;
+                    }
+                    // we use the parent joint with a composed placement
+                    (_, 0) => {
+                        unimplemented!()
+                    }
+                    // both are set
+                    (_, _) => {
+                        panic!("parent joint and frame are both set")
+                    }
+                }
+            }
+            "revolute" => {
+                // let axis = match extract_parameter_list::<f64>("axis", &joint_node, Some(3)) {
+                //     Ok(axis) => Vector3::new(axis[0], axis[1], axis[2]),
+                //     // default value if axis is not specified
+                //     Err(ParseError::MissingParameter(_)) => Vector3::new(1.0, 0.0, 0.0),
+                //     // if the axis is specified but invalid
+                //     Err(e) => return Err(e),
+                // };
+                // let joint_model = JointModelRevolute { axis };
+                // let _joint_id =
+                //     model.add_joint(0, Box::new(joint_model), placement, joint_name.to_string());
+                // // TODO: handle parent-child joint relationship
+            }
+            _ => return Err(ParseError::UnknownJointType(joint_type.to_string())),
         }
     }
 
@@ -105,7 +138,7 @@ fn parse_geometry(
     link_name: String,
     visual_node: &roxmltree::Node,
     materials: &HashMap<&str, Vector4<f64>>,
-    parent_frame_id: Option<usize>,
+    // parent_frame_id: Option<usize>,
 ) -> Result<GeometryObject, ParseError> {
     let geometry_node = visual_node
         .children()
@@ -113,24 +146,25 @@ fn parse_geometry(
         .ok_or(ParseError::VisualWithoutGeometry)?;
 
     // extract the shape from the geometry node
-    let shape: ShapeWrapper =
-        if let Some(shape_node) = geometry_node.children().find(|n| n.has_tag_name("box")) {
-            let size = extract_parameter_list::<f32>("size", &shape_node, Some(3))?;
-            let half_extents = Vector3::new(size[0] / 2.0, size[1] / 2.0, size[2] / 2.0);
-            Box::new(collider::shape::Cuboid::new(half_extents))
-        } else if let Some(shape_node) = geometry_node
-            .children()
-            .find(|n| n.has_tag_name("cylinder"))
-        {
-            let radius = extract_parameter::<f32>("radius", &shape_node)?;
-            let length = extract_parameter::<f32>("length", &shape_node)?;
-            Box::new(Cylinder::new(radius, length / 2.0))
-        } else if geometry_node.children().any(|n| n.has_tag_name("sphere")) {
-            let radius = extract_parameter::<f32>("radius", &geometry_node)?;
-            Box::new(Sphere::new(radius))
-        } else {
-            return Err(ParseError::GeometryWithoutShape);
-        };
+    let shape: ShapeWrapper = if let Some(shape_node) =
+        geometry_node.children().find(|n| n.has_tag_name("box"))
+    {
+        let size = extract_parameter_list::<f32>("size", &shape_node, Some(3))?;
+        let half_extents = Vector3::new(size[0] / 2.0, size[1] / 2.0, size[2] / 2.0);
+        Box::new(collider::shape::Cuboid::new(half_extents))
+    } else if let Some(shape_node) = geometry_node
+        .children()
+        .find(|n| n.has_tag_name("cylinder"))
+    {
+        let radius = extract_parameter::<f32>("radius", &shape_node)?;
+        let length = extract_parameter::<f32>("length", &shape_node)?;
+        Box::new(Cylinder::new(radius, length / 2.0))
+    } else if let Some(shape_node) = geometry_node.children().find(|n| n.has_tag_name("sphere")) {
+        let radius = extract_parameter::<f32>("radius", &shape_node)?;
+        Box::new(Sphere::new(radius))
+    } else {
+        return Err(ParseError::GeometryWithoutShape);
+    };
 
     // extract the origin from the visual node
     let placement = parse_origin(visual_node)?;
@@ -156,12 +190,8 @@ fn parse_geometry(
     }
 
     let geom_obj = GeometryObject::new(
-        link_name,
-        0,
-        parent_frame_id.unwrap_or_default(),
-        shape,
-        color,
-        placement,
+        link_name, 0, 0, // parent_frame_id.unwrap_or_default(),
+        shape, color, placement,
     );
     Ok(geom_obj)
 }

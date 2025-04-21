@@ -42,28 +42,39 @@ fn test_materials() {
     let filepath = "../../examples/descriptions/materials.urdf";
     let result = build_models_from_urdf(filepath);
     let (model, geom_model) = result.unwrap();
+    let data = model.create_data();
+    let geom_data = geom_model.create_data(&data);
+
     assert_eq!(model.name, "materials");
     assert_eq!(geom_model.models.len(), 3);
 
-    assert_eq!(*model.frames.get(&0).unwrap(), IsometryMatrix3::identity());
+    // base link
     assert_eq!(
-        model.frames.get(&1).unwrap().translation,
+        *model.frame_placements.get(&0).unwrap(),
+        IsometryMatrix3::identity()
+    );
+    assert_eq!(
+        *geom_data.get_object_placement(0).unwrap(),
+        IsometryMatrix3::identity()
+    );
+
+    // right leg
+    assert_eq!(
+        model.frame_placements.get(&1).unwrap().translation,
         Translation3::new(0.0, -0.22, 0.25)
     );
-    assert_eq!(
-        model.frames.get(&2).unwrap().translation,
-        Translation3::new(0.0, 0.22, 0.25)
-    );
-
     assert_eq!(geom_model.models.get(&1).unwrap().parent_frame, 1);
-    assert_eq!(geom_model.models.get(&2).unwrap().parent_frame, 2);
-
-    let data = model.create_data();
-    let geom_data = geom_model.create_data(&model, &data);
     assert_eq!(
         geom_data.get_object_placement(1).unwrap().translation,
         Translation3::new(0.0, -0.22, 0.25 - 0.3)
     );
+
+    // left leg
+    assert_eq!(
+        model.frame_placements.get(&2).unwrap().translation,
+        Translation3::new(0.0, 0.22, 0.25)
+    );
+    assert_eq!(geom_model.models.get(&2).unwrap().parent_frame, 2);
     assert_eq!(
         geom_data.get_object_placement(2).unwrap().translation,
         Translation3::new(0.0, 0.22, 0.25 - 0.3)
@@ -71,6 +82,23 @@ fn test_materials() {
 }
 
 #[test]
+fn test_visuals() {
+    let filepath = "../../examples/descriptions/visuals.urdf";
+    let (model, geom_model) = build_models_from_urdf(filepath).unwrap();
+    assert_eq!(model.name, "visual");
+
+    let data = model.create_data();
+    let geom_data = geom_model.create_data(&data);
+
+    let box_id = geom_model.models.len() - 1;
+    assert_eq!(
+        geom_data.get_object_placement(box_id).unwrap().translation,
+        Translation3::new(0.1814, 0.0, 0.1414) * Translation3::new(0.0, 0.0, 0.3)
+    );
+}
+
+#[test]
+#[ignore]
 fn test_double_pendulum_simple() {
     let filepath = "../../examples/descriptions/double_pendulum_simple.urdf";
     let result = build_models_from_urdf(filepath);

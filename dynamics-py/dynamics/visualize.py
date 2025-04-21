@@ -149,9 +149,9 @@ class MeshcatVisualizer:
         if self.data is None:
             self.data = dynamics.Data(self.model)
         if self.collision_data is None and self.collision_model is not None:
-            self.collision_data = dynamics.GeometryData(self.model, self.data, self.collision_model)
+            self.collision_data = dynamics.GeometryData(self.data, self.collision_model)
         if self.visual_data is None and self.visual_model is not None:
-            self.visual_data = dynamics.GeometryData(self.model, self.data, self.visual_model)
+            self.visual_data = dynamics.GeometryData(self.data, self.visual_model)
 
         if open:
             self.viewer.open()

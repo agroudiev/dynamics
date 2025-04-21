@@ -5,7 +5,6 @@ use std::collections::HashMap;
 use crate::{
     data::{Data, GeometryData},
     geometry_object::{GeometryObject, PyGeometryObject},
-    model::Model,
 };
 use pyo3::prelude::*;
 
@@ -13,6 +12,8 @@ use pyo3::prelude::*;
 pub struct GeometryModel {
     /// The list of geometry objects contained in this model.
     pub models: HashMap<usize, GeometryObject>,
+    /// The indices of the geometry objects by name.
+    pub indices: HashMap<String, usize>,
 }
 
 impl Default for GeometryModel {
@@ -26,6 +27,7 @@ impl GeometryModel {
     pub fn new() -> Self {
         GeometryModel {
             models: HashMap::new(),
+            indices: HashMap::new(),
         }
     }
 
@@ -38,12 +40,24 @@ impl GeometryModel {
         let id = self.models.len();
         object.id = id;
         self.models.insert(id, object);
+        self.indices
+            .insert(self.models.get(&id).unwrap().name.clone(), id);
         id
     }
 
-    pub fn create_data(&self, model: &Model, data: &Data) -> GeometryData {
+    /// Creates a new `GeometryData` object based on the provided model and data.
+    ///
+    /// # Arguments
+    ///
+    /// * `model` - The model to be used for creating the geometry data.
+    /// * `data` - The data to be used for creating the geometry data.
+    ///
+    /// # Returns
+    ///
+    /// A `GeometryData` object containing the geometry data for the model.
+    pub fn create_data(&self, data: &Data) -> GeometryData {
         let mut geom_data = GeometryData::default();
-        geom_data.update_geometry_data(model, data, self);
+        geom_data.update_geometry_data(data, self);
         geom_data
     }
 }
