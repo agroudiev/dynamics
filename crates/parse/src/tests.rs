@@ -1,6 +1,6 @@
 use crate::urdf::build_models_from_urdf;
 use collider::shape::Cylinder;
-use nalgebra::{IsometryMatrix3, Translation3};
+use nalgebra::{IsometryMatrix3, Rotation3, Translation3};
 
 #[test]
 fn test_myfirst() {
@@ -94,6 +94,16 @@ fn test_visuals() {
     assert_eq!(
         geom_data.get_object_placement(box_id).unwrap().translation,
         Translation3::new(0.1814, 0.0, 0.1414) * Translation3::new(0.0, 0.0, 0.3)
+    );
+
+    let right_base_id = geom_model.indices.get("right_base").unwrap();
+    assert_eq!(
+        geom_data.get_object_placement(*right_base_id).unwrap().rotation,
+        Rotation3::identity()
+    );
+    assert_eq!(
+        geom_data.get_object_placement(*right_base_id).unwrap().translation,
+        Translation3::new(0.0, 0.0, -0.6) * Translation3::new(0.0, -0.22, 0.25)
     );
 }
 

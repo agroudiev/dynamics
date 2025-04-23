@@ -120,11 +120,9 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                         match (parent_object.parent_joint, parent_object.parent_frame) {
                             // if the parent is attached to a frame
                             (0, _) => {
-                                // we create a new frame with composed placement
-                                // and the same parent frame as the parent object
-                                let placement = parent_object.placement * link_origin;
+                                // we create a new frame for the link
                                 let frame_id = model.add_frame(
-                                    placement,
+                                    link_origin,
                                     joint_name.to_string(),
                                     parent_object.parent_frame,
                                 );
