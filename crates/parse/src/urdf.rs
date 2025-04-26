@@ -38,6 +38,7 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
     // elements will sequentially be added to the models
     let mut model = Model::new(robot_name);
     let mut geom_model = GeometryModel::new();
+    let mut coll_model = GeometryModel::new();
     let mut materials: HashMap<&str, Vector4<f64>> = HashMap::new();
 
     let priority_order = ["material", "link", "joint"];
@@ -69,10 +70,10 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
             }
             "link" => {
                 let link_name = main_node.attribute("name").unwrap_or("").to_string();
-                
+
                 // parse the visual node
                 if let Some(visual_node) = main_node.children().find(|n| n.has_tag_name("visual")) {
-                    let geom_obj = parse_geometry(link_name, &visual_node, &materials)?;
+                    let geom_obj = parse_geometry(link_name.clone(), &visual_node, &materials)?;
                     geom_model.add_geometry_object(geom_obj);
                 } else {
                     // add a default geometry object if no visual node is found
@@ -87,7 +88,13 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
 
                 // TODO: parse the inertial node
 
-                // TODO: parse the collision node
+                // parse the collision node
+                if let Some(collision_node) =
+                    main_node.children().find(|n| n.has_tag_name("visual"))
+                {
+                    let geom_obj = parse_geometry(link_name, &collision_node, &materials)?;
+                    coll_model.add_geometry_object(geom_obj);
+                }
             }
             // parse joints and frames
             "joint" => {
@@ -151,10 +158,31 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                             Err(e) => return Err(e),
                         };
 
-                        // TODO: extract limits
+                        // we extract the limit of the joint
+                        let limit_node = joint_node
+                            .children()
+                            .find(|n| n.has_tag_name("limit"))
+                            .ok_or(ParseError::MissingParameter("limit".to_string()))?;
+
                         // TODO: extract dynamics (damping, ...)
 
-                        let joint_model = JointModelRevolute { axis };
+                        let mut joint_model = JointModelRevolute::new(axis);
+
+                        // optional parameters
+                        if let Ok(lower) = extract_parameter::<f64>("lower", &limit_node) {
+                            joint_model.lower_limit = lower
+                        };
+                        if let Ok(upper) = extract_parameter::<f64>("upper", &limit_node) {
+                            joint_model.upper_limit = upper
+                        };
+
+                        // required parameters
+                        let effort = extract_parameter::<f64>("effort", &limit_node)?;
+                        joint_model.effort_limit = effort;
+
+                        let velocity = extract_parameter::<f64>("velocity", &limit_node)?;
+                        joint_model.velocity_limit = velocity;
+
                         model.add_joint(
                             parent_joint_id,
                             Box::new(joint_model),

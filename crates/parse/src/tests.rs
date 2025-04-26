@@ -114,7 +114,6 @@ fn test_visuals() {
 }
 
 #[test]
-#[ignore]
 fn test_double_pendulum_simple() {
     let filepath = "../../examples/descriptions/double_pendulum_simple.urdf";
     let result = build_models_from_urdf(filepath);

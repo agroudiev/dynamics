@@ -14,6 +14,34 @@ use pyo3::prelude::*;
 pub struct JointModelRevolute {
     /// The axis of rotation expressed in the local frame of the joint.
     pub axis: Vector3<f64>,
+    /// The lower limit of the joint angle.
+    pub lower_limit: f64,
+    /// The upper limit of the joint angle.
+    pub upper_limit: f64,
+    /// The effort limit of the joint.
+    pub effort_limit: f64,
+    /// The velocity limit of the joint.
+    pub velocity_limit: f64,
+}
+
+impl JointModelRevolute {
+    /// Creates a new `JointModelRevolute` with the given axis of rotation.
+    ///
+    /// # Arguments
+    ///
+    /// * `axis` - The axis of rotation expressed in the local frame of the joint.
+    ///
+    /// # Returns
+    /// A new `JointModelRevolute` object.
+    pub fn new(axis: Vector3<f64>) -> Self {
+        JointModelRevolute {
+            axis,
+            lower_limit: f64::NEG_INFINITY,
+            upper_limit: f64::INFINITY,
+            effort_limit: f64::INFINITY,
+            velocity_limit: f64::INFINITY,
+        }
+    }
 }
 
 impl Joint for JointModelRevolute {
@@ -102,11 +130,8 @@ pub struct PyJointModelRevolute {
 /// Creates a new revolute joint model with `x` as axis of rotation.
 #[pyfunction(name = "JointModelRX")]
 pub fn new_joint_model_revolute_x() -> PyJointModelRevolute {
-    PyJointModelRevolute {
-        inner: JointModelRevolute {
-            axis: *Vector3::x_axis(),
-        },
-    }
+    let inner = JointModelRevolute::new(*Vector3::x_axis());
+    PyJointModelRevolute { inner }
 }
 
 #[cfg(test)]
@@ -119,6 +144,10 @@ mod tests {
     fn test_joint_model_revolute() {
         let joint = JointModelRevolute {
             axis: *Vector3::x_axis(),
+            lower_limit: f64::NEG_INFINITY,
+            upper_limit: f64::INFINITY,
+            effort_limit: f64::INFINITY,
+            velocity_limit: f64::INFINITY,
         };
         assert_eq!(joint.get_joint_type(), JointType::Revolute);
         assert_eq!(joint.nq(), 1);
@@ -128,9 +157,7 @@ mod tests {
 
     #[test]
     fn test_joint_data_revolute_xaxis() {
-        let joint_model = JointModelRevolute {
-            axis: *Vector3::x_axis(),
-        };
+        let joint_model = JointModelRevolute::new(*Vector3::x_axis());
         let mut joint_data = joint_model.create_joint_data();
         let q = 1.0;
         joint_data.update(&joint_model, q).unwrap();
