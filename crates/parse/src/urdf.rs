@@ -105,11 +105,9 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                 let child_link_name = extract_parameter::<String>("link", &child_node)?;
 
                 match joint_type {
-                    // fixed joints are treated as frames
                     "fixed" => {
-                        // we extract the parent object to get info about its parent frame
-                        let parent_object = match geom_model.indices.get(&parent_link_name) {
-                            Some(parent_id) => geom_model.models.get(parent_id).unwrap(),
+                        let parent_id = match geom_model.indices.get(&parent_link_name) {
+                            Some(parent_id) => *parent_id,
                             None => {
                                 return Err(ParseError::MissingParameter(
                                     "parent link not found".to_string(),
@@ -117,36 +115,20 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                             }
                         };
 
-                        match (parent_object.parent_joint, parent_object.parent_frame) {
-                            // if the parent is attached to a frame
-                            (0, _) => {
-                                // we create a new frame for the link
-                                let frame_id = model.add_frame(
-                                    link_origin,
-                                    joint_name.to_string(),
-                                    parent_object.parent_frame,
-                                );
+                        // we create a new frame for the link
+                        let frame_id =
+                            model.add_frame(link_origin, joint_name.to_string(), parent_id);
 
-                                // we retrieve the child object to change its parent frame
-                                let child_object = match geom_model.indices.get(&child_link_name) {
-                                    Some(child_id) => geom_model.models.get_mut(child_id).unwrap(),
-                                    None => {
-                                        return Err(ParseError::MissingParameter(format!(
-                                            "child link '{child_link_name}' not found"
-                                        )));
-                                    }
-                                };
-                                child_object.parent_frame = frame_id;
+                        // we retrieve the child object to change its parent frame
+                        let child_object = match geom_model.indices.get(&child_link_name) {
+                            Some(child_id) => geom_model.models.get_mut(child_id).unwrap(),
+                            None => {
+                                return Err(ParseError::MissingParameter(format!(
+                                    "child link '{child_link_name}' not found"
+                                )));
                             }
-                            // if the parent is attached to a joint
-                            (_, 0) => {
-                                unimplemented!()
-                            }
-                            // both are set
-                            (_, _) => {
-                                panic!("parent joint and frame are both set")
-                            }
-                        }
+                        };
+                        child_object.parent_joint = frame_id;
                     }
                     "revolute" => {
                         // let axis = match extract_parameter_list::<f64>("axis", &joint_node, Some(3)) {
@@ -235,10 +217,7 @@ fn parse_geometry(
         }
     }
 
-    let geom_obj = GeometryObject::new(
-        link_name, 0, 0, // parent_frame_id.unwrap_or_default(),
-        shape, color, placement,
-    );
+    let geom_obj = GeometryObject::new(link_name, 0, shape, color, placement);
     Ok(geom_obj)
 }
 

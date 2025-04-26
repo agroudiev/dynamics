@@ -8,7 +8,7 @@ use nalgebra::IsometryMatrix3;
 use pyo3::prelude::*;
 
 /// Model of a fixed joint.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct JointModelFixed {}
 
 impl Joint for JointModelFixed {

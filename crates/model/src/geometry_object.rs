@@ -8,8 +8,6 @@ use spatial::se3::PySE3;
 
 /// A `GeometryObject` is a data structure that contains the information about the geometry object,
 /// used for visualization, collision detection and distance computation.
-///
-/// A `GeometryObject` have a `parent_joint` as well as a `parent_frame` field. The parent joint field is used by default. If it is set to `WORLD`, the parent frame is used instead. Note that is both are set to `WORLD`, the two approaches are equivalent. The parent frame is mostly used for URDF files that use 'fixed' joints, which are treated as frames.
 pub struct GeometryObject {
     /// The identifier of the geometry object.
     pub id: usize,
@@ -23,10 +21,8 @@ pub struct GeometryObject {
     pub mesh_color: Vector4<f64>,
     /// The placement of the geometry object in the parent frame.
     pub placement: IsometryMatrix3<f64>,
-    /// The identifier of the parent joint. If the object is not attached to a joint, this is set to 0 (WORLD).
+    /// The identifier of the parent joint. If the object is not attached to a joint, this is set to 0 (WORLD_FRAME_ID).
     pub parent_joint: usize,
-    /// The identifier of the parent frame. If the object is not attached to a frame, this is set to 0 (WORLD).
-    pub parent_frame: usize,
 }
 
 impl GeometryObject {
@@ -36,14 +32,12 @@ impl GeometryObject {
     ///
     /// * `name` - The name of the geometry object.
     /// * `parent_joint` - The identifier of the parent joint.
-    /// * `parent_frame` - The identifier of the parent frame.
     /// * `geometry` - The `collider` shape of the geometry object (used for collisions).
     /// * `mesh_color` - The RGBA color of the mesh.
     /// * `placement` - The placement of the geometry object in the parent frame.
     pub fn new(
         name: String,
         parent_joint: usize,
-        parent_frame: usize,
         geometry: ShapeWrapper,
         mesh_color: Vector4<f64>,
         placement: IsometryMatrix3<f64>,
@@ -56,7 +50,6 @@ impl GeometryObject {
             mesh_color,
             placement,
             parent_joint,
-            parent_frame,
         }
     }
 }
@@ -71,7 +64,6 @@ impl Clone for GeometryObject {
             mesh_color: self.mesh_color,
             placement: self.placement,
             parent_joint: self.parent_joint,
-            parent_frame: self.parent_frame,
         }
     }
 }
@@ -90,35 +82,33 @@ impl PyGeometryObject {
     ///
     /// * `name` - The name of the geometry object.
     /// * `parent_joint` - The identifier of the parent joint.
-    /// * `parent_frame` - The identifier of the parent frame.
     /// * `geometry` - The `collider` shape of the geometry object (used for collisions).
     /// * `placement` - The placement of the geometry object in the parent frame.
     #[new]
     #[pyo3(signature = (*py_args))]
     fn new(py_args: &Bound<'_, PyTuple>) -> PyResult<Self> {
-        if py_args.len() == 5 {
+        if py_args.len() == 4 {
             let name: String = py_args.get_item(0)?.extract()?;
-            let _parent_joint: usize = py_args.get_item(1)?.extract()?;
-            let _parent_frame: usize = py_args.get_item(2)?.extract()?;
+            let parent_joint: usize = py_args.get_item(1)?.extract()?;
 
             let geometry: PyShapeWrapper =
-                if let Ok(capsule) = py_args.get_item(3)?.extract::<PyRef<PyCapsule>>() {
+                if let Ok(capsule) = py_args.get_item(2)?.extract::<PyRef<PyCapsule>>() {
                     PyShapeWrapper {
                         inner: capsule.inner.clone_box(),
                     }
-                } else if let Ok(cone) = py_args.get_item(3)?.extract::<PyRef<PyCone>>() {
+                } else if let Ok(cone) = py_args.get_item(2)?.extract::<PyRef<PyCone>>() {
                     PyShapeWrapper {
                         inner: cone.inner.clone_box(),
                     }
-                } else if let Ok(cuboid) = py_args.get_item(3)?.extract::<PyRef<PyCuboid>>() {
+                } else if let Ok(cuboid) = py_args.get_item(2)?.extract::<PyRef<PyCuboid>>() {
                     PyShapeWrapper {
                         inner: cuboid.inner.clone_box(),
                     }
-                } else if let Ok(cylinder) = py_args.get_item(3)?.extract::<PyRef<PyCylinder>>() {
+                } else if let Ok(cylinder) = py_args.get_item(2)?.extract::<PyRef<PyCylinder>>() {
                     PyShapeWrapper {
                         inner: cylinder.inner.clone_box(),
                     }
-                } else if let Ok(sphere) = py_args.get_item(3)?.extract::<PyRef<PySphere>>() {
+                } else if let Ok(sphere) = py_args.get_item(2)?.extract::<PyRef<PySphere>>() {
                     PyShapeWrapper {
                         inner: sphere.inner.clone_box(),
                     }
@@ -129,13 +119,12 @@ impl PyGeometryObject {
                     )));
                 };
 
-            let placement = py_args.get_item(4)?.extract::<PyRef<PySE3>>()?;
+            let placement = py_args.get_item(3)?.extract::<PyRef<PySE3>>()?;
 
             Ok(Self {
                 inner: GeometryObject::new(
                     name,
-                    _parent_joint,
-                    _parent_frame,
+                    parent_joint,
                     geometry.inner.clone_box(),
                     Vector4::new(0.0, 0.0, 0.0, 1.0),
                     placement.inner,
@@ -143,7 +132,7 @@ impl PyGeometryObject {
             })
         } else {
             Err(PyValueError::new_err(format!(
-                "incorrect number of arguments, expected 5, but got {}. Signature: GeometryObject(name, parent_joint, parent_frame, geometry, placement)",
+                "incorrect number of arguments, expected 4, but got {}. Signature: GeometryObject(name, parent_joint, geometry, placement)",
                 py_args.len()
             )))
         }

@@ -8,7 +8,7 @@ use std::collections::HashMap;
 
 use crate::{
     geometry_model::{GeometryModel, PyGeometryModel},
-    model::{PyModel, WORLD_FRAME_ID},
+    model::PyModel,
 };
 
 /// Structure containing the mutable properties of the robot.
@@ -18,8 +18,6 @@ pub struct Data {
     pub joint_data: HashMap<usize, JointDataWrapper>,
     /// The placements of the joints in the world frame
     pub joint_placements: HashMap<usize, IsometryMatrix3<f64>>,
-    /// The placements of the frames in the world frame
-    pub frame_placements: HashMap<usize, IsometryMatrix3<f64>>,
 }
 
 impl Data {
@@ -35,12 +33,10 @@ impl Data {
     pub fn new(
         joint_data: HashMap<usize, JointDataWrapper>,
         joint_placements: HashMap<usize, IsometryMatrix3<f64>>,
-        frame_placements: HashMap<usize, IsometryMatrix3<f64>>,
     ) -> Self {
         Self {
             joint_data,
             joint_placements,
-            frame_placements,
         }
     }
 }
@@ -103,17 +99,10 @@ impl GeometryData {
         self.object_placements.clear();
 
         for (object_id, object) in geom_model.models.iter() {
-            if object.parent_joint == WORLD_FRAME_ID {
-                let parent_frame_id = object.parent_frame;
-                let parent_frame_placement = data.frame_placements.get(&parent_frame_id).unwrap();
-                let object_placement = parent_frame_placement * object.placement;
-                self.object_placements.insert(*object_id, object_placement);
-            } else {
-                let parent_joint_id = object.parent_joint;
-                let parent_joint_placement = data.joint_placements.get(&parent_joint_id).unwrap();
-                let object_placement = parent_joint_placement * object.placement;
-                self.object_placements.insert(*object_id, object_placement);
-            }
+            let parent_joint_id = object.parent_joint;
+            let parent_joint_placement = data.joint_placements.get(&parent_joint_id).unwrap();
+            let object_placement = parent_joint_placement * object.placement;
+            self.object_placements.insert(*object_id, object_placement);
         }
     }
 }

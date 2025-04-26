@@ -50,7 +50,7 @@ fn test_materials() {
 
     // base link
     assert_eq!(
-        *model.frame_placements.get(&0).unwrap(),
+        *model.joint_placements.get(&0).unwrap(),
         IsometryMatrix3::identity()
     );
     assert_eq!(
@@ -60,10 +60,10 @@ fn test_materials() {
 
     // right leg
     assert_eq!(
-        model.frame_placements.get(&1).unwrap().translation,
+        model.joint_placements.get(&1).unwrap().translation,
         Translation3::new(0.0, -0.22, 0.25)
     );
-    assert_eq!(geom_model.models.get(&1).unwrap().parent_frame, 1);
+    assert_eq!(geom_model.models.get(&1).unwrap().parent_joint, 1);
     assert_eq!(
         geom_data.get_object_placement(1).unwrap().translation,
         Translation3::new(0.0, -0.22, 0.25 - 0.3)
@@ -71,10 +71,10 @@ fn test_materials() {
 
     // left leg
     assert_eq!(
-        model.frame_placements.get(&2).unwrap().translation,
+        model.joint_placements.get(&2).unwrap().translation,
         Translation3::new(0.0, 0.22, 0.25)
     );
-    assert_eq!(geom_model.models.get(&2).unwrap().parent_frame, 2);
+    assert_eq!(geom_model.models.get(&2).unwrap().parent_joint, 2);
     assert_eq!(
         geom_data.get_object_placement(2).unwrap().translation,
         Translation3::new(0.0, 0.22, 0.25 - 0.3)

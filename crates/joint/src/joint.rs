@@ -34,8 +34,6 @@ pub trait Joint {
 }
 
 /// Enum representing the type of joint.
-///
-/// Recall that fixed joints are treated as frames.
 #[pyclass]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum JointType {
