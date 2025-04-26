@@ -98,11 +98,17 @@ fn test_visuals() {
 
     let right_base_id = geom_model.indices.get("right_base").unwrap();
     assert_eq!(
-        geom_data.get_object_placement(*right_base_id).unwrap().rotation,
+        geom_data
+            .get_object_placement(*right_base_id)
+            .unwrap()
+            .rotation,
         Rotation3::identity()
     );
     assert_eq!(
-        geom_data.get_object_placement(*right_base_id).unwrap().translation,
+        geom_data
+            .get_object_placement(*right_base_id)
+            .unwrap()
+            .translation,
         Translation3::new(0.0, 0.0, -0.6) * Translation3::new(0.0, -0.22, 0.25)
     );
 }

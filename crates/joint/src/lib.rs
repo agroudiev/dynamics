@@ -2,7 +2,8 @@
 //!
 //! Fixed joints are not included in this module and are represented as frames.
 
+pub mod data;
 pub mod joint;
 
-pub mod data;
+pub mod fixed;
 pub mod revolute;

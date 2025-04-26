@@ -39,6 +39,7 @@ pub trait Joint {
 #[pyclass]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum JointType {
+    Fixed,
     Revolute,
 }
 
