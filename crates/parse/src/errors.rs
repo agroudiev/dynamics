@@ -15,4 +15,5 @@ pub enum ParseError {
     UnknownJointType(String),
     UnknownTag(String),
     ModelError(String),
+    UnknownLinkName(String),
 }

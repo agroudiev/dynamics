@@ -2,7 +2,7 @@
 
 use crate::errors::ParseError;
 use collider::shape::{Cylinder, ShapeWrapper, Sphere};
-// use joint::revolute::JointModelRevolute;
+use joint::revolute::JointModelRevolute;
 use model::{
     geometry_model::{GeometryModel, PyGeometryModel},
     geometry_object::GeometryObject,
@@ -40,7 +40,7 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
     let mut geom_model = GeometryModel::new();
     let mut materials: HashMap<&str, Vector4<f64>> = HashMap::new();
 
-    let priority_order = ["material", "link", "joint"];
+    let priority_order = ["material", "joint", "link"];
     let priority_map: HashMap<&str, usize> = priority_order
         .iter()
         .enumerate()
@@ -82,7 +82,8 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                 // extract the name and type of joint
                 let joint_name = joint_node
                     .attribute("name")
-                    .ok_or(ParseError::NameMissing)?;
+                    .ok_or(ParseError::NameMissing)?
+                    .to_string();
                 let joint_type = joint_node
                     .attribute("type")
                     .ok_or(ParseError::MissingParameter("type".to_string()))?;
@@ -104,50 +105,52 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                     .ok_or(ParseError::MissingParameter("child".to_string()))?;
                 let child_link_name = extract_parameter::<String>("link", &child_node)?;
 
-                match joint_type {
+                // we retrieve the parent joint id of the parent link
+                let parent_joint_id = match geom_model.indices.get(&parent_link_name) {
+                    Some(parent_id) => geom_model.models.get_mut(parent_id).unwrap().parent_joint,
+                    None => {
+                        return Err(ParseError::UnknownLinkName(parent_link_name.to_string()));
+                    }
+                };
+
+                // we retrieve the child object to change its parent frame
+                let child_object = match geom_model.indices.get(&child_link_name) {
+                    Some(child_id) => geom_model.models.get_mut(child_id).unwrap(),
+                    None => {
+                        return Err(ParseError::UnknownLinkName(child_link_name.to_string()));
+                    }
+                };
+
+                let joint_id = match joint_type {
                     "fixed" => {
-                        let parent_id = match geom_model.indices.get(&parent_link_name) {
-                            Some(parent_id) => *parent_id,
-                            None => {
-                                return Err(ParseError::MissingParameter(
-                                    "parent link not found".to_string(),
-                                ));
-                            }
-                        };
-
                         // we create a new frame for the link
-                        let frame_id =
-                            match model.add_frame(link_origin, joint_name.to_string(), parent_id) {
-                                Ok(id) => id,
-                                Err(e) => return Err(ParseError::ModelError(format!("{:?}", e))),
-                            };
-
-                        // we retrieve the child object to change its parent frame
-                        let child_object = match geom_model.indices.get(&child_link_name) {
-                            Some(child_id) => geom_model.models.get_mut(child_id).unwrap(),
-                            None => {
-                                return Err(ParseError::MissingParameter(format!(
-                                    "child link '{child_link_name}' not found"
-                                )));
-                            }
-                        };
-                        child_object.parent_joint = frame_id;
+                        model.add_frame(link_origin, joint_name, parent_joint_id)
                     }
                     "revolute" => {
-                        // let axis = match extract_parameter_list::<f64>("axis", &joint_node, Some(3)) {
-                        //     Ok(axis) => Vector3::new(axis[0], axis[1], axis[2]),
-                        //     // default value if axis is not specified
-                        //     Err(ParseError::MissingParameter(_)) => Vector3::new(1.0, 0.0, 0.0),
-                        //     // if the axis is specified but invalid
-                        //     Err(e) => return Err(e),
-                        // };
-                        // let joint_model = JointModelRevolute { axis };
-                        // let _joint_id =
-                        //     model.add_joint(0, Box::new(joint_model), placement, joint_name.to_string());
-                        // // TODO: handle parent-child joint relationship
+                        // we extract the axis of rotation
+                        let axis = match extract_parameter_list::<f64>("axis", &joint_node, Some(3))
+                        {
+                            Ok(axis) => Vector3::new(axis[0], axis[1], axis[2]),
+                            // default value if axis is not specified
+                            Err(ParseError::MissingParameter(_)) => Vector3::new(1.0, 0.0, 0.0),
+                            // if the axis is specified but invalid
+                            Err(e) => return Err(e),
+                        };
+                        let joint_model = JointModelRevolute { axis };
+                        model.add_joint(
+                            parent_joint_id,
+                            Box::new(joint_model),
+                            link_origin,
+                            joint_name,
+                        )
                     }
                     _ => return Err(ParseError::UnknownJointType(joint_type.to_string())),
-                }
+                };
+                let joint_id = match joint_id {
+                    Ok(id) => id,
+                    Err(e) => return Err(ParseError::ModelError(format!("{:?}", e))),
+                };
+                child_object.parent_joint = joint_id;
             }
             // we ignore empty lines and such
             "" => {}
