@@ -6,7 +6,7 @@ use joint::revolute::JointModelRevolute;
 use model::{
     geometry_model::{GeometryModel, PyGeometryModel},
     geometry_object::GeometryObject,
-    model::{Model, PyModel},
+    model::{Model, PyModel, WORLD_FRAME_ID},
 };
 use nalgebra::{IsometryMatrix3, Translation3, Vector3, Vector4};
 use pyo3::prelude::*;
@@ -40,7 +40,7 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
     let mut geom_model = GeometryModel::new();
     let mut materials: HashMap<&str, Vector4<f64>> = HashMap::new();
 
-    let priority_order = ["material", "joint", "link"];
+    let priority_order = ["material", "link", "joint"];
     let priority_map: HashMap<&str, usize> = priority_order
         .iter()
         .enumerate()
@@ -68,12 +68,26 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                 materials.insert(material_name, color);
             }
             "link" => {
+                let link_name = main_node.attribute("name").unwrap_or("").to_string();
+                
                 // parse the visual node
                 if let Some(visual_node) = main_node.children().find(|n| n.has_tag_name("visual")) {
-                    let link_name = main_node.attribute("name").unwrap_or("").to_string();
                     let geom_obj = parse_geometry(link_name, &visual_node, &materials)?;
                     geom_model.add_geometry_object(geom_obj);
+                } else {
+                    // add a default geometry object if no visual node is found
+                    geom_model.add_geometry_object(GeometryObject::new(
+                        link_name.clone(),
+                        WORLD_FRAME_ID,
+                        Box::new(Sphere::new(0.0)),
+                        Vector4::zeros(),
+                        IsometryMatrix3::identity(),
+                    ));
                 }
+
+                // TODO: parse the inertial node
+
+                // TODO: parse the collision node
             }
             // parse joints and frames
             "joint" => {
@@ -136,6 +150,10 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                             // if the axis is specified but invalid
                             Err(e) => return Err(e),
                         };
+
+                        // TODO: extract limits
+                        // TODO: extract dynamics (damping, ...)
+
                         let joint_model = JointModelRevolute { axis };
                         model.add_joint(
                             parent_joint_id,
