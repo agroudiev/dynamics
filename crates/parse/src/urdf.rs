@@ -24,7 +24,7 @@ use std::{collections::HashMap, fs, str::FromStr};
 /// A tuple containing the `Model` and `GeometryModel` objects if successful.
 /// Returns a `ParseError` if there is an error during parsing.
 pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), ParseError> {
-    // TODO: error if the same name is used multiple times
+    // TODO: separate file reading and parsing for testing
     let contents = fs::read_to_string(filepath).map_err(ParseError::IoError)?;
     let doc = Document::parse(&contents).map_err(ParseError::XmlError)?;
 
@@ -117,7 +117,10 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
 
                         // we create a new frame for the link
                         let frame_id =
-                            model.add_frame(link_origin, joint_name.to_string(), parent_id);
+                            match model.add_frame(link_origin, joint_name.to_string(), parent_id) {
+                                Ok(id) => id,
+                                Err(e) => return Err(ParseError::ModelError(format!("{:?}", e))),
+                            };
 
                         // we retrieve the child object to change its parent frame
                         let child_object = match geom_model.indices.get(&child_link_name) {

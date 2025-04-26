@@ -14,4 +14,5 @@ pub enum ParseError {
     MaterialWithoutColor,
     UnknownJointType(String),
     UnknownTag(String),
+    ModelError(String),
 }

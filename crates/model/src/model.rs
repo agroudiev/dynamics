@@ -86,7 +86,16 @@ impl Model {
         joint_model: JointWrapper,
         placement: IsometryMatrix3<f64>,
         name: String,
-    ) -> usize {
+    ) -> Result<usize, ModelError> {
+        if !self.joint_names.contains_key(&parent_id) {
+            return Err(ModelError::ParentJointDoesNotExist(parent_id));
+        }
+        for (id, other_name) in self.joint_names.iter() {
+            if other_name == &name {
+                return Err(ModelError::JointNameAlreadyUsed(name, *id));
+            }
+        }
+
         let id = self.joint_order.len();
         self.joint_names.insert(id, name);
         self.joint_placements.insert(id, placement);
@@ -96,14 +105,9 @@ impl Model {
         self.joint_order.push(id);
 
         // add the joint to the parent
-        assert!(
-            self.joint_names.contains_key(&parent_id),
-            "The parent joint index {} does not exist.",
-            parent_id
-        );
         self.joint_parents.insert(id, parent_id);
 
-        id
+        Ok(id)
     }
 
     /// Returns an iterator over the joint models in the model.
@@ -130,7 +134,7 @@ impl Model {
         placement: IsometryMatrix3<f64>,
         name: String,
         parent_id: usize,
-    ) -> usize {
+    ) -> Result<usize, ModelError> {
         let fixed_joint_model = joint::fixed::JointModelFixed::default();
         self.add_joint(parent_id, Box::new(fixed_joint_model), placement, name)
     }
@@ -165,6 +169,15 @@ impl Model {
 
         Data::new(joints_data, world_joint_placements)
     }
+}
+
+#[derive(Debug)]
+/// An error that can occur when adding a joint to the model.
+pub enum ModelError {
+    /// The parent joint does not exist.
+    ParentJointDoesNotExist(usize),
+    /// The name of the joint is already used.
+    JointNameAlreadyUsed(String, usize),
 }
 
 /// A `Model` is a data structure that contains the information about the robot model,
@@ -235,12 +248,15 @@ impl PyModel {
             let placement = py_args.get_item(2)?.extract::<PyRef<PySE3>>()?;
             let name: String = py_args.get_item(3)?.extract()?;
 
-            Ok(self.inner.add_joint(
+            match self.inner.add_joint(
                 parent_id,
                 joint_model.inner.clone_box(),
                 placement.inner,
                 name,
-            ))
+            ) {
+                Ok(id) => Ok(id),
+                Err(model_error) => Err(PyValueError::new_err(format!("{:?}", model_error))),
+            }
         } else {
             Err(PyValueError::new_err(
                 "add_joint() takes exactly 4 arguments",
