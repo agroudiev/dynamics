@@ -1,6 +1,7 @@
 //! `Model` structure containing the robot model and its immutable properties.
 
 use crate::data::Data;
+use inertia::inertia::{Inertia, PyInertia};
 use joint::{
     joint::{Joint, JointWrapper, PyJointWrapper},
     revolute::PyJointModelRevolute,
@@ -158,6 +159,26 @@ impl Model {
 
         Data::new(joints_data, world_joint_placements)
     }
+
+    /// Appends a body of given inertia to the joint with given id.
+    ///
+    /// # Arguments
+    ///
+    /// * `joint_id` - The identifier of the joint to append the body to.
+    /// * `inertia` - The inertia of the body to append.
+    /// * `placement` - The placement of the body in the joint frame.
+    ///
+    /// # Returns
+    ///
+    /// A result indicating success or failure.
+    pub fn append_body_to_joint(
+        &mut self,
+        joint_id: usize,
+        inertia: Inertia,
+        placement: IsometryMatrix3<f64>,
+    ) -> Result<(), ModelError> {
+        Ok(unimplemented!())
+    }
 }
 
 #[derive(Debug)]
@@ -250,6 +271,21 @@ impl PyModel {
             Err(PyValueError::new_err(
                 "add_joint() takes exactly 4 arguments",
             ))
+        }
+    }
+
+    fn append_body_to_joint(
+        &mut self,
+        joint_id: usize,
+        inertia: &PyInertia,
+        placement: &PySE3,
+    ) -> PyResult<()> {
+        match self
+            .inner
+            .append_body_to_joint(joint_id, inertia.inner.clone(), placement.inner)
+        {
+            Ok(_) => Ok(()),
+            Err(model_error) => Err(PyValueError::new_err(format!("{:?}", model_error))),
         }
     }
 }

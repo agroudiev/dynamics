@@ -7,7 +7,7 @@ import time
 model = dyn.Model()
 geom_model = dyn.GeometryModel()
 
-parent_id = 0
+parent_id = dyn.WORLD_FRAME_ID
 
 base_radius = 0.2
 shape_base = col.Sphere(base_radius)
@@ -51,7 +51,7 @@ joint_placement = body_placement.copy()
 # initialize the viewer
 visual_model = geom_model
 viz = dyn.visualize.MeshcatVisualizer(model, geom_model, visual_model)
-viz.init_viewer(open=True, load_model=True)
+viz.init_viewer(load_model=True)
 
 
 # display a valid robot configuration.

@@ -151,16 +151,13 @@ impl PyGeometryData {
     }
 
     /// Updates the geometry data using the updated model data and geometry model.
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `data` - The model data object.
     /// * `geom_model` - The geometry model object.
-    pub fn update_geometry_data(
-        &mut self,
-        data: &PyData,
-        geom_model: &PyGeometryModel,
-    ) {
-        self.inner.update_geometry_data(&data.inner, &geom_model.inner);
+    pub fn update_geometry_data(&mut self, data: &PyData, geom_model: &PyGeometryModel) {
+        self.inner
+            .update_geometry_data(&data.inner, &geom_model.inner);
     }
 }

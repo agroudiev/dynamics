@@ -10,12 +10,17 @@ pub fn foward_dynamics(model: &mut Model, data: &Data, q: &Configuration) {
 }
 
 #[pyfunction(name = "forward_dynamics")]
-pub fn py_forward_dynamics(model: &mut PyModel, data: &PyData, q: PyReadonlyArray1<f64>) -> PyResult<()> {
+pub fn py_forward_dynamics(
+    model: &mut PyModel,
+    data: &PyData,
+    q: PyReadonlyArray1<f64>,
+) -> PyResult<()> {
     let q = q.as_array();
     if q.shape() != [model.inner.nq] {
         return Err(PyValueError::new_err(format!(
             "Invalid input size. Expected a configuration of size {}, got {:?}",
-            model.inner.nq, q.shape()
+            model.inner.nq,
+            q.shape()
         )));
     }
     let q = match q.as_slice() {

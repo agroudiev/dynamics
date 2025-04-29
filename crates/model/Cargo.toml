@@ -14,5 +14,6 @@ nalgebra = { workspace = true }
 numpy = { workspace = true }
 pyo3 = { workspace = true }
 
+inertia = { path = "../inertia" }
 joint = { path = "../joint" }
 spatial = { path = "../spatial" }
