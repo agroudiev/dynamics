@@ -261,12 +261,24 @@ class MeshcatVisualizer:
         """Update the placements of the geometry objects in the viewer."""
         if geometry_type == GeometryType.VISUAL:
             geom_model = self.visual_model
+            geom_data = self.visual_data
         else:
             geom_model = self.collision_model
+            geom_data = self.collision_data
 
         # dynamics.update_geometry_placements(self.model, geom_model)
-        for visual in geom_model.geometry_objects:
+        
+        geom_data.update_geometry_data(self.data, geom_model)
+        for object in geom_model.geometry_objects:
             # placement in world frame
-            placement = self.visual_data.get_object_placement(visual.id)
+            placement = geom_data.get_object_placement(object.id)
             T = placement.homogeneous
-            self.viewer[visual.name].set_transform(T)
+            self.viewer[object.name].set_transform(T)
+
+    def display(self, q: np.ndarray | None = None):
+        """Display the robot in the given configuration."""
+
+        # if q is not None:
+        #     dynamics.forward_kinematics(self.model, self.data, q)
+
+        self.update_placements(GeometryType.VISUAL)
