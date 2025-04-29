@@ -24,9 +24,7 @@ pub struct Model {
     /// The placements of the joints.
     pub joint_placements: HashMap<usize, IsometryMatrix3<f64>>,
     /// The joint models.
-    joint_models: HashMap<usize, JointWrapper>,
-    /// The order of the joints.
-    joint_order: Vec<usize>,
+    pub joint_models: HashMap<usize, JointWrapper>,
     /// The number of position variables.
     pub nq: usize,
     /// The number of velocity variables.
@@ -66,7 +64,6 @@ impl Model {
             joint_parents,
             joint_placements,
             joint_models: HashMap::new(),
-            joint_order: vec![WORLD_FRAME_ID],
             nq: 0,
             nv: 0,
         }
@@ -96,27 +93,17 @@ impl Model {
             }
         }
 
-        let id = self.joint_order.len();
+        let id = self.joint_models.len();
         self.joint_names.insert(id, name);
         self.joint_placements.insert(id, placement);
         self.nq += joint_model.nq();
         self.nv += joint_model.nv();
         self.joint_models.insert(id, joint_model);
-        self.joint_order.push(id);
 
         // add the joint to the parent
         self.joint_parents.insert(id, parent_id);
 
         Ok(id)
-    }
-
-    /// Returns an iterator over the joint models in the model.
-    /// This iterator is ordered in such a way that if the method is called twice,
-    /// and if no changes are made to the model, the order of the will remain the same.
-    pub fn iter_joint_models(&self) -> impl Iterator<Item = &JointWrapper> {
-        self.joint_order
-            .iter()
-            .map(move |id| self.joint_models.get(id).unwrap())
     }
 
     /// Adds a frame (fixed joint) to the model.
@@ -157,7 +144,9 @@ impl Model {
         let mut world_joint_placements = HashMap::new();
         world_joint_placements.insert(WORLD_FRAME_ID, IsometryMatrix3::identity());
 
-        for joint_id in self.joint_order.iter() {
+        let mut keys = self.joint_models.keys().collect::<Vec<_>>();
+        keys.sort();
+        for joint_id in keys {
             let parent_id = self.joint_parents.get(joint_id).unwrap(); // we checked that the parent existed before
             // get the placement of the parent join in the world frame
             let parent_placement = world_joint_placements.get(parent_id).unwrap();

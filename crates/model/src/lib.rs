@@ -12,6 +12,7 @@
 //! The local placement of objects should not change without user intervention, while the world placement of objects might change when computing the forward kinematics.
 
 pub mod data;
+pub mod forward_dynamics;
 pub mod geometry_model;
 pub mod geometry_object;
 pub mod model;

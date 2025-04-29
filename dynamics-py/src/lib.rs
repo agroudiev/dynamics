@@ -13,6 +13,7 @@ use model::{
     geometry_object::PyGeometryObject,
     model::PyModel,
     neutral::py_neutral,
+    forward_dynamics::py_forward_dynamics,
 };
 use pyo3::prelude::*;
 
@@ -54,6 +55,7 @@ fn add_dynamics_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult
     dynamics.add_class::<PyGeometryData>()?;
     dynamics.add_class::<PyGeometryObject>()?;
     dynamics.add_function(wrap_pyfunction!(py_neutral, dynamics)?)?;
+    dynamics.add_function(wrap_pyfunction!(py_forward_dynamics, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(build_models_from_urdf_py, dynamics)?)?;
 
     add_inertia_bindings(dynamics)?;

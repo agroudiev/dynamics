@@ -17,7 +17,10 @@ pub fn neutral(model: &mut Model) -> Configuration {
     let mut q = Configuration::zeros(model.nq);
 
     let mut offset = 0;
-    for joint_model in model.iter_joint_models() {
+    let mut keys = model.joint_models.keys().collect::<Vec<_>>();
+    keys.sort();
+    for joint_id in keys {
+        let joint_model = model.joint_models.get(joint_id).unwrap();
         let q_joint = joint_model.neutral();
         q.rows_mut(offset, offset + joint_model.nq())
             .copy_from_slice(&q_joint);
