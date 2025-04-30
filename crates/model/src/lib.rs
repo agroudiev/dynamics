@@ -11,11 +11,44 @@
 //! while the `Data` object contains the joint placements with respect to the world frame.
 //! The local placement of objects should not change without user intervention, while the world placement of objects might change when computing the forward kinematics.
 
+use joint::data::JointError;
+
 pub mod data;
 pub mod forward_dynamics;
+pub mod forward_kinematics;
 pub mod geometry_model;
 pub mod geometry_object;
 pub mod model;
 pub mod neutral;
 
 type Configuration = nalgebra::DVector<f64>;
+
+pub enum ConfigurationError {
+    InvalidSize(usize, usize),
+    JointDataUpdateError(usize, JointError),
+}
+
+impl std::fmt::Display for ConfigurationError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            ConfigurationError::InvalidSize(expected, actual) => {
+                write!(
+                    f,
+                    "Expected configuration size {}, but got {}",
+                    expected, actual
+                )
+            }
+            ConfigurationError::JointDataUpdateError(id, err) => {
+                write!(f, "Error updating joint data for joint {}: {:?}", id, err)
+            }
+        }
+    }
+}
+
+impl std::fmt::Debug for ConfigurationError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self)
+    }
+}
+
+impl std::error::Error for ConfigurationError {}

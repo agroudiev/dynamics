@@ -265,8 +265,6 @@ class MeshcatVisualizer:
         else:
             geom_model = self.collision_model
             geom_data = self.collision_data
-
-        # dynamics.update_geometry_placements(self.model, geom_model)
         
         geom_data.update_geometry_data(self.data, geom_model)
         for object in geom_model.geometry_objects:

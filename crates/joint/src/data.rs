@@ -1,7 +1,7 @@
 //! Structure containing the mutable properties of a joint.
 
-use crate::joint::Joint;
-use nalgebra::IsometryMatrix3;
+use crate::joint::JointWrapper;
+use nalgebra::{DVector, IsometryMatrix3};
 
 /// Dynamic type for a joint.
 pub type JointDataWrapper = Box<dyn JointData + Send + Sync>;
@@ -18,5 +18,9 @@ pub trait JointData {
     fn get_joint_placement(&self) -> IsometryMatrix3<f64>;
 
     /// Updates the joint data with the given model and angle.
-    fn update(&mut self, joint_model: &dyn Joint, angle: f64) -> Result<(), JointError>;
+    fn update(
+        &mut self,
+        joint_model: &JointWrapper,
+        q_joint: &DVector<f64>,
+    ) -> Result<(), JointError>;
 }

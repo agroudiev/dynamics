@@ -5,14 +5,14 @@ use numpy::PyReadonlyArray1;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
-pub fn foward_dynamics(model: &mut Model, data: &Data, q: &Configuration) {
+pub fn foward_dynamics(model: &Model, data: &mut Data, q: &Configuration) {
     // TODO: check if q is of the right size
 }
 
 #[pyfunction(name = "forward_dynamics")]
 pub fn py_forward_dynamics(
-    model: &mut PyModel,
-    data: &PyData,
+    model: &PyModel,
+    data: &mut PyData,
     q: PyReadonlyArray1<f64>,
 ) -> PyResult<()> {
     let q = q.as_array();
@@ -29,6 +29,6 @@ pub fn py_forward_dynamics(
     };
     let q = Configuration::from_row_slice(q);
 
-    foward_dynamics(&mut model.inner, &data.inner, &q);
+    foward_dynamics(&model.inner, &mut data.inner, &q);
     Ok(())
 }

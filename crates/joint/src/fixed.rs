@@ -4,7 +4,7 @@ use crate::{
     data::{JointData, JointDataWrapper, JointError},
     joint::{Joint, JointType, JointWrapper},
 };
-use nalgebra::IsometryMatrix3;
+use nalgebra::{DVector, IsometryMatrix3};
 use pyo3::prelude::*;
 
 /// Model of a fixed joint.
@@ -47,13 +47,18 @@ pub struct JointDataFixed {
 impl JointDataFixed {
     /// Creates a new `JointDataFixed` from given joint model.
     ///
+    /// # Arguments
+    ///
+    /// * `joint_model` - The fixed joint model.
+    ///
     /// # Returns
     /// A new `JointDataFixed` object.
     pub fn new(joint_model: &JointModelFixed) -> Self {
         let mut data = JointDataFixed::default();
+        let joint_model_box: JointWrapper = Box::new(joint_model.clone());
         // safe since we just created a revolute joint model
         // and we know that a revolute joint has an axis
-        data.update(joint_model, 0.0).unwrap();
+        data.update(&joint_model_box, &DVector::zeros(0)).unwrap();
         data
     }
 }
@@ -63,7 +68,7 @@ impl JointData for JointDataFixed {
         self.placement
     }
 
-    fn update(&mut self, _joint_model: &dyn Joint, _q: f64) -> Result<(), JointError> {
+    fn update(&mut self, _joint_model: &JointWrapper, _: &DVector<f64>) -> Result<(), JointError> {
         Ok(())
     }
 }

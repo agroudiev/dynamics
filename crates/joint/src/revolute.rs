@@ -4,7 +4,7 @@ use crate::{
     data::{JointData, JointDataWrapper, JointError},
     joint::{Joint, JointType, JointWrapper},
 };
-use nalgebra::{IsometryMatrix3, Rotation3, Translation, Vector3};
+use nalgebra::{DVector, IsometryMatrix3, Rotation3, Translation, Vector3};
 use pyo3::prelude::*;
 
 /// Model of a revolute joint.
@@ -96,7 +96,8 @@ impl JointDataRevolute {
         let mut data = JointDataRevolute::default();
         // safe since we just created a revolute joint model
         // and we know that a revolute joint has an axis
-        data.update(joint_model, 0.0).unwrap();
+        let joint_model_box: JointWrapper = Box::new(joint_model.clone());
+        data.update(&joint_model_box, &DVector::zeros(1)).unwrap();
         data
     }
 }
@@ -106,7 +107,9 @@ impl JointData for JointDataRevolute {
         self.placement
     }
 
-    fn update(&mut self, joint_model: &dyn Joint, q: f64) -> Result<(), JointError> {
+    fn update(&mut self, joint_model: &JointWrapper, q: &DVector<f64>) -> Result<(), JointError> {
+        assert_eq!(q.len(), 1, "Revolute joint model expects a single angle.");
+        let q = q[0];
         self.q = q;
         let axis = match joint_model.get_axis() {
             Some(axis) => axis,
@@ -159,10 +162,11 @@ mod tests {
     fn test_joint_data_revolute_xaxis() {
         let joint_model = JointModelRevolute::new(*Vector3::x_axis());
         let mut joint_data = joint_model.create_joint_data();
-        let q = 1.0;
-        joint_data.update(&joint_model, q).unwrap();
+        let q = DVector::from_element(1, 1.0);
+        let joint_model_box: JointWrapper = Box::new(joint_model.clone());
+        joint_data.update(&joint_model_box, &q).unwrap();
 
-        assert_relative_eq!(joint_data.get_joint_placement().rotation.angle(), q);
+        assert_relative_eq!(joint_data.get_joint_placement().rotation.angle(), q[0]);
         assert_eq!(
             joint_data.get_joint_placement().translation.vector,
             Vector3::zeros()

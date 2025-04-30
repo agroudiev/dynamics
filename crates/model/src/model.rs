@@ -1,12 +1,12 @@
 //! `Model` structure containing the robot model and its immutable properties.
 
-use crate::data::Data;
+use crate::{data::Data, forward_kinematics::forward_kinematics};
 use inertia::inertia::{Inertia, PyInertia};
 use joint::{
     joint::{Joint, JointWrapper, PyJointWrapper},
     revolute::PyJointModelRevolute,
 };
-use nalgebra::IsometryMatrix3;
+use nalgebra::{DVector, IsometryMatrix3};
 use pyo3::{exceptions::PyValueError, prelude::*, types::PyTuple};
 use spatial::se3::PySE3;
 use std::collections::HashMap;
@@ -140,24 +140,12 @@ impl Model {
             joints_data.insert(*id, joint_data);
         }
 
-        // create the placements of the joints in the world frame
-        // by traversing the joint tree
-        let mut world_joint_placements = HashMap::new();
-        world_joint_placements.insert(WORLD_FRAME_ID, IsometryMatrix3::identity());
+        let mut data = Data::new(joints_data, HashMap::new());
 
-        let mut keys = self.joint_models.keys().collect::<Vec<_>>();
-        keys.sort();
-        for joint_id in keys {
-            let parent_id = self.joint_parents.get(joint_id).unwrap(); // we checked that the parent existed before
-            // get the placement of the parent join in the world frame
-            let parent_placement = world_joint_placements.get(parent_id).unwrap();
-            // get the placement of the joint in the parent frame
-            let local_joint_placement = self.joint_placements.get(joint_id).unwrap();
-            // compute the placement of the joint in the world frame
-            world_joint_placements.insert(*joint_id, parent_placement * local_joint_placement);
-        }
+        forward_kinematics(self, &mut data, &DVector::zeros(self.nq))
+            .expect("Failed to compute forward kinematics");
 
-        Data::new(joints_data, world_joint_placements)
+        data
     }
 
     /// Appends a body of given inertia to the joint with given id.
