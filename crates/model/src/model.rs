@@ -94,7 +94,7 @@ impl Model {
             }
         }
 
-        let id = self.joint_models.len();
+        let id = self.joint_names.len();
         self.joint_names.insert(id, name);
         self.joint_placements.insert(id, placement);
         self.nq += joint_model.nq();

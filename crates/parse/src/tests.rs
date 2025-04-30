@@ -1,5 +1,6 @@
 use crate::urdf::build_models_from_urdf;
 use collider::shape::Cylinder;
+use model::model::WORLD_FRAME_ID;
 use nalgebra::{IsometryMatrix3, Rotation3, Translation3};
 
 #[test]
@@ -42,6 +43,7 @@ fn test_materials() {
     let filepath = "../../examples/descriptions/materials.urdf";
     let result = build_models_from_urdf(filepath);
     let (model, geom_model) = result.unwrap();
+
     let data = model.create_data();
     let geom_data = geom_model.create_data(&data);
 
@@ -50,7 +52,7 @@ fn test_materials() {
 
     // base link
     assert_eq!(
-        *model.joint_placements.get(&0).unwrap(),
+        *model.joint_placements.get(&WORLD_FRAME_ID).unwrap(),
         IsometryMatrix3::identity()
     );
     assert_eq!(
