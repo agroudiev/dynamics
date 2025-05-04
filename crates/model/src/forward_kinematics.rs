@@ -8,6 +8,20 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
 // TODO: make this a method of the Model struct
+/// Computes the forward kinematics of the robot model.
+/// 
+/// It updates the joint data and placements in the world frame.
+/// 
+/// # Arguments
+/// 
+/// * `model` - The robot model.
+/// * `data` - The data structure that contains the joint data.
+/// * `q` - The configuration of the robot.
+/// 
+/// # Returns
+/// 
+/// * `Ok(())` if the forward kinematics was successful.
+/// * `Err(ConfigurationError)` if there was an error.
 pub fn forward_kinematics(
     model: &Model,
     data: &mut Data,
