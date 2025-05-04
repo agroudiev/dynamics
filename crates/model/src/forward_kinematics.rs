@@ -9,17 +9,17 @@ use pyo3::prelude::*;
 
 // TODO: make this a method of the Model struct
 /// Computes the forward kinematics of the robot model.
-/// 
+///
 /// It updates the joint data and placements in the world frame.
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `model` - The robot model.
 /// * `data` - The data structure that contains the joint data.
 /// * `q` - The configuration of the robot.
-/// 
+///
 /// # Returns
-/// 
+///
 /// * `Ok(())` if the forward kinematics was successful.
 /// * `Err(ConfigurationError)` if there was an error.
 pub fn forward_kinematics(
@@ -63,9 +63,14 @@ pub fn forward_kinematics(
         let parent_placement = data.joint_placements.get(parent_id).unwrap();
         // get the placement of the joint in the parent frame
         let local_joint_placement = model.joint_placements.get(joint_id).unwrap();
+        // get the joint transformation
+        let joint_data = data.joint_data.get(joint_id).unwrap();
+        let joint_placement = joint_data.get_joint_placement();
         // compute the placement of the joint in the world frame
-        data.joint_placements
-            .insert(*joint_id, parent_placement * local_joint_placement);
+        data.joint_placements.insert(
+            *joint_id,
+            parent_placement * local_joint_placement * joint_placement,
+        );
     }
 
     Ok(())
@@ -91,6 +96,7 @@ pub fn py_forward_kinematics(
     };
     let q = Configuration::from_row_slice(q);
 
-    forward_kinematics(&model.inner, &mut data.inner, &q).map_err(|e| PyValueError::new_err(format!("Forward kinematics failed: {:?}", e)))?;
+    forward_kinematics(&model.inner, &mut data.inner, &q)
+        .map_err(|e| PyValueError::new_err(format!("Forward kinematics failed: {:?}", e)))?;
     Ok(())
 }

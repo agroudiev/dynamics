@@ -276,7 +276,7 @@ class MeshcatVisualizer:
     def display(self, q: np.ndarray | None = None):
         """Display the robot in the given configuration."""
 
-        # if q is not None:
-        #     dynamics.forward_kinematics(self.model, self.data, q)
+        if q is not None:
+            dynamics.forward_kinematics(self.model, self.data, q)
 
         self.update_placements(GeometryType.VISUAL)

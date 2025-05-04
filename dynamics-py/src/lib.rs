@@ -9,7 +9,6 @@ use inertia::inertia::PyInertia;
 use joint::revolute::{PyJointModelRevolute, new_joint_model_revolute_x};
 use model::{
     data::{PyData, PyGeometryData},
-    forward_dynamics::py_forward_dynamics,
     forward_kinematics::py_forward_kinematics,
     geometry_model::PyGeometryModel,
     geometry_object::PyGeometryObject,
@@ -56,7 +55,6 @@ fn add_dynamics_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult
     dynamics.add_class::<PyGeometryData>()?;
     dynamics.add_class::<PyGeometryObject>()?;
     dynamics.add_function(wrap_pyfunction!(py_neutral, dynamics)?)?;
-    dynamics.add_function(wrap_pyfunction!(py_forward_dynamics, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(py_forward_kinematics, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(build_models_from_urdf_py, dynamics)?)?;
     dynamics.add("WORLD_FRAME_ID", WORLD_FRAME_ID)?;

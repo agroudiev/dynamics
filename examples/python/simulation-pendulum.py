@@ -1,5 +1,5 @@
 import dynamics as dyn
-import dynamics.collider as col
+import dynamics.collider as col # type: ignore
 import numpy as np
 import math
 import time
