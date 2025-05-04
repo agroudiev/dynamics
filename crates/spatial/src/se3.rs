@@ -94,13 +94,32 @@ impl PySE3 {
     }
 
     #[getter]
-    pub fn translation(&self, py: Python) -> Py<PyAny> {
+    pub fn get_translation(&self, py: Python) -> Py<PyAny> {
         let translation = self.inner.translation.vector;
         Array1::from_shape_vec(3, translation.as_slice().to_vec())
             .unwrap()
             .to_pyarray(py)
             .into_any()
             .unbind()
+    }
+
+    // TODO: implement a TranslationWrapper to allow
+    // element-wise operations on the translation vector
+    #[setter]
+    pub fn set_translation(&mut self, translation: PyReadonlyArray1<f64>) -> PyResult<()> {
+        let translation = translation.as_array();
+
+        // Ensure the input translation has the correct shape
+        if translation.len() != 3 {
+            return Err(PyValueError::new_err(format!(
+                "Invalid input size. Expected a translation of shape (3,), got {}.",
+                translation.len()
+            )));
+        }
+
+        // Update the translation component of the inner IsometryMatrix3
+        self.inner.translation = Translation3::new(translation[0], translation[1], translation[2]);
+        Ok(())
     }
 
     #[getter]
@@ -137,5 +156,9 @@ impl PySE3 {
         PySE3 {
             inner: self.inner * other.inner,
         }
+    }
+
+    fn __repr__(slf: PyRef<'_, Self>) -> String {
+        format!("{:#?}", slf.inner)
     }
 }

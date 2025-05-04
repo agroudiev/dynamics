@@ -9,6 +9,7 @@ use crate::{
 use pyo3::prelude::*;
 
 /// A model for a geometry structure, containing multiple geometry objects.
+#[derive(Clone, Debug)]
 pub struct GeometryModel {
     /// The list of geometry objects contained in this model.
     pub models: HashMap<usize, GeometryObject>,
@@ -114,5 +115,9 @@ impl PyGeometryModel {
     /// * `object` - The geometry object to be added to the model.
     pub fn add_geometry_object_from_py(&mut self, object: &PyGeometryObject) {
         self.inner.add_geometry_object(object.inner.clone());
+    }
+
+    fn __repr__(slf: PyRef<'_, Self>) -> String {
+        format!("{:#?}", slf.inner)
     }
 }

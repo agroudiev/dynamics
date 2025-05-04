@@ -9,7 +9,7 @@ use joint::{
 use nalgebra::{DVector, IsometryMatrix3};
 use pyo3::{exceptions::PyValueError, prelude::*, types::PyTuple};
 use spatial::se3::PySE3;
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::Debug};
 
 pub const WORLD_FRAME_ID: usize = 0;
 
@@ -169,6 +169,18 @@ impl Model {
     }
 }
 
+impl Debug for Model {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Model")
+            .field("name", &self.name)
+            .field("joint_names", &self.joint_names)
+            .field("joint_parents", &self.joint_parents)
+            .field("joint_placements", &self.joint_placements)
+            // .field("joint_models", &self.joint_models)
+            .finish()
+    }
+}
+
 #[derive(Debug)]
 /// An error that can occur when adding a joint to the model.
 pub enum ModelError {
@@ -275,5 +287,9 @@ impl PyModel {
             Ok(_) => Ok(()),
             Err(model_error) => Err(PyValueError::new_err(format!("{:?}", model_error))),
         }
+    }
+
+    fn __repr__(slf: PyRef<'_, Self>) -> String {
+        format!("{:#?}", slf.inner)
     }
 }

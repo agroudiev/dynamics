@@ -1,5 +1,7 @@
 //! Geometry object structure, representing a primitive with visualization properties and collision properties.
 
+use std::fmt::Debug;
+
 use collider::shape::*;
 use nalgebra::{IsometryMatrix3, Vector4};
 use numpy::{IntoPyArray, PyReadonlyArray1, ndarray::Array1};
@@ -65,6 +67,20 @@ impl Clone for GeometryObject {
             placement: self.placement,
             parent_joint: self.parent_joint,
         }
+    }
+}
+
+impl Debug for GeometryObject {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("GeometryObject")
+            .field("id", &self.id)
+            .field("name", &self.name)
+            .field("disable_collision", &self.disable_collision)
+            // .field("geometry", &self.geometry)
+            .field("mesh_color", &self.mesh_color)
+            .field("placement", &self.placement)
+            .field("parent_joint", &self.parent_joint)
+            .finish()
     }
 }
 
@@ -187,5 +203,9 @@ impl PyGeometryObject {
         PySE3 {
             inner: self.inner.placement,
         }
+    }
+
+    fn __repr__(slf: PyRef<'_, Self>) -> String {
+        format!("{:#?}", slf.inner)
     }
 }
