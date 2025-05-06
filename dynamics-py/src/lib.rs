@@ -14,6 +14,7 @@ use model::{
     geometry_object::PyGeometryObject,
     model::{PyModel, WORLD_FRAME_ID},
     neutral::py_neutral,
+    configuration::py_random_configuration,
 };
 use pyo3::prelude::*;
 
@@ -55,6 +56,7 @@ fn add_dynamics_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult
     dynamics.add_class::<PyGeometryData>()?;
     dynamics.add_class::<PyGeometryObject>()?;
     dynamics.add_function(wrap_pyfunction!(py_neutral, dynamics)?)?;
+    dynamics.add_function(wrap_pyfunction!(py_random_configuration, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(py_forward_kinematics, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(build_models_from_urdf_py, dynamics)?)?;
     dynamics.add("WORLD_FRAME_ID", WORLD_FRAME_ID)?;

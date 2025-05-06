@@ -12,5 +12,6 @@ license-file.workspace = true
 approx = { version = "0.5.1" }
 nalgebra = { workspace = true }
 pyo3 = { workspace = true }
+rand = { workspace = true }
 
 spatial = { path = "../spatial" }

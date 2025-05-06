@@ -3,6 +3,7 @@
 use crate::data::JointDataWrapper;
 use nalgebra::Vector3;
 use pyo3::prelude::*;
+use rand::rngs::ThreadRng;
 
 /// A wrapper type for the Shape trait to allow dynamic dispatch.
 pub type JointWrapper = Box<dyn Joint + Send + Sync>;
@@ -31,6 +32,9 @@ pub trait Joint {
     fn get_axis(&self) -> Option<Vector3<f64>> {
         None
     }
+
+    /// Returns a random configuration for the joint.
+    fn random_configuration(&self, rng: &mut ThreadRng) -> Vec<f64>;
 }
 
 /// Enum representing the type of joint.

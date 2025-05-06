@@ -1,11 +1,14 @@
 //! Revolute joint, constraining two objects to rotate around a given axis.
 
+use std::f64::consts::PI;
+
 use crate::{
     data::{JointData, JointDataWrapper, JointError},
     joint::{Joint, JointType, JointWrapper},
 };
 use nalgebra::{DVector, IsometryMatrix3, Rotation3, Translation, Vector3};
 use pyo3::prelude::*;
+use rand::Rng;
 
 /// Model of a revolute joint.
 ///
@@ -71,6 +74,11 @@ impl Joint for JointModelRevolute {
 
     fn get_axis(&self) -> Option<Vector3<f64>> {
         Some(self.axis)
+    }
+
+    fn random_configuration(&self, rng: &mut rand::rngs::ThreadRng) -> Vec<f64> {
+        let q = rng.random_range(self.lower_limit.max(-PI)..self.upper_limit.min(PI));
+        vec![q]
     }
 }
 

@@ -35,6 +35,10 @@ impl Joint for JointModelFixed {
     fn create_joint_data(&self) -> JointDataWrapper {
         Box::new(JointDataFixed::new(self))
     }
+
+    fn random_configuration(&self, _rng: &mut rand::rngs::ThreadRng) -> Vec<f64> {
+        vec![]
+    }
 }
 
 /// Data structure containing the mutable properties of a fixed joint.

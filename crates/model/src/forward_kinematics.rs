@@ -1,6 +1,6 @@
+use crate::configuration::{Configuration, ConfigurationError};
 use crate::data::{Data, PyData};
 use crate::model::{Model, PyModel, WORLD_FRAME_ID};
-use crate::{Configuration, ConfigurationError};
 use joint::joint::JointWrapper;
 use nalgebra::IsometryMatrix3;
 use numpy::PyReadonlyArray1;
