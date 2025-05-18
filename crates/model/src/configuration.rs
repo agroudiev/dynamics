@@ -1,7 +1,7 @@
 use joint::data::JointError;
 use nalgebra::DVector;
-use numpy::{ndarray::Array1, ToPyArray};
-use pyo3::{prelude::*, Python};
+use numpy::{ToPyArray, ndarray::Array1};
+use pyo3::{Python, prelude::*};
 
 use crate::model::{Model, PyModel};
 
