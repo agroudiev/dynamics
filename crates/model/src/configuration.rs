@@ -8,18 +8,18 @@ use crate::model::{Model, PyModel};
 pub type Configuration = nalgebra::DVector<f64>;
 
 pub enum ConfigurationError {
-    InvalidSize(usize, usize),
+    InvalidSize(String, usize, usize),
     JointDataUpdateError(usize, JointError),
 }
 
 impl std::fmt::Display for ConfigurationError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            ConfigurationError::InvalidSize(expected, actual) => {
+            ConfigurationError::InvalidSize(name, expected, actual) => {
                 write!(
                     f,
-                    "Expected configuration size {}, but got {}",
-                    expected, actual
+                    "Parameter '{}' expected configuration size {}, but got {}",
+                    name, expected, actual
                 )
             }
             ConfigurationError::JointDataUpdateError(id, err) => {

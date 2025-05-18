@@ -28,7 +28,7 @@ body_inertia = dyn.Inertia.FromSphere(body_mass, body_radius)
 body_placement = joint_placement.copy()
 # body_placement.translation[2] = 1.0
 body_placement.translation = np.array([0.0, 0.0, 1.0])
-# model.append_body_to_joint(joint_id, body_inertia, body_placement)
+model.append_body_to_joint(joint_id, body_inertia, body_placement)
 
 geom1_name = "ball"
 shape1 = col.Sphere(body_radius)
@@ -64,20 +64,21 @@ input("Press any key to continue...")
 
 
 # # play a bit with the simulation
-# dt = 0.01
-# T = 5
-# N = math.floor(T / dt)
+dt = 0.01
+T = 5
+N = math.floor(T / dt)
 
 # model.lower_position_limit.fill(-math.pi)
 # model.upper_position_limit.fill(+math.pi)
 
-# data_sim = model.create_data()
+data_sim = model.create_data()
 
-# t = 0.0
-# q = dyn.random_configuration(model)
-# v = np.zeros(model.nv)
-# tau_control = np.zeros(model.nv)
-# damping_value = 0.1
+t = 0.0
+q = dyn.random_configuration(model)
+print(q)
+v = np.zeros(model.nv)
+tau_control = np.zeros(model.nv)
+damping_value = 0.1
 
 # for k in range(N):
 #     tic = time.time()

@@ -1,6 +1,6 @@
 //! `Model` structure containing the robot model and its immutable properties.
 
-use crate::{data::Data, forward_kinematics::forward_kinematics};
+use crate::{data::{Data, PyData}, forward_kinematics::forward_kinematics};
 use inertia::inertia::{Inertia, PyInertia};
 use joint::{
     joint::{Joint, JointWrapper, PyJointWrapper},
@@ -30,6 +30,10 @@ pub struct Model {
     pub nq: usize,
     /// The number of velocity variables.
     pub nv: usize,
+    /// The inertias of the bodies.
+    pub inertias: HashMap<usize, Inertia>,
+    /// The placements of the bodies.
+    pub body_placements: HashMap<usize, IsometryMatrix3<f64>>,
 }
 
 impl Model {
@@ -67,6 +71,8 @@ impl Model {
             joint_models: HashMap::new(),
             nq: 0,
             nv: 0,
+            inertias: HashMap::new(),
+            body_placements: HashMap::new(),
         }
     }
 
@@ -165,7 +171,14 @@ impl Model {
         inertia: Inertia,
         placement: IsometryMatrix3<f64>,
     ) -> Result<(), ModelError> {
-        Ok(unimplemented!())
+        if !self.joint_names.contains_key(&joint_id) {
+            return Err(ModelError::ParentJointDoesNotExist(joint_id));
+        }
+
+        self.inertias.insert(joint_id, inertia);
+        self.body_placements.insert(joint_id, placement);
+
+        Ok(())
     }
 }
 
@@ -287,6 +300,11 @@ impl PyModel {
             Ok(_) => Ok(()),
             Err(model_error) => Err(PyValueError::new_err(format!("{:?}", model_error))),
         }
+    }
+
+    fn create_data(&self) -> PyResult<PyData> {
+        let data = self.inner.create_data();
+        Ok(PyData { inner: data })
     }
 
     fn __repr__(slf: PyRef<'_, Self>) -> String {

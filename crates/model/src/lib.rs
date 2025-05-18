@@ -13,6 +13,7 @@
 
 pub mod configuration;
 pub mod data;
+pub mod forward_dynamics;
 pub mod forward_kinematics;
 pub mod geometry_model;
 pub mod geometry_object;
