@@ -4,6 +4,7 @@ import meshcat
 import meshcat.geometry as mg
 import numpy as np
 from enum import Enum
+from pathlib import Path
 
 class GeometryType(Enum):
     COLLISION = 1
@@ -193,6 +194,20 @@ class MeshcatVisualizer:
 
         return object
 
+    def load_mesh(self, geometry: collider.PyMesh):
+        file_extension = Path(geometry.mesh_path).suffix
+        if file_extension.lower() == ".dae":
+            raise NotImplementedError("DAE mesh format not supported for visualization yet.")
+            # obj = DaeMeshGeometry(geometry.mesh_path)
+        elif file_extension.lower() == ".obj":
+            obj = mg.ObjMeshGeometry.from_file(geometry.mesh_path)
+        elif file_extension.lower() == ".stl":
+            obj = mg.StlMeshGeometry.from_file(geometry.mesh_path)
+        else:
+            raise NotImplementedError("mesh format not supported for visualization (type: {})".format(file_extension))
+
+        return obj
+
     def load_viewer_geometry_object(self, geometry_object: dynamics.GeometryObject, geometry_type: GeometryType):
         geometry = geometry_object.geometry
         meshcat_node = self.viewer[geometry_object.name]
@@ -224,6 +239,8 @@ class MeshcatVisualizer:
             else:
                 # just add the object to the viewer
                 meshcat_node.set_object(object)
+        elif isinstance(geometry, collider.PyMesh):
+            object = self.load_mesh(geometry)
         else:
             raise NotImplementedError("geometry object is not a standard shape, cannot load it into viewer (type: {})".format(type(geometry)))
 
