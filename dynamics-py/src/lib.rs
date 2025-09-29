@@ -10,6 +10,8 @@ use joint::revolute::{PyJointModelRevolute, new_joint_model_revolute_x};
 use model::{
     configuration::py_random_configuration,
     data::{PyData, PyGeometryData},
+    forward_dynamics::py_aba,
+    forward_dynamics::py_forward_dynamics,
     forward_kinematics::py_forward_kinematics,
     geometry_model::PyGeometryModel,
     geometry_object::PyGeometryObject,
@@ -113,10 +115,10 @@ fn add_shapes_bindings(collider: &Bound<'_, PyModule>) -> PyResult<()> {
 }
 
 fn add_algorithms_bindings(_py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult<()> {
-    dynamics.add_function(wrap_pyfunction!(
-        model::forward_kinematics::py_forward_kinematics,
-        dynamics
-    )?)?;
+    dynamics.add_function(wrap_pyfunction!(py_forward_kinematics, dynamics)?)?;
+
+    dynamics.add_function(wrap_pyfunction!(py_forward_dynamics, dynamics)?)?;
+    dynamics.add_function(wrap_pyfunction!(py_aba, dynamics)?)?;
 
     Ok(())
 }

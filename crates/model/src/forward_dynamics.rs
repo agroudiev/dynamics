@@ -103,3 +103,15 @@ pub fn py_forward_dynamics(
 
     Ok(())
 }
+
+// Pinocchio alias (Articulated Body Algorithm)
+#[pyfunction(name = "aba")]
+pub fn py_aba(
+    model: &PyModel,
+    data: &mut PyData,
+    q: PyReadonlyArray1<f64>,
+    v: PyReadonlyArray1<f64>,
+    tau: PyReadonlyArray1<f64>,
+) -> PyResult<()> {
+    py_forward_dynamics(model, data, q, v, tau)
+}
