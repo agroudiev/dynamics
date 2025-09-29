@@ -3,7 +3,7 @@
 use std::collections::HashMap;
 
 use crate::{
-    data::{Data, GeometryData},
+    data::{Data, GeometryData, PyData, PyGeometryData},
     geometry_object::{GeometryObject, PyGeometryObject},
 };
 use pyo3::prelude::*;
@@ -115,6 +115,18 @@ impl PyGeometryModel {
     /// * `object` - The geometry object to be added to the model.
     pub fn add_geometry_object_from_py(&mut self, object: &PyGeometryObject) {
         self.inner.add_geometry_object(object.inner.clone());
+    }
+
+    /// Creates a new `GeometryData` object based on the provided model and data.
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - The data to be used for creating the geometry data.
+    /// # Returns
+    ///
+    /// A `GeometryData` object containing the geometry data for the model.
+    pub fn create_data(&self, data: &PyData) -> PyResult<PyGeometryData> {
+        Ok(PyGeometryData { inner: self.inner.create_data(&data.inner) })
     }
 
     fn __repr__(slf: PyRef<'_, Self>) -> String {
