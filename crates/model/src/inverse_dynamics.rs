@@ -1,3 +1,8 @@
+//! This module contains the implementation of the inverse dynamics algorithms.
+//! The main algorithm implemented here is the Recursive Newton-Euler Algorithm (RNEA).
+//! The RNEA computes the joint torques required to achieve a given motion of the robot
+//! given its configuration, velocity, and acceleration.
+
 use crate::configuration::{Configuration, ConfigurationError, configuration_from_pyarray};
 use crate::data::{Data, PyData};
 use crate::model::{Model, PyModel};
@@ -43,6 +48,7 @@ pub fn py_inverse_dynamics(
     })
 }
 
+// Pinocchio alias (Recursive Newton-Euler Algorithm)
 #[pyfunction(name = "rnea")]
 pub fn py_rnea(
     model: &PyModel,

@@ -1,4 +1,9 @@
-use crate::configuration::{Configuration, ConfigurationError};
+//! This module contains the implementation of the forward dynamics algorithms.
+//! The main algorithm implemented here is the Articulated Body Algorithm (ABA).
+//! The ABA computes the joint accelerations required to achieve a given motion of the robot
+//! given its configuration, velocity, and torques.
+
+use crate::configuration::{Configuration, ConfigurationError, configuration_from_pyarray};
 use crate::data::{Data, PyData};
 use crate::model::{Model, PyModel};
 use numpy::PyReadonlyArray1;
@@ -76,27 +81,9 @@ pub fn py_forward_dynamics(
     v: PyReadonlyArray1<f64>,
     tau: PyReadonlyArray1<f64>,
 ) -> PyResult<()> {
-    // TODO: use a function to convert the PyReadonlyArray1 to a configuration
-    let q = q.as_array();
-    let q = match q.as_slice() {
-        Some(slice) => slice,
-        None => return Err(PyValueError::new_err("Failed to convert q to slice")),
-    };
-    let q = Configuration::from_row_slice(q);
-
-    let v = v.as_array();
-    let v = match v.as_slice() {
-        Some(slice) => slice,
-        None => return Err(PyValueError::new_err("Failed to convert v to slice")),
-    };
-    let v = Configuration::from_row_slice(v);
-
-    let tau = tau.as_array();
-    let tau = match tau.as_slice() {
-        Some(slice) => slice,
-        None => return Err(PyValueError::new_err("Failed to convert tau to slice")),
-    };
-    let tau = Configuration::from_row_slice(tau);
+    let q = configuration_from_pyarray(q)?;
+    let v = configuration_from_pyarray(v)?;
+    let tau = configuration_from_pyarray(tau)?;
 
     forward_dynamics(&model.inner, &mut data.inner, &q, &v, &tau)
         .map_err(|e| PyValueError::new_err(format!("Forward dynamics failed: {:?}", e)))?;
