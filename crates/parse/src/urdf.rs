@@ -199,8 +199,8 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                 };
                 child_object.parent_joint = joint_id;
             }
-            // we ignore empty lines and such
-            "" => {}
+            // we ignore empty lines and tags not used in simulation
+            "" | "gazebo" | "transmission" => {}
             // unknown tag
             _ => {
                 return Err(ParseError::UnknownTag(

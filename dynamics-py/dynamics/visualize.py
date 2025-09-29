@@ -212,7 +212,9 @@ class MeshcatVisualizer:
         geometry = geometry_object.geometry
         meshcat_node = self.viewer[geometry_object.name]
 
-        if isinstance(geometry, collider.PyShapeWrapper):
+        if isinstance(geometry, collider.PyShapeWrapper) and str(geometry.shape_type) == "ShapeType.Mesh":
+            object = self.load_mesh(geometry)
+        elif isinstance(geometry, collider.PyShapeWrapper):
             object = self.load_shape(geometry, geometry_type)
 
             if isinstance(object, (mg.Geometry, mg.ReferenceSceneElement)):
@@ -239,8 +241,6 @@ class MeshcatVisualizer:
             else:
                 # just add the object to the viewer
                 meshcat_node.set_object(object)
-        elif isinstance(geometry, collider.PyMesh):
-            object = self.load_mesh(geometry)
         else:
             raise NotImplementedError("geometry object is not a standard shape, cannot load it into viewer (type: {})".format(type(geometry)))
 

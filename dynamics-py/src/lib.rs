@@ -22,6 +22,7 @@ use collider::shape::{
     PyShapeWrapper, ShapeType, capsule::PyCapsule, cone::PyCone, cuboid::PyCuboid,
     cylinder::PyCylinder, sphere::PySphere,
 };
+use collider::mesh::PyMesh;
 use parse::urdf::build_models_from_urdf_py;
 use spatial::se3::PySE3;
 
@@ -102,8 +103,9 @@ fn add_shapes_bindings(collider: &Bound<'_, PyModule>) -> PyResult<()> {
     collider.add_class::<PyCuboid>()?;
     collider.add_class::<PyCylinder>()?;
     collider.add_class::<PySphere>()?;
-    collider.add_class::<PyShapeWrapper>()?;
+    collider.add_class::<PyMesh>()?;
 
+    collider.add_class::<PyShapeWrapper>()?;
     collider.add_class::<ShapeType>()?;
 
     Ok(())

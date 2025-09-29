@@ -13,6 +13,6 @@ v = np.random.rand(model.nv, 1)
 a = np.random.rand(model.nv, 1)
 
 # computes the inverse dynamics using Recursive Newton-Euler Algorithm (RNEA)
-tau = dyn.rnea(model, data, q, v, a)
+# tau = dyn.rnea(model, data, q, v, a)
 
-print("Joint torques: " + str(tau))
+# print("Joint torques: " + str(tau))
