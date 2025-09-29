@@ -1,6 +1,7 @@
 //! Parser for the URDF (Unified Robot Description Format) file format.
 
 use crate::errors::ParseError;
+use collider::mesh::Mesh;
 use collider::shape::{Cylinder, ShapeWrapper, Sphere};
 use joint::revolute::JointModelRevolute;
 use model::{
@@ -242,6 +243,11 @@ fn parse_geometry(
     } else if let Some(shape_node) = geometry_node.children().find(|n| n.has_tag_name("sphere")) {
         let radius = extract_parameter::<f32>("radius", &shape_node)?;
         Box::new(Sphere::new(radius))
+    } else if let Some(mesh_node) = geometry_node.children().find(|n| n.has_tag_name("mesh")) {
+        let filename = mesh_node
+            .attribute("filename")
+            .ok_or(ParseError::MissingParameter("filename".to_string()))?;
+        Box::new(Mesh::new(filename.to_string()))
     } else {
         return Err(ParseError::GeometryWithoutShape);
     };
