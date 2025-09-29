@@ -14,6 +14,7 @@ use model::{
     forward_kinematics::py_forward_kinematics,
     geometry_model::PyGeometryModel,
     geometry_object::PyGeometryObject,
+    inverse_dynamics::{py_inverse_dynamics, py_rnea},
     model::{PyModel, STANDARD_GRAVITY, WORLD_FRAME_ID},
     neutral::py_neutral,
 };
@@ -124,6 +125,9 @@ fn add_algorithms_bindings(_py: Python, dynamics: &Bound<'_, PyModule>) -> PyRes
 
     dynamics.add_function(wrap_pyfunction!(py_forward_dynamics, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(py_aba, dynamics)?)?;
+
+    dynamics.add_function(wrap_pyfunction!(py_inverse_dynamics, dynamics)?)?;
+    dynamics.add_function(wrap_pyfunction!(py_rnea, dynamics)?)?;
 
     Ok(())
 }

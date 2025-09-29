@@ -1,11 +1,21 @@
 use joint::data::JointError;
 use nalgebra::DVector;
+use numpy::PyReadonlyArray1;
 use numpy::{ToPyArray, ndarray::Array1};
-use pyo3::{Python, prelude::*};
+use pyo3::{Python, exceptions::PyValueError, prelude::*};
 
 use crate::model::{Model, PyModel};
 
 pub type Configuration = nalgebra::DVector<f64>;
+
+pub fn configuration_from_pyarray(array: PyReadonlyArray1<f64>) -> Result<Configuration, PyErr> {
+    let array = array.as_array();
+    let array = match array.as_slice() {
+        Some(slice) => slice,
+        None => return Err(PyValueError::new_err("Failed to convert argument to slice")),
+    };
+    Ok(Configuration::from_row_slice(array))
+}
 
 pub enum ConfigurationError {
     InvalidSize(String, usize, usize),
