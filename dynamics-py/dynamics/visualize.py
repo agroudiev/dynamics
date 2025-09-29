@@ -5,6 +5,8 @@ import meshcat.geometry as mg
 import numpy as np
 from enum import Enum
 from pathlib import Path
+from typing import ClassVar, Union, Any
+import xml.etree.ElementTree as Et
 
 class GeometryType(Enum):
     COLLISION = 1
@@ -103,6 +105,90 @@ def create_capsule(length, radius, radial_resolution=30, cap_resolution=10):
         index += 4 * (nbv[1] - 1) + 4
     return mg.TriangularMeshGeometry(vertices, indexes)
 
+class DaeMeshGeometry(mg.ReferenceSceneElement):
+    """A Collada mesh geometry with texture support. Adapted from Pinocchio."""
+    def __init__(self, dae_path: str, cache: set[str] | None = None) -> None:
+        """Load Collada files with texture images.
+        Inspired from
+        https://gist.github.com/danzimmerman/a392f8eadcf1166eb5bd80e3922dbdc5
+        """
+        # Init base class
+        super().__init__()
+
+        dae_path = Path(dae_path)
+
+        # Attributes to be specified by the user
+        self.path = None
+        self.material = None
+        self.intrinsic_transform = mg.tf.identity_matrix()
+
+        # Raw file content
+        dae_dir = dae_path.parent
+        with dae_path.open() as text_file:
+            self.dae_raw = text_file.read()
+
+        # Parse the image resource in Collada file
+        img_resource_paths: list[Path] = []
+        img_lib_element = Et.parse(dae_path).find(
+            "{http://www.collada.org/2005/11/COLLADASchema}library_images"
+        )
+        if img_lib_element:
+            img_resource_paths = [
+                Path(e.text)
+                for e in img_lib_element.iter()
+                if e.tag.count("init_from")
+            ]
+
+        # Convert textures to data URL for Three.js ColladaLoader to load them
+        self.img_resources: dict[str, str] = {}
+        for img_path in img_resource_paths:
+            img_key = str(img_path)
+            # Return empty string if already in cache
+            if cache is not None:
+                if img_path in cache:
+                    self.img_resources[img_key] = ""
+                    continue
+                cache.add(img_path)
+
+            # Encode texture in base64
+            img_path_abs: Path = img_path
+            if not img_path.is_absolute():
+                img_path_abs = (dae_dir / img_path_abs).resolve()
+            if not img_path_abs.is_file():
+                raise UserWarning(f"Texture '{img_path}' not found.")
+            with img_path_abs.open("rb") as img_file:
+                img_data = base64.b64encode(img_file.read())
+            img_uri = f"data:image/png;base64,{img_data.decode('utf-8')}"
+            self.img_resources[img_key] = img_uri
+
+    def lower(self) -> dict[str, Any]:
+        """Pack data into a dictionary of the format that must be passed to
+        `Visualizer.window.send`.
+        """
+        data = {
+            "type": "set_object",
+            "path": self.path.lower() if self.path is not None else "",
+            "object": {
+                "metadata": {"version": 4.5, "type": "Object"},
+                "geometries": [],
+                "materials": [],
+                "object": {
+                    "uuid": self.uuid,
+                    "type": "_meshfile_object",
+                    "format": "dae",
+                    "data": self.dae_raw,
+                    "resources": self.img_resources,
+                    "matrix": list(self.intrinsic_transform.flatten()),
+                },
+            },
+        }
+        if self.material is not None:
+            self.material.lower_in_object(data)
+        return data
+
+    def set_scale(self, scale) -> None:
+        self.intrinsic_transform[:3, :3] = np.diag(scale)
+
 class MeshcatVisualizer:
     """A `dynamics` visualizer using Meshcat."""
     def __init__(
@@ -197,8 +283,7 @@ class MeshcatVisualizer:
     def load_mesh(self, geometry: collider.PyMesh):
         file_extension = Path(geometry.mesh_path).suffix
         if file_extension.lower() == ".dae":
-            raise NotImplementedError("DAE mesh format not supported for visualization yet.")
-            # obj = DaeMeshGeometry(geometry.mesh_path)
+            obj = DaeMeshGeometry(geometry.mesh_path)
         elif file_extension.lower() == ".obj":
             obj = mg.ObjMeshGeometry.from_file(geometry.mesh_path)
         elif file_extension.lower() == ".stl":

@@ -16,4 +16,5 @@ pub enum ParseError {
     UnknownTag(String),
     ModelError(String),
     UnknownLinkName(String),
+    InvalidFilePath(String),
 }

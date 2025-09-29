@@ -18,11 +18,11 @@ use model::{
 };
 use pyo3::prelude::*;
 
+use collider::mesh::PyMesh;
 use collider::shape::{
     PyShapeWrapper, ShapeType, capsule::PyCapsule, cone::PyCone, cuboid::PyCuboid,
     cylinder::PyCylinder, sphere::PySphere,
 };
-use collider::mesh::PyMesh;
 use parse::urdf::build_models_from_urdf_py;
 use spatial::se3::PySE3;
 

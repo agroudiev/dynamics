@@ -74,7 +74,8 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
 
                 // parse the visual node
                 if let Some(visual_node) = main_node.children().find(|n| n.has_tag_name("visual")) {
-                    let geom_obj = parse_geometry(link_name.clone(), &visual_node, &materials)?;
+                    let geom_obj =
+                        parse_geometry(link_name.clone(), &visual_node, &materials, filepath)?;
                     geom_model.add_geometry_object(geom_obj);
                 } else {
                     // add a default geometry object if no visual node is found
@@ -93,7 +94,8 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                 if let Some(collision_node) =
                     main_node.children().find(|n| n.has_tag_name("visual"))
                 {
-                    let geom_obj = parse_geometry(link_name, &collision_node, &materials)?;
+                    let geom_obj =
+                        parse_geometry(link_name, &collision_node, &materials, filepath)?;
                     coll_model.add_geometry_object(geom_obj);
                 }
             }
@@ -220,6 +222,7 @@ fn parse_geometry(
     visual_node: &roxmltree::Node,
     materials: &HashMap<&str, Vector4<f64>>,
     // parent_frame_id: Option<usize>,
+    urdf_filepath: &str,
 ) -> Result<GeometryObject, ParseError> {
     let geometry_node = visual_node
         .children()
@@ -247,7 +250,33 @@ fn parse_geometry(
         let filename = mesh_node
             .attribute("filename")
             .ok_or(ParseError::MissingParameter("filename".to_string()))?;
-        Box::new(Mesh::new(filename.to_string()))
+
+        let absolute_path = if filename.starts_with("package://") {
+            unimplemented!("package:// URDF paths are not supported yet")
+        } else if filename.starts_with("/") {
+            filename.to_string()
+        } else {
+            // treat as relative path from .urdf file
+            let urdf_path = std::path::Path::new(urdf_filepath);
+            let urdf_dir = match urdf_path.parent() {
+                Some(dir) => dir,
+                None => {
+                    return Err(ParseError::InvalidFilePath(
+                        "URDF file has no parent directory".to_string(),
+                    ));
+                }
+            };
+            urdf_dir
+                .join(filename)
+                .to_str()
+                .ok_or(ParseError::InvalidFilePath(format!(
+                    "Cannot convert path to string: {}",
+                    urdf_dir.join(filename).display()
+                )))?
+                .to_string()
+        };
+
+        Box::new(Mesh::new(absolute_path))
     } else {
         return Err(ParseError::GeometryWithoutShape);
     };
