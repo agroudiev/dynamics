@@ -360,7 +360,7 @@ fn parse_origin(node: &roxmltree::Node) -> Result<IsometryMatrix3<f64>, ParseErr
 
 /// A Python wrapper for the `build_models_from_urdf` function.
 #[pyfunction(name = "build_models_from_urdf")]
-pub fn build_models_from_urdf_py(filepath: &str) -> PyResult<(PyModel, PyGeometryModel)> {
+pub fn py_build_models_from_urdf(filepath: &str) -> PyResult<(PyModel, PyGeometryModel)> {
     match build_models_from_urdf(filepath) {
         Ok((model, geom_model)) => Ok((
             PyModel { inner: model },

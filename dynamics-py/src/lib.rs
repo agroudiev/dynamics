@@ -23,7 +23,7 @@ use collider::shape::{
     PyShapeWrapper, ShapeType, capsule::PyCapsule, cone::PyCone, cuboid::PyCuboid,
     cylinder::PyCylinder, sphere::PySphere,
 };
-use parse::urdf::build_models_from_urdf_py;
+use parse::urdf::py_build_models_from_urdf;
 use spatial::se3::PySE3;
 
 #[pymodule(name = "dynamics")]
@@ -59,7 +59,7 @@ fn add_dynamics_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult
     dynamics.add_function(wrap_pyfunction!(py_neutral, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(py_random_configuration, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(py_forward_kinematics, dynamics)?)?;
-    dynamics.add_function(wrap_pyfunction!(build_models_from_urdf_py, dynamics)?)?;
+    dynamics.add_function(wrap_pyfunction!(py_build_models_from_urdf, dynamics)?)?;
     dynamics.add("WORLD_FRAME_ID", WORLD_FRAME_ID)?;
 
     add_inertia_bindings(dynamics)?;
