@@ -18,3 +18,4 @@ rand = { workspace = true }
 inertia = { workspace = true }
 joint = { workspace = true }
 spatial = { workspace = true }
+once_cell = { workspace = true }

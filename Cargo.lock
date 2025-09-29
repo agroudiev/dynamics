@@ -145,6 +145,7 @@ dependencies = [
  "joint",
  "nalgebra",
  "numpy",
+ "once_cell",
  "pyo3",
  "rand",
  "spatial",

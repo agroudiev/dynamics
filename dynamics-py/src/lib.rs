@@ -10,12 +10,11 @@ use joint::revolute::{PyJointModelRevolute, new_joint_model_revolute_x};
 use model::{
     configuration::py_random_configuration,
     data::{PyData, PyGeometryData},
-    forward_dynamics::py_aba,
-    forward_dynamics::py_forward_dynamics,
+    forward_dynamics::{py_aba, py_forward_dynamics},
     forward_kinematics::py_forward_kinematics,
     geometry_model::PyGeometryModel,
     geometry_object::PyGeometryObject,
-    model::{PyModel, WORLD_FRAME_ID},
+    model::{PyModel, STANDARD_GRAVITY, WORLD_FRAME_ID},
     neutral::py_neutral,
 };
 use pyo3::prelude::*;
@@ -60,9 +59,15 @@ fn add_dynamics_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult
     dynamics.add_class::<PyGeometryObject>()?;
     dynamics.add_function(wrap_pyfunction!(py_neutral, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(py_random_configuration, dynamics)?)?;
-    dynamics.add_function(wrap_pyfunction!(py_forward_kinematics, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(py_build_models_from_urdf, dynamics)?)?;
+
     dynamics.add("WORLD_FRAME_ID", WORLD_FRAME_ID)?;
+    dynamics.add(
+        "STANDARD_GRAVITY",
+        PySE3 {
+            inner: *STANDARD_GRAVITY,
+        },
+    )?;
 
     add_inertia_bindings(dynamics)?;
     add_joint_bindings(dynamics)?;

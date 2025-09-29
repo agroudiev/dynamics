@@ -19,6 +19,7 @@ nalgebra = "0.33.2"
 numpy = "0.24.0"
 pyo3 = { version = "0.24.1", features = ["extension-module"] }
 rand = { version = "0.9.1" }
+once_cell = "1.21.3"
 
 # collider = { path = "../collider/crates/collider" } # for local development
 collider = { git = "https://github.com/agroudiev/collider" }

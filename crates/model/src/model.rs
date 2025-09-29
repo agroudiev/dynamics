@@ -8,11 +8,18 @@ use joint::{
     revolute::PyJointModelRevolute,
 };
 use nalgebra::{DVector, IsometryMatrix3};
+use once_cell::sync::Lazy;
 use pyo3::{exceptions::PyValueError, prelude::*, types::PyTuple};
 use spatial::se3::PySE3;
 use std::{collections::HashMap, fmt::Debug};
 
 pub const WORLD_FRAME_ID: usize = 0;
+pub static STANDARD_GRAVITY: Lazy<IsometryMatrix3<f64>> = Lazy::new(|| {
+    IsometryMatrix3::new(
+        nalgebra::Vector3::new(0.0, 0.0, -9.81),
+        nalgebra::Vector3::zeros(),
+    )
+});
 
 /// Data structure that contains the immutable properties of the robot model.
 /// It contains information about the joints, frames, and their local placements.
@@ -35,6 +42,8 @@ pub struct Model {
     pub inertias: HashMap<usize, Inertia>,
     /// The placements of the bodies.
     pub body_placements: HashMap<usize, IsometryMatrix3<f64>>,
+    /// The spatial gravity of the model.
+    pub gravity: IsometryMatrix3<f64>,
 }
 
 impl Model {
@@ -74,6 +83,7 @@ impl Model {
             nv: 0,
             inertias: HashMap::new(),
             body_placements: HashMap::new(),
+            gravity: *STANDARD_GRAVITY,
         }
     }
 
@@ -240,6 +250,13 @@ impl PyModel {
     #[getter]
     fn nv(&self) -> usize {
         self.inner.nv
+    }
+
+    #[getter]
+    fn gravity(&self) -> PySE3 {
+        PySE3 {
+            inner: self.inner.gravity,
+        }
     }
 
     /// Adds a joint to the model.
