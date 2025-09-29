@@ -38,7 +38,7 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 [[package]]
 name = "collider"
 version = "0.1.0"
-source = "git+https://github.com/agroudiev/collider#39ff2a744db394d4016b7adc09d5389050f35424"
+source = "git+https://github.com/agroudiev/collider#4f8235071eb439934756f3e7f5bf5d0d52b48009"
 dependencies = [
  "mesh",
  "shape",
@@ -128,7 +128,7 @@ dependencies = [
 [[package]]
 name = "mesh"
 version = "0.1.0"
-source = "git+https://github.com/agroudiev/collider#39ff2a744db394d4016b7adc09d5389050f35424"
+source = "git+https://github.com/agroudiev/collider#4f8235071eb439934756f3e7f5bf5d0d52b48009"
 dependencies = [
  "nalgebra",
  "numpy",
@@ -450,7 +450,7 @@ dependencies = [
 [[package]]
 name = "shape"
 version = "0.1.0"
-source = "git+https://github.com/agroudiev/collider#39ff2a744db394d4016b7adc09d5389050f35424"
+source = "git+https://github.com/agroudiev/collider#4f8235071eb439934756f3e7f5bf5d0d52b48009"
 dependencies = [
  "nalgebra",
  "numpy",
