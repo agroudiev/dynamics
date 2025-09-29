@@ -28,17 +28,29 @@ pub fn forward_dynamics(
 ) -> Result<(), ConfigurationError> {
     // check if q is of the right size
     if q.len() != model.nq {
-        return Err(ConfigurationError::InvalidSize("q".to_string(), model.nq, q.len()));
+        return Err(ConfigurationError::InvalidSize(
+            "q".to_string(),
+            model.nq,
+            q.len(),
+        ));
     }
 
     // check if v is of the right size
     if v.len() != model.nv {
-        return Err(ConfigurationError::InvalidSize("v".to_string(), model.nv, v.len()));
+        return Err(ConfigurationError::InvalidSize(
+            "v".to_string(),
+            model.nv,
+            v.len(),
+        ));
     }
 
     // check if tau is of the right size
     if tau.len() != model.nv {
-        return Err(ConfigurationError::InvalidSize("tau".to_string(), model.nv, tau.len()));
+        return Err(ConfigurationError::InvalidSize(
+            "tau".to_string(),
+            model.nv,
+            tau.len(),
+        ));
     }
 
     Ok(unimplemented!())
