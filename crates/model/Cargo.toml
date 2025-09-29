@@ -15,6 +15,6 @@ numpy = { workspace = true }
 pyo3 = { workspace = true }
 rand = { workspace = true }
 
-inertia = { path = "../inertia" }
-joint = { path = "../joint" }
-spatial = { path = "../spatial" }
+inertia = { workspace = true }
+joint = { workspace = true }
+spatial = { workspace = true }

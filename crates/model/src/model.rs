@@ -1,9 +1,7 @@
 //! `Model` structure containing the robot model and its immutable properties.
 
-use crate::{
-    data::{Data, PyData},
-    forward_kinematics::forward_kinematics,
-};
+use crate::data::{Data, PyData};
+use crate::forward_kinematics::forward_kinematics;
 use inertia::inertia::{Inertia, PyInertia};
 use joint::{
     joint::{Joint, JointWrapper, PyJointWrapper},

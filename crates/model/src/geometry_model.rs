@@ -126,7 +126,9 @@ impl PyGeometryModel {
     ///
     /// A `GeometryData` object containing the geometry data for the model.
     pub fn create_data(&self, data: &PyData) -> PyResult<PyGeometryData> {
-        Ok(PyGeometryData { inner: self.inner.create_data(&data.inner) })
+        Ok(PyGeometryData {
+            inner: self.inner.create_data(&data.inner),
+        })
     }
 
     fn __repr__(slf: PyRef<'_, Self>) -> String {

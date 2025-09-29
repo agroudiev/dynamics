@@ -5,7 +5,7 @@ use numpy::PyReadonlyArray1;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
-/// Computes the forward dynamics of the robot model.
+/// WIP: Computes the forward dynamics of the robot model.
 ///
 /// # Arguments
 ///

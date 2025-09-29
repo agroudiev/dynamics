@@ -7,7 +7,6 @@ use numpy::PyReadonlyArray1;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
-// TODO: make this a method of the Model struct
 /// Computes the forward kinematics of the robot model.
 ///
 /// It updates the joint data and placements in the world frame.

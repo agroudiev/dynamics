@@ -65,6 +65,7 @@ fn add_dynamics_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult
     add_inertia_bindings(dynamics)?;
     add_joint_bindings(dynamics)?;
     add_spatial_bindings(py, dynamics)?;
+    add_algorithms_bindings(py, dynamics)?;
 
     Ok(())
 }
@@ -107,6 +108,15 @@ fn add_shapes_bindings(collider: &Bound<'_, PyModule>) -> PyResult<()> {
 
     collider.add_class::<PyShapeWrapper>()?;
     collider.add_class::<ShapeType>()?;
+
+    Ok(())
+}
+
+fn add_algorithms_bindings(_py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult<()> {
+    dynamics.add_function(wrap_pyfunction!(
+        model::forward_kinematics::py_forward_kinematics,
+        dynamics
+    )?)?;
 
     Ok(())
 }
