@@ -7,8 +7,8 @@ use crate::configuration::{Configuration, ConfigurationError, configuration_from
 use crate::data::{Data, PyData};
 use crate::model::{Model, PyModel};
 use joint::joint::JointWrapper;
-use nalgebra::IsometryMatrix3;
-use numpy::PyReadonlyArrayDyn;
+use numpy::ndarray::Array1;
+use numpy::{PyReadonlyArrayDyn, ToPyArray};
 use pyo3::prelude::*;
 
 /// Computes the inverse dynamics using the Recursive Newton-Euler Algorithm (RNEA).
@@ -29,7 +29,7 @@ pub fn inverse_dynamics(
     q: &Configuration,
     v: &Configuration,
     a: &Configuration,
-) -> Result<(), ConfigurationError> {
+) -> Result<Configuration, ConfigurationError> {
     let mut transformed = vec![];
 
     let mut offset = 0;
@@ -51,34 +51,43 @@ pub fn inverse_dynamics(
 
     // TODO: add external forces
 
-    Ok(())
+    let tau = nalgebra::DVector::<f64>::zeros(model.nv);
+
+    Ok(tau)
 }
 
 #[pyfunction(name = "forward_dynamics")]
 pub fn py_inverse_dynamics(
+    py: Python,
     model: &PyModel,
     data: &mut PyData,
     q: PyReadonlyArrayDyn<f64>,
     v: PyReadonlyArrayDyn<f64>,
     a: PyReadonlyArrayDyn<f64>,
-) -> PyResult<()> {
+) -> PyResult<Py<PyAny>> {
     let q = configuration_from_pyarray(q)?;
     let v = configuration_from_pyarray(v)?;
     let a = configuration_from_pyarray(a)?;
 
-    inverse_dynamics(&model.inner, &mut data.inner, &q, &v, &a).map_err(|e| {
+    let tau = inverse_dynamics(&model.inner, &mut data.inner, &q, &v, &a).map_err(|e| {
         PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Error in inverse dynamics: {}", e))
-    })
+    })?;
+
+    Ok(Array1::from_vec(tau.data.as_vec().clone())
+        .to_pyarray(py)
+        .into_any()
+        .unbind())
 }
 
 // Pinocchio alias (Recursive Newton-Euler Algorithm)
 #[pyfunction(name = "rnea")]
 pub fn py_rnea(
+    py: Python,
     model: &PyModel,
     data: &mut PyData,
     q: PyReadonlyArrayDyn<f64>,
     v: PyReadonlyArrayDyn<f64>,
     a: PyReadonlyArrayDyn<f64>,
-) -> PyResult<()> {
-    py_inverse_dynamics(model, data, q, v, a)
+) -> PyResult<Py<PyAny>> {
+    py_inverse_dynamics(py, model, data, q, v, a)
 }
