@@ -122,3 +122,11 @@ fn test_double_pendulum_simple() {
     let (model, _geom_model) = result.unwrap();
     assert_eq!(model.name, "2dof_planar");
 }
+
+#[test]
+fn test_ur5() {
+    let filepath = "../../examples/descriptions/ur5/ur5_robot.urdf";
+    let result = build_models_from_urdf(filepath);
+    let (model, _geom_model) = result.unwrap();
+    assert_eq!(model.name, "ur5");
+}

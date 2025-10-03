@@ -276,6 +276,14 @@ fn parse_geometry(
                 .to_string()
         };
 
+        // check if the file exists
+        if !std::path::Path::new(&absolute_path).exists() {
+            return Err(ParseError::InvalidFilePath(format!(
+                "Mesh file does not exist: {}",
+                absolute_path
+            )));
+        }
+
         Box::new(Mesh::new(absolute_path))
     } else {
         return Err(ParseError::GeometryWithoutShape);
