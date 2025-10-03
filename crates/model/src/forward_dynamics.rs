@@ -6,7 +6,7 @@
 use crate::configuration::{Configuration, ConfigurationError, configuration_from_pyarray};
 use crate::data::{Data, PyData};
 use crate::model::{Model, PyModel};
-use numpy::PyReadonlyArray1;
+use numpy::PyReadonlyArrayDyn;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
@@ -77,9 +77,9 @@ fn aba_forward_pass_2() {
 pub fn py_forward_dynamics(
     model: &PyModel,
     data: &mut PyData,
-    q: PyReadonlyArray1<f64>,
-    v: PyReadonlyArray1<f64>,
-    tau: PyReadonlyArray1<f64>,
+    q: PyReadonlyArrayDyn<f64>,
+    v: PyReadonlyArrayDyn<f64>,
+    tau: PyReadonlyArrayDyn<f64>,
 ) -> PyResult<()> {
     let q = configuration_from_pyarray(q)?;
     let v = configuration_from_pyarray(v)?;
@@ -96,9 +96,9 @@ pub fn py_forward_dynamics(
 pub fn py_aba(
     model: &PyModel,
     data: &mut PyData,
-    q: PyReadonlyArray1<f64>,
-    v: PyReadonlyArray1<f64>,
-    tau: PyReadonlyArray1<f64>,
+    q: PyReadonlyArrayDyn<f64>,
+    v: PyReadonlyArrayDyn<f64>,
+    tau: PyReadonlyArrayDyn<f64>,
 ) -> PyResult<()> {
     py_forward_dynamics(model, data, q, v, tau)
 }

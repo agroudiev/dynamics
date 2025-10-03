@@ -12,13 +12,13 @@ q = dyn.random_configuration(model)
 v = np.random.rand(model.nv, 1)
 a = np.random.rand(model.nv, 1)
 
-viz = dyn.visualize.MeshcatVisualizer(model, geom_model, geom_model)
-viz.init_viewer(load_model=True)
+# viz = dyn.visualize.MeshcatVisualizer(model, geom_model, geom_model)
+# viz.init_viewer(load_model=True)
 
-viz.open()
-input("Press enter to continue...")
+# viz.open()
+# input("Press enter to continue...")
 
 # computes the inverse dynamics using Recursive Newton-Euler Algorithm (RNEA)
-# tau = dyn.rnea(model, data, q, v, a)
+tau = dyn.rnea(model, data, q, v, a)
 
-# print("Joint torques: " + str(tau))
+print("Joint torques: " + str(tau))

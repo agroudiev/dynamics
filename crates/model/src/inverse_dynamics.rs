@@ -6,7 +6,7 @@
 use crate::configuration::{Configuration, ConfigurationError, configuration_from_pyarray};
 use crate::data::{Data, PyData};
 use crate::model::{Model, PyModel};
-use numpy::PyReadonlyArray1;
+use numpy::PyReadonlyArrayDyn;
 use pyo3::prelude::*;
 
 /// Computes the inverse dynamics using the Recursive Newton-Euler Algorithm (RNEA).
@@ -35,9 +35,9 @@ pub fn inverse_dynamics(
 pub fn py_inverse_dynamics(
     model: &PyModel,
     data: &mut PyData,
-    q: PyReadonlyArray1<f64>,
-    v: PyReadonlyArray1<f64>,
-    a: PyReadonlyArray1<f64>,
+    q: PyReadonlyArrayDyn<f64>,
+    v: PyReadonlyArrayDyn<f64>,
+    a: PyReadonlyArrayDyn<f64>,
 ) -> PyResult<()> {
     let q = configuration_from_pyarray(q)?;
     let v = configuration_from_pyarray(v)?;
@@ -53,9 +53,9 @@ pub fn py_inverse_dynamics(
 pub fn py_rnea(
     model: &PyModel,
     data: &mut PyData,
-    q: PyReadonlyArray1<f64>,
-    v: PyReadonlyArray1<f64>,
-    a: PyReadonlyArray1<f64>,
+    q: PyReadonlyArrayDyn<f64>,
+    v: PyReadonlyArrayDyn<f64>,
+    a: PyReadonlyArrayDyn<f64>,
 ) -> PyResult<()> {
     py_inverse_dynamics(model, data, q, v, a)
 }

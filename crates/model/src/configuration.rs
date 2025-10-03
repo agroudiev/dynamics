@@ -1,20 +1,17 @@
 use joint::data::JointError;
 use nalgebra::DVector;
-use numpy::PyReadonlyArray1;
+use numpy::PyReadonlyArrayDyn;
 use numpy::{ToPyArray, ndarray::Array1};
-use pyo3::{Python, exceptions::PyValueError, prelude::*};
+use pyo3::{Python, prelude::*};
 
 use crate::model::{Model, PyModel};
 
 pub type Configuration = nalgebra::DVector<f64>;
 
-pub fn configuration_from_pyarray(array: PyReadonlyArray1<f64>) -> Result<Configuration, PyErr> {
+pub fn configuration_from_pyarray(array: PyReadonlyArrayDyn<f64>) -> Result<Configuration, PyErr> {
     let array = array.as_array();
-    let array = match array.as_slice() {
-        Some(slice) => slice,
-        None => return Err(PyValueError::new_err("Failed to convert argument to slice")),
-    };
-    Ok(Configuration::from_row_slice(array))
+    let flat: Vec<f64> = array.iter().copied().collect();
+    Ok(Configuration::from_row_slice(&flat))
 }
 
 pub enum ConfigurationError {
