@@ -14,4 +14,4 @@ nalgebra = { workspace = true }
 pyo3 = { workspace = true }
 rand = { workspace = true }
 
-spatial = { path = "../spatial" }
+spatial = { workspace = true }

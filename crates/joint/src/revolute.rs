@@ -80,6 +80,15 @@ impl Joint for JointModelRevolute {
         let q = rng.random_range(self.lower_limit.max(-PI)..self.upper_limit.min(PI));
         vec![q]
     }
+
+    fn transform(&self, q: &nalgebra::DVector<f64>) -> IsometryMatrix3<f64> {
+        assert_eq!(q.len(), 1, "Revolute joint model expects a single angle.");
+        let angle = q[0];
+        IsometryMatrix3::from_parts(
+            Translation::identity(),
+            Rotation3::from_axis_angle(&nalgebra::Unit::new_normalize(self.axis), angle),
+        )
+    }
 }
 
 /// Data structure containing the mutable properties of a revolute joint.

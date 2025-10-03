@@ -39,6 +39,11 @@ impl Joint for JointModelFixed {
     fn random_configuration(&self, _rng: &mut rand::rngs::ThreadRng) -> Vec<f64> {
         vec![]
     }
+
+    fn transform(&self, q: &nalgebra::DVector<f64>) -> IsometryMatrix3<f64> {
+        assert_eq!(q.len(), 0, "Fixed joint model expects no configuration.");
+        IsometryMatrix3::identity()
+    }
 }
 
 /// Data structure containing the mutable properties of a fixed joint.

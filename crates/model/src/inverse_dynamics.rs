@@ -6,6 +6,8 @@
 use crate::configuration::{Configuration, ConfigurationError, configuration_from_pyarray};
 use crate::data::{Data, PyData};
 use crate::model::{Model, PyModel};
+use joint::joint::JointWrapper;
+use nalgebra::IsometryMatrix3;
 use numpy::PyReadonlyArrayDyn;
 use pyo3::prelude::*;
 
@@ -28,7 +30,28 @@ pub fn inverse_dynamics(
     v: &Configuration,
     a: &Configuration,
 ) -> Result<(), ConfigurationError> {
-    unimplemented!()
+    let mut transformed = vec![];
+
+    let mut offset = 0;
+    let mut keys: Vec<_> = model.joint_models.keys().cloned().collect();
+    keys.sort();
+    for id in keys {
+        // retrieve the joint model and the corresponding configuration
+        let joint_model: Box<&JointWrapper> = Box::new(model.joint_models.get(&id).unwrap());
+        let q_joint = q.rows(offset, joint_model.nq()).into_owned();
+
+        // compute the transformation matrix of the joint
+        let transform = joint_model.transform(&q_joint);
+        let local_joint_placement = model.joint_placements.get(&id).unwrap();
+
+        transformed.push(local_joint_placement * transform);
+
+        offset += joint_model.nq();
+    }
+
+    // TODO: add external forces
+
+    Ok(())
 }
 
 #[pyfunction(name = "forward_dynamics")]
