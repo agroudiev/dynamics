@@ -6,11 +6,12 @@
 use crate::data::{Data, PyData};
 use crate::model::{Model, PyModel};
 use joint::joint::JointWrapper;
-use nalgebra::{IsometryMatrix3, Vector6};
+use nalgebra::DVector;
 use numpy::ndarray::Array1;
 use numpy::{PyReadonlyArrayDyn, ToPyArray};
 use pyo3::prelude::*;
 use spatial::configuration::{Configuration, ConfigurationError, configuration_from_pyarray};
+use spatial::motion::SpatialMotion;
 use spatial::se3::SE3;
 use std::collections::HashMap;
 
@@ -34,8 +35,8 @@ pub fn inverse_dynamics(
     a: &Configuration,
 ) -> Result<Configuration, ConfigurationError> {
     let mut position_transforms: HashMap<usize, SE3> = HashMap::new();
-    let mut velocities: HashMap<usize, Vector6<f64>> = HashMap::new();
-    let mut accelerations: HashMap<usize, Vector6<f64>> = HashMap::new();
+    let mut velocities: HashMap<usize, SpatialMotion> = HashMap::new();
+    let mut accelerations: HashMap<usize, SpatialMotion> = HashMap::new();
 
     let mut offset = 0;
     let mut keys: Vec<_> = model.joint_models.keys().cloned().collect();
@@ -72,7 +73,7 @@ pub fn inverse_dynamics(
 
     // TODO: add external forces
 
-    let tau = nalgebra::DVector::<f64>::zeros(model.nv);
+    let tau = DVector::<f64>::zeros(model.nv);
 
     Ok(tau)
 }

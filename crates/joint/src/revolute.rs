@@ -6,7 +6,7 @@ use crate::{
     data::{JointData, JointDataWrapper, JointError},
     joint::{Joint, JointType, JointWrapper},
 };
-use nalgebra::{DVector, IsometryMatrix3, Rotation3, Translation, Vector3};
+use nalgebra::{DVector, Rotation3, Translation, Vector3};
 use pyo3::prelude::*;
 use rand::Rng;
 use spatial::se3::SE3;
@@ -85,7 +85,7 @@ impl Joint for JointModelRevolute {
     fn transform(&self, q: &nalgebra::DVector<f64>) -> SE3 {
         assert_eq!(q.len(), 1, "Revolute joint model expects a single angle.");
         let angle = q[0];
-        IsometryMatrix3::from_parts(
+        SE3::from_parts(
             Translation::identity(),
             Rotation3::from_axis_angle(&nalgebra::Unit::new_normalize(self.axis), angle),
         )
@@ -134,7 +134,7 @@ impl JointData for JointDataRevolute {
             None => return Err(JointError::MissingAttributeError("axis".to_string())),
         };
 
-        self.placement = IsometryMatrix3::from_parts(
+        self.placement = SE3::from_parts(
             Translation::identity(),
             Rotation3::from_axis_angle(&nalgebra::Unit::new_normalize(axis), q),
         );

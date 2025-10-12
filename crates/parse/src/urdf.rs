@@ -9,7 +9,7 @@ use model::{
     geometry_object::GeometryObject,
     model::{Model, PyModel, WORLD_FRAME_ID},
 };
-use nalgebra::{IsometryMatrix3, Translation3, Vector3, Vector4};
+use nalgebra::{Translation3, Vector3, Vector4};
 use pyo3::prelude::*;
 use roxmltree::Document;
 use spatial::se3::SE3;
@@ -85,7 +85,7 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                         WORLD_FRAME_ID,
                         Box::new(Sphere::new(0.0)),
                         Vector4::zeros(),
-                        IsometryMatrix3::identity(),
+                        SE3::identity(),
                     ));
                 }
 
@@ -360,9 +360,9 @@ fn parse_origin(node: &roxmltree::Node) -> Result<SE3, ParseError> {
         };
         let translation = Translation3::new(xyz[0], xyz[1], xyz[2]);
 
-        IsometryMatrix3::from_parts(translation, rotation.to_rotation_matrix())
+        SE3::from_parts(translation, rotation.to_rotation_matrix())
     } else {
-        IsometryMatrix3::identity()
+        SE3::identity()
     };
     Ok(isometry)
 }

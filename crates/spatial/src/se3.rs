@@ -61,7 +61,7 @@ impl PySE3 {
             ));
         }
         let rotation = nalgebra::Rotation3::from_matrix_unchecked(rotation_matrix);
-        let inner = IsometryMatrix3::from_parts(translation, rotation);
+        let inner = SE3::from_parts(translation, rotation);
 
         Ok(Self { inner })
     }
@@ -69,7 +69,7 @@ impl PySE3 {
     #[pyo3(name = "Identity")]
     #[staticmethod]
     pub fn identity() -> PySE3 {
-        let inner = IsometryMatrix3::identity();
+        let inner = SE3::identity();
         PySE3 { inner }
     }
 
@@ -86,7 +86,7 @@ impl PySE3 {
             rand::random::<f64>() * 2.0 - 1.0,
             rand::random::<f64>() * 2.0 - 1.0,
         );
-        let inner = IsometryMatrix3::new(translation, axis_angle);
+        let inner = SE3::new(translation, axis_angle);
         PySE3 { inner }
     }
 
@@ -121,7 +121,7 @@ impl PySE3 {
             )));
         }
 
-        // Update the translation component of the inner IsometryMatrix3
+        // Update the translation component of the inner SE3
         self.inner.translation = Translation3::new(translation[0], translation[1], translation[2]);
         Ok(())
     }

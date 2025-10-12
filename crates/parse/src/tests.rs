@@ -1,7 +1,8 @@
 use crate::urdf::build_models_from_urdf;
 use collider::shape::Cylinder;
 use model::model::WORLD_FRAME_ID;
-use nalgebra::{IsometryMatrix3, Rotation3, Translation3};
+use nalgebra::{Rotation3, Translation3};
+use spatial::se3::SE3;
 
 #[test]
 fn test_myfirst() {
@@ -53,12 +54,9 @@ fn test_materials() {
     // base link
     assert_eq!(
         *model.joint_placements.get(&WORLD_FRAME_ID).unwrap(),
-        IsometryMatrix3::identity()
+        SE3::identity()
     );
-    assert_eq!(
-        *geom_data.get_object_placement(0).unwrap(),
-        IsometryMatrix3::identity()
-    );
+    assert_eq!(*geom_data.get_object_placement(0).unwrap(), SE3::identity());
 
     // right leg
     assert_eq!(

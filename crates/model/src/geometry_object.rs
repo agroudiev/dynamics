@@ -3,7 +3,7 @@
 use std::fmt::Debug;
 
 use collider::shape::*;
-use nalgebra::{IsometryMatrix3, Vector4};
+use nalgebra::Vector4;
 use numpy::{IntoPyArray, PyReadonlyArray1, ndarray::Array1};
 use pyo3::{exceptions::PyValueError, prelude::*, types::PyTuple};
 use spatial::se3::{PySE3, SE3};

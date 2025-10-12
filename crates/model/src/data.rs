@@ -1,7 +1,6 @@
 //! `Data` structure containing the mutable properties of the robot.
 
 use joint::data::JointDataWrapper;
-use nalgebra::IsometryMatrix3;
 use pyo3::{PyResult, pyclass, pymethods};
 use spatial::se3::{PySE3, SE3};
 use std::collections::HashMap;

@@ -7,9 +7,9 @@ use joint::{
     joint::{Joint, JointWrapper, PyJointWrapper},
     revolute::PyJointModelRevolute,
 };
-use nalgebra::{DVector, IsometryMatrix3, Vector3};
+use nalgebra::{DVector, Vector3};
 use numpy::ToPyArray;
-use numpy::ndarray::{Array1, Array3};
+use numpy::ndarray::Array1;
 use once_cell::sync::Lazy;
 use pyo3::{exceptions::PyValueError, prelude::*, types::PyTuple};
 use spatial::configuration::Configuration;
@@ -66,7 +66,7 @@ impl Model {
         joint_parents.insert(WORLD_FRAME_ID, WORLD_FRAME_ID);
 
         let mut joint_placements = HashMap::new();
-        joint_placements.insert(WORLD_FRAME_ID, IsometryMatrix3::identity());
+        joint_placements.insert(WORLD_FRAME_ID, SE3::identity());
 
         let mut joint_names = HashMap::new();
         joint_names.insert(WORLD_FRAME_ID, "__WORLD__".to_string());
