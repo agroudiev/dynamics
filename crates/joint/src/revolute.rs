@@ -9,7 +9,7 @@ use crate::{
 use nalgebra::{DVector, Rotation3, Translation, Vector3};
 use pyo3::prelude::*;
 use rand::Rng;
-use spatial::se3::SE3;
+use spatial::{se3::SE3, transform::SpatialTransform};
 
 /// Model of a revolute joint.
 ///
@@ -82,13 +82,11 @@ impl Joint for JointModelRevolute {
         vec![q]
     }
 
-    fn transform(&self, q: &nalgebra::DVector<f64>) -> SE3 {
+    fn transform(&self, q: &nalgebra::DVector<f64>) -> SpatialTransform {
         assert_eq!(q.len(), 1, "Revolute joint model expects a single angle.");
         let angle = q[0];
-        SE3::from_parts(
-            Translation::identity(),
-            Rotation3::from_axis_angle(&nalgebra::Unit::new_normalize(self.axis), angle),
-        )
+        let rot = Rotation3::from_axis_angle(&nalgebra::Unit::new_normalize(self.axis), angle);
+        SpatialTransform::from_rotation(rot)
     }
 }
 

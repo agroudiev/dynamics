@@ -12,7 +12,7 @@ use numpy::{PyReadonlyArrayDyn, ToPyArray};
 use pyo3::prelude::*;
 use spatial::configuration::{Configuration, ConfigurationError, configuration_from_pyarray};
 use spatial::motion::SpatialMotion;
-use spatial::se3::SE3;
+use spatial::transform::SpatialTransform;
 use std::collections::HashMap;
 
 /// Computes the inverse dynamics using the Recursive Newton-Euler Algorithm (RNEA).
@@ -34,7 +34,7 @@ pub fn inverse_dynamics(
     v: &Configuration,
     a: &Configuration,
 ) -> Result<Configuration, ConfigurationError> {
-    let mut position_transforms: HashMap<usize, SE3> = HashMap::new();
+    let mut position_transforms: HashMap<usize, SpatialTransform> = HashMap::new();
     let mut velocities: HashMap<usize, SpatialMotion> = HashMap::new();
     let mut accelerations: HashMap<usize, SpatialMotion> = HashMap::new();
 
@@ -65,7 +65,7 @@ pub fn inverse_dynamics(
         let local_velocity = axis * v_joint;
 
         // compute the position, velocity and acceleration of the joint
-        position_transforms.insert(id, transform * local_joint_placement);
+        // position_transforms.insert(id, transform * local_joint_placement);
         // velocities.insert(id, position_transforms[&parent_id] * velocities[&parent_id] + local_velocity);
 
         offset += joint_model.nq();

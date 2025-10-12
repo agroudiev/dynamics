@@ -5,7 +5,7 @@ use crate::{
     joint::{Joint, JointType, JointWrapper},
 };
 use pyo3::prelude::*;
-use spatial::{configuration::Configuration, se3::SE3};
+use spatial::{configuration::Configuration, se3::SE3, transform::SpatialTransform};
 
 /// Model of a fixed joint.
 #[derive(Clone, Debug, Default)]
@@ -40,9 +40,9 @@ impl Joint for JointModelFixed {
         vec![]
     }
 
-    fn transform(&self, q: &nalgebra::DVector<f64>) -> SE3 {
+    fn transform(&self, q: &nalgebra::DVector<f64>) -> SpatialTransform {
         assert_eq!(q.len(), 0, "Fixed joint model expects no configuration.");
-        SE3::identity()
+        SpatialTransform::identity()
     }
 }
 
