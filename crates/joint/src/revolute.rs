@@ -9,7 +9,13 @@ use crate::{
 use nalgebra::{Rotation3, Translation, Vector3};
 use pyo3::prelude::*;
 use rand::Rng;
-use spatial::{configuration::Configuration, se3::SE3, transform::SpatialTransform};
+use spatial::{
+    configuration::Configuration,
+    motion::{SpatialMotion, SpatialRotation},
+    se3::SE3,
+    transform::SpatialTransform,
+    vector3d::Vector3D,
+};
 
 /// Model of a revolute joint.
 ///
@@ -17,7 +23,7 @@ use spatial::{configuration::Configuration, se3::SE3, transform::SpatialTransfor
 #[derive(Clone, Debug)]
 pub struct JointModelRevolute {
     /// The axis of rotation expressed in the local frame of the joint.
-    pub axis: Vector3<f64>,
+    pub axis: Vector3D,
     /// The lower limit of the joint angle.
     pub lower_limit: f64,
     /// The upper limit of the joint angle.
@@ -37,7 +43,7 @@ impl JointModelRevolute {
     ///
     /// # Returns
     /// A new `JointModelRevolute` object.
-    pub fn new(axis: Vector3<f64>) -> Self {
+    pub fn new(axis: Vector3D) -> Self {
         JointModelRevolute {
             axis,
             lower_limit: f64::NEG_INFINITY,
@@ -73,8 +79,8 @@ impl Joint for JointModelRevolute {
         Box::new(JointDataRevolute::new(self))
     }
 
-    fn get_axis(&self) -> Option<Vector3<f64>> {
-        Some(self.axis)
+    fn get_axis(&self) -> Option<SpatialMotion> {
+        Some(SpatialMotion::from_axis(&self.axis))
     }
 
     fn random_configuration(&self, rng: &mut rand::rngs::ThreadRng) -> Configuration {
@@ -85,8 +91,7 @@ impl Joint for JointModelRevolute {
     fn transform(&self, q: &Configuration) -> SpatialTransform {
         assert_eq!(q.len(), 1, "Revolute joint model expects a single angle.");
         let angle = q[0];
-        let rot = Rotation3::from_axis_angle(&nalgebra::Unit::new_normalize(self.axis), angle);
-        SpatialTransform::from_rotation(rot)
+        SpatialTransform::from_rotation(SpatialRotation::from_axis_angle(&self.axis, angle))
     }
 }
 
@@ -133,10 +138,8 @@ impl JointData for JointDataRevolute {
             None => return Err(JointError::MissingAttributeError("axis".to_string())),
         };
 
-        self.placement = SE3::from_parts(
-            Translation::identity(),
-            Rotation3::from_axis_angle(&nalgebra::Unit::new_normalize(axis), q),
-        );
+        let rot = SpatialRotation::from_axis_angle(&axis.rotation(), q);
+        self.placement = rot.to_se3(&Translation::identity());
         Ok(())
     }
 }
@@ -150,7 +153,7 @@ pub struct PyJointModelRevolute {
 /// Creates a new revolute joint model with `x` as axis of rotation.
 #[pyfunction(name = "JointModelRX")]
 pub fn new_joint_model_revolute_x() -> PyJointModelRevolute {
-    let inner = JointModelRevolute::new(*Vector3::x_axis());
+    let inner = JointModelRevolute::new(Vector3D::new(1.0, 0.0, 0.0));
     PyJointModelRevolute { inner }
 }
 
@@ -163,7 +166,7 @@ mod tests {
     #[test]
     fn test_joint_model_revolute() {
         let joint = JointModelRevolute {
-            axis: *Vector3::x_axis(),
+            axis: Vector3D::new(1.0, 0.0, 0.0),
             lower_limit: f64::NEG_INFINITY,
             upper_limit: f64::INFINITY,
             effort_limit: f64::INFINITY,
@@ -177,7 +180,7 @@ mod tests {
 
     #[test]
     fn test_joint_data_revolute_xaxis() {
-        let joint_model = JointModelRevolute::new(*Vector3::x_axis());
+        let joint_model = JointModelRevolute::new(Vector3D::new(1.0, 0.0, 0.0));
         let mut joint_data = joint_model.create_joint_data();
         let q = Configuration::ones(1);
         let joint_model_box: JointWrapper = Box::new(joint_model.clone());

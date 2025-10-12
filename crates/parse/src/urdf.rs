@@ -13,6 +13,7 @@ use nalgebra::{Translation3, Vector3, Vector4};
 use pyo3::prelude::*;
 use roxmltree::Document;
 use spatial::se3::SE3;
+use spatial::vector3d::Vector3D;
 use std::{collections::HashMap, fs, str::FromStr};
 
 /// Parses a URDF file and builds the corresponding `Model` and `GeometryModel`.
@@ -155,9 +156,9 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                         // we extract the axis of rotation
                         let axis = match extract_parameter_list::<f64>("axis", &joint_node, Some(3))
                         {
-                            Ok(axis) => Vector3::new(axis[0], axis[1], axis[2]),
+                            Ok(axis) => Vector3D::new(axis[0], axis[1], axis[2]),
                             // default value if axis is not specified
-                            Err(ParseError::MissingParameter(_)) => Vector3::new(1.0, 0.0, 0.0),
+                            Err(ParseError::MissingParameter(_)) => Vector3D::new(1.0, 0.0, 0.0),
                             // if the axis is specified but invalid
                             Err(e) => return Err(e),
                         };

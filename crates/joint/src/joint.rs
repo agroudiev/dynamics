@@ -4,7 +4,7 @@ use crate::data::JointDataWrapper;
 use nalgebra::Vector3;
 use pyo3::prelude::*;
 use rand::rngs::ThreadRng;
-use spatial::{configuration::Configuration, transform::SpatialTransform};
+use spatial::{configuration::Configuration, motion::SpatialMotion, transform::SpatialTransform};
 
 /// A wrapper type for the Shape trait to allow dynamic dispatch.
 pub type JointWrapper = Box<dyn Joint + Send + Sync>;
@@ -30,7 +30,7 @@ pub trait Joint {
     fn create_joint_data(&self) -> JointDataWrapper;
 
     /// Returns the axis of the joint, if applicable.
-    fn get_axis(&self) -> Option<Vector3<f64>> {
+    fn get_axis(&self) -> Option<SpatialMotion> {
         None
     }
 

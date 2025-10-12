@@ -51,10 +51,7 @@ pub fn inverse_dynamics(
 
         // compute the transformation matrix of the joint (X_J) and axis (S_i)
         let transform = joint_model.transform(&q_joint);
-        let axis = match joint_model.get_axis() {
-            Some(axis_3) => axis_3.insert_rows(3, 3, 0.0),
-            None => unimplemented!("implement fixed joint case"),
-        };
+        let axis = joint_model.get_axis();
 
         // local joint placement (X_T(i))
         let local_joint_placement = model.joint_placements.get(&id).unwrap();

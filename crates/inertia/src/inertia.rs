@@ -1,8 +1,8 @@
 //! Structures to represent the inertia of a rigid body.
 
-use nalgebra::{Vector3, Vector6};
+use nalgebra::Vector6;
 use pyo3::{exceptions::PyValueError, prelude::*};
-use spatial::inertia::SpatialInertia;
+use spatial::{inertia::SpatialInertia, vector3d::Vector3D};
 
 /// A data structure that contains the information about the inertia of a rigid body (mass, center of mass, and inertia matrix).
 #[derive(Clone, Debug)]
@@ -10,7 +10,7 @@ pub struct Inertia {
     /// The mass of the object.
     pub mass: f64,
     /// The center of mass of the object.
-    pub com: Vector3<f64>,
+    pub com: Vector3D,
     /// The inertia matrix of the object.
     pub inertia: SpatialInertia,
 }
@@ -23,7 +23,7 @@ impl Inertia {
     /// * `mass` - The mass of the object.
     /// * `com` - The center of mass of the object (3D vector).
     /// * `inertia` - The inertia matrix of the object (3x3 matrix).
-    pub fn new(mass: f64, com: Vector3<f64>, inertia: SpatialInertia) -> Self {
+    pub fn new(mass: f64, com: Vector3D, inertia: SpatialInertia) -> Self {
         Self { mass, com, inertia }
     }
 
@@ -48,7 +48,7 @@ impl Inertia {
         let diag = Vector6::new(inertia, inertia, inertia, mass, mass, mass);
         let inertia_matrix = SpatialInertia::from_diagonal(&diag);
 
-        Ok(Self::new(mass, Vector3::zeros(), inertia_matrix))
+        Ok(Self::new(mass, Vector3D::zeros(), inertia_matrix))
     }
 }
 
