@@ -28,19 +28,19 @@ impl Joint for JointModelFixed {
         0
     }
 
-    fn neutral(&self) -> Vec<f64> {
-        vec![]
+    fn neutral(&self) -> Configuration {
+        Configuration::zeros(0)
     }
 
     fn create_joint_data(&self) -> JointDataWrapper {
         Box::new(JointDataFixed::new(self))
     }
 
-    fn random_configuration(&self, _rng: &mut rand::rngs::ThreadRng) -> Vec<f64> {
-        vec![]
+    fn random_configuration(&self, _rng: &mut rand::rngs::ThreadRng) -> Configuration {
+        Configuration::zeros(0)
     }
 
-    fn transform(&self, q: &nalgebra::DVector<f64>) -> SpatialTransform {
+    fn transform(&self, q: &Configuration) -> SpatialTransform {
         assert_eq!(q.len(), 0, "Fixed joint model expects no configuration.");
         SpatialTransform::identity()
     }

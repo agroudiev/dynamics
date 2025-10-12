@@ -1,15 +1,71 @@
+use std::ops::Index;
+
 use nalgebra::DVector;
 use numpy::PyReadonlyArrayDyn;
-use numpy::{ToPyArray, ndarray::Array1};
-use pyo3::{Python, prelude::*};
+use pyo3::prelude::*;
 
-pub type Configuration = nalgebra::DVector<f64>;
+#[derive(Clone, Debug, PartialEq)]
+pub struct Configuration(pub DVector<f64>);
 
-pub fn configuration_from_pyarray(array: PyReadonlyArrayDyn<f64>) -> Result<Configuration, PyErr> {
-    let array = array.as_array();
-    let flat: Vec<f64> = array.iter().copied().collect();
-    Ok(Configuration::from_row_slice(&flat))
+impl Configuration {
+    pub fn zeros(size: usize) -> Self {
+        Configuration(DVector::zeros(size))
+    }
+
+    pub fn ones(size: usize) -> Self {
+        Configuration(DVector::from_element(size, 1.0))
+    }
+
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
+    pub fn rows(&self, start: usize, nrows: usize) -> Configuration {
+        Configuration(self.0.rows(start, nrows).into_owned())
+    }
+
+    pub fn update_rows(&mut self, start: usize, values: &Configuration) {
+        assert_eq!(
+            self.0.rows(start, values.len()),
+            values.0,
+            "Mismatched sizes when updating configuration rows."
+        );
+        self.0.rows_mut(start, values.len()).copy_from(&values.0);
+    }
+
+    pub fn from_row_slice(data: &[f64]) -> Self {
+        Configuration(DVector::from_row_slice(data))
+    }
+
+    pub fn from_pyarray(array: PyReadonlyArrayDyn<f64>) -> Result<Configuration, PyErr> {
+        let array = array.as_array();
+        let flat: Vec<f64> = array.iter().copied().collect();
+        Ok(Configuration::from_row_slice(&flat))
+    }
+
+    pub fn concat(configs: &[Configuration]) -> Configuration {
+        let mut all_values = Vec::new();
+        for config in configs {
+            all_values.extend_from_slice(config.0.as_slice());
+        }
+        Configuration::from_row_slice(&all_values)
+    }
 }
+
+impl Index<usize> for Configuration {
+    type Output = f64;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.0[index]
+    }
+}
+
+#[pyclass(name = "Configuration")]
+pub struct PyConfiguration(pub Configuration);
 
 pub enum ConfigurationError {
     InvalidSize(String, usize, usize),

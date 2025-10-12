@@ -8,7 +8,7 @@ use crate::model::{Model, PyModel};
 use numpy::PyReadonlyArrayDyn;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
-use spatial::configuration::{Configuration, ConfigurationError, configuration_from_pyarray};
+use spatial::configuration::{Configuration, ConfigurationError};
 
 /// WIP: Computes the forward dynamics of the robot model.
 ///
@@ -81,9 +81,9 @@ pub fn py_forward_dynamics(
     v: PyReadonlyArrayDyn<f64>,
     tau: PyReadonlyArrayDyn<f64>,
 ) -> PyResult<()> {
-    let q = configuration_from_pyarray(q)?;
-    let v = configuration_from_pyarray(v)?;
-    let tau = configuration_from_pyarray(tau)?;
+    let q = Configuration::from_pyarray(q)?;
+    let v = Configuration::from_pyarray(v)?;
+    let tau = Configuration::from_pyarray(tau)?;
 
     forward_dynamics(&model.inner, &mut data.inner, &q, &v, &tau)
         .map_err(|e| PyValueError::new_err(format!("Forward dynamics failed: {:?}", e)))?;

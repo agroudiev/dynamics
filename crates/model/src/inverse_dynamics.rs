@@ -6,11 +6,9 @@
 use crate::data::{Data, PyData};
 use crate::model::{Model, PyModel};
 use joint::joint::JointWrapper;
-use nalgebra::DVector;
-use numpy::ndarray::Array1;
-use numpy::{PyReadonlyArrayDyn, ToPyArray};
+use numpy::PyReadonlyArrayDyn;
 use pyo3::prelude::*;
-use spatial::configuration::{Configuration, ConfigurationError, configuration_from_pyarray};
+use spatial::configuration::{Configuration, ConfigurationError, PyConfiguration};
 use spatial::motion::SpatialMotion;
 use spatial::transform::SpatialTransform;
 use std::collections::HashMap;
@@ -47,9 +45,9 @@ pub fn inverse_dynamics(
         let parent_id = model.joint_parents[&id];
 
         // extract the joint configuration, velocity and acceleration from configuration vectors
-        let q_joint = q.rows(offset, joint_model.nq()).into_owned();
-        let v_joint = v.rows(offset, joint_model.nq()).into_owned();
-        let a_joint = a.rows(offset, joint_model.nq()).into_owned();
+        let q_joint = q.rows(offset, joint_model.nq());
+        let v_joint = v.rows(offset, joint_model.nq());
+        let a_joint = a.rows(offset, joint_model.nq());
 
         // compute the transformation matrix of the joint (X_J) and axis (S_i)
         let transform = joint_model.transform(&q_joint);
@@ -62,7 +60,7 @@ pub fn inverse_dynamics(
         let local_joint_placement = model.joint_placements.get(&id).unwrap();
 
         // local velocity
-        let local_velocity = axis * v_joint;
+        // let local_velocity = axis * v_joint;
 
         // compute the position, velocity and acceleration of the joint
         // position_transforms.insert(id, transform * local_joint_placement);
@@ -73,7 +71,7 @@ pub fn inverse_dynamics(
 
     // TODO: add external forces
 
-    let tau = DVector::<f64>::zeros(model.nv);
+    let tau = Configuration::zeros(model.nv);
 
     Ok(tau)
 }
@@ -86,19 +84,16 @@ pub fn py_inverse_dynamics(
     q: PyReadonlyArrayDyn<f64>,
     v: PyReadonlyArrayDyn<f64>,
     a: PyReadonlyArrayDyn<f64>,
-) -> PyResult<Py<PyAny>> {
-    let q = configuration_from_pyarray(q)?;
-    let v = configuration_from_pyarray(v)?;
-    let a = configuration_from_pyarray(a)?;
+) -> PyResult<PyConfiguration> {
+    let q = Configuration::from_pyarray(q)?;
+    let v = Configuration::from_pyarray(v)?;
+    let a = Configuration::from_pyarray(a)?;
 
     let tau = inverse_dynamics(&model.inner, &mut data.inner, &q, &v, &a).map_err(|e| {
         PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Error in inverse dynamics: {}", e))
     })?;
 
-    Ok(Array1::from_vec(tau.data.as_vec().clone())
-        .to_pyarray(py)
-        .into_any()
-        .unbind())
+    Ok(PyConfiguration(tau))
 }
 
 // Pinocchio alias (Recursive Newton-Euler Algorithm)
@@ -110,6 +105,6 @@ pub fn py_rnea(
     q: PyReadonlyArrayDyn<f64>,
     v: PyReadonlyArrayDyn<f64>,
     a: PyReadonlyArrayDyn<f64>,
-) -> PyResult<Py<PyAny>> {
+) -> PyResult<PyConfiguration> {
     py_inverse_dynamics(py, model, data, q, v, a)
 }

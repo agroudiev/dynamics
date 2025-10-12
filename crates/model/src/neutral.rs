@@ -2,9 +2,9 @@
 
 use crate::model::Model;
 use crate::model::PyModel;
-use numpy::{ToPyArray, ndarray::Array1};
 use pyo3::prelude::*;
 use spatial::configuration::Configuration;
+use spatial::configuration::PyConfiguration;
 
 /// Computes the neutral configuration of a model.
 ///
@@ -22,8 +22,7 @@ pub fn neutral(model: &mut Model) -> Configuration {
     for joint_id in keys {
         let joint_model = model.joint_models.get(joint_id).unwrap();
         let q_joint = joint_model.neutral();
-        q.rows_mut(offset, offset + joint_model.nq())
-            .copy_from_slice(&q_joint);
+        q.update_rows(offset, &q_joint);
         offset += joint_model.nq();
     }
 
@@ -32,11 +31,7 @@ pub fn neutral(model: &mut Model) -> Configuration {
 
 /// Python wrapper for the `neutral` function.
 #[pyfunction(name = "neutral")]
-pub fn py_neutral(py: Python, model: &mut PyModel) -> Py<PyAny> {
+pub fn py_neutral(model: &mut PyModel) -> PyConfiguration {
     let q = neutral(&mut model.inner);
-    Array1::from_shape_vec(model.inner.nq, q.as_slice().to_vec())
-        .unwrap()
-        .to_pyarray(py)
-        .into_any()
-        .unbind()
+    PyConfiguration(q)
 }

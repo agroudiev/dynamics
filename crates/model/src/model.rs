@@ -7,12 +7,12 @@ use joint::{
     joint::{Joint, JointWrapper, PyJointWrapper},
     revolute::PyJointModelRevolute,
 };
-use nalgebra::{DVector, Vector3};
+use nalgebra::Vector3;
 use numpy::ToPyArray;
 use numpy::ndarray::Array1;
 use once_cell::sync::Lazy;
 use pyo3::{exceptions::PyValueError, prelude::*, types::PyTuple};
-use spatial::configuration::Configuration;
+use spatial::configuration::{Configuration, PyConfiguration};
 use spatial::se3::{PySE3, SE3};
 use std::{collections::HashMap, fmt::Debug};
 
@@ -157,7 +157,7 @@ impl Model {
 
         let mut data = Data::new(joints_data, HashMap::new());
 
-        forward_kinematics(self, &mut data, &DVector::zeros(self.nq))
+        forward_kinematics(self, &mut data, &Configuration::zeros(self.nq))
             .expect("Failed to compute forward kinematics");
 
         data
@@ -220,17 +220,18 @@ pub fn random_configuration(model: &Model) -> Configuration {
         .values()
         .map(|joint_model| joint_model.random_configuration(&mut rng))
         .collect::<Vec<_>>();
-    DVector::from_vec(q.concat())
+    Configuration::concat(q.as_slice())
 }
 
 #[pyfunction(name = "random_configuration")]
-pub fn py_random_configuration(py: Python, model: &mut PyModel) -> Py<PyAny> {
+pub fn py_random_configuration(model: &mut PyModel) -> PyConfiguration {
     let q = random_configuration(&model.inner);
-    Array1::from_shape_vec(model.inner.nq, q.as_slice().to_vec())
-        .unwrap()
-        .to_pyarray(py)
-        .into_any()
-        .unbind()
+    // Array1::from_shape_vec(model.inner.nq, q.as_slice().to_vec())
+    //     .unwrap()
+    //     .to_pyarray(py)
+    //     .into_any()
+    //     .unbind()
+    PyConfiguration(q)
 }
 
 /// A `Model` is a data structure that contains the information about the robot model,

@@ -4,7 +4,7 @@ use crate::data::JointDataWrapper;
 use nalgebra::Vector3;
 use pyo3::prelude::*;
 use rand::rngs::ThreadRng;
-use spatial::transform::SpatialTransform;
+use spatial::{configuration::Configuration, transform::SpatialTransform};
 
 /// A wrapper type for the Shape trait to allow dynamic dispatch.
 pub type JointWrapper = Box<dyn Joint + Send + Sync>;
@@ -24,7 +24,7 @@ pub trait Joint {
     fn nv(&self) -> usize;
 
     /// Returns the neutral configuration of the joint.
-    fn neutral(&self) -> Vec<f64>;
+    fn neutral(&self) -> Configuration;
 
     /// Creates the joint data.
     fn create_joint_data(&self) -> JointDataWrapper;
@@ -35,10 +35,10 @@ pub trait Joint {
     }
 
     /// Returns a random configuration for the joint.
-    fn random_configuration(&self, rng: &mut ThreadRng) -> Vec<f64>;
+    fn random_configuration(&self, rng: &mut ThreadRng) -> Configuration;
 
     /// Computes the transformation matrix of the joint given its configuration. Featherstone calls it `jcalc`.
-    fn transform(&self, q: &nalgebra::DVector<f64>) -> SpatialTransform;
+    fn transform(&self, q: &Configuration) -> SpatialTransform;
 }
 
 /// Enum representing the type of joint.

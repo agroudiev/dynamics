@@ -42,7 +42,7 @@ pub fn forward_kinematics(
     for id in keys {
         let joint_data = data.joint_data.get_mut(&id).unwrap();
         let joint_model: Box<&JointWrapper> = Box::new(model.joint_models.get(&id).unwrap());
-        let q_joint = q.rows(offset, joint_model.nq()).into_owned();
+        let q_joint = q.rows(offset, joint_model.nq());
         match joint_data.update(&joint_model, &q_joint) {
             Ok(_) => {}
             Err(e) => unimplemented!("handle joint data update error: {:?}", e),

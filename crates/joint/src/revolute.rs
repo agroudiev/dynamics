@@ -9,7 +9,7 @@ use crate::{
 use nalgebra::{DVector, Rotation3, Translation, Vector3};
 use pyo3::prelude::*;
 use rand::Rng;
-use spatial::{se3::SE3, transform::SpatialTransform};
+use spatial::{configuration::Configuration, se3::SE3, transform::SpatialTransform};
 
 /// Model of a revolute joint.
 ///
@@ -65,8 +65,8 @@ impl Joint for JointModelRevolute {
         1
     }
 
-    fn neutral(&self) -> Vec<f64> {
-        vec![0.0]
+    fn neutral(&self) -> Configuration {
+        Configuration::zeros(1)
     }
 
     fn create_joint_data(&self) -> JointDataWrapper {
@@ -77,12 +77,12 @@ impl Joint for JointModelRevolute {
         Some(self.axis)
     }
 
-    fn random_configuration(&self, rng: &mut rand::rngs::ThreadRng) -> Vec<f64> {
+    fn random_configuration(&self, rng: &mut rand::rngs::ThreadRng) -> Configuration {
         let q = rng.random_range(self.lower_limit.max(-PI)..self.upper_limit.min(PI));
-        vec![q]
+        Configuration::from_row_slice(&[q])
     }
 
-    fn transform(&self, q: &nalgebra::DVector<f64>) -> SpatialTransform {
+    fn transform(&self, q: &Configuration) -> SpatialTransform {
         assert_eq!(q.len(), 1, "Revolute joint model expects a single angle.");
         let angle = q[0];
         let rot = Rotation3::from_axis_angle(&nalgebra::Unit::new_normalize(self.axis), angle);
@@ -113,7 +113,8 @@ impl JointDataRevolute {
         // safe since we just created a revolute joint model
         // and we know that a revolute joint has an axis
         let joint_model_box: JointWrapper = Box::new(joint_model.clone());
-        data.update(&joint_model_box, &DVector::zeros(1)).unwrap();
+        data.update(&joint_model_box, &Configuration::zeros(1))
+            .unwrap();
         data
     }
 }
@@ -123,7 +124,7 @@ impl JointData for JointDataRevolute {
         self.placement
     }
 
-    fn update(&mut self, joint_model: &JointWrapper, q: &DVector<f64>) -> Result<(), JointError> {
+    fn update(&mut self, joint_model: &JointWrapper, q: &Configuration) -> Result<(), JointError> {
         assert_eq!(q.len(), 1, "Revolute joint model expects a single angle.");
         let q = q[0];
         self.q = q;
@@ -171,14 +172,14 @@ mod tests {
         assert_eq!(joint.get_joint_type(), JointType::Revolute);
         assert_eq!(joint.nq(), 1);
         assert_eq!(joint.nv(), 1);
-        assert_eq!(joint.neutral(), vec![0.0]);
+        assert_eq!(joint.neutral(), Configuration::zeros(1));
     }
 
     #[test]
     fn test_joint_data_revolute_xaxis() {
         let joint_model = JointModelRevolute::new(*Vector3::x_axis());
         let mut joint_data = joint_model.create_joint_data();
-        let q = DVector::from_element(1, 1.0);
+        let q = Configuration::ones(1);
         let joint_model_box: JointWrapper = Box::new(joint_model.clone());
         joint_data.update(&joint_model_box, &q).unwrap();
 

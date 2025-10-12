@@ -27,7 +27,7 @@ use collider::shape::{
 };
 use numpy::PyArray1;
 use parse::urdf::py_build_models_from_urdf;
-use spatial::se3::PySE3;
+use spatial::{configuration::PyConfiguration, se3::PySE3};
 
 #[pymodule(name = "dynamics")]
 fn dynamics_py(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -54,6 +54,7 @@ fn collider_py(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult<()> {
 }
 
 fn add_dynamics_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult<()> {
+    dynamics.add_class::<PyConfiguration>()?;
     dynamics.add_class::<PyModel>()?;
     dynamics.add_class::<PyData>()?;
     dynamics.add_class::<PyGeometryModel>()?;
