@@ -7,9 +7,11 @@ use crate::configuration::{Configuration, ConfigurationError, configuration_from
 use crate::data::{Data, PyData};
 use crate::model::{Model, PyModel};
 use joint::joint::JointWrapper;
+use nalgebra::{IsometryMatrix3, Vector6};
 use numpy::ndarray::Array1;
 use numpy::{PyReadonlyArrayDyn, ToPyArray};
 use pyo3::prelude::*;
+use std::collections::HashMap;
 
 /// Computes the inverse dynamics using the Recursive Newton-Euler Algorithm (RNEA).
 ///
@@ -30,7 +32,9 @@ pub fn inverse_dynamics(
     v: &Configuration,
     a: &Configuration,
 ) -> Result<Configuration, ConfigurationError> {
-    let mut transformed = vec![];
+    let mut position_transforms: HashMap<usize, IsometryMatrix3<f64>> = HashMap::new();
+    let mut velocities: HashMap<usize, Vector6<f64>> = HashMap::new();
+    let mut accelerations: HashMap<usize, Vector6<f64>> = HashMap::new();
 
     let mut offset = 0;
     let mut keys: Vec<_> = model.joint_models.keys().cloned().collect();
@@ -38,13 +42,29 @@ pub fn inverse_dynamics(
     for id in keys {
         // retrieve the joint model and the corresponding configuration
         let joint_model: Box<&JointWrapper> = Box::new(model.joint_models.get(&id).unwrap());
-        let q_joint = q.rows(offset, joint_model.nq()).into_owned();
+        let parent_id = model.joint_parents[&id];
 
-        // compute the transformation matrix of the joint
+        // extract the joint configuration, velocity and acceleration from configuration vectors
+        let q_joint = q.rows(offset, joint_model.nq()).into_owned();
+        let v_joint = v.rows(offset, joint_model.nq()).into_owned();
+        let a_joint = a.rows(offset, joint_model.nq()).into_owned();
+
+        // compute the transformation matrix of the joint (X_J) and axis (S_i)
         let transform = joint_model.transform(&q_joint);
+        let axis = match joint_model.get_axis() {
+            Some(axis_3) => axis_3.insert_rows(3, 3, 0.0),
+            None => unimplemented!("implement fixed joint case"),
+        };
+
+        // local joint placement (X_T(i))
         let local_joint_placement = model.joint_placements.get(&id).unwrap();
 
-        transformed.push(local_joint_placement * transform);
+        // local velocity
+        let local_velocity = axis * v_joint;
+
+        // compute the position, velocity and acceleration of the joint
+        position_transforms.insert(id, transform * local_joint_placement);
+        // velocities.insert(id, position_transforms[&parent_id] * velocities[&parent_id] + local_velocity);
 
         offset += joint_model.nq();
     }
