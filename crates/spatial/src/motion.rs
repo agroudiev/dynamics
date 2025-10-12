@@ -1,0 +1,1 @@
+pub type SpatialMotion = nalgebra::Vector6<f64>;

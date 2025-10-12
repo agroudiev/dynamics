@@ -1,0 +1,1 @@
+pub type SpatialInertia = nalgebra::Matrix6<f64>;

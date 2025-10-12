@@ -11,9 +11,13 @@ use numpy::{
 };
 use pyo3::{exceptions::PyValueError, prelude::*};
 
+/// Type alias for SE(3) transformations.
+pub type SE3 = IsometryMatrix3<f64>;
+
+/// Python wrapper for the SE(3) group.
 #[pyclass(name = "SE3")]
 pub struct PySE3 {
-    pub inner: IsometryMatrix3<f64>,
+    pub inner: SE3,
 }
 
 #[pymethods]
