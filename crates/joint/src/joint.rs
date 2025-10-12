@@ -4,6 +4,7 @@ use crate::data::JointDataWrapper;
 use nalgebra::{IsometryMatrix3, Vector3};
 use pyo3::prelude::*;
 use rand::rngs::ThreadRng;
+use spatial::se3::SE3;
 
 /// A wrapper type for the Shape trait to allow dynamic dispatch.
 pub type JointWrapper = Box<dyn Joint + Send + Sync>;
@@ -37,7 +38,7 @@ pub trait Joint {
     fn random_configuration(&self, rng: &mut ThreadRng) -> Vec<f64>;
 
     /// Computes the transformation matrix of the joint given its configuration. Featherstone calls it `jcalc`.
-    fn transform(&self, q: &nalgebra::DVector<f64>) -> IsometryMatrix3<f64>;
+    fn transform(&self, q: &nalgebra::DVector<f64>) -> SE3;
 }
 
 /// Enum representing the type of joint.

@@ -7,22 +7,17 @@ use joint::{
     joint::{Joint, JointWrapper, PyJointWrapper},
     revolute::PyJointModelRevolute,
 };
-use nalgebra::{DVector, IsometryMatrix3};
+use nalgebra::{DVector, IsometryMatrix3, Vector3};
 use numpy::ToPyArray;
-use numpy::ndarray::Array1;
+use numpy::ndarray::{Array1, Array3};
 use once_cell::sync::Lazy;
 use pyo3::{exceptions::PyValueError, prelude::*, types::PyTuple};
 use spatial::configuration::Configuration;
-use spatial::se3::PySE3;
+use spatial::se3::{PySE3, SE3};
 use std::{collections::HashMap, fmt::Debug};
 
 pub const WORLD_FRAME_ID: usize = 0;
-pub static STANDARD_GRAVITY: Lazy<IsometryMatrix3<f64>> = Lazy::new(|| {
-    IsometryMatrix3::new(
-        nalgebra::Vector3::new(0.0, 0.0, -9.81),
-        nalgebra::Vector3::zeros(),
-    )
-});
+pub static STANDARD_GRAVITY: Lazy<Vector3<f64>> = Lazy::new(|| Vector3::new(0.0, 0.0, -9.81));
 
 /// Data structure that contains the immutable properties of the robot model.
 /// It contains information about the joints, frames, and their local placements.
@@ -34,7 +29,7 @@ pub struct Model {
     /// The parent joint of each joint.
     pub joint_parents: HashMap<usize, usize>,
     /// The placements of the joints.
-    pub joint_placements: HashMap<usize, IsometryMatrix3<f64>>,
+    pub joint_placements: HashMap<usize, SE3>,
     /// The joint models.
     pub joint_models: HashMap<usize, JointWrapper>,
     /// The number of position variables.
@@ -44,9 +39,9 @@ pub struct Model {
     /// The inertias of the bodies.
     pub inertias: HashMap<usize, Inertia>,
     /// The placements of the bodies.
-    pub body_placements: HashMap<usize, IsometryMatrix3<f64>>,
+    pub body_placements: HashMap<usize, SE3>,
     /// The spatial gravity of the model.
-    pub gravity: IsometryMatrix3<f64>,
+    pub gravity: Vector3<f64>,
 }
 
 impl Model {
@@ -102,7 +97,7 @@ impl Model {
         &mut self,
         parent_id: usize,
         joint_model: JointWrapper,
-        placement: IsometryMatrix3<f64>,
+        placement: SE3,
         name: String,
     ) -> Result<usize, ModelError> {
         if !self.joint_names.contains_key(&parent_id) {
@@ -139,7 +134,7 @@ impl Model {
     /// The identifier of the frame.
     pub fn add_frame(
         &mut self,
-        placement: IsometryMatrix3<f64>,
+        placement: SE3,
         name: String,
         parent_id: usize,
     ) -> Result<usize, ModelError> {
@@ -183,7 +178,7 @@ impl Model {
         &mut self,
         joint_id: usize,
         inertia: Inertia,
-        placement: IsometryMatrix3<f64>,
+        placement: SE3,
     ) -> Result<(), ModelError> {
         if !self.joint_names.contains_key(&joint_id) {
             return Err(ModelError::ParentJointDoesNotExist(joint_id));
@@ -277,10 +272,12 @@ impl PyModel {
     }
 
     #[getter]
-    fn gravity(&self) -> PySE3 {
-        PySE3 {
-            inner: self.inner.gravity,
-        }
+    fn gravity(&self, py: Python) -> Py<PyAny> {
+        Array1::from_shape_vec([3], self.inner.gravity.as_slice().to_vec())
+            .unwrap()
+            .to_pyarray(py)
+            .into_any()
+            .unbind()
     }
 
     /// Adds a joint to the model.

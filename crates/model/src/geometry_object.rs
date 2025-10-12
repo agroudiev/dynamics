@@ -6,7 +6,7 @@ use collider::shape::*;
 use nalgebra::{IsometryMatrix3, Vector4};
 use numpy::{IntoPyArray, PyReadonlyArray1, ndarray::Array1};
 use pyo3::{exceptions::PyValueError, prelude::*, types::PyTuple};
-use spatial::se3::PySE3;
+use spatial::se3::{PySE3, SE3};
 
 /// A `GeometryObject` is a data structure that contains the information about the geometry object,
 /// used for visualization, collision detection and distance computation.
@@ -22,7 +22,7 @@ pub struct GeometryObject {
     /// The RGBA color of the mesh.
     pub mesh_color: Vector4<f64>,
     /// The placement of the geometry object in the parent frame.
-    pub placement: IsometryMatrix3<f64>,
+    pub placement: SE3,
     /// The identifier of the parent joint. If the object is not attached to a joint, this is set to 0 (WORLD_FRAME_ID).
     pub parent_joint: usize,
 }
@@ -42,7 +42,7 @@ impl GeometryObject {
         parent_joint: usize,
         geometry: ShapeWrapper,
         mesh_color: Vector4<f64>,
-        placement: IsometryMatrix3<f64>,
+        placement: SE3,
     ) -> Self {
         Self {
             id: 0,

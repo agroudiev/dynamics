@@ -52,6 +52,7 @@ dependencies = [
  "inertia",
  "joint",
  "model",
+ "numpy",
  "parse",
  "pyo3",
  "spatial",
@@ -273,6 +274,7 @@ dependencies = [
  "nalgebra",
  "pyo3",
  "roxmltree",
+ "spatial",
 ]
 
 [[package]]

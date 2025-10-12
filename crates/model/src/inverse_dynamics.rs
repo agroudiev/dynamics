@@ -11,6 +11,7 @@ use numpy::ndarray::Array1;
 use numpy::{PyReadonlyArrayDyn, ToPyArray};
 use pyo3::prelude::*;
 use spatial::configuration::{Configuration, ConfigurationError, configuration_from_pyarray};
+use spatial::se3::SE3;
 use std::collections::HashMap;
 
 /// Computes the inverse dynamics using the Recursive Newton-Euler Algorithm (RNEA).
@@ -32,7 +33,7 @@ pub fn inverse_dynamics(
     v: &Configuration,
     a: &Configuration,
 ) -> Result<Configuration, ConfigurationError> {
-    let mut position_transforms: HashMap<usize, IsometryMatrix3<f64>> = HashMap::new();
+    let mut position_transforms: HashMap<usize, SE3> = HashMap::new();
     let mut velocities: HashMap<usize, Vector6<f64>> = HashMap::new();
     let mut accelerations: HashMap<usize, Vector6<f64>> = HashMap::new();
 

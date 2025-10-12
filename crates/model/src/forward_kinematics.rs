@@ -1,11 +1,11 @@
 use crate::data::{Data, PyData};
 use crate::model::{Model, PyModel, WORLD_FRAME_ID};
 use joint::joint::JointWrapper;
-use nalgebra::IsometryMatrix3;
 use numpy::PyReadonlyArray1;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use spatial::configuration::{Configuration, ConfigurationError};
+use spatial::se3::SE3;
 
 /// Computes the forward kinematics of the robot model.
 ///
@@ -54,7 +54,7 @@ pub fn forward_kinematics(
     // by traversing the joint tree
     data.joint_placements.clear();
     data.joint_placements
-        .insert(WORLD_FRAME_ID, IsometryMatrix3::identity());
+        .insert(WORLD_FRAME_ID, SE3::identity());
 
     let mut keys = model.joint_models.keys().collect::<Vec<_>>();
     keys.sort();

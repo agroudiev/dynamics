@@ -12,6 +12,7 @@ use model::{
 use nalgebra::{IsometryMatrix3, Translation3, Vector3, Vector4};
 use pyo3::prelude::*;
 use roxmltree::Document;
+use spatial::se3::SE3;
 use std::{collections::HashMap, fs, str::FromStr};
 
 /// Parses a URDF file and builds the corresponding `Model` and `GeometryModel`.
@@ -349,7 +350,7 @@ fn extract_parameter_list<T: FromStr>(
     Ok(vector)
 }
 
-fn parse_origin(node: &roxmltree::Node) -> Result<IsometryMatrix3<f64>, ParseError> {
+fn parse_origin(node: &roxmltree::Node) -> Result<SE3, ParseError> {
     let isometry = if let Some(origin_node) = node.children().find(|n| n.has_tag_name("origin")) {
         let xyz = extract_parameter_list::<f64>("xyz", &origin_node, Some(3))?;
         let rotation = match extract_parameter_list::<f64>("rpy", &origin_node, Some(3)) {

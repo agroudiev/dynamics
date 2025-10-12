@@ -4,8 +4,8 @@ use crate::{
     data::{JointData, JointDataWrapper, JointError},
     joint::{Joint, JointType, JointWrapper},
 };
-use nalgebra::{DVector, IsometryMatrix3};
 use pyo3::prelude::*;
+use spatial::{configuration::Configuration, se3::SE3};
 
 /// Model of a fixed joint.
 #[derive(Clone, Debug, Default)]
@@ -40,9 +40,9 @@ impl Joint for JointModelFixed {
         vec![]
     }
 
-    fn transform(&self, q: &nalgebra::DVector<f64>) -> IsometryMatrix3<f64> {
+    fn transform(&self, q: &nalgebra::DVector<f64>) -> SE3 {
         assert_eq!(q.len(), 0, "Fixed joint model expects no configuration.");
-        IsometryMatrix3::identity()
+        SE3::identity()
     }
 }
 
@@ -50,7 +50,7 @@ impl Joint for JointModelFixed {
 #[derive(Default, Debug)]
 pub struct JointDataFixed {
     /// The placement of the joint in the local frame.
-    pub placement: IsometryMatrix3<f64>,
+    pub placement: SE3,
 }
 
 impl JointDataFixed {
@@ -67,17 +67,18 @@ impl JointDataFixed {
         let joint_model_box: JointWrapper = Box::new(joint_model.clone());
         // safe since we just created a revolute joint model
         // and we know that a revolute joint has an axis
-        data.update(&joint_model_box, &DVector::zeros(0)).unwrap();
+        data.update(&joint_model_box, &Configuration::zeros(0))
+            .unwrap();
         data
     }
 }
 
 impl JointData for JointDataFixed {
-    fn get_joint_placement(&self) -> IsometryMatrix3<f64> {
+    fn get_joint_placement(&self) -> SE3 {
         self.placement
     }
 
-    fn update(&mut self, _joint_model: &JointWrapper, _: &DVector<f64>) -> Result<(), JointError> {
+    fn update(&mut self, _joint_model: &JointWrapper, _: &Configuration) -> Result<(), JointError> {
         Ok(())
     }
 }

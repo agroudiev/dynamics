@@ -3,7 +3,7 @@
 use joint::data::JointDataWrapper;
 use nalgebra::IsometryMatrix3;
 use pyo3::{PyResult, pyclass, pymethods};
-use spatial::se3::PySE3;
+use spatial::se3::{PySE3, SE3};
 use std::collections::HashMap;
 
 use crate::{
@@ -17,7 +17,7 @@ pub struct Data {
     /// The data of the joints
     pub joint_data: HashMap<usize, JointDataWrapper>,
     /// The placements of the joints in the world frame
-    pub joint_placements: HashMap<usize, IsometryMatrix3<f64>>,
+    pub joint_placements: HashMap<usize, SE3>,
 }
 
 impl Data {
@@ -32,7 +32,7 @@ impl Data {
     /// A new `Data` object.
     pub fn new(
         joint_data: HashMap<usize, JointDataWrapper>,
-        joint_placements: HashMap<usize, IsometryMatrix3<f64>>,
+        joint_placements: HashMap<usize, SE3>,
     ) -> Self {
         Self {
             joint_data,
@@ -69,7 +69,7 @@ impl PyData {
 #[derive(Default)]
 pub struct GeometryData {
     /// The placements of the objects in the world frame
-    object_placements: HashMap<usize, IsometryMatrix3<f64>>,
+    object_placements: HashMap<usize, SE3>,
 }
 
 impl GeometryData {
@@ -81,7 +81,7 @@ impl GeometryData {
     ///
     /// # Returns
     /// An `Option` containing the object placement if it exists, otherwise `None`.
-    pub fn get_object_placement(&self, object_index: usize) -> Option<&IsometryMatrix3<f64>> {
+    pub fn get_object_placement(&self, object_index: usize) -> Option<&SE3> {
         self.object_placements.get(&object_index)
     }
 

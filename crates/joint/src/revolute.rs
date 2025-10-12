@@ -9,6 +9,7 @@ use crate::{
 use nalgebra::{DVector, IsometryMatrix3, Rotation3, Translation, Vector3};
 use pyo3::prelude::*;
 use rand::Rng;
+use spatial::se3::SE3;
 
 /// Model of a revolute joint.
 ///
@@ -81,7 +82,7 @@ impl Joint for JointModelRevolute {
         vec![q]
     }
 
-    fn transform(&self, q: &nalgebra::DVector<f64>) -> IsometryMatrix3<f64> {
+    fn transform(&self, q: &nalgebra::DVector<f64>) -> SE3 {
         assert_eq!(q.len(), 1, "Revolute joint model expects a single angle.");
         let angle = q[0];
         IsometryMatrix3::from_parts(
@@ -97,7 +98,7 @@ pub struct JointDataRevolute {
     /// The angle of rotation.
     pub q: f64,
     /// The placement of the joint in the local frame.
-    pub placement: IsometryMatrix3<f64>,
+    pub placement: SE3,
 }
 
 impl JointDataRevolute {
@@ -120,7 +121,7 @@ impl JointDataRevolute {
 }
 
 impl JointData for JointDataRevolute {
-    fn get_joint_placement(&self) -> IsometryMatrix3<f64> {
+    fn get_joint_placement(&self) -> SE3 {
         self.placement
     }
 
