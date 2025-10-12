@@ -1,4 +1,3 @@
-use crate::configuration::{Configuration, ConfigurationError};
 use crate::data::{Data, PyData};
 use crate::model::{Model, PyModel, WORLD_FRAME_ID};
 use joint::joint::JointWrapper;
@@ -6,6 +5,7 @@ use nalgebra::IsometryMatrix3;
 use numpy::PyReadonlyArray1;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
+use spatial::configuration::{Configuration, ConfigurationError};
 
 /// Computes the forward kinematics of the robot model.
 ///
@@ -45,9 +45,7 @@ pub fn forward_kinematics(
         let q_joint = q.rows(offset, joint_model.nq()).into_owned();
         match joint_data.update(&joint_model, &q_joint) {
             Ok(_) => {}
-            Err(e) => {
-                return Err(ConfigurationError::JointDataUpdateError(id, e));
-            }
+            Err(e) => unimplemented!("handle joint data update error: {:?}", e),
         }
         offset += joint_model.nq();
     }

@@ -3,7 +3,6 @@
 //! The RNEA computes the joint torques required to achieve a given motion of the robot
 //! given its configuration, velocity, and acceleration.
 
-use crate::configuration::{Configuration, ConfigurationError, configuration_from_pyarray};
 use crate::data::{Data, PyData};
 use crate::model::{Model, PyModel};
 use joint::joint::JointWrapper;
@@ -11,6 +10,7 @@ use nalgebra::{IsometryMatrix3, Vector6};
 use numpy::ndarray::Array1;
 use numpy::{PyReadonlyArrayDyn, ToPyArray};
 use pyo3::prelude::*;
+use spatial::configuration::{Configuration, ConfigurationError, configuration_from_pyarray};
 use std::collections::HashMap;
 
 /// Computes the inverse dynamics using the Recursive Newton-Euler Algorithm (RNEA).

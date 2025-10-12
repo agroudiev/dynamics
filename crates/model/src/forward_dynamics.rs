@@ -3,12 +3,12 @@
 //! The ABA computes the joint accelerations required to achieve a given motion of the robot
 //! given its configuration, velocity, and torques.
 
-use crate::configuration::{Configuration, ConfigurationError, configuration_from_pyarray};
 use crate::data::{Data, PyData};
 use crate::model::{Model, PyModel};
 use numpy::PyReadonlyArrayDyn;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
+use spatial::configuration::{Configuration, ConfigurationError, configuration_from_pyarray};
 
 /// WIP: Computes the forward dynamics of the robot model.
 ///

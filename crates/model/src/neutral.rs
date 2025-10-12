@@ -1,10 +1,10 @@
 //! Algorithm to compute the neutral configuration of a model.
 
-use crate::configuration::Configuration;
 use crate::model::Model;
 use crate::model::PyModel;
 use numpy::{ToPyArray, ndarray::Array1};
 use pyo3::prelude::*;
+use spatial::configuration::Configuration;
 
 /// Computes the neutral configuration of a model.
 ///

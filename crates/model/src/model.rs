@@ -8,8 +8,11 @@ use joint::{
     revolute::PyJointModelRevolute,
 };
 use nalgebra::{DVector, IsometryMatrix3};
+use numpy::ToPyArray;
+use numpy::ndarray::Array1;
 use once_cell::sync::Lazy;
 use pyo3::{exceptions::PyValueError, prelude::*, types::PyTuple};
+use spatial::configuration::Configuration;
 use spatial::se3::PySE3;
 use std::{collections::HashMap, fmt::Debug};
 
@@ -212,6 +215,27 @@ pub enum ModelError {
     ParentJointDoesNotExist(usize),
     /// The name of the joint is already used.
     JointNameAlreadyUsed(String, usize),
+}
+
+/// Generates a random configuration for the given model.
+pub fn random_configuration(model: &Model) -> Configuration {
+    let mut rng = rand::rng();
+    let q = model
+        .joint_models
+        .values()
+        .map(|joint_model| joint_model.random_configuration(&mut rng))
+        .collect::<Vec<_>>();
+    DVector::from_vec(q.concat())
+}
+
+#[pyfunction(name = "random_configuration")]
+pub fn py_random_configuration(py: Python, model: &mut PyModel) -> Py<PyAny> {
+    let q = random_configuration(&model.inner);
+    Array1::from_shape_vec(model.inner.nq, q.as_slice().to_vec())
+        .unwrap()
+        .to_pyarray(py)
+        .into_any()
+        .unbind()
 }
 
 /// A `Model` is a data structure that contains the information about the robot model,

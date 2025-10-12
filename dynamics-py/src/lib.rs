@@ -8,13 +8,13 @@
 use inertia::inertia::PyInertia;
 use joint::revolute::{PyJointModelRevolute, new_joint_model_revolute_x};
 use model::{
-    configuration::py_random_configuration,
     data::{PyData, PyGeometryData},
     forward_dynamics::{py_aba, py_forward_dynamics},
     forward_kinematics::py_forward_kinematics,
     geometry_model::PyGeometryModel,
     geometry_object::PyGeometryObject,
     inverse_dynamics::{py_inverse_dynamics, py_rnea},
+    model::py_random_configuration,
     model::{PyModel, STANDARD_GRAVITY, WORLD_FRAME_ID},
     neutral::py_neutral,
 };

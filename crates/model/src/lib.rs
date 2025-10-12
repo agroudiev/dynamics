@@ -11,7 +11,6 @@
 //! while the `Data` object contains the joint placements with respect to the world frame.
 //! The local placement of objects should not change without user intervention, while the world placement of objects might change when computing the forward kinematics.
 
-pub mod configuration;
 pub mod data;
 pub mod forward_dynamics;
 pub mod forward_kinematics;
