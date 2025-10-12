@@ -11,3 +11,4 @@ license-file.workspace = true
 [dependencies]
 nalgebra = { workspace = true }
 pyo3 = { workspace = true }
+spatial = { workspace = true }
