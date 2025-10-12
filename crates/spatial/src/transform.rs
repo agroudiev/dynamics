@@ -1,7 +1,7 @@
 use nalgebra::Matrix6;
 
-#[derive(Clone, Copy, Debug)]
-pub struct SpatialTransform(pub Matrix6<f64>);
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct SpatialTransform(Matrix6<f64>);
 
 impl SpatialTransform {
     pub fn identity() -> Self {

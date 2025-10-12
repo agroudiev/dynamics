@@ -5,7 +5,7 @@ use numpy::PyReadonlyArrayDyn;
 use pyo3::prelude::*;
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct Configuration(pub DVector<f64>);
+pub struct Configuration(DVector<f64>);
 
 impl Configuration {
     pub fn zeros(size: usize) -> Self {
@@ -65,7 +65,13 @@ impl Index<usize> for Configuration {
 }
 
 #[pyclass(name = "Configuration")]
-pub struct PyConfiguration(pub Configuration);
+pub struct PyConfiguration(Configuration);
+
+impl PyConfiguration {
+    pub fn new(config: Configuration) -> Self {
+        PyConfiguration(config)
+    }
+}
 
 pub enum ConfigurationError {
     InvalidSize(String, usize, usize),

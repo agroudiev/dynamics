@@ -231,7 +231,7 @@ pub fn py_random_configuration(model: &mut PyModel) -> PyConfiguration {
     //     .to_pyarray(py)
     //     .into_any()
     //     .unbind()
-    PyConfiguration(q)
+    PyConfiguration::new(q)
 }
 
 /// A `Model` is a data structure that contains the information about the robot model,

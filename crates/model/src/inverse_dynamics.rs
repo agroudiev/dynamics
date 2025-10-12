@@ -93,7 +93,7 @@ pub fn py_inverse_dynamics(
         PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Error in inverse dynamics: {}", e))
     })?;
 
-    Ok(PyConfiguration(tau))
+    Ok(PyConfiguration::new(tau))
 }
 
 // Pinocchio alias (Recursive Newton-Euler Algorithm)

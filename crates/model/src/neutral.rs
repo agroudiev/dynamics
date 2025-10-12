@@ -33,5 +33,5 @@ pub fn neutral(model: &mut Model) -> Configuration {
 #[pyfunction(name = "neutral")]
 pub fn py_neutral(model: &mut PyModel) -> PyConfiguration {
     let q = neutral(&mut model.inner);
-    PyConfiguration(q)
+    PyConfiguration::new(q)
 }

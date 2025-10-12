@@ -6,7 +6,7 @@ use crate::{
     data::{JointData, JointDataWrapper, JointError},
     joint::{Joint, JointType, JointWrapper},
 };
-use nalgebra::{DVector, Rotation3, Translation, Vector3};
+use nalgebra::{Rotation3, Translation, Vector3};
 use pyo3::prelude::*;
 use rand::Rng;
 use spatial::{configuration::Configuration, se3::SE3, transform::SpatialTransform};
