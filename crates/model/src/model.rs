@@ -7,7 +7,7 @@ use joint::{
     joint::{Joint, JointWrapper, PyJointWrapper},
     revolute::PyJointModelRevolute,
 };
-use nalgebra::Vector3;
+use spatial::vector3d::Vector3D;
 use numpy::ToPyArray;
 use numpy::ndarray::Array1;
 use once_cell::sync::Lazy;
@@ -17,7 +17,7 @@ use spatial::se3::{PySE3, SE3};
 use std::{collections::HashMap, fmt::Debug};
 
 pub const WORLD_FRAME_ID: usize = 0;
-pub static STANDARD_GRAVITY: Lazy<Vector3<f64>> = Lazy::new(|| Vector3::new(0.0, 0.0, -9.81));
+pub static STANDARD_GRAVITY: Lazy<Vector3D> = Lazy::new(|| Vector3D::new(0.0, 0.0, -9.81));
 
 /// Data structure that contains the immutable properties of the robot model.
 /// It contains information about the joints, frames, and their local placements.
@@ -41,7 +41,7 @@ pub struct Model {
     /// The placements of the bodies.
     pub body_placements: HashMap<usize, SE3>,
     /// The spatial gravity of the model.
-    pub gravity: Vector3<f64>,
+    pub gravity: Vector3D,
 }
 
 impl Model {

@@ -67,7 +67,7 @@ fn add_dynamics_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult
     dynamics.add("WORLD_FRAME_ID", WORLD_FRAME_ID)?;
     dynamics.add(
         "STANDARD_GRAVITY",
-        PyArray1::from_slice(py, STANDARD_GRAVITY.data.as_slice()),
+        PyArray1::from_slice(py, STANDARD_GRAVITY.as_slice()),
     )?;
 
     add_inertia_bindings(dynamics)?;
