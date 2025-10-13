@@ -95,7 +95,6 @@ name = "joint"
 version = "0.1.0"
 dependencies = [
  "approx",
- "nalgebra",
  "pyo3",
  "rand",
  "spatial",
@@ -144,7 +143,6 @@ dependencies = [
  "collider",
  "inertia",
  "joint",
- "nalgebra",
  "numpy",
  "once_cell",
  "pyo3",

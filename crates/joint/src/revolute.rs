@@ -6,7 +6,6 @@ use crate::{
     data::{JointData, JointDataWrapper, JointError},
     joint::{Joint, JointType, JointWrapper},
 };
-use nalgebra::Translation;
 use pyo3::prelude::*;
 use rand::Rng;
 use spatial::{
@@ -186,10 +185,10 @@ mod tests {
         let joint_model_box: JointWrapper = Box::new(joint_model.clone());
         joint_data.update(&joint_model_box, &q).unwrap();
 
-        assert_relative_eq!(joint_data.get_joint_placement().rotation.angle(), q[0]);
+        assert_relative_eq!(joint_data.get_joint_placement().rotation().angle(), q[0]);
         assert_eq!(
-            joint_data.get_joint_placement().translation,
-            Translation::identity()
+            joint_data.get_joint_placement().translation(),
+            Vector3D::zeros()
         );
     }
 }

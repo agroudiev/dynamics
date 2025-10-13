@@ -1,8 +1,6 @@
 //! Special Euclidean group SE(3) implementation.
 //!
-//! This module provides a Python wrapper for the SE(3) group,
-//! represented in Rust using the `IsometryMatrix3` type
-//! of the `nalgebra` crate.
+//! This module provides Rust and Python wrappers for the SE(3) group.
 
 use nalgebra::{IsometryMatrix3, Translation3, Vector3};
 use numpy::{
@@ -11,8 +9,77 @@ use numpy::{
 };
 use pyo3::{exceptions::PyValueError, prelude::*};
 
-/// Type alias for SE(3) transformations.
-pub type SE3 = IsometryMatrix3<f64>;
+use crate::vector3d::Vector3D;
+
+/// SE(3) transformation represented as an isometry matrix.
+#[derive(Clone, Debug, Copy, PartialEq, Default)]
+pub struct SE3(pub(crate) IsometryMatrix3<f64>);
+
+impl SE3 {
+    /// Creates a new SE(3) transformation from a rotation and a translation.
+    pub fn from_parts(translation: Translation3<f64>, rotation: nalgebra::Rotation3<f64>) -> Self {
+        SE3(IsometryMatrix3::from_parts(translation, rotation))
+    }
+
+    /// Creates a new identity SE(3) transformation.
+    pub fn identity() -> Self {
+        SE3(IsometryMatrix3::identity())
+    }
+
+    /// Creates a new random SE(3) transformation.
+    pub fn new(translation: Vector3<f64>, axis_angle: Vector3<f64>) -> Self {
+        let translation = Translation3::new(translation[0], translation[1], translation[2]);
+        let rotation = nalgebra::Rotation3::from_axis_angle(
+            &nalgebra::Unit::new_normalize(axis_angle),
+            axis_angle.norm(),
+        );
+        SE3::from_parts(translation, rotation)
+    }
+
+    /// Returns the inverse of the SE(3) transformation.
+    pub fn inverse(&self) -> Self {
+        SE3(self.0.inverse())
+    }
+
+    /// Returns the homogeneous representation of the SE(3) transformation as a 4x4 matrix.
+    pub fn to_homogeneous(&self) -> nalgebra::Matrix4<f64> {
+        self.0.to_homogeneous()
+    }
+
+    /// Returns the translation component of the SE(3) transformation.
+    pub fn translation(&self) -> Vector3D {
+        Vector3D(self.0.translation.vector)
+    }
+
+    /// Returns the rotation component of the SE(3) transformation.
+    pub fn rotation(&self) -> nalgebra::Rotation3<f64> {
+        self.0.rotation
+    }
+}
+
+impl std::ops::Mul for SE3 {
+    type Output = SE3;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        SE3(self.0 * rhs.0)
+    }
+}
+
+impl std::ops::Mul<&SE3> for &SE3 {
+    type Output = SE3;
+
+    fn mul(self, rhs: &SE3) -> Self::Output {
+        SE3(self.0 * rhs.0)
+    }
+}
+
+impl std::ops::Mul<SE3> for &SE3 {
+    type Output = SE3;
+
+    fn mul(self, rhs: SE3) -> Self::Output {
+        SE3(self.0 * rhs.0)
+    }
+}
 
 /// Python wrapper for the SE(3) group.
 #[pyclass(name = "SE3")]
@@ -99,7 +166,7 @@ impl PySE3 {
 
     #[getter]
     pub fn get_translation(&self, py: Python) -> Py<PyAny> {
-        let translation = self.inner.translation.vector;
+        let translation = self.inner.translation();
         Array1::from_shape_vec(3, translation.as_slice().to_vec())
             .unwrap()
             .to_pyarray(py)
@@ -122,13 +189,14 @@ impl PySE3 {
         }
 
         // Update the translation component of the inner SE3
-        self.inner.translation = Translation3::new(translation[0], translation[1], translation[2]);
+        self.inner.0.translation =
+            Translation3::new(translation[0], translation[1], translation[2]);
         Ok(())
     }
 
     #[getter]
     pub fn rotation(&self, py: Python) -> PyResult<Py<PyAny>> {
-        let rotation = self.inner.rotation;
+        let rotation = self.inner.0.rotation;
         Ok(
             Array2::from_shape_vec((3, 3), rotation.matrix().as_slice().to_vec())
                 .unwrap()

@@ -1,8 +1,8 @@
 use crate::urdf::build_models_from_urdf;
 use collider::shape::Cylinder;
 use model::model::WORLD_FRAME_ID;
-use nalgebra::{Rotation3, Translation3};
-use spatial::se3::SE3;
+use nalgebra::Rotation3;
+use spatial::{se3::SE3, vector3d::Vector3D};
 
 #[test]
 fn test_myfirst() {
@@ -60,24 +60,24 @@ fn test_materials() {
 
     // right leg
     assert_eq!(
-        model.joint_placements.get(&1).unwrap().translation,
-        Translation3::new(0.0, -0.22, 0.25)
+        model.joint_placements.get(&1).unwrap().translation(),
+        Vector3D::new(0.0, -0.22, 0.25)
     );
     assert_eq!(geom_model.models.get(&1).unwrap().parent_joint, 1);
     assert_eq!(
-        geom_data.get_object_placement(1).unwrap().translation,
-        Translation3::new(0.0, -0.22, 0.25 - 0.3)
+        geom_data.get_object_placement(1).unwrap().translation(),
+        Vector3D::new(0.0, -0.22, 0.25 - 0.3)
     );
 
     // left leg
     assert_eq!(
-        model.joint_placements.get(&2).unwrap().translation,
-        Translation3::new(0.0, 0.22, 0.25)
+        model.joint_placements.get(&2).unwrap().translation(),
+        Vector3D::new(0.0, 0.22, 0.25)
     );
     assert_eq!(geom_model.models.get(&2).unwrap().parent_joint, 2);
     assert_eq!(
-        geom_data.get_object_placement(2).unwrap().translation,
-        Translation3::new(0.0, 0.22, 0.25 - 0.3)
+        geom_data.get_object_placement(2).unwrap().translation(),
+        Vector3D::new(0.0, 0.22, 0.25 - 0.3)
     );
 }
 
@@ -92,8 +92,11 @@ fn test_visuals() {
 
     let box_id = geom_model.models.len() - 1;
     assert_eq!(
-        geom_data.get_object_placement(box_id).unwrap().translation,
-        Translation3::new(0.1814, 0.0, 0.1414) * Translation3::new(0.0, 0.0, 0.3)
+        geom_data
+            .get_object_placement(box_id)
+            .unwrap()
+            .translation(),
+        Vector3D::new(0.1814, 0.0, 0.1414) + Vector3D::new(0.0, 0.0, 0.3)
     );
 
     let right_base_id = geom_model.indices.get("right_base").unwrap();
@@ -101,15 +104,15 @@ fn test_visuals() {
         geom_data
             .get_object_placement(*right_base_id)
             .unwrap()
-            .rotation,
+            .rotation(),
         Rotation3::identity()
     );
     assert_eq!(
         geom_data
             .get_object_placement(*right_base_id)
             .unwrap()
-            .translation,
-        Translation3::new(0.0, 0.0, -0.6) * Translation3::new(0.0, -0.22, 0.25)
+            .translation(),
+        Vector3D::new(0.0, 0.0, -0.6) + Vector3D::new(0.0, -0.22, 0.25)
     );
 }
 
