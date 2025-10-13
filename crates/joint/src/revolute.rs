@@ -6,7 +6,7 @@ use crate::{
     data::{JointData, JointDataWrapper, JointError},
     joint::{Joint, JointType, JointWrapper},
 };
-use nalgebra::{Rotation3, Translation, Vector3};
+use nalgebra::Translation;
 use pyo3::prelude::*;
 use rand::Rng;
 use spatial::{
@@ -139,7 +139,7 @@ impl JointData for JointDataRevolute {
         };
 
         let rot = SpatialRotation::from_axis_angle(&axis.rotation(), q);
-        self.placement = rot.to_se3(&Translation::identity());
+        self.placement = rot.to_se3(&Vector3D::zeros());
         Ok(())
     }
 }
@@ -188,8 +188,8 @@ mod tests {
 
         assert_relative_eq!(joint_data.get_joint_placement().rotation.angle(), q[0]);
         assert_eq!(
-            joint_data.get_joint_placement().translation.vector,
-            Vector3::zeros()
+            joint_data.get_joint_placement().translation,
+            Translation::identity()
         );
     }
 }

@@ -1,7 +1,6 @@
 //! Trait for joints and a wrapper type for dynamic dispatch.
 
 use crate::data::JointDataWrapper;
-use nalgebra::Vector3;
 use pyo3::prelude::*;
 use rand::rngs::ThreadRng;
 use spatial::{configuration::Configuration, motion::SpatialMotion, transform::SpatialTransform};

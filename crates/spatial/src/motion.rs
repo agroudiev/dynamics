@@ -1,4 +1,4 @@
-use nalgebra::{Rotation3, Vector6};
+use nalgebra::{Rotation3, Translation, Vector6};
 
 use crate::vector3d::Vector3D;
 
@@ -27,7 +27,12 @@ impl SpatialRotation {
         Self(rot)
     }
 
-    pub fn to_se3(&self, translation: &nalgebra::Translation<f64, 3>) -> crate::se3::SE3 {
-        crate::se3::SE3::from_parts(*translation, self.0)
+    pub fn to_se3(&self, translation: &Vector3D) -> crate::se3::SE3 {
+        crate::se3::SE3::from_parts(
+            Translation {
+                vector: translation.0,
+            },
+            self.0,
+        )
     }
 }

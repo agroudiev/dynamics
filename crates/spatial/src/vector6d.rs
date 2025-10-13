@@ -1,4 +1,4 @@
-use nalgebra::{Vector6, Matrix6};
+use nalgebra::{Matrix6, Vector6};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Vector6D(pub(crate) Vector6<f64>);
