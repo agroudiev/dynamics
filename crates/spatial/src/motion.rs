@@ -1,6 +1,6 @@
-use nalgebra::{Rotation3, Translation, Vector6};
+use nalgebra::{Rotation3, Vector6};
 
-use crate::vector3d::Vector3D;
+use crate::{se3::SE3, vector3d::Vector3D};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct SpatialMotion(pub(crate) Vector6<f64>);
@@ -18,6 +18,8 @@ impl SpatialMotion {
     }
 }
 
+// TODO: use a Matrix3 instead of Rotation3
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct SpatialRotation(pub(crate) Rotation3<f64>);
 
 impl SpatialRotation {
@@ -27,12 +29,25 @@ impl SpatialRotation {
         Self(rot)
     }
 
-    pub fn to_se3(&self, translation: &Vector3D) -> crate::se3::SE3 {
-        crate::se3::SE3::from_parts(
-            Translation {
-                vector: translation.0,
-            },
-            self.0,
+    /// Converts the rotation to an `SE3` with the given translation.
+    pub fn to_se3(&self, translation: &Vector3D) -> SE3 {
+        SE3::from_parts(
+            *translation,
+            *self,
         )
+    }
+
+    /// Returns the identity rotation.
+    pub fn identity() -> Self {
+        Self(Rotation3::identity())
+    }
+
+    /// Returns the angle of rotation in radians.
+    pub fn angle(&self) -> f64 {
+        self.0.angle()
+    }
+
+    pub fn from_euler_angles(roll: f64, pitch: f64, yaw: f64) -> Self {
+        Self(Rotation3::from_euler_angles(roll, pitch, yaw))
     }
 }

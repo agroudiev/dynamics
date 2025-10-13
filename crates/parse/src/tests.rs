@@ -1,8 +1,7 @@
 use crate::urdf::build_models_from_urdf;
 use collider::shape::Cylinder;
 use model::model::WORLD_FRAME_ID;
-use nalgebra::Rotation3;
-use spatial::{se3::SE3, vector3d::Vector3D};
+use spatial::{motion::SpatialRotation, se3::SE3, vector3d::Vector3D};
 
 #[test]
 fn test_myfirst() {
@@ -105,7 +104,7 @@ fn test_visuals() {
             .get_object_placement(*right_base_id)
             .unwrap()
             .rotation(),
-        Rotation3::identity()
+        SpatialRotation::identity()
     );
     assert_eq!(
         geom_data

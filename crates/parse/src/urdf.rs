@@ -9,10 +9,11 @@ use model::{
     geometry_object::GeometryObject,
     model::{Model, PyModel, WORLD_FRAME_ID},
 };
-use nalgebra::{Translation3, Vector3};
+use nalgebra::Vector3;
 use pyo3::prelude::*;
 use roxmltree::Document;
 use spatial::color::Color;
+use spatial::motion::SpatialRotation;
 use spatial::se3::SE3;
 use spatial::vector3d::Vector3D;
 use std::{collections::HashMap, fs, str::FromStr};
@@ -356,13 +357,13 @@ fn parse_origin(node: &roxmltree::Node) -> Result<SE3, ParseError> {
     let isometry = if let Some(origin_node) = node.children().find(|n| n.has_tag_name("origin")) {
         let xyz = extract_parameter_list::<f64>("xyz", &origin_node, Some(3))?;
         let rotation = match extract_parameter_list::<f64>("rpy", &origin_node, Some(3)) {
-            Ok(rpy) => nalgebra::UnitQuaternion::from_euler_angles(rpy[0], rpy[1], rpy[2]),
-            Err(ParseError::MissingParameter(_)) => nalgebra::UnitQuaternion::identity(),
+            Ok(rpy) => SpatialRotation::from_euler_angles(rpy[0], rpy[1], rpy[2]),
+            Err(ParseError::MissingParameter(_)) => SpatialRotation::identity(),
             Err(e) => return Err(e),
         };
-        let translation = Translation3::new(xyz[0], xyz[1], xyz[2]);
+        let translation = Vector3D::new(xyz[0], xyz[1], xyz[2]);
 
-        SE3::from_parts(translation, rotation.to_rotation_matrix())
+        SE3::from_parts(translation, rotation)
     } else {
         SE3::identity()
     };

@@ -15,6 +15,10 @@ impl Vector3D {
     pub fn as_slice(&self) -> &[f64; 3] {
         self.0.as_slice().try_into().unwrap()
     }
+
+    pub fn norm(&self) -> f64 {
+        self.0.norm()
+    }
 }
 
 impl std::ops::Add for Vector3D {

@@ -2,23 +2,32 @@
 //!
 //! This module provides Rust and Python wrappers for the SE(3) group.
 
-use nalgebra::{IsometryMatrix3, Translation3, Vector3};
+use nalgebra::{IsometryMatrix3, Rotation3, Translation3};
 use numpy::{
     PyArrayMethods, PyReadonlyArray1, PyReadonlyArray2, ToPyArray,
     ndarray::{Array1, Array2},
 };
 use pyo3::{exceptions::PyValueError, prelude::*};
 
-use crate::vector3d::Vector3D;
+use crate::{motion::SpatialRotation, vector3d::Vector3D};
 
 /// SE(3) transformation represented as an isometry matrix.
 #[derive(Clone, Debug, Copy, PartialEq, Default)]
 pub struct SE3(pub(crate) IsometryMatrix3<f64>);
 
 impl SE3 {
+    /// Creates a new SE(3) transformation from a rotation (given as axis-angle) and a translation.
+    pub fn new(translation: Vector3D, axis_angle: Vector3D) -> Self {
+        let rotation = SpatialRotation::from_axis_angle(&axis_angle, axis_angle.norm());
+        SE3::from_parts(
+            Vector3D::new(translation.0.x, translation.0.y, translation.0.z),
+            rotation,
+        )
+    }
+
     /// Creates a new SE(3) transformation from a rotation and a translation.
-    pub fn from_parts(translation: Translation3<f64>, rotation: nalgebra::Rotation3<f64>) -> Self {
-        SE3(IsometryMatrix3::from_parts(translation, rotation))
+    pub fn from_parts(translation: Vector3D, rotation: SpatialRotation) -> Self {
+        SE3(IsometryMatrix3::from_parts(Translation3::from(translation.0), rotation.0))
     }
 
     /// Creates a new identity SE(3) transformation.
@@ -26,24 +35,9 @@ impl SE3 {
         SE3(IsometryMatrix3::identity())
     }
 
-    /// Creates a new random SE(3) transformation.
-    pub fn new(translation: Vector3<f64>, axis_angle: Vector3<f64>) -> Self {
-        let translation = Translation3::new(translation[0], translation[1], translation[2]);
-        let rotation = nalgebra::Rotation3::from_axis_angle(
-            &nalgebra::Unit::new_normalize(axis_angle),
-            axis_angle.norm(),
-        );
-        SE3::from_parts(translation, rotation)
-    }
-
     /// Returns the inverse of the SE(3) transformation.
     pub fn inverse(&self) -> Self {
         SE3(self.0.inverse())
-    }
-
-    /// Returns the homogeneous representation of the SE(3) transformation as a 4x4 matrix.
-    pub fn to_homogeneous(&self) -> nalgebra::Matrix4<f64> {
-        self.0.to_homogeneous()
     }
 
     /// Returns the translation component of the SE(3) transformation.
@@ -52,8 +46,8 @@ impl SE3 {
     }
 
     /// Returns the rotation component of the SE(3) transformation.
-    pub fn rotation(&self) -> nalgebra::Rotation3<f64> {
-        self.0.rotation
+    pub fn rotation(&self) -> SpatialRotation {
+        SpatialRotation(self.0.rotation)
     }
 }
 
@@ -101,6 +95,7 @@ impl PySE3 {
         rotation: PyReadonlyArray2<f64>,
         translation: PyReadonlyArray1<f64>,
     ) -> PyResult<Self> {
+        // TODO: use dynamic arrays and check the shapes
         // Convert the input arrays to vectors
         let rotation = rotation.as_array();
         let translation = translation.as_array();
@@ -120,14 +115,14 @@ impl PySE3 {
         }
 
         // Create the translation and rotation components
-        let translation = Translation3::new(translation[0], translation[1], translation[2]);
+        let translation = Vector3D::new(translation[0], translation[1], translation[2]);
         let rotation_matrix = nalgebra::Matrix3::from_iterator(rotation.iter().cloned());
         if !rotation_matrix.is_orthogonal(1e-6) {
             return Err(PyValueError::new_err(
                 "The rotation matrix is not orthogonal.",
             ));
         }
-        let rotation = nalgebra::Rotation3::from_matrix_unchecked(rotation_matrix);
+        let rotation = SpatialRotation(Rotation3::from_matrix_unchecked(rotation_matrix));
         let inner = SE3::from_parts(translation, rotation);
 
         Ok(Self { inner })
@@ -143,12 +138,12 @@ impl PySE3 {
     #[pyo3(name = "Random")]
     #[staticmethod]
     pub fn random() -> PySE3 {
-        let translation = Vector3::new(
+        let translation = Vector3D::new(
             rand::random::<f64>() * 2.0 - 1.0,
             rand::random::<f64>() * 2.0 - 1.0,
             rand::random::<f64>() * 2.0 - 1.0,
         );
-        let axis_angle = nalgebra::Vector3::new(
+        let axis_angle = Vector3D::new(
             rand::random::<f64>() * 2.0 - 1.0,
             rand::random::<f64>() * 2.0 - 1.0,
             rand::random::<f64>() * 2.0 - 1.0,
@@ -213,7 +208,7 @@ impl PySE3 {
 
     #[getter]
     pub fn get_homogeneous(&self, py: Python) -> PyResult<Py<PyAny>> {
-        let homogeneous = self.inner.to_homogeneous();
+        let homogeneous = self.inner.0.to_homogeneous();
         Ok(
             Array2::from_shape_vec((4, 4), homogeneous.as_slice().to_vec())
                 .unwrap()
