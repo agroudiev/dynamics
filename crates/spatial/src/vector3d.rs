@@ -1,6 +1,7 @@
 use nalgebra::Vector3;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+/// A 3D vector, commonly used for positions.
 pub struct Vector3D(pub(crate) Vector3<f64>);
 
 impl Vector3D {

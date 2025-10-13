@@ -5,6 +5,7 @@ use numpy::PyReadonlyArrayDyn;
 use pyo3::prelude::*;
 
 #[derive(Clone, Debug, PartialEq)]
+/// Configuration of a multi-body system, represented as a vector of joint positions.
 pub struct Configuration(DVector<f64>);
 
 impl Configuration {
@@ -65,6 +66,7 @@ impl Index<usize> for Configuration {
 }
 
 #[pyclass(name = "Configuration")]
+/// Python wrapper for the `Configuration` struct.
 pub struct PyConfiguration(Configuration);
 
 impl PyConfiguration {
@@ -85,6 +87,7 @@ impl PyConfiguration {
     }
 }
 
+/// Errors that can occur when working with configurations.
 pub enum ConfigurationError {
     InvalidSize(String, usize, usize),
 }

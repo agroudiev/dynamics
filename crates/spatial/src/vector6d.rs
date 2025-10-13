@@ -2,7 +2,7 @@ use nalgebra::{Matrix6, Vector6};
 use pyo3::prelude::*;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-/// A 6D vector reprenting spatial motion (angular and linear components).
+/// A 6D vector representing spatial motion (angular and linear components).
 pub struct Vector6D(pub(crate) Vector6<f64>);
 
 impl Vector6D {
@@ -18,6 +18,7 @@ impl Vector6D {
         self.0.as_slice().try_into().unwrap()
     }
 
+    /// Returns the vector as a diagonal 6x6 matrix.
     pub fn as_diagonal(&self) -> Matrix6<f64> {
         Matrix6::from_diagonal(&self.0)
     }

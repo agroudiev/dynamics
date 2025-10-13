@@ -3,6 +3,7 @@ use nalgebra::{Rotation3, Vector6};
 use crate::{se3::SE3, vector3d::Vector3D};
 
 #[derive(Clone, Debug, PartialEq)]
+/// Spatial motion vector, combining angular and linear velocity components.
 pub struct SpatialMotion(pub(crate) Vector6<f64>);
 
 impl SpatialMotion {

@@ -3,6 +3,9 @@ use nalgebra::Matrix6;
 use crate::motion::SpatialRotation;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+/// Spatial transformation, represented as a 6x6 matrix.
+/// 
+/// A spatial transformation consists of a rotation and a translation, and is used to transform spatial motion and force vectors.
 pub struct SpatialTransform(Matrix6<f64>);
 
 impl SpatialTransform {

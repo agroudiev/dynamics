@@ -1,2 +1,4 @@
-#[derive(Clone, Debug, PartialEq)]
-pub struct SpatialForce(nalgebra::Vector6<f64>);
+use crate::vector6d::Vector6D;
+
+/// Spatial force vector, combining torque and force components.
+pub type SpatialForce = Vector6D;
