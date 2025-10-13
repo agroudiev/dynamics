@@ -29,8 +29,8 @@ pub trait Joint {
     fn create_joint_data(&self) -> JointDataWrapper;
 
     /// Returns the axis of the joint, if applicable.
-    fn get_axis(&self) -> Option<SpatialMotion> {
-        None
+    fn get_axis(&self) -> Vec<SpatialMotion> {
+        Vec::new()
     }
 
     /// Returns a random configuration for the joint.

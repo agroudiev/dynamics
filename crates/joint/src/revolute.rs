@@ -78,8 +78,8 @@ impl Joint for JointModelRevolute {
         Box::new(JointDataRevolute::new(self))
     }
 
-    fn get_axis(&self) -> Option<SpatialMotion> {
-        Some(SpatialMotion::from_axis(&self.axis))
+    fn get_axis(&self) -> Vec<SpatialMotion> {
+        vec![SpatialMotion::from_axis(&self.axis)]
     }
 
     fn random_configuration(&self, rng: &mut rand::rngs::ThreadRng) -> Configuration {
@@ -132,9 +132,9 @@ impl JointData for JointDataRevolute {
         assert_eq!(q.len(), 1, "Revolute joint model expects a single angle.");
         let q = q[0];
         self.q = q;
-        let axis = match joint_model.get_axis() {
-            Some(axis) => axis,
-            None => return Err(JointError::MissingAttributeError("axis".to_string())),
+        let axis = match joint_model.get_axis().len() {
+            1 => &joint_model.get_axis()[0],
+            _ => return Err(JointError::MissingAttributeError("axis".to_string())),
         };
 
         let rot = SpatialRotation::from_axis_angle(&axis.rotation(), q);

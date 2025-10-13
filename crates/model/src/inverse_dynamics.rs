@@ -57,7 +57,14 @@ pub fn inverse_dynamics(
         let local_joint_placement = model.joint_placements.get(&id).unwrap();
 
         // local velocity
-        // let local_velocity = axis * v_joint;
+        // TODO: use a matrix multiplication instead of a loop
+        let mut local_velocity = Vec::with_capacity(joint_model.nq());
+        for (i, axis_i) in axis.iter().enumerate() {
+            local_velocity.push(axis_i * v_joint[i]);
+        }
+        let local_velocity = local_velocity
+            .into_iter()
+            .fold(SpatialMotion::identity(), |acc, x| acc + x);
 
         // compute the position, velocity and acceleration of the joint
         // position_transforms.insert(id, transform * local_joint_placement);

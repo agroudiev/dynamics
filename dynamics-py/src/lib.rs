@@ -27,7 +27,7 @@ use collider::shape::{
 };
 use numpy::PyArray1;
 use parse::urdf::py_build_models_from_urdf;
-use spatial::{configuration::PyConfiguration, se3::PySE3};
+use spatial::{configuration::PyConfiguration, se3::PySE3, vector6d::PyVector6D};
 
 #[pymodule(name = "dynamics")]
 fn dynamics_py(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -85,6 +85,7 @@ fn add_spatial_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult<
     // adding the SE3 class between add_submodule and setting sys.modules
     // to avoid name conflicts
     dynamics.add_class::<PySE3>()?;
+    dynamics.add_class::<PyVector6D>()?;
 
     py.import("sys")?
         .getattr("modules")?

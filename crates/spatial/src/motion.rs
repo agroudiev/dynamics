@@ -16,9 +16,36 @@ impl SpatialMotion {
     pub fn rotation(&self) -> Vector3D {
         Vector3D(self.0.fixed_rows::<3>(0).into())
     }
+
+    pub fn identity() -> Self {
+        Self(Vector6::zeros())
+    }
 }
 
-// TODO: use a Matrix3 instead of Rotation3
+impl std::ops::Add for SpatialMotion {
+    type Output = SpatialMotion;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        SpatialMotion(self.0 + rhs.0)
+    }
+}
+
+impl std::ops::Mul<f64> for SpatialMotion {
+    type Output = SpatialMotion;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        SpatialMotion(self.0 * rhs)
+    }
+}
+
+impl std::ops::Mul<f64> for &SpatialMotion {
+    type Output = SpatialMotion;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        SpatialMotion(self.0 * rhs)
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct SpatialRotation(pub(crate) Rotation3<f64>);
 
