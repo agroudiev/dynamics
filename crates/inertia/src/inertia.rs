@@ -1,8 +1,7 @@
 //! Structures to represent the inertia of a rigid body.
 
-use nalgebra::Vector6;
 use pyo3::{exceptions::PyValueError, prelude::*};
-use spatial::{inertia::SpatialInertia, vector3d::Vector3D};
+use spatial::{inertia::SpatialInertia, vector3d::Vector3D, vector6d::Vector6D};
 
 /// A data structure that contains the information about the inertia of a rigid body (mass, center of mass, and inertia matrix).
 #[derive(Clone, Debug)]
@@ -45,7 +44,7 @@ impl Inertia {
         }
 
         let inertia = (2.0 / 5.0) * mass * radius.powi(2);
-        let diag = Vector6::new(inertia, inertia, inertia, mass, mass, mass);
+        let diag = Vector6D::new(inertia, inertia, inertia, mass, mass, mass);
         let inertia_matrix = SpatialInertia::from_diagonal(&diag);
 
         Ok(Self::new(mass, Vector3D::zeros(), inertia_matrix))

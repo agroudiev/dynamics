@@ -7,13 +7,13 @@ use joint::{
     joint::{Joint, JointWrapper, PyJointWrapper},
     revolute::PyJointModelRevolute,
 };
-use spatial::vector3d::Vector3D;
 use numpy::ToPyArray;
 use numpy::ndarray::Array1;
 use once_cell::sync::Lazy;
 use pyo3::{exceptions::PyValueError, prelude::*, types::PyTuple};
 use spatial::configuration::{Configuration, PyConfiguration};
 use spatial::se3::{PySE3, SE3};
+use spatial::vector3d::Vector3D;
 use std::{collections::HashMap, fmt::Debug};
 
 pub const WORLD_FRAME_ID: usize = 0;
