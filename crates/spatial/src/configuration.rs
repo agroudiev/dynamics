@@ -71,6 +71,18 @@ impl PyConfiguration {
     pub fn new(config: Configuration) -> Self {
         PyConfiguration(config)
     }
+
+    pub fn from_pyarray(array: PyReadonlyArrayDyn<f64>) -> Result<Self, PyErr> {
+        let config = Configuration::from_pyarray(array)?;
+        Ok(PyConfiguration::new(config))
+    }
+}
+
+#[pymethods]
+impl PyConfiguration {
+    pub fn __repr__(slf: PyRef<'_, Self>) -> String {
+        format!("{:#?}", slf.0)
+    }
 }
 
 pub enum ConfigurationError {

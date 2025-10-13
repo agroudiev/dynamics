@@ -3,10 +3,12 @@
 use std::fmt::Debug;
 
 use collider::shape::*;
-use nalgebra::Vector4;
-use numpy::{IntoPyArray, PyReadonlyArray1, ndarray::Array1};
+use numpy::{IntoPyArray, PyReadonlyArrayDyn, ndarray::Array1};
 use pyo3::{exceptions::PyValueError, prelude::*, types::PyTuple};
-use spatial::se3::{PySE3, SE3};
+use spatial::{
+    color::Color,
+    se3::{PySE3, SE3},
+};
 
 /// A `GeometryObject` is a data structure that contains the information about the geometry object,
 /// used for visualization, collision detection and distance computation.
@@ -20,7 +22,7 @@ pub struct GeometryObject {
     /// The `collider` geometry object.
     pub geometry: ShapeWrapper,
     /// The RGBA color of the mesh.
-    pub mesh_color: Vector4<f64>,
+    pub mesh_color: Color,
     /// The placement of the geometry object in the parent frame.
     pub placement: SE3,
     /// The identifier of the parent joint. If the object is not attached to a joint, this is set to 0 (WORLD_FRAME_ID).
@@ -41,7 +43,7 @@ impl GeometryObject {
         name: String,
         parent_joint: usize,
         geometry: ShapeWrapper,
-        mesh_color: Vector4<f64>,
+        mesh_color: Color,
         placement: SE3,
     ) -> Self {
         Self {
@@ -142,7 +144,7 @@ impl PyGeometryObject {
                     name,
                     parent_joint,
                     geometry.inner.clone_box(),
-                    Vector4::new(0.0, 0.0, 0.0, 1.0),
+                    Color::black(),
                     placement.inner,
                 ),
             })
@@ -155,14 +157,14 @@ impl PyGeometryObject {
     }
 
     #[setter]
-    fn set_mesh_color(&mut self, color: PyReadonlyArray1<f64>) -> PyResult<()> {
+    fn set_mesh_color(&mut self, color: PyReadonlyArrayDyn<f64>) -> PyResult<()> {
         let color = color.as_array();
         if color.len() == 4 {
             let r: f64 = color[0];
             let g: f64 = color[1];
             let b: f64 = color[2];
             let a: f64 = color[3];
-            self.inner.mesh_color = Vector4::new(r, g, b, a);
+            self.inner.mesh_color = Color::new(r, g, b, a);
             Ok(())
         } else {
             Err(PyValueError::new_err(format!(

@@ -9,9 +9,10 @@ use model::{
     geometry_object::GeometryObject,
     model::{Model, PyModel, WORLD_FRAME_ID},
 };
-use nalgebra::{Translation3, Vector3, Vector4};
+use nalgebra::{Translation3, Vector3};
 use pyo3::prelude::*;
 use roxmltree::Document;
+use spatial::color::Color;
 use spatial::se3::SE3;
 use spatial::vector3d::Vector3D;
 use std::{collections::HashMap, fs, str::FromStr};
@@ -42,7 +43,7 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
     let mut model = Model::new(robot_name);
     let mut geom_model = GeometryModel::new();
     let mut coll_model = GeometryModel::new();
-    let mut materials: HashMap<&str, Vector4<f64>> = HashMap::new();
+    let mut materials: HashMap<&str, Color> = HashMap::new();
 
     let priority_order = ["material", "link", "joint"];
     let priority_map: HashMap<&str, usize> = priority_order
@@ -67,7 +68,7 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                     .find(|n| n.has_tag_name("color"))
                     .ok_or(ParseError::MaterialWithoutColor)?;
                 let rgba = extract_parameter_list::<f64>("rgba", &color_node, Some(4))?;
-                let color = Vector4::new(rgba[0], rgba[1], rgba[2], rgba[3]);
+                let color = Color::new(rgba[0], rgba[1], rgba[2], rgba[3]);
 
                 materials.insert(material_name, color);
             }
@@ -85,7 +86,7 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                         link_name.clone(),
                         WORLD_FRAME_ID,
                         Box::new(Sphere::new(0.0)),
-                        Vector4::zeros(),
+                        Color::transparent(),
                         SE3::identity(),
                     ));
                 }
@@ -222,7 +223,7 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
 fn parse_geometry(
     link_name: String,
     visual_node: &roxmltree::Node,
-    materials: &HashMap<&str, Vector4<f64>>,
+    materials: &HashMap<&str, Color>,
     // parent_frame_id: Option<usize>,
     urdf_filepath: &str,
 ) -> Result<GeometryObject, ParseError> {
@@ -295,7 +296,7 @@ fn parse_geometry(
     let placement = parse_origin(visual_node)?;
 
     // extract the material color
-    let mut color = Vector4::new(0.0, 0.0, 0.0, 1.0);
+    let mut color = Color::new(0.0, 0.0, 0.0, 1.0);
     // if there is a material node
     if let Some(material_node) = visual_node.children().find(|n| n.has_tag_name("material")) {
         // if this material node has a name
@@ -307,10 +308,10 @@ fn parse_geometry(
             // else, check if it has a color node
             else if let Ok(rgba) = extract_parameter_list::<f64>("rgba", &material_node, Some(4))
             {
-                color = Vector4::new(rgba[0], rgba[1], rgba[2], rgba[3]);
+                color = Color::new(rgba[0], rgba[1], rgba[2], rgba[3]);
             }
         } else if let Ok(rgba) = extract_parameter_list::<f64>("rgba", &material_node, Some(4)) {
-            color = Vector4::new(rgba[0], rgba[1], rgba[2], rgba[3]);
+            color = Color::new(rgba[0], rgba[1], rgba[2], rgba[3]);
         }
     }
 

@@ -1,5 +1,6 @@
 //! Spatial representation and operations.
 
+pub mod color;
 pub mod configuration;
 pub mod force;
 pub mod inertia;
