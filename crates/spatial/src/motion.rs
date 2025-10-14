@@ -59,10 +59,7 @@ impl SpatialRotation {
 
     /// Converts the rotation to an `SE3` with the given translation.
     pub fn to_se3(&self, translation: &Vector3D) -> SE3 {
-        SE3::from_parts(
-            *translation,
-            *self,
-        )
+        SE3::from_parts(*translation, *self)
     }
 
     /// Returns the identity rotation.
@@ -77,5 +74,33 @@ impl SpatialRotation {
 
     pub fn from_euler_angles(roll: f64, pitch: f64, yaw: f64) -> Self {
         Self(Rotation3::from_euler_angles(roll, pitch, yaw))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use approx::assert_relative_eq;
+    use nalgebra::Matrix3;
+
+    use super::*;
+
+    #[test]
+    fn test_spatial_motion_identity() {
+        let identity = SpatialMotion::identity();
+        assert_eq!(identity.0, Vector6::zeros());
+    }
+
+    #[test]
+    fn test_spatial_rotation_identity() {
+        let identity = SpatialRotation::identity();
+        assert_eq!(identity.0, Rotation3::identity());
+    }
+
+    #[test]
+    fn test_spatial_rotation_pi_2() {
+        let z = Vector3D::new(0.0, 0.0, 1.0);
+        let rotation = SpatialRotation::from_axis_angle(&z, std::f64::consts::PI / 2.0);
+        let expected = Matrix3::new(0.0, -1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+        assert_relative_eq!(rotation.0.matrix(), &expected);
     }
 }

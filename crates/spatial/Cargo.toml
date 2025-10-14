@@ -8,3 +8,6 @@ nalgebra = { workspace = true }
 numpy = { workspace = true}
 pyo3 = { workspace = true }
 rand = { workspace = true}
+
+[dev-dependencies]
+approx = { workspace = true }

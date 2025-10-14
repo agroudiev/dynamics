@@ -30,3 +30,5 @@ joint = { path = "crates/joint" }
 model = { path = "crates/model" }
 parse = { path = "crates/parse" }
 spatial = { path = "crates/spatial" }
+
+approx = { version = "0.5.1" }

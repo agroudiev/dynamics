@@ -27,7 +27,10 @@ impl SE3 {
 
     /// Creates a new SE(3) transformation from a rotation and a translation.
     pub fn from_parts(translation: Vector3D, rotation: SpatialRotation) -> Self {
-        SE3(IsometryMatrix3::from_parts(Translation3::from(translation.0), rotation.0))
+        SE3(IsometryMatrix3::from_parts(
+            Translation3::from(translation.0),
+            rotation.0,
+        ))
     }
 
     /// Creates a new identity SE(3) transformation.

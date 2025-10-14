@@ -9,8 +9,10 @@ repository.workspace = true
 license-file.workspace = true
 
 [dependencies]
-approx = { version = "0.5.1" }
 pyo3 = { workspace = true }
 rand = { workspace = true }
 
 spatial = { workspace = true }
+
+[dev-dependencies]
+approx = { workspace = true }

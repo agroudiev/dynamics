@@ -34,6 +34,8 @@ pub struct PyVector6D {
 impl PyVector6D {
     #[new]
     fn new(x: f64, y: f64, z: f64, w: f64, v: f64, u: f64) -> Self {
-        Self { inner: Vector6D::new(x, y, z, w, v, u) }
+        Self {
+            inner: Vector6D::new(x, y, z, w, v, u),
+        }
     }
 }
