@@ -500,6 +500,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e502f78cdbb8ba4718f566c418c52bc729126ffd16baee5baa718cf25dd5a69a"
 
 [[package]]
+name = "tests"
+version = "0.1.0"
+dependencies = [
+ "approx",
+ "joint",
+ "model",
+ "parse",
+ "spatial",
+]
+
+[[package]]
 name = "typenum"
 version = "1.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

@@ -1,5 +1,6 @@
 use std::ops::Index;
 
+use approx::{AbsDiffEq, RelativeEq};
 use nalgebra::DVector;
 use numpy::PyReadonlyArrayDyn;
 use pyo3::prelude::*;
@@ -42,6 +43,10 @@ impl Configuration {
         Configuration(DVector::from_row_slice(data))
     }
 
+    pub fn from_vec(data: Vec<f64>) -> Self {
+        Configuration(DVector::from_vec(data))
+    }
+
     pub fn from_pyarray(array: PyReadonlyArrayDyn<f64>) -> Result<Configuration, PyErr> {
         let array = array.as_array();
         let flat: Vec<f64> = array.iter().copied().collect();
@@ -62,6 +67,28 @@ impl Index<usize> for Configuration {
 
     fn index(&self, index: usize) -> &Self::Output {
         &self.0[index]
+    }
+}
+
+impl AbsDiffEq for Configuration {
+    type Epsilon = f64;
+
+    fn default_epsilon() -> Self::Epsilon {
+        f64::default_epsilon()
+    }
+
+    fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
+        self.0.abs_diff_eq(&other.0, epsilon)
+    }
+}
+
+impl RelativeEq for Configuration {
+    fn default_max_relative() -> f64 {
+        f64::default_max_relative()
+    }
+
+    fn relative_eq(&self, other: &Self, epsilon: f64, max_relative: f64) -> bool {
+        self.0.relative_eq(&other.0, epsilon, max_relative)
     }
 }
 

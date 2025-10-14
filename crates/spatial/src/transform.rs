@@ -46,16 +46,13 @@ mod tests {
     fn test_from_rotation_pi_2() {
         let z = Vector3D::new(0.0, 0.0, 1.0);
         let rotation = SpatialRotation::from_axis_angle(&z, std::f64::consts::PI / 2.0);
-        
+
         let transform = SpatialTransform::from_rotation(rotation);
 
         let expected = Matrix6::new(
-            0.0, -1.0, 0.0, 0.0, 0.0, 0.0,
-            1.0,  0.0, 0.0, 0.0, 0.0, 0.0,
-            0.0,  0.0, 1.0, 0.0, 0.0, 0.0,
-            0.0,  0.0, 0.0, 0.0, -1.0, 0.0,
-            0.0,  0.0, 0.0, 1.0,  0.0, 0.0,
-            0.0,  0.0, 0.0, 0.0,  0.0, 1.0,
+            0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            0.0, 1.0,
         );
 
         assert_relative_eq!(transform.0, expected);
