@@ -10,7 +10,7 @@ use numpy::PyReadonlyArrayDyn;
 use pyo3::prelude::*;
 use spatial::configuration::{Configuration, ConfigurationError, PyConfiguration};
 use spatial::motion::SpatialMotion;
-use spatial::transform::SpatialTransform;
+use spatial::vector3d::Vector3D;
 use std::collections::HashMap;
 
 /// Computes the inverse dynamics using the Recursive Newton-Euler Algorithm (RNEA).
@@ -32,9 +32,17 @@ pub fn inverse_dynamics(
     v: &Configuration,
     a: &Configuration,
 ) -> Result<Configuration, ConfigurationError> {
-    let mut position_transforms: HashMap<usize, SpatialTransform> = HashMap::new();
-    let mut velocities: HashMap<usize, SpatialMotion> = HashMap::new();
-    let mut accelerations: HashMap<usize, SpatialMotion> = HashMap::new();
+    let mut position_transforms = HashMap::with_capacity(model.joint_models.len());
+    let mut velocities = HashMap::with_capacity(model.joint_models.len());
+    let mut accelerations = HashMap::with_capacity(model.joint_models.len());
+    let mut forces = HashMap::with_capacity(model.joint_models.len());
+
+    velocities.insert(0, SpatialMotion::zero());
+    accelerations.insert(
+        0,
+        SpatialMotion::from_parts(Vector3D::zeros(), model.gravity),
+    );
+    forces.insert(0, SpatialMotion::zero());
 
     let mut offset = 0;
     let mut keys: Vec<_> = model.joint_models.keys().cloned().collect();
@@ -53,6 +61,8 @@ pub fn inverse_dynamics(
         let transform = joint_model.transform(&q_joint);
         let axis = joint_model.get_axis();
 
+        let inertia = model.inertias.get(&id).unwrap();
+
         // local joint placement (X_T(i))
         let local_joint_placement = model.joint_placements.get(&id).unwrap();
 
@@ -64,11 +74,30 @@ pub fn inverse_dynamics(
         }
         let local_velocity = local_velocity
             .into_iter()
-            .fold(SpatialMotion::identity(), |acc, x| acc + x);
+            .fold(SpatialMotion::zero(), |acc, x| acc + x);
+
+        // local acceleration
+        let mut local_acceleration = Vec::with_capacity(joint_model.nq());
+        for (i, axis_i) in axis.iter().enumerate() {
+            local_acceleration.push(axis_i * a_joint[i]);
+        }
+        let local_acceleration = local_acceleration
+            .into_iter()
+            .fold(SpatialMotion::zero(), |acc, x| acc + x);
 
         // compute the position, velocity and acceleration of the joint
         position_transforms.insert(id, (transform * local_joint_placement).action());
-        // velocities.insert(id, position_transforms[&parent_id] * velocities[&parent_id] + local_velocity);
+        velocities.insert(
+            id,
+            position_transforms[&parent_id] * &velocities[&parent_id] + &local_velocity,
+        );
+        accelerations.insert(
+            id,
+            position_transforms[&parent_id] * &accelerations[&parent_id]
+                + local_acceleration
+                + velocities[&id].cross(&local_velocity),
+        );
+        forces.insert(id, inertia * &accelerations[&id]);
 
         offset += joint_model.nq();
     }

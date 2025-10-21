@@ -1,6 +1,8 @@
+use std::ops::Mul;
+
 use nalgebra::Matrix6;
 
-use crate::motion::SpatialRotation;
+use crate::motion::{SpatialMotion, SpatialRotation};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 /// Spatial transformation, represented as a 6x6 matrix.
@@ -14,7 +16,7 @@ impl SpatialTransform {
     }
 
     /// Creates a spatial transformation from a rotation.
-    /// 
+    ///
     /// The resulting spatial transformation has the rotation in both the top-left and bottom-right 3x3 blocks, and zeros elsewhere:
     /// ```
     /// [ R  0 ]
@@ -29,7 +31,7 @@ impl SpatialTransform {
 
     /// Converts an SE(3) transformation to a spatial transformation.
     /// This is obtained using the adjoint representation of SE(3).
-    /// 
+    ///
     /// If `R` is the rotation matrix and `t` is the translation vector of the SE(3) transformation, then the spatial transformation is given by:
     /// ```
     /// [ R          0          ]
@@ -64,6 +66,30 @@ impl SpatialTransform {
         mat.view_mut((3, 3), (3, 3)).copy_from(rotation.matrix());
 
         SpatialTransform(mat)
+    }
+}
+
+impl Mul<&SpatialMotion> for &SpatialTransform {
+    type Output = SpatialMotion;
+
+    fn mul(self, rhs: &SpatialMotion) -> Self::Output {
+        SpatialMotion(self.0 * rhs.0)
+    }
+}
+
+impl Mul<SpatialMotion> for SpatialTransform {
+    type Output = SpatialMotion;
+
+    fn mul(self, rhs: SpatialMotion) -> Self::Output {
+        SpatialMotion(self.0 * rhs.0)
+    }
+}
+
+impl Mul<&SpatialMotion> for SpatialTransform {
+    type Output = SpatialMotion;
+
+    fn mul(self, rhs: &SpatialMotion) -> Self::Output {
+        SpatialMotion(self.0 * rhs.0)
     }
 }
 

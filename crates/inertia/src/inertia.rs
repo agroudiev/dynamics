@@ -1,7 +1,8 @@
 //! Structures to represent the inertia of a rigid body.
 
 use pyo3::{exceptions::PyValueError, prelude::*};
-use spatial::{inertia::SpatialInertia, vector3d::Vector3D, vector6d::Vector6D};
+use spatial::{inertia::SpatialInertia, motion::SpatialMotion, vector3d::Vector3D, vector6d::Vector6D};
+use std::ops::Mul;
 
 /// A data structure that contains the information about the inertia of a rigid body (mass, center of mass, and inertia matrix).
 #[derive(Clone, Debug)]
@@ -48,6 +49,14 @@ impl Inertia {
         let inertia_matrix = SpatialInertia::from_diagonal(&diag);
 
         Ok(Self::new(mass, Vector3D::zeros(), inertia_matrix))
+    }
+}
+
+impl Mul<&SpatialMotion> for &Inertia {
+    type Output = SpatialMotion;
+
+    fn mul(self, rhs: &SpatialMotion) -> Self::Output {
+        &self.inertia * rhs
     }
 }
 
