@@ -1,4 +1,4 @@
-use nalgebra::{Rotation3, Vector6};
+use nalgebra::{Matrix6, Rotation3, Vector6};
 
 use crate::{se3::SE3, vector3d::Vector3D};
 use std::ops::{Add, Mul};
@@ -20,6 +20,11 @@ impl SpatialMotion {
         Vector3D(self.0.fixed_rows::<3>(0).into())
     }
 
+    /// Extracts the translation (linear velocity) component of the spatial motion.
+    pub fn translation(&self) -> Vector3D {
+        Vector3D(self.0.fixed_rows::<3>(3).into())
+    }
+
     /// Zero spatial motion (no motion).
     pub fn zero() -> Self {
         Self(Vector6::zeros())
@@ -31,6 +36,44 @@ impl SpatialMotion {
         v.fixed_rows_mut::<3>(0).copy_from(&angular.0);
         v.fixed_rows_mut::<3>(3).copy_from(&linear.0);
         Self(v)
+    }
+
+    /// Constructs the cross product matrix for spatial motion vectors.
+    fn cross_matrix(angular: Vector3D, linear: Vector3D) -> Matrix6<f64> {
+        let mut cross_matrix = Matrix6::zeros();
+        let angular_so3 = crate::so3::SO3::from_vector3d(&angular);
+        let linear_so3 = crate::so3::SO3::from_vector3d(&linear);
+        cross_matrix
+            .view_mut((0, 0), (3, 3))
+            .copy_from(&angular_so3.0);
+        cross_matrix
+            .view_mut((0, 3), (3, 3))
+            .copy_from(&linear_so3.0);
+        cross_matrix
+            .view_mut((3, 3), (3, 3))
+            .copy_from(&angular_so3.0);
+        cross_matrix
+    }
+
+    /// Computes the cross product of two spatial motion vectors.
+    pub fn cross(&self, other: &SpatialMotion) -> SpatialMotion {
+        let angular = self.rotation();
+        let linear = self.translation();
+
+        let cross_matrix = SpatialMotion::cross_matrix(angular, linear);
+
+        SpatialMotion(cross_matrix * other.0)
+    }
+
+    /// Computes the dual cross product of two spatial motion vectors.
+    pub fn cross_star(&self, other: &SpatialMotion) -> SpatialMotion {
+        let angular = self.rotation();
+        let linear = self.translation();
+
+        let cross_matrix = SpatialMotion::cross_matrix(angular, linear);
+        let dual_cross_matrix = -cross_matrix.transpose();
+
+        SpatialMotion(dual_cross_matrix * other.0)
     }
 }
 
@@ -98,9 +141,9 @@ impl SpatialRotation {
 
 #[cfg(test)]
 mod tests {
+    use crate::so3::SO3;
     use approx::assert_relative_eq;
     use nalgebra::{Matrix3, Matrix6};
-    use crate::so3::SO3;
 
     use super::*;
 
@@ -142,11 +185,11 @@ mod tests {
         matrix.view_mut((3, 3), (3, 3)).copy_from(&angular_so3.0);
 
         let expected_cross = SpatialMotion(matrix * motion2.0);
-        // let result_cross = motion1.cross(&motion2);
+        let result_cross = motion1.cross(&motion2);
         let expected_cross_star = SpatialMotion(-matrix.transpose() * motion2.0);
-        // let result_cross_star = motion1.cross_star(&motion2);
+        let result_cross_star = motion1.cross_star(&motion2);
 
-        // assert_relative_eq!(result_cross.0, expected_cross.0);
-        // assert_relative_eq!(result_cross_star.0, expected_cross_star.0);
+        assert_relative_eq!(result_cross.0, expected_cross.0);
+        assert_relative_eq!(result_cross_star.0, expected_cross_star.0);
     }
 }

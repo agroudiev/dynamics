@@ -12,9 +12,7 @@ impl SO3 {
     pub fn from_vector3d(vec: &Vector3D) -> Self {
         let v = vec.as_slice();
         Self(Matrix3::new(
-            0.0, -v[2], v[1],
-            v[2], 0.0, -v[0],
-            -v[1], v[0], 0.0,
+            0.0, -v[2], v[1], v[2], 0.0, -v[0], -v[1], v[0], 0.0,
         ))
     }
 }
