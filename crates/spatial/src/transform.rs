@@ -67,6 +67,10 @@ impl SpatialTransform {
 
         SpatialTransform(mat)
     }
+
+    pub fn transpose(&self) -> Self {
+        SpatialTransform(self.0.transpose())
+    }
 }
 
 impl Mul<&SpatialMotion> for &SpatialTransform {

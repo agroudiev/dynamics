@@ -3,7 +3,7 @@ use nalgebra::{Matrix6, Rotation3, Vector6};
 use crate::{se3::SE3, vector3d::Vector3D};
 use std::ops::{Add, Mul};
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Default)]
 /// Spatial motion vector, combining angular and linear velocity components.
 pub struct SpatialMotion(pub(crate) Vector6<f64>);
 
@@ -74,6 +74,11 @@ impl SpatialMotion {
         let dual_cross_matrix = -cross_matrix.transpose();
 
         SpatialMotion(dual_cross_matrix * other.0)
+    }
+
+    /// Computes the inner product of two spatial motion vectors.
+    pub fn inner(&self, other: &SpatialMotion) -> f64 {
+        self.0.dot(&other.0)
     }
 }
 
