@@ -14,10 +14,12 @@ impl SpatialMotion {
         Self(v)
     }
 
+    /// Extracts the rotation (angular velocity) component of the spatial motion.
     pub fn rotation(&self) -> Vector3D {
         Vector3D(self.0.fixed_rows::<3>(0).into())
     }
 
+    /// Identity spatial motion (zero motion).
     pub fn identity() -> Self {
         Self(Vector6::zeros())
     }

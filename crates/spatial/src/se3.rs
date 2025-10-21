@@ -9,7 +9,7 @@ use numpy::{
 };
 use pyo3::{exceptions::PyValueError, prelude::*};
 
-use crate::{motion::SpatialRotation, vector3d::Vector3D};
+use crate::{motion::SpatialRotation, transform::SpatialTransform, vector3d::Vector3D};
 
 /// SE(3) transformation represented as an isometry matrix.
 #[derive(Clone, Debug, Copy, PartialEq, Default)]
@@ -52,6 +52,11 @@ impl SE3 {
     pub fn rotation(&self) -> SpatialRotation {
         SpatialRotation(self.0.rotation)
     }
+
+    /// Computes the action of the SE(3) transformation on a 3D point.
+    pub fn action(&self) -> SpatialTransform {
+        SpatialTransform::from_se3(self)
+    }
 }
 
 impl std::ops::Mul for SE3 {
@@ -74,6 +79,14 @@ impl std::ops::Mul<SE3> for &SE3 {
     type Output = SE3;
 
     fn mul(self, rhs: SE3) -> Self::Output {
+        SE3(self.0 * rhs.0)
+    }
+}
+
+impl std::ops::Mul<&SE3> for SE3 {
+    type Output = SE3;
+
+    fn mul(self, rhs: &SE3) -> Self::Output {
         SE3(self.0 * rhs.0)
     }
 }

@@ -3,7 +3,7 @@
 use crate::data::JointDataWrapper;
 use pyo3::prelude::*;
 use rand::rngs::ThreadRng;
-use spatial::{configuration::Configuration, motion::SpatialMotion, transform::SpatialTransform};
+use spatial::{configuration::Configuration, motion::SpatialMotion, se3::SE3};
 
 /// A wrapper type for the Shape trait to allow dynamic dispatch.
 pub type JointWrapper = Box<dyn Joint + Send + Sync>;
@@ -37,7 +37,7 @@ pub trait Joint {
     fn random_configuration(&self, rng: &mut ThreadRng) -> Configuration;
 
     /// Computes the transformation matrix of the joint given its configuration. Featherstone calls it `jcalc`.
-    fn transform(&self, q: &Configuration) -> SpatialTransform;
+    fn transform(&self, q: &Configuration) -> SE3;
 }
 
 /// Enum representing the type of joint.

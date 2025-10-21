@@ -12,7 +12,6 @@ use spatial::{
     configuration::Configuration,
     motion::{SpatialMotion, SpatialRotation},
     se3::SE3,
-    transform::SpatialTransform,
     vector3d::Vector3D,
 };
 
@@ -87,10 +86,10 @@ impl Joint for JointModelRevolute {
         Configuration::from_row_slice(&[q])
     }
 
-    fn transform(&self, q: &Configuration) -> SpatialTransform {
+    fn transform(&self, q: &Configuration) -> SE3 {
         assert_eq!(q.len(), 1, "Revolute joint model expects a single angle.");
         let angle = q[0];
-        SpatialTransform::from_rotation(SpatialRotation::from_axis_angle(&self.axis, angle))
+        SE3::from_parts(Vector3D::zeros(), SpatialRotation::from_axis_angle(&self.axis, angle))
     }
 }
 

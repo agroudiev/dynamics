@@ -13,10 +13,56 @@ impl SpatialTransform {
         SpatialTransform(Matrix6::identity())
     }
 
+    /// Creates a spatial transformation from a rotation.
+    /// 
+    /// The resulting spatial transformation has the rotation in both the top-left and bottom-right 3x3 blocks, and zeros elsewhere:
+    /// ```
+    /// [ R  0 ]
+    /// [ 0  R ]
+    /// ```
     pub fn from_rotation(rotation: SpatialRotation) -> Self {
         let mut mat = Matrix6::zeros();
         mat.view_mut((0, 0), (3, 3)).copy_from(rotation.0.matrix());
         mat.view_mut((3, 3), (3, 3)).copy_from(rotation.0.matrix());
+        SpatialTransform(mat)
+    }
+
+    /// Converts an SE(3) transformation to a spatial transformation.
+    /// This is obtained using the adjoint representation of SE(3).
+    /// 
+    /// If `R` is the rotation matrix and `t` is the translation vector of the SE(3) transformation, then the spatial transformation is given by:
+    /// ```
+    /// [ R          0          ]
+    /// [ skew(t)*R  R          ]
+    /// ```
+    pub fn from_se3(se3: &crate::se3::SE3) -> Self {
+        let rotation = se3.rotation().0;
+        let translation = se3.translation().0;
+
+        let mut mat = Matrix6::zeros();
+
+        // top-left block: rotation
+        mat.view_mut((0, 0), (3, 3)).copy_from(rotation.matrix());
+
+        // top-right block: skew(translation) * rotation
+        let skew_translation = nalgebra::Matrix3::new(
+            0.0,
+            -translation.z,
+            translation.y,
+            translation.z,
+            0.0,
+            -translation.x,
+            -translation.y,
+            translation.x,
+            0.0,
+        );
+        let top_right = skew_translation * rotation.matrix();
+        mat.view_mut((0, 3), (3, 3)).copy_from(&top_right);
+
+        // bottom-left block: zero
+        // bottom-right block: rotation
+        mat.view_mut((3, 3), (3, 3)).copy_from(rotation.matrix());
+
         SpatialTransform(mat)
     }
 }

@@ -67,7 +67,7 @@ pub fn inverse_dynamics(
             .fold(SpatialMotion::identity(), |acc, x| acc + x);
 
         // compute the position, velocity and acceleration of the joint
-        // position_transforms.insert(id, transform * local_joint_placement);
+        position_transforms.insert(id, (transform * local_joint_placement).action());
         // velocities.insert(id, position_transforms[&parent_id] * velocities[&parent_id] + local_velocity);
 
         offset += joint_model.nq();
