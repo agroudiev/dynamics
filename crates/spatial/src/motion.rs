@@ -32,11 +32,6 @@ impl SpatialMotion {
         v.fixed_rows_mut::<3>(3).copy_from(&linear.0);
         Self(v)
     }
-
-    /// Computes the cross product of two spatial motion vectors.
-    pub fn cross(&self, other: &SpatialMotion) -> SpatialMotion {
-        SpatialMotion(self.0.cross(&other.0))
-    }
 }
 
 impl Add for SpatialMotion {
@@ -104,7 +99,8 @@ impl SpatialRotation {
 #[cfg(test)]
 mod tests {
     use approx::assert_relative_eq;
-    use nalgebra::Matrix3;
+    use nalgebra::{Matrix3, Matrix6};
+    use crate::so3::SO3;
 
     use super::*;
 
@@ -126,5 +122,31 @@ mod tests {
         let rotation = SpatialRotation::from_axis_angle(&z, std::f64::consts::PI / 2.0);
         let expected = Matrix3::new(0.0, -1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);
         assert_relative_eq!(rotation.0.matrix(), &expected);
+    }
+
+    #[test]
+    fn test_cross() {
+        let angular1 = Vector3D::new(1.0, 2.0, 3.0);
+        let linear1 = Vector3D::new(4.0, 5.0, 6.0);
+        let motion1 = SpatialMotion::from_parts(angular1, linear1);
+
+        let angular2 = Vector3D::new(7.0, 8.0, 9.0);
+        let linear2 = Vector3D::new(10.0, 11.0, 12.0);
+        let motion2 = SpatialMotion::from_parts(angular2, linear2);
+
+        let mut matrix = Matrix6::zeros();
+        let angular_so3 = SO3::from_vector3d(&angular1);
+        let linear_so3 = SO3::from_vector3d(&linear1);
+        matrix.view_mut((0, 0), (3, 3)).copy_from(&angular_so3.0);
+        matrix.view_mut((0, 3), (3, 3)).copy_from(&linear_so3.0);
+        matrix.view_mut((3, 3), (3, 3)).copy_from(&angular_so3.0);
+
+        let expected_cross = SpatialMotion(matrix * motion2.0);
+        // let result_cross = motion1.cross(&motion2);
+        let expected_cross_star = SpatialMotion(-matrix.transpose() * motion2.0);
+        // let result_cross_star = motion1.cross_star(&motion2);
+
+        // assert_relative_eq!(result_cross.0, expected_cross.0);
+        // assert_relative_eq!(result_cross_star.0, expected_cross_star.0);
     }
 }

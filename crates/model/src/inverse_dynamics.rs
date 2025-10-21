@@ -95,7 +95,7 @@ pub fn inverse_dynamics(
             id,
             position_transforms[&parent_id] * &accelerations[&parent_id]
                 + local_acceleration
-                + velocities[&id].cross(&local_velocity),
+                // + velocities[&id].cross(&local_velocity),
         );
         forces.insert(id, inertia * &accelerations[&id]);
 
