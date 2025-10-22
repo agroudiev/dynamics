@@ -1,8 +1,8 @@
-use std::ops::Index;
+use std::ops::{Add, Index, Mul};
 
 use approx::{AbsDiffEq, RelativeEq};
 use nalgebra::DVector;
-use numpy::PyReadonlyArrayDyn;
+use numpy::{ndarray::Array1, PyReadonlyArrayDyn, ToPyArray};
 use pyo3::prelude::*;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -92,6 +92,30 @@ impl RelativeEq for Configuration {
     }
 }
 
+impl Add for Configuration {
+    type Output = Configuration;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Configuration(self.0 + rhs.0)
+    }
+}
+
+impl Add for &Configuration {
+    type Output = Configuration;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Configuration(&self.0 + &rhs.0)
+    }
+}
+
+impl Mul<f64> for &Configuration {
+    type Output = DVector<f64>;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        &self.0 * rhs
+    }
+}
+
 #[pyclass(name = "Configuration")]
 /// Python wrapper for the `Configuration` struct.
 pub struct PyConfiguration(Configuration);
@@ -111,6 +135,23 @@ impl PyConfiguration {
 impl PyConfiguration {
     pub fn __repr__(slf: PyRef<'_, Self>) -> String {
         format!("{:#?}", slf.0)
+    }
+
+    pub fn __mul__(&self, other: f64) -> PyConfiguration {
+        let result = &self.0 * other;
+        PyConfiguration(Configuration(result))
+    }
+
+    pub fn __add__(&self, other: &PyConfiguration) -> PyConfiguration {
+        let result = &self.0 + &other.0;
+        PyConfiguration(result)
+    }
+
+    pub fn to_numpy(&self, py: Python) -> Py<PyAny> {
+        Array1::from_iter(self.0.0.iter().copied())
+            .to_pyarray(py)
+            .into_any()
+            .unbind()
     }
 }
 

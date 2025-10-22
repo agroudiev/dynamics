@@ -379,10 +379,12 @@ class MeshcatVisualizer:
             T = placement.homogeneous
             self.viewer[object.name].set_transform(T)
 
-    def display(self, q: np.ndarray | None = None):
+    def display(self, q: np.ndarray | dynamics.Configuration | None = None):
         """Display the robot in the given configuration."""
 
         if q is not None:
+            if isinstance(q, dynamics.Configuration):
+                q = q.to_numpy()
             dynamics.forward_kinematics(self.model, self.data, q)
 
         self.update_placements(GeometryType.VISUAL)
