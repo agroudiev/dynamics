@@ -2,7 +2,7 @@ use std::ops::{Add, Index, Mul};
 
 use approx::{AbsDiffEq, RelativeEq};
 use nalgebra::DVector;
-use numpy::{ndarray::Array1, PyReadonlyArrayDyn, ToPyArray};
+use numpy::{PyReadonlyArrayDyn, ToPyArray, ndarray::Array1};
 use pyo3::prelude::*;
 
 #[derive(Clone, Debug, PartialEq)]

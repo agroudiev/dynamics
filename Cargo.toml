@@ -32,4 +32,3 @@ parse = { path = "crates/parse" }
 spatial = { path = "crates/spatial" }
 
 approx = { version = "0.5.1" }
-log = { version = "0.4.28" }

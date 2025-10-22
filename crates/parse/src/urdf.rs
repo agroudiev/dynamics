@@ -135,7 +135,10 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                         inertial_origin,
                     )
                 } else {
-                    log::warn!("No inertial information provided for link: {}", link_name);
+                    eprintln!(
+                        "Warning: no inertial information provided for link: {}",
+                        link_name
+                    );
                     (Inertia::default(), SE3::identity())
                 };
 
@@ -206,12 +209,12 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                     }
                     "revolute" => {
                         // we extract the axis of rotation
-                        let axis = match extract_parameter_list::<f64>("axis", &joint_node, Some(3))
-                        {
-                            Ok(axis) => Vector3D::new(axis[0], axis[1], axis[2]),
-                            // default value if axis is not specified
-                            Err(ParseError::MissingParameter(_)) => Vector3D::new(1.0, 0.0, 0.0),
-                            // if the axis is specified but invalid
+                        let axis_node = joint_node
+                            .children()
+                            .find(|n| n.has_tag_name("axis"))
+                            .ok_or(ParseError::MissingParameter("axis".to_string()))?;
+                        let axis = match extract_parameter_list::<f64>("xyz", &axis_node, Some(3)) {
+                            Ok(xyz) => Vector3D::new(xyz[0], xyz[1], xyz[2]),
                             Err(e) => return Err(e),
                         };
 

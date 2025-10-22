@@ -61,7 +61,11 @@ fn test_materials() {
     let right_leg_id = model.joint_index_by_name("base_to_right_leg").unwrap();
     // TODO: retrieve geometry object by name
     assert_eq!(
-        model.joint_placements.get(&right_leg_id).unwrap().translation(),
+        model
+            .joint_placements
+            .get(&right_leg_id)
+            .unwrap()
+            .translation(),
         Vector3D::new(0.0, -0.22, 0.25)
     );
     // assert_eq!(geom_model.models.get(&right_leg_id).unwrap().parent_joint, right_leg_id);
@@ -73,7 +77,11 @@ fn test_materials() {
     // left leg
     let left_leg_id = model.joint_index_by_name("base_to_left_leg").unwrap();
     assert_eq!(
-        model.joint_placements.get(&left_leg_id).unwrap().translation(),
+        model
+            .joint_placements
+            .get(&left_leg_id)
+            .unwrap()
+            .translation(),
         Vector3D::new(0.0, 0.22, 0.25)
     );
     // assert_eq!(geom_model.models.get(&left_leg_id).unwrap().parent_joint, left_leg_id);
