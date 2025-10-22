@@ -68,7 +68,7 @@ impl PyData {
 #[derive(Default)]
 pub struct GeometryData {
     /// The placements of the objects in the world frame
-    object_placements: HashMap<usize, SE3>,
+    pub object_placements: HashMap<usize, SE3>,
 }
 
 impl GeometryData {

@@ -7,7 +7,7 @@ use spatial::{
 use std::ops::Mul;
 
 /// A data structure that contains the information about the inertia of a rigid body (mass, center of mass, and inertia matrix).
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct Inertia {
     /// The mass of the object.
     pub mass: f64,

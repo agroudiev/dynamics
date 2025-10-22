@@ -189,6 +189,15 @@ impl Model {
 
         Ok(())
     }
+
+    pub fn joint_index_by_name(&self, name: &str) -> Option<usize> {
+        for (id, joint_name) in self.joint_names.iter() {
+            if joint_name == name {
+                return Some(*id);
+            }
+        }
+        None
+    }
 }
 
 impl Debug for Model {

@@ -1,7 +1,7 @@
 use nalgebra::Vector3;
 use std::ops::{Add, Mul, Sub};
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 /// A 3D vector, commonly used for positions.
 pub struct Vector3D(pub(crate) Vector3<f64>);
 

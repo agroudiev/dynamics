@@ -17,3 +17,5 @@ roxmltree = { version = "0.20.0" }
 collider = { workspace = true }
 nalgebra = { workspace = true } # only for collider
 spatial = { workspace = true }
+inertia = { workspace = true }
+log = { workspace = true }

@@ -3,6 +3,7 @@
 use crate::errors::ParseError;
 use collider::mesh::Mesh;
 use collider::shape::{Cylinder, ShapeWrapper, Sphere};
+use inertia::inertia::Inertia;
 use joint::revolute::JointModelRevolute;
 use model::{
     geometry_model::{GeometryModel, PyGeometryModel},
@@ -13,6 +14,7 @@ use nalgebra::Vector3;
 use pyo3::prelude::*;
 use roxmltree::Document;
 use spatial::color::Color;
+use spatial::inertia::SpatialInertia;
 use spatial::motion::SpatialRotation;
 use spatial::se3::SE3;
 use spatial::vector3d::Vector3D;
@@ -92,7 +94,55 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                     ));
                 }
 
-                // TODO: parse the inertial node
+                // parse the inertial node
+                let (link_inertia, link_placement) = if let Some(inertial_node) =
+                    main_node.children().find(|n| n.has_tag_name("inertial"))
+                {
+                    let mass_node = inertial_node
+                        .children()
+                        .find(|n| n.has_tag_name("mass"))
+                        .ok_or(ParseError::InertialWithoutMass(link_name.clone()))?;
+                    let mass = extract_parameter::<f64>("value", &mass_node)?;
+
+                    let inertia_node = inertial_node
+                        .children()
+                        .find(|n| n.has_tag_name("inertia"))
+                        .ok_or(ParseError::InertialWithoutInertia(link_name.clone()))?;
+
+                    let ixx = extract_parameter::<f64>("ixx", &inertia_node)?;
+                    let ixy = extract_parameter::<f64>("ixy", &inertia_node)?;
+                    let ixz = extract_parameter::<f64>("ixz", &inertia_node)?;
+                    let iyy = extract_parameter::<f64>("iyy", &inertia_node)?;
+                    let iyz = extract_parameter::<f64>("iyz", &inertia_node)?;
+                    let izz = extract_parameter::<f64>("izz", &inertia_node)?;
+
+                    let origin_node = inertial_node
+                        .children()
+                        .find(|n| n.has_tag_name("origin"))
+                        .ok_or(ParseError::MissingParameter("origin".to_string()))?;
+                    let rpy = extract_parameter_list::<f64>("rpy", &origin_node, Some(3))?;
+                    let xyz = extract_parameter_list::<f64>("xyz", &origin_node, Some(3))?;
+                    let rotation = SpatialRotation::from_euler_angles(rpy[0], rpy[1], rpy[2]);
+                    let translation = Vector3D::new(xyz[0], xyz[1], xyz[2]);
+                    let inertial_origin = SE3::from_parts(translation, rotation);
+
+                    (
+                        Inertia::new(
+                            mass,
+                            translation,
+                            SpatialInertia::new(ixx, ixy, ixz, iyy, iyz, izz),
+                        ),
+                        inertial_origin,
+                    )
+                } else {
+                    log::warn!("No inertial information provided for link: {}", link_name);
+                    (Inertia::default(), SE3::identity())
+                };
+
+                // append inertia to the model
+                model
+                    .add_frame(link_placement, link_name.clone(), 0)
+                    .map_err(|e| ParseError::ModelError(format!("{:?}", e)))?;
 
                 // parse the collision node
                 if let Some(collision_node) =
