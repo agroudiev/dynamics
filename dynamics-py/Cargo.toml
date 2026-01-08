@@ -12,8 +12,8 @@ pyo3 = { workspace = true }
 collider = { workspace = true}
 numpy = { workspace = true }
 
-inertia = { path = "../crates/inertia" }
-joint = { path = "../crates/joint" }
-model = { path = "../crates/model" }
-parse = { path = "../crates/parse" }
-spatial = { path = "../crates/spatial" }
+inertia = { path = "../crates/dynamics-inertia" }
+joint = { path = "../crates/dynamics-joint" }
+model = { path = "../crates/dynamics-model" }
+parse = { path = "../crates/dynamics-parse" }
+spatial = { path = "../crates/dynamics-spatial" }
