@@ -46,7 +46,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter -m dynamics-py/Cargo.toml
+          args: --release --out dist -m dynamics-py/Cargo.toml
           sccache: 'true'
           manylinux: auto
       - name: Upload wheels
@@ -74,7 +74,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter -m dynamics-py/Cargo.toml
+          args: --release --out dist -m dynamics-py/Cargo.toml
           sccache: 'true'
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -100,7 +100,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter -m dynamics-py/Cargo.toml
+          args: --release --out dist -m dynamics-py/Cargo.toml
           sccache: 'true'
       - name: Upload wheels
         uses: actions/upload-artifact@v4
