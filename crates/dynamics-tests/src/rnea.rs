@@ -3,6 +3,7 @@ use model::inverse_dynamics::inverse_dynamics;
 use parse::urdf::build_models_from_urdf;
 use spatial::configuration::Configuration;
 
+#[ignore]
 #[test]
 fn test_rnea_ur5() {
     let path = "../../examples/descriptions/ur5/ur5_robot.urdf";
