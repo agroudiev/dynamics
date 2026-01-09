@@ -39,25 +39,29 @@ jobs:
         with:
           python-version: 3.13
 
-      # Build wheels
-      - name: Build wheels
-        uses: PyO3/maturin-action@v1
-        with:
-          target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter -m dynamics-py/Cargo.toml
-
       # Set up conda and install dependencies
       - name: Add conda to system path
         run: |
           # $CONDA is an environment variable pointing to the root of the miniconda directory
           echo $CONDA/bin >> $GITHUB_PATH
       
-      # Install python dependencies (project, dev tools, and maturin wheel)
+      # Install python dependencies (project and dev tools)
       - name: Install dependencies
         run: |
           conda env update --file dynamics_env.yml --name base
           python -m pip install --upgrade pip
           pip install black flake8
+
+      # Build wheels
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release -i $(python -c "import sys; print(sys.executable)") --out dist -m dynamics-py/Cargo.toml
+
+      # Install wheel
+      - name: Install dependencies
+        run: |
           pip install dist/*.whl
 
       # Python Format
