@@ -73,7 +73,10 @@ fn test_materials() {
     );
     // assert_eq!(geom_model.models.get(&right_leg_id).unwrap().parent_joint, right_leg_id);
     assert_eq!(
-        geom_data.get_object_placement(right_leg_id).unwrap().translation(),
+        geom_data
+            .get_object_placement(right_leg_id)
+            .unwrap()
+            .translation(),
         Vector3D::new(0.0, -0.22, 0.25 - 0.3)
     );
 
@@ -90,7 +93,10 @@ fn test_materials() {
     );
     // assert_eq!(geom_model.models.get(&left_leg_id).unwrap().parent_joint, left_leg_id);
     assert_eq!(
-        geom_data.get_object_placement(left_leg_id).unwrap().translation(),
+        geom_data
+            .get_object_placement(left_leg_id)
+            .unwrap()
+            .translation(),
         Vector3D::new(0.0, 0.22, 0.25 - 0.3)
     );
 }
