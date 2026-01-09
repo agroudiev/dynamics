@@ -17,3 +17,7 @@ joint = { path = "../crates/dynamics-joint" }
 model = { path = "../crates/dynamics-model" }
 parse = { path = "../crates/dynamics-parse" }
 spatial = { path = "../crates/dynamics-spatial" }
+
+[package.metadata.docs.rs]
+rustdoc-args = [ "--html-in-header", "./src/docs-header.html" ]
+all-features = true

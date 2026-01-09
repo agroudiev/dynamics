@@ -18,3 +18,7 @@ inertia = { workspace = true }
 joint = { workspace = true }
 spatial = { workspace = true }
 once_cell = { workspace = true }
+
+[package.metadata.docs.rs]
+rustdoc-args = [ "--html-in-header", "../../dynamics-py/src/docs-header.html" ]
+all-features = true

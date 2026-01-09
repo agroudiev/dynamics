@@ -11,3 +11,7 @@ license-file.workspace = true
 [dependencies]
 pyo3 = { workspace = true }
 spatial = { workspace = true }
+
+[package.metadata.docs.rs]
+rustdoc-args = [ "--html-in-header", "../../dynamics-py/src/docs-header.html" ]
+all-features = true
