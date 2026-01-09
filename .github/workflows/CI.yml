@@ -20,6 +20,60 @@ permissions:
   contents: read
 
 jobs:
+  test:
+    name: Code quality and tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Rust Format
+      - name: Check Rust format
+        run: cargo fmt --all -- --check
+        continue-on-error: true
+
+      # Rust Lint
+      - name: Run Rust linter (clippy)
+        run: cargo clippy --all-targets --all-features -- -D warnings
+        continue-on-error: true
+
+      # Rust Tests
+      - name: Run Rust tests
+        run: cargo test --all
+        continue-on-error: true
+
+      # Set up Python
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.13
+
+      # Build wheels
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist --find-interpreter -m dynamics-py/Cargo.toml
+
+      # Install Python dependencies
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install black flake8
+
+      # Python Format
+      - name: Check Python format (black)
+        run: black --check examples/python dynamics-py
+        continue-on-error: true
+
+      # Python Lint
+      - name: Run Python linter (flake8)
+        run: flake8 examples/python dynamics-py
+        continue-on-error: true
+
+      # Python Tests
+      - name: Run Python tests
+        run: python -m unittest discover -s dynamics-py/tests/unit
+        continue-on-error: true
+
   linux:
     runs-on: ${{ matrix.platform.runner }}
     strategy:
@@ -144,8 +198,6 @@ jobs:
       - name: Publish to PyPI
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
         uses: PyO3/maturin-action@v1
-        env:
-          MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
         with:
           command: upload
           args: --non-interactive --skip-existing wheels-*/*
