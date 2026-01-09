@@ -1,18 +1,14 @@
 import unittest
 import dynamics as dyn
 import pinocchio as pin
+from utils import assert_models_equals
 
 
 def compare_urdf_construction(test_case, file_path):
     dyn_model, dyn_geom_model = dyn.build_models_from_urdf(file_path)
     pin_model, pin_col_model, pin_vis_model = pin.buildModelsFromUrdf(file_path)
 
-    test_case.assertEqual(dyn_model.nq, pin_model.nq)
-    test_case.assertEqual(dyn_model.nv, pin_model.nv)
-    test_case.assertEqual(dyn_model.name, pin_model.name)
-    test_case.assertTrue((dyn_model.gravity == pin_model.gravity.linear).all())
-
-    # TODO: compare more properties
+    assert_models_equals(test_case, dyn_model, pin_model)
 
 
 class TestURDF(unittest.TestCase):

@@ -4,7 +4,7 @@ import pinocchio as pin
 import numpy as np
 
 
-class TestURDF(unittest.TestCase):
+class TestSpatial(unittest.TestCase):
     def test_identity_se3(self):
         M_dyn = dyn.SE3.Identity()
         M_pin = pin.SE3.Identity()

@@ -178,13 +178,19 @@ impl Model {
     //     Ok(())
     // }
 
-    pub fn joint_index_by_name(&self, name: &str) -> Option<usize> {
+    /// Returns the index of the joint with the given name.
+    pub fn get_joint_id(&self, name: &str) -> Option<usize> {
         for (id, joint_name) in self.joint_names.iter().enumerate() {
             if joint_name == name {
                 return Some(id);
             }
         }
         None
+    }
+
+    /// Returns the number of joints in the model, including the world frame.
+    pub fn njoints(&self) -> usize {
+        self.joint_names.len()
     }
 }
 
@@ -334,9 +340,52 @@ impl PyModel {
     //     }
     // }
 
+    #[getter]
+    fn njoints(&self) -> usize {
+        self.inner.njoints()
+    }
+
+    #[pyo3(signature = (name))]
+    fn get_joint_id(&self, name: &str) -> Option<usize> {
+        self.inner.get_joint_id(name)
+    }
+
+    #[pyo3(signature = ())]
     fn create_data(&self) -> PyResult<PyData> {
         let data = self.inner.create_data();
         Ok(PyData { inner: data })
+    }
+
+    #[getter]
+    fn get_joint_names(&self) -> &[String] {
+        &self.inner.joint_names
+    }
+
+    #[getter]
+    fn get_joint_parents(&self) -> &[usize] {
+        &self.inner.joint_parents
+    }
+
+    #[getter]
+    fn get_joint_placements(&self) -> Vec<Py<PySE3>> {
+        Python::with_gil(|py| {
+            self.inner
+                .joint_placements
+                .iter()
+                .map(|placement| Py::new(py, PySE3 { inner: *placement }).unwrap())
+                .collect()
+        })
+    }
+
+    #[getter]
+    fn get_joint_models(&self) -> Vec<PyJointWrapper> {
+        self.inner
+            .joint_models
+            .iter()
+            .map(|joint_model| PyJointWrapper {
+                inner: joint_model.clone_box(),
+            })
+            .collect()
     }
 
     fn __repr__(slf: PyRef<'_, Self>) -> String {

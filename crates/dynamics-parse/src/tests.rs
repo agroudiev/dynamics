@@ -58,8 +58,8 @@ fn test_materials() {
     dbg!(&model.joint_parents);
 
     // right leg
-    let base_right_leg_id = model.joint_index_by_name("base_to_right_leg").unwrap();
-    let right_leg_id = model.joint_index_by_name("right_leg").unwrap();
+    let base_right_leg_id = model.get_joint_id("base_to_right_leg").unwrap();
+    let right_leg_id = model.get_joint_id("right_leg").unwrap();
     assert_eq!(
         model.joint_placements[base_right_leg_id].translation(),
         Vector3D::new(0.0, -0.22, 0.25)
@@ -74,8 +74,8 @@ fn test_materials() {
     );
 
     // left leg
-    let base_left_leg_id = model.joint_index_by_name("base_to_left_leg").unwrap();
-    let left_leg_id = model.joint_index_by_name("left_leg").unwrap();
+    let base_left_leg_id = model.get_joint_id("base_to_left_leg").unwrap();
+    let left_leg_id = model.get_joint_id("left_leg").unwrap();
     assert_eq!(
         model.joint_placements[base_left_leg_id].translation(),
         Vector3D::new(0.0, 0.22, 0.25)
@@ -99,7 +99,7 @@ fn test_visuals() {
     let data = model.create_data();
     let geom_data = geom_model.create_data(&data);
 
-    let box_id = model.joint_index_by_name("box").unwrap();
+    let box_id = model.get_joint_id("box").unwrap();
     assert_eq!(
         geom_data
             .get_object_placement(box_id)
