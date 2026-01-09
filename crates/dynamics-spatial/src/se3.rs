@@ -132,7 +132,8 @@ impl PySE3 {
 
         // Create the translation and rotation components
         let translation = Vector3D::new(translation[0], translation[1], translation[2]);
-        let rotation_matrix = nalgebra::Matrix3::from_iterator(rotation.iter().cloned());
+        let rotation_matrix =
+            nalgebra::Matrix3::from_iterator(rotation.iter().cloned()).transpose();
         if !rotation_matrix.is_orthogonal(1e-6) {
             return Err(PyValueError::new_err(
                 "The rotation matrix is not orthogonal.",
