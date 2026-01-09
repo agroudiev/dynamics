@@ -29,50 +29,59 @@ jobs:
       # Rust Format
       - name: Check Rust format
         run: cargo fmt --all -- --check
-        continue-on-error: true
 
       # Rust Lint
       - name: Run Rust linter (clippy)
         run: cargo clippy --all-targets --all-features -- -D warnings
-        continue-on-error: true
-
-      # Rust Tests
-      - name: Run Rust tests
-        run: cargo test --all
-        continue-on-error: true
 
       # Set up Python
       - uses: actions/setup-python@v5
         with:
           python-version: 3.13
 
-      # Build wheels
+      # Set up conda and install dependencies
+      - name: Add conda to system path
+        run: |
+          # $CONDA is an environment variable pointing to the root of the miniconda directory
+          echo $CONDA/bin >> $GITHUB_PATH
+      
+      # Install python dependencies (project and dev tools)
+      - name: Install dependencies
+        run: |
+          conda env update --file dynamics_env.yml --name base
+          python -m pip install --upgrade pip
+          pip install black flake8
+
+      - name: Get Python executable
+        id: get_python_exec
+        run: echo "PYTHON_EXEC=$(python -c 'import sys; print(sys.executable)')" >> $GITHUB_ENV
+
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter -m dynamics-py/Cargo.toml
+          args: --release -i ${{ env.PYTHON_EXEC }} --out dist -m dynamics-py/Cargo.toml
 
-      # Install Python dependencies
-      - name: Install Python dependencies
+      # Install wheel
+      - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install black flake8
+          pip install dist/*.whl
 
       # Python Format
       - name: Check Python format (black)
         run: black --check examples/python dynamics-py
-        continue-on-error: true
 
       # Python Lint
       - name: Run Python linter (flake8)
         run: flake8 examples/python dynamics-py
-        continue-on-error: true
+
+      # Rust Tests
+      - name: Run Rust tests
+        run: cargo test --all
 
       # Python Tests
       - name: Run Python tests
         run: python -m unittest discover -s dynamics-py/tests/unit
-        continue-on-error: true
 
   linux:
     runs-on: ${{ matrix.platform.runner }}
