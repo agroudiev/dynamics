@@ -52,12 +52,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install black flake8
 
-      # Build wheels
+      - name: Get Python executable
+        id: get_python_exec
+        run: echo "PYTHON_EXEC=$(python -c 'import sys; print(sys.executable)')" >> $GITHUB_ENV
+
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release -i $(python -c "import sys; print(sys.executable)") --out dist -m dynamics-py/Cargo.toml
+          args: --release -i ${{ env.PYTHON_EXEC }} --out dist -m dynamics-py/Cargo.toml
 
       # Install wheel
       - name: Install dependencies
