@@ -34,10 +34,6 @@ jobs:
       - name: Run Rust linter (clippy)
         run: cargo clippy --all-targets --all-features -- -D warnings
 
-      # Rust Tests
-      - name: Run Rust tests
-        run: cargo test --all
-
       # Set up Python
       - uses: actions/setup-python@v5
         with:
@@ -71,6 +67,10 @@ jobs:
       # Python Lint
       - name: Run Python linter (flake8)
         run: flake8 examples/python dynamics-py
+
+      # Rust Tests
+      - name: Run Rust tests
+        run: cargo test --all
 
       # Python Tests
       - name: Run Python tests
