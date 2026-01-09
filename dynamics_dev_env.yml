@@ -1,4 +1,4 @@
-name: dynamics
+name: dynamics_dev
 channels:
   - conda-forge
   - defaults
@@ -7,3 +7,7 @@ dependencies:
   - numpy
   - meshcat-python
   - pip
+  - black
+  - flake8
+  - pinocchio
+  - coal
