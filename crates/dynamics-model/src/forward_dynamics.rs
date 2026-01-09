@@ -26,7 +26,7 @@ use spatial::configuration::{Configuration, ConfigurationError};
 /// * `Err(ConfigurationError)` if there was an error.
 pub fn forward_dynamics(
     model: &Model,
-    data: &mut Data,
+    _data: &mut Data,
     q: &Configuration,
     v: &Configuration,
     tau: &Configuration,
@@ -58,18 +58,18 @@ pub fn forward_dynamics(
         ));
     }
 
-    Ok(unimplemented!())
-}
-
-fn aba_forward_pass_1() {
     unimplemented!()
 }
 
-fn aba_backward_pass() {
+fn _aba_forward_pass_1() {
     unimplemented!()
 }
 
-fn aba_forward_pass_2() {
+fn _aba_backward_pass() {
+    unimplemented!()
+}
+
+fn _aba_forward_pass_2() {
     unimplemented!()
 }
 

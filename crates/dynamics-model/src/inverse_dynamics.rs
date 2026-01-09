@@ -27,7 +27,7 @@ use std::collections::HashMap;
 /// * `Err(ConfigurationError)` if there was an error.
 pub fn inverse_dynamics(
     model: &Model,
-    data: &mut Data,
+    _data: &mut Data,
     q: &Configuration,
     v: &Configuration,
     a: &Configuration,
@@ -137,7 +137,7 @@ pub fn inverse_dynamics(
 
 #[pyfunction(name = "forward_dynamics")]
 pub fn py_inverse_dynamics(
-    py: Python,
+    _py: Python,
     model: &PyModel,
     data: &mut PyData,
     q: PyReadonlyArrayDyn<f64>,

@@ -95,7 +95,7 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                 }
 
                 // parse the inertial node
-                let (link_inertia, link_placement) = if let Some(inertial_node) =
+                let (_link_inertia, link_placement) = if let Some(inertial_node) =
                     main_node.children().find(|n| n.has_tag_name("inertial"))
                 {
                     let mass_node = inertial_node
@@ -398,10 +398,8 @@ fn extract_parameter_list<T: FromStr>(
                 .map_err(|_| ParseError::InvalidParameter(name.to_string()))
         })
         .collect::<Result<Vec<T>, ParseError>>()?;
-    if let Some(expected_length) = expected_length {
-        if vector.len() != expected_length {
-            return Err(ParseError::InvalidParameter(name.to_string()));
-        }
+    if let Some(expected_length) = expected_length && vector.len() != expected_length {
+        return Err(ParseError::InvalidParameter(name.to_string()));
     }
     Ok(vector)
 }
