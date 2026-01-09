@@ -5,8 +5,9 @@ import meshcat.geometry as mg
 import numpy as np
 from enum import Enum
 from pathlib import Path
-from typing import ClassVar, Union, Any
+from typing import Any
 import xml.etree.ElementTree as Et
+import base64
 
 
 class GeometryType(Enum):
@@ -328,9 +329,8 @@ class MeshcatVisualizer:
             object = self.load_shape(geometry, geometry_type)
         else:
             raise NotImplementedError(
-                "geometry object is not a standard shape, cannot load it into viewer (type: {})".format(
-                    type(geometry)
-                )
+                "geometry object is not a standard shape, "
+                "cannot load it into viewer (type: {})".format(type(geometry))
             )
 
         if isinstance(object, (mg.Geometry, mg.ReferenceSceneElement)):

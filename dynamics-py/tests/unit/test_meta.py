@@ -1,5 +1,5 @@
 import unittest
-import dynamics
+import dynamics  # noqa: F401
 
 
 class TestUnitTest(unittest.TestCase):

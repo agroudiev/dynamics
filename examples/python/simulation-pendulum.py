@@ -2,7 +2,8 @@ import dynamics as dyn
 import dynamics.collider as col  # type: ignore
 import numpy as np
 import math
-import time
+
+# import time
 
 model = dyn.Model()
 geom_model = dyn.GeometryModel()
