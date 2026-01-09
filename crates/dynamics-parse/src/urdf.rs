@@ -398,7 +398,9 @@ fn extract_parameter_list<T: FromStr>(
                 .map_err(|_| ParseError::InvalidParameter(name.to_string()))
         })
         .collect::<Result<Vec<T>, ParseError>>()?;
-    if let Some(expected_length) = expected_length && vector.len() != expected_length {
+    if let Some(expected_length) = expected_length
+        && vector.len() != expected_length
+    {
         return Err(ParseError::InvalidParameter(name.to_string()));
     }
     Ok(vector)

@@ -8,9 +8,11 @@ from pathlib import Path
 from typing import ClassVar, Union, Any
 import xml.etree.ElementTree as Et
 
+
 class GeometryType(Enum):
     COLLISION = 1
     VISUAL = 2
+
 
 def create_capsule(length, radius, radial_resolution=30, cap_resolution=10):
     nbv = np.array([max(radial_resolution, 4), max(cap_resolution, 4)])
@@ -105,8 +107,10 @@ def create_capsule(length, radius, radial_resolution=30, cap_resolution=10):
         index += 4 * (nbv[1] - 1) + 4
     return mg.TriangularMeshGeometry(vertices, indexes)
 
+
 class DaeMeshGeometry(mg.ReferenceSceneElement):
     """A Collada mesh geometry with texture support. Adapted from Pinocchio."""
+
     def __init__(self, dae_path: str, cache: set[str] | None = None) -> None:
         """Load Collada files with texture images.
         Inspired from
@@ -134,9 +138,7 @@ class DaeMeshGeometry(mg.ReferenceSceneElement):
         )
         if img_lib_element:
             img_resource_paths = [
-                Path(e.text)
-                for e in img_lib_element.iter()
-                if e.tag.count("init_from")
+                Path(e.text) for e in img_lib_element.iter() if e.tag.count("init_from")
             ]
 
         # Convert textures to data URL for Three.js ColladaLoader to load them
@@ -189,8 +191,10 @@ class DaeMeshGeometry(mg.ReferenceSceneElement):
     def set_scale(self, scale) -> None:
         self.intrinsic_transform[:3, :3] = np.diag(scale)
 
+
 class MeshcatVisualizer:
     """A `dynamics` visualizer using Meshcat."""
+
     def __init__(
         self,
         model: dynamics.Model | None = dynamics.Model(),
@@ -202,20 +206,23 @@ class MeshcatVisualizer:
     ):
         # Check if the arguments are valid
         if collision_model is not None:
-            assert isinstance(collision_model, dynamics.GeometryModel), \
-                "collision_model must be a GeometryModel"
+            assert isinstance(
+                collision_model, dynamics.GeometryModel
+            ), "collision_model must be a GeometryModel"
         if visual_model is not None:
-            assert isinstance(visual_model, dynamics.GeometryModel), \
-                "visual_model must be a GeometryModel"
+            assert isinstance(
+                visual_model, dynamics.GeometryModel
+            ), "visual_model must be a GeometryModel"
         if data is not None:
-            assert isinstance(data, dynamics.Data), \
-                "data must be a Data object"
+            assert isinstance(data, dynamics.Data), "data must be a Data object"
         if collision_data is not None:
-            assert isinstance(collision_data, dynamics.GeometryData), \
-                "collision_data must be a GeometryData object"
+            assert isinstance(
+                collision_data, dynamics.GeometryData
+            ), "collision_data must be a GeometryData object"
         if visual_data is not None:
-            assert isinstance(visual_data, dynamics.GeometryData), \
-                "visual_data must be a GeometryData object"
+            assert isinstance(
+                visual_data, dynamics.GeometryData
+            ), "visual_data must be a GeometryData object"
         self.model = model
         self.collision_model = collision_model
         self.visual_model = visual_model
@@ -223,12 +230,13 @@ class MeshcatVisualizer:
         self.collision_data = collision_data
         self.visual_data = visual_data
 
-    def init_viewer(self,
-            viewer: meshcat.Visualizer | None = None,
-            open: bool = False,
-            load_model: bool = False,
-            url: str | None = None
-        ):
+    def init_viewer(
+        self,
+        viewer: meshcat.Visualizer | None = None,
+        open: bool = False,
+        load_model: bool = False,
+        url: str | None = None,
+    ):
         """Start a new meschat server and client."""
 
         self.viewer = meshcat.Visualizer(url) if viewer is None else viewer
@@ -246,7 +254,9 @@ class MeshcatVisualizer:
         if load_model:
             self.load_model()
 
-    def load_shape(self, geometry: collider.PyShapeWrapper, geometry_type: GeometryType):
+    def load_shape(
+        self, geometry: collider.PyShapeWrapper, geometry_type: GeometryType
+    ):
         object = None
 
         # Cylinders need to be rotated
@@ -261,8 +271,10 @@ class MeshcatVisualizer:
         RotatedCylinder = type(
             "RotatedCylinder", (mg.Cylinder,), {"intrinsic_transform": lambda _self: R}
         )
-        
-        if str(geometry.shape_type) == "ShapeType.Capsule": # quick fix until the enum comparison is fixed
+
+        if (
+            str(geometry.shape_type) == "ShapeType.Capsule"
+        ):  # quick fix until the enum comparison is fixed
             if hasattr(mg, "TriangularMeshGeometry"):
                 object = create_capsule(2.0 * geometry.half_length, geometry.radius)
             else:
@@ -276,7 +288,11 @@ class MeshcatVisualizer:
         elif str(geometry.shape_type) == "ShapeType.Sphere":
             object = mg.Sphere(geometry.radius)
         else:
-            raise TypeError("geometry type not supported for visualization (type: {})".format(geometry.shape_type))
+            raise TypeError(
+                "geometry type not supported for visualization (type: {})".format(
+                    geometry.shape_type
+                )
+            )
 
         return object
 
@@ -289,20 +305,33 @@ class MeshcatVisualizer:
         elif file_extension.lower() == ".stl":
             obj = mg.StlMeshGeometry.from_file(geometry.mesh_path)
         else:
-            raise NotImplementedError("mesh format not supported for visualization (type: {})".format(file_extension))
+            raise NotImplementedError(
+                "mesh format not supported for visualization (type: {})".format(
+                    file_extension
+                )
+            )
 
         return obj
 
-    def load_viewer_geometry_object(self, geometry_object: dynamics.GeometryObject, geometry_type: GeometryType):
+    def load_viewer_geometry_object(
+        self, geometry_object: dynamics.GeometryObject, geometry_type: GeometryType
+    ):
         geometry = geometry_object.geometry
         meshcat_node = self.viewer[geometry_object.name]
 
-        if isinstance(geometry, collider.PyShapeWrapper) and str(geometry.shape_type) == "ShapeType.Mesh":
+        if (
+            isinstance(geometry, collider.PyShapeWrapper)
+            and str(geometry.shape_type) == "ShapeType.Mesh"
+        ):
             object = self.load_mesh(geometry)
         elif isinstance(geometry, collider.PyShapeWrapper):
             object = self.load_shape(geometry, geometry_type)
         else:
-            raise NotImplementedError("geometry object is not a standard shape, cannot load it into viewer (type: {})".format(type(geometry)))
+            raise NotImplementedError(
+                "geometry object is not a standard shape, cannot load it into viewer (type: {})".format(
+                    type(geometry)
+                )
+            )
 
         if isinstance(object, (mg.Geometry, mg.ReferenceSceneElement)):
             # add information for placement and color
@@ -315,7 +344,7 @@ class MeshcatVisualizer:
                     + int(rgba[1] * 255) * 256
                     + int(rgba[2] * 255)
                 )
-        
+
             mesh_color = geometry_object.mesh_color
             material.color = to_material_color(mesh_color)
 
@@ -371,7 +400,7 @@ class MeshcatVisualizer:
         else:
             geom_model = self.collision_model
             geom_data = self.collision_data
-        
+
         geom_data.update_geometry_data(self.data, geom_model)
         for object in geom_model.geometry_objects:
             # placement in world frame

@@ -1,5 +1,5 @@
 import dynamics as dyn
-import dynamics.collider as col # type: ignore
+import dynamics.collider as col  # type: ignore
 import numpy as np
 import math
 import time
@@ -20,9 +20,7 @@ body_mass = 1.0
 body_radius = 0.1
 
 joint_name = "joint"
-joint_id = model.add_joint(
-    parent_id, dyn.JointModelRX(), joint_placement, joint_name
-)
+joint_id = model.add_joint(parent_id, dyn.JointModelRX(), joint_placement, joint_name)
 
 body_inertia = dyn.Inertia.FromSphere(body_mass, body_radius)
 body_placement = joint_placement.copy()
