@@ -1,6 +1,7 @@
+use std::vec;
+
 use crate::data::{Data, PyData};
-use crate::model::{Model, PyModel, WORLD_FRAME_ID};
-use joint::joint::JointWrapper;
+use crate::model::{Model, PyModel};
 use numpy::PyReadonlyArray1;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
@@ -37,13 +38,11 @@ pub fn forward_kinematics(
 
     // update the joints data
     let mut offset = 0;
-    let mut keys: Vec<_> = data.joint_data.keys().cloned().collect();
-    keys.sort();
-    for id in keys {
-        let joint_data = data.joint_data.get_mut(&id).unwrap();
-        let joint_model: Box<&JointWrapper> = Box::new(model.joint_models.get(&id).unwrap());
+    for id in 0..model.joint_models.len() {
+        let joint_data = &mut data.joint_data[id];
+        let joint_model = &model.joint_models[id];
         let q_joint = q.rows(offset, joint_model.nq());
-        match joint_data.update(&joint_model, &q_joint) {
+        match joint_data.update(joint_model, &q_joint) {
             Ok(_) => {}
             Err(e) => unimplemented!("handle joint data update error: {:?}", e),
         }
@@ -52,24 +51,20 @@ pub fn forward_kinematics(
 
     // update the placements of the joints in the world frame
     // by traversing the joint tree
-    data.joint_placements.clear();
-    data.joint_placements
-        .insert(WORLD_FRAME_ID, SE3::identity());
+    data.joint_placements = vec![SE3::identity()];
 
-    let mut keys = model.joint_models.keys().collect::<Vec<_>>();
-    keys.sort();
-    for joint_id in keys {
+    for joint_id in 0..model.joint_models.len() {
         let parent_id = model.joint_parents.get(joint_id).unwrap(); // we checked that the parent existed before
         // get the placement of the parent join in the world frame
-        let parent_placement = data.joint_placements.get(parent_id).unwrap();
+        let parent_placement = data.joint_placements[*parent_id];
         // get the placement of the joint in the parent frame
-        let local_joint_placement = model.joint_placements.get(joint_id).unwrap();
+        let local_joint_placement = model.joint_placements[joint_id];
         // get the joint transformation
-        let joint_data = data.joint_data.get(joint_id).unwrap();
+        let joint_data = &data.joint_data[joint_id];
         let joint_placement = joint_data.get_joint_placement();
         // compute the placement of the joint in the world frame
         data.joint_placements.insert(
-            *joint_id,
+            joint_id,
             parent_placement * local_joint_placement * joint_placement,
         );
     }

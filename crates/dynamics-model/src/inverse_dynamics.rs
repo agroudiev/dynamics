@@ -45,11 +45,9 @@ pub fn inverse_dynamics(
     forces.insert(0, SpatialMotion::zero());
 
     let mut offset = 0;
-    let mut keys: Vec<_> = model.joint_models.keys().cloned().collect();
-    keys.sort();
 
     // Forward pass: compute velocities and accelerations
-    for id in &keys {
+    for id in 0..model.joint_models.len() {
         // retrieve the joint model and the corresponding configuration
         let joint_model: Box<&JointWrapper> = Box::new(model.joint_models.get(id).unwrap());
         let parent_id = model.joint_parents[id];
@@ -90,16 +88,16 @@ pub fn inverse_dynamics(
         // compute the position, velocity and acceleration of the joint
         position_transforms.insert(id, (transform * local_joint_placement).action());
         velocities.insert(
-            *id,
+            id,
             position_transforms[&parent_id] * &velocities[&parent_id] + &local_velocity,
         );
         accelerations.insert(
-            *id,
+            id,
             position_transforms[&parent_id] * &accelerations[&parent_id]
                 + local_acceleration
-                + velocities[id].cross(&local_velocity),
+                + velocities[&id].cross(&local_velocity),
         );
-        forces.insert(*id, inertia * &accelerations[id]);
+        forces.insert(id, inertia * &accelerations[&id]);
 
         offset += joint_model.nq();
     }
@@ -109,7 +107,7 @@ pub fn inverse_dynamics(
     let mut tau = Configuration::zeros(model.nv);
 
     // Backward pass: compute the joint torques
-    for id in keys.iter().rev() {
+    for id in (0..model.joint_models.len()).rev() {
         let joint_model: Box<&JointWrapper> = Box::new(model.joint_models.get(id).unwrap());
         let axis = joint_model.get_axis();
         let parent_id = model.joint_parents[id];
@@ -117,14 +115,14 @@ pub fn inverse_dynamics(
 
         let mut joint_torque = Vec::with_capacity(joint_model.nq());
         for axis_i in axis.iter() {
-            joint_torque.push(axis_i.inner(&forces[id]));
+            joint_torque.push(axis_i.inner(&forces[&id]));
         }
         let joint_torque = Configuration::from_row_slice(&joint_torque);
 
-        let force = forces[id].clone();
+        let force = forces[&id].clone();
         if let Some(parent_force) = forces.get_mut(&parent_id) {
             *parent_force =
-                std::mem::take(parent_force) + position_transforms[id].transpose() * force;
+                std::mem::take(parent_force) + position_transforms[&id].transpose() * force;
         }
 
         tau.update_rows(offset, &joint_torque);

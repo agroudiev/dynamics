@@ -14,9 +14,9 @@ use crate::{
 #[derive(Default)]
 pub struct Data {
     /// The data of the joints
-    pub joint_data: HashMap<usize, JointDataWrapper>,
+    pub joint_data: Vec<JointDataWrapper>,
     /// The placements of the joints in the world frame
-    pub joint_placements: HashMap<usize, SE3>,
+    pub joint_placements: Vec<SE3>,
 }
 
 impl Data {
@@ -29,10 +29,7 @@ impl Data {
     ///
     /// # Returns
     /// A new `Data` object.
-    pub fn new(
-        joint_data: HashMap<usize, JointDataWrapper>,
-        joint_placements: HashMap<usize, SE3>,
-    ) -> Self {
+    pub fn new(joint_data: Vec<JointDataWrapper>, joint_placements: Vec<SE3>) -> Self {
         Self {
             joint_data,
             joint_placements,
@@ -99,7 +96,7 @@ impl GeometryData {
 
         for (object_id, object) in geom_model.models.iter() {
             let parent_joint_id = object.parent_joint;
-            let parent_joint_placement = data.joint_placements.get(&parent_joint_id).unwrap();
+            let parent_joint_placement = data.joint_placements[parent_joint_id];
             let object_placement = parent_joint_placement * object.placement;
             self.object_placements.insert(*object_id, object_placement);
         }

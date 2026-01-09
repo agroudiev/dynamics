@@ -9,6 +9,8 @@ def compare_urdf_construction(test_case, file_path):
 
     test_case.assertEqual(dyn_model.nq, pin_model.nq)
     test_case.assertEqual(dyn_model.nv, pin_model.nv)
+    test_case.assertEqual(dyn_model.name, pin_model.name)
+    test_case.assertTrue((dyn_model.gravity == pin_model.gravity.linear).all())
 
     # TODO: compare more properties
 

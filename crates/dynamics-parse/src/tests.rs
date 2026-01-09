@@ -38,7 +38,6 @@ fn test_origins() {
     // TODO: test placement
 }
 
-#[ignore]
 #[test]
 fn test_materials() {
     let filepath = "../../examples/descriptions/materials.urdf";
@@ -52,10 +51,7 @@ fn test_materials() {
     assert_eq!(geom_model.models.len(), 3);
 
     // base link
-    assert_eq!(
-        *model.joint_placements.get(&WORLD_FRAME_ID).unwrap(),
-        SE3::identity()
-    );
+    assert_eq!(model.joint_placements[WORLD_FRAME_ID], SE3::identity());
     assert_eq!(*geom_data.get_object_placement(0).unwrap(), SE3::identity());
 
     dbg!(&model.joint_names);
@@ -65,11 +61,7 @@ fn test_materials() {
     let base_right_leg_id = model.joint_index_by_name("base_to_right_leg").unwrap();
     let right_leg_id = model.joint_index_by_name("right_leg").unwrap();
     assert_eq!(
-        model
-            .joint_placements
-            .get(&base_right_leg_id)
-            .unwrap()
-            .translation(),
+        model.joint_placements[base_right_leg_id].translation(),
         Vector3D::new(0.0, -0.22, 0.25)
     );
     // assert_eq!(geom_model.models.get(&right_leg_id).unwrap().parent_joint, right_leg_id);
@@ -85,11 +77,7 @@ fn test_materials() {
     let base_left_leg_id = model.joint_index_by_name("base_to_left_leg").unwrap();
     let left_leg_id = model.joint_index_by_name("left_leg").unwrap();
     assert_eq!(
-        model
-            .joint_placements
-            .get(&base_left_leg_id)
-            .unwrap()
-            .translation(),
+        model.joint_placements[base_left_leg_id].translation(),
         Vector3D::new(0.0, 0.22, 0.25)
     );
     // assert_eq!(geom_model.models.get(&left_leg_id).unwrap().parent_joint, left_leg_id);
@@ -111,7 +99,7 @@ fn test_visuals() {
     let data = model.create_data();
     let geom_data = geom_model.create_data(&data);
 
-    let box_id = geom_model.models.len() - 1;
+    let box_id = model.joint_index_by_name("box").unwrap();
     assert_eq!(
         geom_data
             .get_object_placement(box_id)
@@ -141,14 +129,20 @@ fn test_visuals() {
 fn test_double_pendulum_simple() {
     let filepath = "../../examples/descriptions/double_pendulum_simple.urdf";
     let result = build_models_from_urdf(filepath);
-    let (model, _geom_model) = result.unwrap();
+    let (model, geom_model) = result.unwrap();
     assert_eq!(model.name, "2dof_planar");
+
+    let data = model.create_data();
+    let _geom_data = geom_model.create_data(&data);
 }
 
 #[test]
 fn test_ur5() {
     let filepath = "../../examples/descriptions/ur5/ur5_robot.urdf";
     let result = build_models_from_urdf(filepath);
-    let (model, _geom_model) = result.unwrap();
+    let (model, geom_model) = result.unwrap();
     assert_eq!(model.name, "ur5");
+
+    let data = model.create_data();
+    let _geom_data = geom_model.create_data(&data);
 }

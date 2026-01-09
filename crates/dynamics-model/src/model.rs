@@ -2,7 +2,7 @@
 
 use crate::data::{Data, PyData};
 use crate::forward_kinematics::forward_kinematics;
-use inertia::inertia::{Inertia, PyInertia};
+use inertia::inertia::Inertia;
 use joint::{
     joint::{Joint, JointWrapper, PyJointWrapper},
     revolute::PyJointModelRevolute,
@@ -14,7 +14,7 @@ use pyo3::{exceptions::PyValueError, prelude::*, types::PyTuple};
 use spatial::configuration::{Configuration, PyConfiguration};
 use spatial::se3::{PySE3, SE3};
 use spatial::vector3d::Vector3D;
-use std::{collections::HashMap, fmt::Debug};
+use std::fmt::Debug;
 
 pub const WORLD_FRAME_ID: usize = 0;
 pub static STANDARD_GRAVITY: Lazy<Vector3D> = Lazy::new(|| Vector3D::new(0.0, 0.0, -9.81));
@@ -25,23 +25,21 @@ pub struct Model {
     /// The name of the model.
     pub name: String,
     /// The names of the joints.
-    pub joint_names: HashMap<usize, String>,
+    pub joint_names: Vec<String>,
     /// The parent joint of each joint.
-    pub joint_parents: HashMap<usize, usize>,
-    /// The placements of the joints.
-    pub joint_placements: HashMap<usize, SE3>,
+    pub joint_parents: Vec<usize>,
+    /// The placements of the joints relative to their parent joints.
+    pub joint_placements: Vec<SE3>,
     /// The joint models.
-    pub joint_models: HashMap<usize, JointWrapper>,
+    pub joint_models: Vec<JointWrapper>,
     /// The number of position variables.
     pub nq: usize,
     /// The number of velocity variables.
     pub nv: usize,
     /// The inertias of the bodies.
-    pub inertias: HashMap<usize, Inertia>,
-    /// The placements of the bodies.
-    pub body_placements: HashMap<usize, SE3>,
+    pub inertias: Vec<Inertia>,
     /// The spatial gravity of the model.
-    pub gravity: Vector3D,
+    pub gravity: Vector3D, // TODO: replace this by a SpartialMotion
 }
 
 impl Model {
@@ -62,25 +60,15 @@ impl Model {
     ///
     /// A new empty `Model`.
     pub fn new_empty() -> Self {
-        let mut joint_parents = HashMap::new();
-        joint_parents.insert(WORLD_FRAME_ID, WORLD_FRAME_ID);
-
-        let mut joint_placements = HashMap::new();
-        joint_placements.insert(WORLD_FRAME_ID, SE3::identity());
-
-        let mut joint_names = HashMap::new();
-        joint_names.insert(WORLD_FRAME_ID, "__WORLD__".to_string());
-
         Self {
             name: String::new(),
-            joint_names,
-            joint_parents,
-            joint_placements,
-            joint_models: HashMap::new(),
+            joint_names: vec!["__WORLD__".to_string()],
+            joint_parents: vec![WORLD_FRAME_ID],
+            joint_placements: vec![SE3::identity()],
+            joint_models: Vec::new(),
             nq: 0,
             nv: 0,
-            inertias: HashMap::new(),
-            body_placements: HashMap::new(),
+            inertias: Vec::new(),
             gravity: *STANDARD_GRAVITY,
         }
     }
@@ -100,25 +88,24 @@ impl Model {
         placement: SE3,
         name: String,
     ) -> Result<usize, ModelError> {
-        if !self.joint_names.contains_key(&parent_id) {
+        if parent_id >= self.joint_names.len() {
             return Err(ModelError::ParentJointDoesNotExist(parent_id));
         }
-        for (id, other_name) in self.joint_names.iter() {
+        for (id, other_name) in self.joint_names.iter().enumerate() {
             if other_name == &name {
-                return Err(ModelError::JointNameAlreadyUsed(name, *id));
+                return Err(ModelError::JointNameAlreadyUsed(name, id));
             }
         }
 
         let id = self.joint_names.len();
-        self.joint_names.insert(id, name);
-        self.joint_placements.insert(id, placement);
+        self.joint_names.push(name);
+        self.joint_placements.push(placement);
         self.nq += joint_model.nq();
         self.nv += joint_model.nv();
-        self.joint_models.insert(id, joint_model);
+        self.joint_models.push(joint_model);
 
         // add the joint to the parent
-        self.joint_parents.insert(id, parent_id);
-
+        self.joint_parents.push(parent_id);
         Ok(id)
     }
 
@@ -149,13 +136,14 @@ impl Model {
     /// The data associated with the model.
     pub fn create_data(&self) -> Data {
         // create the data for each joint
-        let mut joints_data = HashMap::new();
-        for (id, joint_model) in self.joint_models.iter() {
+        let mut joints_data = Vec::with_capacity(self.joint_models.len());
+        for joint_model in self.joint_models.iter() {
             let joint_data = joint_model.create_joint_data();
-            joints_data.insert(*id, joint_data);
+            joints_data.push(joint_data);
         }
 
-        let mut data = Data::new(joints_data, HashMap::new());
+        // TODO: initialize the placements
+        let mut data = Data::new(joints_data, Vec::with_capacity(self.joint_models.len()));
 
         forward_kinematics(self, &mut data, &Configuration::zeros(self.nq))
             .expect("Failed to compute forward kinematics");
@@ -163,37 +151,37 @@ impl Model {
         data
     }
 
-    /// Appends a body of given inertia to the joint with given id.
-    ///
-    /// # Arguments
-    ///
-    /// * `joint_id` - The identifier of the joint to append the body to.
-    /// * `inertia` - The inertia of the body to append.
-    /// * `placement` - The placement of the body in the joint frame.
-    ///
-    /// # Returns
-    ///
-    /// A result indicating success or failure.
-    pub fn append_body_to_joint(
-        &mut self,
-        joint_id: usize,
-        inertia: Inertia,
-        placement: SE3,
-    ) -> Result<(), ModelError> {
-        if !self.joint_names.contains_key(&joint_id) {
-            return Err(ModelError::ParentJointDoesNotExist(joint_id));
-        }
+    // /// Appends a body of given inertia to the joint with given id.
+    // ///
+    // /// # Arguments
+    // ///
+    // /// * `joint_id` - The identifier of the joint to append the body to.
+    // /// * `inertia` - The inertia of the body to append.
+    // /// * `placement` - The placement of the body in the joint frame.
+    // ///
+    // /// # Returns
+    // ///
+    // /// A result indicating success or failure.
+    // pub fn append_body_to_joint(
+    //     &mut self,
+    //     joint_id: usize,
+    //     inertia: Inertia,
+    //     placement: SE3,
+    // ) -> Result<(), ModelError> {
+    //     if !self.joint_names.contains_key(&joint_id) {
+    //         return Err(ModelError::ParentJointDoesNotExist(joint_id));
+    //     }
 
-        self.inertias.insert(joint_id, inertia);
-        self.body_placements.insert(joint_id, placement);
+    //     self.inertias.insert(joint_id, inertia);
+    //     self.body_placements.insert(joint_id, placement);
 
-        Ok(())
-    }
+    //     Ok(())
+    // }
 
     pub fn joint_index_by_name(&self, name: &str) -> Option<usize> {
-        for (id, joint_name) in self.joint_names.iter() {
+        for (id, joint_name) in self.joint_names.iter().enumerate() {
             if joint_name == name {
-                return Some(*id);
+                return Some(id);
             }
         }
         None
@@ -226,7 +214,7 @@ pub fn random_configuration(model: &Model) -> Configuration {
     let mut rng = rand::rng();
     let q = model
         .joint_models
-        .values()
+        .iter()
         .map(|joint_model| joint_model.random_configuration(&mut rng))
         .collect::<Vec<_>>();
     Configuration::concat(q.as_slice())
@@ -235,11 +223,6 @@ pub fn random_configuration(model: &Model) -> Configuration {
 #[pyfunction(name = "random_configuration")]
 pub fn py_random_configuration(model: &mut PyModel) -> PyConfiguration {
     let q = random_configuration(&model.inner);
-    // Array1::from_shape_vec(model.inner.nq, q.as_slice().to_vec())
-    //     .unwrap()
-    //     .to_pyarray(py)
-    //     .into_any()
-    //     .unbind()
     PyConfiguration::new(q)
 }
 
@@ -336,20 +319,20 @@ impl PyModel {
         }
     }
 
-    fn append_body_to_joint(
-        &mut self,
-        joint_id: usize,
-        inertia: &PyInertia,
-        placement: &PySE3,
-    ) -> PyResult<()> {
-        match self
-            .inner
-            .append_body_to_joint(joint_id, inertia.inner.clone(), placement.inner)
-        {
-            Ok(_) => Ok(()),
-            Err(model_error) => Err(PyValueError::new_err(format!("{:?}", model_error))),
-        }
-    }
+    // fn append_body_to_joint(
+    //     &mut self,
+    //     joint_id: usize,
+    //     inertia: &PyInertia,
+    //     placement: &PySE3,
+    // ) -> PyResult<()> {
+    //     match self
+    //         .inner
+    //         .append_body_to_joint(joint_id, inertia.inner.clone(), placement.inner)
+    //     {
+    //         Ok(_) => Ok(()),
+    //         Err(model_error) => Err(PyValueError::new_err(format!("{:?}", model_error))),
+    //     }
+    // }
 
     fn create_data(&self) -> PyResult<PyData> {
         let data = self.inner.create_data();
