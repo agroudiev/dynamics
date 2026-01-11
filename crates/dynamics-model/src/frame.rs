@@ -1,10 +1,10 @@
 //! Coordinate frames attached to joints.
 
-use dynamics_inertia::inertia::Inertia;
-use dynamics_spatial::se3::SE3;
+use dynamics_inertia::inertia::{Inertia, PyInertia};
+use dynamics_spatial::se3::{PySE3, SE3};
 use pyo3::prelude::*;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 #[pyclass]
 pub enum FrameType {
     /// Operational frames for task space control.
@@ -41,8 +41,8 @@ impl Frame {
         name: String,
         parent_joint: usize,
         parent_frame: usize,
-        frame_type: FrameType,
         placement: SE3,
+        frame_type: FrameType,
         inertia: Inertia,
     ) -> Self {
         Frame {
@@ -57,14 +57,65 @@ impl Frame {
 }
 
 #[pyclass(name = "Frame")]
+#[derive(Clone, Debug)]
 pub struct PyFrame {
     pub inner: Frame,
 }
 
 #[pymethods]
 impl PyFrame {
+    #[new]
+    pub fn new(
+        name: String,
+        parent_joint: usize,
+        parent_frame: usize,
+        placement: PySE3,
+        frame_type: FrameType,
+        inertia: PyInertia,
+    ) -> Self {
+        PyFrame {
+            inner: Frame::new(
+                name,
+                parent_joint,
+                parent_frame,
+                placement.inner,
+                frame_type,
+                inertia.inner,
+            ),
+        }
+    }
+
     #[getter]
     pub fn name(&self) -> String {
         self.inner.name.clone()
+    }
+
+    #[getter]
+    pub fn parent_joint(&self) -> usize {
+        self.inner.parent_joint
+    }
+
+    #[getter]
+    pub fn parent_frame(&self) -> usize {
+        self.inner.parent_frame
+    }
+
+    #[getter]
+    pub fn frame_type(&self) -> FrameType {
+        self.inner.frame_type.clone()
+    }
+
+    #[getter]
+    pub fn placement(&self) -> PySE3 {
+        PySE3 {
+            inner: self.inner.placement,
+        }
+    }
+
+    #[getter]
+    pub fn inertia(&self) -> PyInertia {
+        PyInertia {
+            inner: self.inner.inertia.clone(),
+        }
     }
 }

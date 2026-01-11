@@ -95,7 +95,7 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                 }
 
                 // parse the inertial node
-                let (_link_inertia, link_placement) = if let Some(inertial_node) =
+                let (_link_inertia, _link_placement) = if let Some(inertial_node) =
                     main_node.children().find(|n| n.has_tag_name("inertial"))
                 {
                     let mass_node = inertial_node
@@ -143,9 +143,9 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                 };
 
                 // append inertia to the model
-                model
-                    .add_frame(link_placement, link_name.clone(), 0)
-                    .map_err(|e| ParseError::ModelError(format!("{:?}", e)))?;
+                // model
+                //     .add_frame(link_placement, link_name.clone(), 0)
+                //     .map_err(|e| ParseError::ModelError(format!("{:?}", e)))?;
 
                 // parse the collision node
                 if let Some(collision_node) =
@@ -205,7 +205,8 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                 let joint_id = match joint_type {
                     "fixed" => {
                         // we create a new frame for the link
-                        model.add_frame(link_origin, joint_name, parent_joint_id)
+                        // model.add_frame(link_origin, joint_name, parent_joint_id)
+                        unimplemented!();
                     }
                     "revolute" => {
                         // we extract the axis of rotation

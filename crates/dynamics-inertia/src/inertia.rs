@@ -97,6 +97,7 @@ impl std::fmt::Debug for InertiaError {
 
 /// A Python wrapper for the `Inertia` struct.
 #[pyclass(name = "Inertia")]
+#[derive(Clone, Debug, Default)]
 pub struct PyInertia {
     pub inner: Inertia,
 }
@@ -118,6 +119,17 @@ impl PyInertia {
         Inertia::from_sphere(mass, radius)
             .map(|inner| PyInertia { inner })
             .map_err(|e| PyValueError::new_err(format!("Failed to create Inertia: {:?}", e)))
+    }
+
+    /// Creates a new `Inertia` object with zero mass, zero center of mass, and zero inertia matrix.
+    ///
+    /// # Returns
+    /// A new `Inertia` object with all properties set to zero.
+    #[staticmethod]
+    pub fn zeros() -> Self {
+        PyInertia {
+            inner: Inertia::zeros(),
+        }
     }
 
     #[getter]

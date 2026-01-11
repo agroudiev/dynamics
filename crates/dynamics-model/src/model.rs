@@ -75,8 +75,8 @@ impl Model {
                 "__WORLD_FRAME__".to_string(),
                 WORLD_FRAME_ID,
                 WORLD_FRAME_ID,
-                FrameType::Fixed,
                 SE3::identity(),
+                FrameType::Fixed,
                 Inertia::zeros(),
             )],
             gravity: *STANDARD_GRAVITY,
@@ -130,14 +130,28 @@ impl Model {
     /// # Returns
     ///
     /// The identifier of the frame.
-    pub fn add_frame(
-        &mut self,
-        placement: SE3,
-        name: String,
-        parent_id: usize,
-    ) -> Result<usize, ModelError> {
-        let fixed_joint_model = JointModelFixed::default();
-        self.add_joint(parent_id, Box::new(fixed_joint_model), placement, name)
+    pub fn add_frame(&mut self, frame: Frame, append_inertia: bool) -> Result<usize, ModelError> {
+        // check if the parent exists
+        if frame.parent_joint >= self.joint_names.len() {
+            return Err(ModelError::ParentJointDoesNotExist(frame.parent_joint));
+        }
+
+        // check if a frame with the same name and type exists
+        for (id, other_frame) in self.frames.iter().enumerate() {
+            if other_frame.name == frame.name && other_frame.frame_type == frame.frame_type {
+                return Ok(id);
+            }
+        }
+
+        // otherwise, add the frame
+        let id = self.frames.len();
+        self.frames.push(frame);
+
+        if append_inertia {
+            unimplemented!("Appending inertia when adding a frame is not yet implemented.");
+        }
+
+        Ok(id)
     }
 
     /// Creates the data associated with the model.
@@ -403,6 +417,13 @@ impl PyModel {
                 inner: frame.clone(),
             })
             .collect()
+    }
+
+    fn add_frame(&mut self, frame: PyFrame, append_inertia: bool) -> PyResult<usize> {
+        match self.inner.add_frame(frame.inner, append_inertia) {
+            Ok(id) => Ok(id),
+            Err(model_error) => Err(PyValueError::new_err(format!("{:?}", model_error))),
+        }
     }
 
     fn __repr__(slf: PyRef<'_, Self>) -> String {

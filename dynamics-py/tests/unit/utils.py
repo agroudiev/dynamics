@@ -16,11 +16,13 @@ def assert_joint_types_equals(
     dyn_joint: dyn.JointModel,
     pin_joint: pin.JointModel,
 ):
-    match dyn_joint.joint_type:
-        case dyn.JointType.Fixed:
-            test_case.assertTrue(False)
-        case dyn.JointType.Revolute:
+    match str(dyn_joint.joint_type):
+        case "JointType.Fixed":
+            test_case.fail("Pinocchio does not have a Fixed joint model")
+        case "JointType.Revolute":
             test_case.assertTrue(pin_joint.shortname().startswith("JointModelR"))
+        case _:
+            test_case.fail(f"Unknown joint type '{dyn_joint.joint_type}'")
 
 
 def assert_joint_models_equals(
@@ -45,20 +47,20 @@ def assert_frames_equals(
     test_case: unittest.TestCase, dyn_frame: dyn.Frame, pin_frame: pin.Frame
 ):
     test_case.assertEqual(dyn_frame.name, pin_frame.name)
-    test_case.assertEqual(dyn_frame.parent, pin_frame.parent)
-    match dyn_frame.frame_type:
-        case dyn.FrameType.Operational:
+    test_case.assertEqual(dyn_frame.parent_joint, pin_frame.parentJoint)
+    match str(dyn_frame.frame_type):
+        case "FrameType.Operational":
             test_case.assertEqual(pin_frame.type, pin.FrameType.OP_FRAME)
-        case dyn.FrameType.Joint:
+        case "FrameType.Joint":
             test_case.assertEqual(pin_frame.type, pin.FrameType.JOINT)
-        case dyn.FrameType.Fixed:
-            test_case.assertEqual(pin_frame.type, pin.FrameType.FIXED)
-        case dyn.FrameType.Body:
+        case "FrameType.Fixed":
+            test_case.assertEqual(pin_frame.type, pin.FrameType.FIXED_JOINT)
+        case "FrameType.Body":
             test_case.assertEqual(pin_frame.type, pin.FrameType.BODY)
-        case dyn.FrameType.Sensor:
+        case "FrameType.Sensor":
             test_case.assertEqual(pin_frame.type, pin.FrameType.SENSOR)
         case _:
-            test_case.assertTrue(False, "Unknown frame type")
+            test_case.fail(f"Unknown frame type '{dyn_frame.frame_type}'")
     assert_se3_equals(test_case, dyn_frame.placement, pin_frame.placement)
     assert_inertias_equals(test_case, dyn_frame.inertia, pin_frame.inertia)
 

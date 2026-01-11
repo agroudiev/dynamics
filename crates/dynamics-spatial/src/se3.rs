@@ -98,6 +98,7 @@ impl std::ops::Mul<&SE3> for SE3 {
 
 /// Python wrapper for the SE(3) group.
 #[pyclass(name = "SE3")]
+#[derive(Clone, Debug, Default)]
 pub struct PySE3 {
     pub inner: SE3,
 }

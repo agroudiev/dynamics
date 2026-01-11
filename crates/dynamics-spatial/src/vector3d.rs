@@ -1,6 +1,8 @@
 //! Defines **3D vectors** and related operations.
 
 use nalgebra::Vector3;
+use numpy::{ToPyArray, ndarray::Array1};
+use pyo3::prelude::*;
 use std::ops::{Add, Mul, Sub};
 
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
@@ -40,6 +42,13 @@ impl Vector3D {
     /// Returns the `z` unit vector, that is (0, 0, 1).
     pub fn z() -> Self {
         Self(Vector3::z())
+    }
+
+    pub fn to_numpy(&self, py: Python) -> Py<PyAny> {
+        Array1::from_iter(self.0.iter().copied())
+            .to_pyarray(py)
+            .into_any()
+            .unbind()
     }
 }
 
