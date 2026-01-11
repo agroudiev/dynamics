@@ -48,7 +48,7 @@ pub enum JointType {
     Revolute,
 }
 
-/// A Python wrapper for the JointWrapper type.
+/// A Python wrapper for the `JointWrapper` type.
 #[pyclass(name = "JointModel")]
 pub struct PyJointWrapper {
     pub inner: JointWrapper,

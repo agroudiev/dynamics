@@ -1,7 +1,11 @@
 //! Structure containing the mutable properties of a joint.
 
-use crate::joint::JointWrapper;
-use spatial::{configuration::Configuration, se3::SE3};
+use crate::joint::{JointWrapper, PyJointWrapper};
+use pyo3::prelude::*;
+use spatial::{
+    configuration::{Configuration, PyConfiguration},
+    se3::{PySE3, SE3},
+};
 
 /// Dynamic type for a joint.
 pub type JointDataWrapper = Box<dyn JointData + Send + Sync>;
@@ -23,4 +27,38 @@ pub trait JointData {
         joint_model: &JointWrapper,
         q_joint: &Configuration,
     ) -> Result<(), JointError>;
+}
+
+/// A Python wrapper for the `JointDataWrapper` type.
+#[pyclass(name = "JointData")]
+pub struct PyJointDataWrapper {
+    pub inner: JointDataWrapper,
+}
+
+#[pymethods]
+impl PyJointDataWrapper {
+    #[getter]
+    pub fn joint_placement(&self) -> PySE3 {
+        PySE3 {
+            inner: self.inner.get_joint_placement(),
+        }
+    }
+
+    #[pyo3(text_signature = "(joint_model, q_joint)")]
+    pub fn update(
+        &mut self,
+        joint_model: &PyJointWrapper,
+        q_joint: &PyConfiguration,
+    ) -> PyResult<()> {
+        match self
+            .inner
+            .update(&joint_model.inner, q_joint.to_configuration())
+        {
+            Ok(_) => Ok(()),
+            Err(e) => Err(pyo3::exceptions::PyValueError::new_err(format!(
+                "Failed to update joint data: {:?}",
+                e
+            ))),
+        }
+    }
 }

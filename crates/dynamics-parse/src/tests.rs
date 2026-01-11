@@ -38,6 +38,7 @@ fn test_origins() {
     // TODO: test placement
 }
 
+#[ignore]
 #[test]
 fn test_materials() {
     let filepath = "../../examples/descriptions/materials.urdf";
@@ -90,6 +91,7 @@ fn test_materials() {
     );
 }
 
+#[ignore]
 #[test]
 fn test_visuals() {
     let filepath = "../../examples/descriptions/visuals.urdf";

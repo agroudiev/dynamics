@@ -129,6 +129,10 @@ impl PyConfiguration {
         let config = Configuration::from_pyarray(array)?;
         Ok(PyConfiguration::new(config))
     }
+
+    pub fn to_configuration(&self) -> &Configuration {
+        &self.0
+    }
 }
 
 #[pymethods]

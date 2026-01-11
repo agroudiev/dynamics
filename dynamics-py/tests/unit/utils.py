@@ -60,4 +60,12 @@ def assert_models_equals(
 def assert_datas_equals(
     test_case: unittest.TestCase, dyn_data: dyn.Data, pin_data: pin.Data
 ):
-    pass
+    # Check joint placements
+    dyn_placements = dyn_data.joint_placements  # .oMf also works
+    pin_placements = pin_data.oMf
+    test_case.assertEqual(len(dyn_placements), len(pin_placements))
+    for i in range(len(dyn_placements)):
+        assert_se3_equals(test_case, dyn_placements[i], pin_placements[i])
+
+    # Check joint data
+    # TODO

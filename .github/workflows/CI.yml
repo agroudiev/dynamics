@@ -76,12 +76,12 @@ jobs:
       # Rust Tests
       - name: Run Rust tests
         run: cargo test --all
-        continue-on-error: true # TODO: reset to false once tests are fixed
+        continue-on-error: false
 
       # Python Tests
       - name: Run Python tests
         run: python -m unittest discover -s dynamics-py/tests/unit
-        continue-on-error: true # TODO: reset to false once tests are fixed
+        continue-on-error: false
 
   linux:
     runs-on: ${{ matrix.platform.runner }}

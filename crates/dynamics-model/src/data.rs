@@ -59,6 +59,25 @@ impl PyData {
             inner: model.inner.create_data(),
         }
     }
+
+    #[getter]
+    /// Returns the placements of the joints in the world frame.
+    pub fn joint_placements(&self) -> Vec<PySE3> {
+        self.inner
+            .joint_placements
+            .iter()
+            .map(|p| PySE3 { inner: *p })
+            .collect()
+    }
+
+    #[getter]
+    #[allow(non_snake_case)]
+    /// Returns the placements of the joints in the world frame.
+    ///
+    /// This is an alias for `joint_placements` to match the Pinocchio API.
+    pub fn oMf(&self) -> Vec<PySE3> {
+        self.joint_placements()
+    }
 }
 
 /// Structure containing the mutable geometric data of the models.
