@@ -53,3 +53,21 @@ pub enum JointType {
 pub struct PyJointWrapper {
     pub inner: JointWrapper,
 }
+
+#[pymethods]
+impl PyJointWrapper {
+    #[getter]
+    pub fn joint_type(&self) -> JointType {
+        self.inner.get_joint_type()
+    }
+
+    #[getter]
+    pub fn nq(&self) -> usize {
+        self.inner.nq()
+    }
+
+    #[getter]
+    pub fn nv(&self) -> usize {
+        self.inner.nv()
+    }
+}

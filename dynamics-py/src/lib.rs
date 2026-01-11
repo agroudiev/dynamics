@@ -6,7 +6,10 @@
 //! this may be changed (using for instance serialization of the shapes).
 
 use inertia::inertia::PyInertia;
-use joint::revolute::{PyJointModelRevolute, new_joint_model_revolute_x};
+use joint::{
+    joint::{JointType, PyJointWrapper},
+    revolute::{PyJointModelRevolute, new_rx, new_ry, new_rz},
+};
 use model::{
     data::{PyData, PyGeometryData},
     forward_dynamics::{py_aba, py_forward_dynamics},
@@ -57,6 +60,7 @@ fn add_dynamics_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult
     dynamics.add_class::<PyConfiguration>()?;
     dynamics.add_class::<PyModel>()?;
     dynamics.add_class::<PyData>()?;
+    dynamics.add_class::<PyJointWrapper>()?;
     dynamics.add_class::<PyGeometryModel>()?;
     dynamics.add_class::<PyGeometryData>()?;
     dynamics.add_class::<PyGeometryObject>()?;
@@ -96,7 +100,10 @@ fn add_spatial_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult<
 
 fn add_joint_bindings(dynamics: &Bound<'_, PyModule>) -> PyResult<()> {
     dynamics.add_class::<PyJointModelRevolute>()?;
-    dynamics.add_function(wrap_pyfunction!(new_joint_model_revolute_x, dynamics)?)?;
+    dynamics.add_class::<JointType>()?;
+    dynamics.add_function(wrap_pyfunction!(new_rx, dynamics)?)?;
+    dynamics.add_function(wrap_pyfunction!(new_ry, dynamics)?)?;
+    dynamics.add_function(wrap_pyfunction!(new_rz, dynamics)?)?;
 
     Ok(())
 }

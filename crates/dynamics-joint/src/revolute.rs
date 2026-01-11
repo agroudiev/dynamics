@@ -50,6 +50,30 @@ impl JointModelRevolute {
             velocity_limit: f64::INFINITY,
         }
     }
+
+    /// Creates a new revolute joint model with `x` as axis of rotation.
+    ///
+    /// # Returns
+    /// A new `JointModelRevolute` object.
+    pub fn new_rx() -> Self {
+        Self::new(Vector3D::x())
+    }
+
+    /// Creates a new revolute joint model with `y` as axis of rotation.
+    ///
+    /// # Returns
+    /// A new `JointModelRevolute` object.
+    pub fn new_ry() -> Self {
+        Self::new(Vector3D::y())
+    }
+
+    /// Creates a new revolute joint model with `z` as axis of rotation.
+    ///
+    /// # Returns
+    /// A new `JointModelRevolute` object.
+    pub fn new_rz() -> Self {
+        Self::new(Vector3D::z())
+    }
 }
 
 impl JointModel for JointModelRevolute {
@@ -153,9 +177,26 @@ pub struct PyJointModelRevolute {
 
 /// Creates a new revolute joint model with `x` as axis of rotation.
 #[pyfunction(name = "JointModelRX")]
-pub fn new_joint_model_revolute_x() -> PyJointModelRevolute {
-    let inner = JointModelRevolute::new(Vector3D::new(1.0, 0.0, 0.0));
-    PyJointModelRevolute { inner }
+pub fn new_rx() -> PyJointModelRevolute {
+    PyJointModelRevolute {
+        inner: JointModelRevolute::new_rx(),
+    }
+}
+
+/// Creates a new revolute joint model with `y` as axis of rotation.
+#[pyfunction(name = "JointModelRY")]
+pub fn new_ry() -> PyJointModelRevolute {
+    PyJointModelRevolute {
+        inner: JointModelRevolute::new_ry(),
+    }
+}
+
+/// Creates a new revolute joint model with `z` as axis of rotation.
+#[pyfunction(name = "JointModelRZ")]
+pub fn new_rz() -> PyJointModelRevolute {
+    PyJointModelRevolute {
+        inner: JointModelRevolute::new_rz(),
+    }
 }
 
 #[cfg(test)]

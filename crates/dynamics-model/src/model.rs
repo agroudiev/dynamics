@@ -3,6 +3,7 @@
 use crate::data::{Data, PyData};
 use crate::forward_kinematics::forward_kinematics;
 use inertia::inertia::Inertia;
+use joint::revolute::JointModelRevolute;
 use joint::{
     joint::{JointModel, JointWrapper, PyJointWrapper},
     revolute::PyJointModelRevolute,
@@ -45,6 +46,8 @@ pub struct Model {
 impl Model {
     /// Creates a new `Model` with given name.
     ///
+    /// Same as `Model::new_empty()`.
+    ///
     /// # Arguments
     ///
     /// * `name` - The name of the model.
@@ -65,10 +68,10 @@ impl Model {
             joint_names: vec!["universe".to_string()],
             joint_parents: vec![WORLD_FRAME_ID],
             joint_placements: vec![SE3::identity()],
-            joint_models: Vec::new(),
+            joint_models: vec![Box::new(JointModelRevolute::new_rx())],
             nq: 0,
             nv: 0,
-            inertias: Vec::new(),
+            inertias: vec![Inertia::default()],
             gravity: *STANDARD_GRAVITY,
         }
     }

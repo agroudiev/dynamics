@@ -24,6 +24,21 @@ impl Vector3D {
     pub fn norm(&self) -> f64 {
         self.0.norm()
     }
+
+    /// Returns the `x` unit vector, that is (1, 0, 0).
+    pub fn x() -> Self {
+        Self(Vector3::x())
+    }
+
+    /// Returns the `y` unit vector, that is (0, 1, 0).
+    pub fn y() -> Self {
+        Self(Vector3::y())
+    }
+
+    /// Returns the `z` unit vector, that is (0, 0, 1).
+    pub fn z() -> Self {
+        Self(Vector3::z())
+    }
 }
 
 impl Add for Vector3D {
