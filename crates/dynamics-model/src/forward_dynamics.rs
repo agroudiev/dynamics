@@ -5,10 +5,10 @@
 
 use crate::data::{Data, PyData};
 use crate::model::{Model, PyModel};
+use dynamics_spatial::configuration::{Configuration, ConfigurationError};
 use numpy::PyReadonlyArrayDyn;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
-use spatial::configuration::{Configuration, ConfigurationError};
 
 /// WIP: Computes the forward dynamics of the robot model.
 ///

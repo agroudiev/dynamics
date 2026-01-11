@@ -1,9 +1,9 @@
 //! Trait for joints and a wrapper type for dynamic dispatch.
 
 use crate::data::JointDataWrapper;
+use dynamics_spatial::{configuration::Configuration, motion::SpatialMotion, se3::SE3};
 use pyo3::prelude::*;
 use rand::rngs::ThreadRng;
-use spatial::{configuration::Configuration, motion::SpatialMotion, se3::SE3};
 
 /// A wrapper type for the Shape trait to allow dynamic dispatch.
 pub type JointWrapper = Box<dyn JointModel + Send + Sync>;

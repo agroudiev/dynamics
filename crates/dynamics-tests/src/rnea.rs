@@ -1,7 +1,7 @@
 use approx::assert_relative_eq;
-use model::inverse_dynamics::inverse_dynamics;
-use parse::urdf::build_models_from_urdf;
-use spatial::configuration::Configuration;
+use dynamics_model::inverse_dynamics::inverse_dynamics;
+use dynamics_parse::urdf::build_models_from_urdf;
+use dynamics_spatial::configuration::Configuration;
 
 #[ignore]
 #[test]

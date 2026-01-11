@@ -5,12 +5,12 @@
 //! should be used to interact between `collider` and `dynamics`. In the future,
 //! this may be changed (using for instance serialization of the shapes).
 
-use inertia::inertia::PyInertia;
-use joint::{
+use dynamics_inertia::inertia::PyInertia;
+use dynamics_joint::{
     joint::{JointType, PyJointWrapper},
     revolute::{new_rx, new_ry, new_rz},
 };
-use model::{
+use dynamics_model::{
     data::{PyData, PyGeometryData},
     forward_dynamics::{py_aba, py_forward_dynamics},
     forward_kinematics::py_forward_kinematics,
@@ -28,9 +28,9 @@ use collider::shape::{
     PyShapeWrapper, ShapeType, capsule::PyCapsule, cone::PyCone, cuboid::PyCuboid,
     cylinder::PyCylinder, sphere::PySphere,
 };
+use dynamics_parse::urdf::py_build_models_from_urdf;
+use dynamics_spatial::{configuration::PyConfiguration, se3::PySE3, vector6d::PyVector6D};
 use numpy::PyArray1;
-use parse::urdf::py_build_models_from_urdf;
-use spatial::{configuration::PyConfiguration, se3::PySE3, vector6d::PyVector6D};
 
 #[pymodule(name = "dynamics")]
 fn dynamics_py(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult<()> {

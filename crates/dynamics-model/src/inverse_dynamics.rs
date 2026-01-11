@@ -5,12 +5,12 @@
 
 use crate::data::{Data, PyData};
 use crate::model::{Model, PyModel};
-use joint::joint::JointWrapper;
+use dynamics_joint::joint::JointWrapper;
+use dynamics_spatial::configuration::{Configuration, ConfigurationError, PyConfiguration};
+use dynamics_spatial::motion::SpatialMotion;
+use dynamics_spatial::vector3d::Vector3D;
 use numpy::PyReadonlyArrayDyn;
 use pyo3::prelude::*;
-use spatial::configuration::{Configuration, ConfigurationError, PyConfiguration};
-use spatial::motion::SpatialMotion;
-use spatial::vector3d::Vector3D;
 use std::collections::HashMap;
 
 /// Computes the inverse dynamics using the Recursive Newton-Euler Algorithm (RNEA).

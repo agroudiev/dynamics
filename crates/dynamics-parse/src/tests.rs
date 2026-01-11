@@ -1,7 +1,7 @@
 use crate::urdf::build_models_from_urdf;
 use collider::shape::Cylinder;
-use model::model::WORLD_FRAME_ID;
-use spatial::{motion::SpatialRotation, se3::SE3, vector3d::Vector3D};
+use dynamics_model::model::WORLD_FRAME_ID;
+use dynamics_spatial::{motion::SpatialRotation, se3::SE3, vector3d::Vector3D};
 
 #[test]
 fn test_myfirst() {

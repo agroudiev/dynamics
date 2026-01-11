@@ -1,5 +1,5 @@
 [package]
-name = "parse"
+name = "dynamics-parse"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -9,15 +9,16 @@ repository.workspace = true
 license-file.workspace = true
 
 [dependencies]
-pyo3 = { workspace = true }
+pyo3.workspace = true
 roxmltree = { version = "0.20.0" }
 
-collider = { workspace = true }
-nalgebra = { workspace = true } # only for collider
-spatial = { workspace = true }
-inertia = { workspace = true }
-joint = { workspace = true }
-model = { workspace = true }
+nalgebra.workspace = true # only for collider
+collider.workspace = true
+
+dynamics-spatial.workspace = true
+dynamics-inertia.workspace = true
+dynamics-joint.workspace = true
+dynamics-model.workspace = true
 
 [package.metadata.docs.rs]
 rustdoc-args = [ "--html-in-header", "../../dynamics-py/src/docs-header.html" ]

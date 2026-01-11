@@ -1,16 +1,16 @@
 //! `Model` structure containing the robot model and its immutable properties.
 
 use crate::data::{Data, PyData};
-use inertia::inertia::Inertia;
-use joint::fixed::JointModelFixed;
-use joint::joint::{JointWrapper, PyJointWrapper};
+use dynamics_inertia::inertia::Inertia;
+use dynamics_joint::fixed::JointModelFixed;
+use dynamics_joint::joint::{JointWrapper, PyJointWrapper};
+use dynamics_spatial::configuration::{Configuration, PyConfiguration};
+use dynamics_spatial::se3::{PySE3, SE3};
+use dynamics_spatial::vector3d::Vector3D;
 use numpy::ToPyArray;
 use numpy::ndarray::Array1;
 use once_cell::sync::Lazy;
 use pyo3::{exceptions::PyValueError, prelude::*};
-use spatial::configuration::{Configuration, PyConfiguration};
-use spatial::se3::{PySE3, SE3};
-use spatial::vector3d::Vector3D;
 use std::fmt::Debug;
 
 pub const WORLD_FRAME_ID: usize = 0;
@@ -124,7 +124,7 @@ impl Model {
         name: String,
         parent_id: usize,
     ) -> Result<usize, ModelError> {
-        let fixed_joint_model = joint::fixed::JointModelFixed::default();
+        let fixed_joint_model = JointModelFixed::default();
         self.add_joint(parent_id, Box::new(fixed_joint_model), placement, name)
     }
 

@@ -1,11 +1,11 @@
 //! Structure containing the mutable properties of a joint.
 
 use crate::joint::{JointWrapper, PyJointWrapper};
-use pyo3::prelude::*;
-use spatial::{
+use dynamics_spatial::{
     configuration::{Configuration, PyConfiguration},
     se3::{PySE3, SE3},
 };
+use pyo3::prelude::*;
 
 /// Dynamic type for a joint.
 pub type JointDataWrapper = Box<dyn JointData + Send + Sync>;

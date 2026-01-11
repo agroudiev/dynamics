@@ -4,8 +4,8 @@ use crate::{
     data::{JointData, JointDataWrapper, JointError},
     joint::{JointModel, JointType, JointWrapper},
 };
+use dynamics_spatial::{configuration::Configuration, se3::SE3};
 use pyo3::prelude::*;
-use spatial::{configuration::Configuration, se3::SE3};
 
 /// Model of a fixed joint.
 #[derive(Clone, Debug, Default)]

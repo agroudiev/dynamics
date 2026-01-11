@@ -4,19 +4,19 @@ version = "0.1.0"
 edition = "2024"
 
 [lib]
-name = "dynamics"
+name = "dynamics_py"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = { workspace = true }
+pyo3.workspace = true
 collider = { workspace = true}
-numpy = { workspace = true }
+numpy.workspace = true
 
-inertia = { path = "../crates/dynamics-inertia" }
-joint = { path = "../crates/dynamics-joint" }
-model = { path = "../crates/dynamics-model" }
-parse = { path = "../crates/dynamics-parse" }
-spatial = { path = "../crates/dynamics-spatial" }
+dynamics-inertia = { path = "../crates/dynamics-inertia" }
+dynamics-joint = { path = "../crates/dynamics-joint" }
+dynamics-model = { path = "../crates/dynamics-model" }
+dynamics-parse = { path = "../crates/dynamics-parse" }
+dynamics-spatial = { path = "../crates/dynamics-spatial" }
 
 [package.metadata.docs.rs]
 rustdoc-args = [ "--html-in-header", "./src/docs-header.html" ]

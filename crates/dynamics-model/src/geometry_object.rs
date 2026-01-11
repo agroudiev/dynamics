@@ -3,12 +3,12 @@
 use std::fmt::Debug;
 
 use collider::shape::*;
-use numpy::{IntoPyArray, PyReadonlyArrayDyn, ndarray::Array1};
-use pyo3::{exceptions::PyValueError, prelude::*, types::PyTuple};
-use spatial::{
+use dynamics_spatial::{
     color::Color,
     se3::{PySE3, SE3},
 };
+use numpy::{IntoPyArray, PyReadonlyArrayDyn, ndarray::Array1};
+use pyo3::{exceptions::PyValueError, prelude::*, types::PyTuple};
 
 /// A `GeometryObject` is a data structure that contains the information about the geometry object,
 /// used for visualization, collision detection and distance computation.

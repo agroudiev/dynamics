@@ -6,14 +6,14 @@ use crate::{
     data::{JointData, JointDataWrapper, JointError},
     joint::{JointModel, JointType, JointWrapper, PyJointWrapper},
 };
-use pyo3::prelude::*;
-use rand::Rng;
-use spatial::{
+use dynamics_spatial::{
     configuration::Configuration,
     motion::{SpatialMotion, SpatialRotation},
     se3::SE3,
     vector3d::Vector3D,
 };
+use pyo3::prelude::*;
+use rand::Rng;
 
 /// Model of a revolute joint.
 ///

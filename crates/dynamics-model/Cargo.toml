@@ -1,5 +1,5 @@
 [package]
-name = "model"
+name = "dynamics-model"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -9,15 +9,16 @@ repository.workspace = true
 license-file.workspace = true
 
 [dependencies]
-collider = { workspace = true }
-numpy = { workspace = true }
-pyo3 = { workspace = true }
-rand = { workspace = true }
+numpy.workspace = true
+pyo3.workspace = true
+rand.workspace = true
+once_cell.workspace = true
 
-inertia = { workspace = true }
-joint = { workspace = true }
-spatial = { workspace = true }
-once_cell = { workspace = true }
+collider.workspace = true
+
+dynamics-inertia.workspace = true
+dynamics-joint.workspace = true
+dynamics-spatial.workspace = true
 
 [package.metadata.docs.rs]
 rustdoc-args = [ "--html-in-header", "../../dynamics-py/src/docs-header.html" ]

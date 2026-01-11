@@ -2,9 +2,9 @@
 
 use crate::model::Model;
 use crate::model::PyModel;
+use dynamics_spatial::configuration::Configuration;
+use dynamics_spatial::configuration::PyConfiguration;
 use pyo3::prelude::*;
-use spatial::configuration::Configuration;
-use spatial::configuration::PyConfiguration;
 
 /// Computes the neutral configuration of a model.
 ///

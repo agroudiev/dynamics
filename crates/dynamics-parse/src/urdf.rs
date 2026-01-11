@@ -3,21 +3,21 @@
 use crate::errors::ParseError;
 use collider::mesh::Mesh;
 use collider::shape::{Cylinder, ShapeWrapper, Sphere};
-use inertia::inertia::Inertia;
-use joint::revolute::JointModelRevolute;
-use model::{
+use dynamics_inertia::inertia::Inertia;
+use dynamics_joint::revolute::JointModelRevolute;
+use dynamics_model::{
     geometry_model::{GeometryModel, PyGeometryModel},
     geometry_object::GeometryObject,
     model::{Model, PyModel, WORLD_FRAME_ID},
 };
+use dynamics_spatial::color::Color;
+use dynamics_spatial::inertia::SpatialInertia;
+use dynamics_spatial::motion::SpatialRotation;
+use dynamics_spatial::se3::SE3;
+use dynamics_spatial::vector3d::Vector3D;
 use nalgebra::Vector3;
 use pyo3::prelude::*;
 use roxmltree::Document;
-use spatial::color::Color;
-use spatial::inertia::SpatialInertia;
-use spatial::motion::SpatialRotation;
-use spatial::se3::SE3;
-use spatial::vector3d::Vector3D;
 use std::{collections::HashMap, fs, str::FromStr};
 
 /// Parses a URDF file and builds the corresponding `Model` and `GeometryModel`.

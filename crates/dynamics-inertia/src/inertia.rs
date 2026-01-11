@@ -1,9 +1,9 @@
 //! Structures to represent the inertia of a rigid body.
 
-use pyo3::{exceptions::PyValueError, prelude::*};
-use spatial::{
+use dynamics_spatial::{
     inertia::SpatialInertia, motion::SpatialMotion, vector3d::Vector3D, vector6d::Vector6D,
 };
+use pyo3::{exceptions::PyValueError, prelude::*};
 use std::ops::Mul;
 
 /// A data structure that contains the information about the inertia of a rigid body (mass, center of mass, and inertia matrix).

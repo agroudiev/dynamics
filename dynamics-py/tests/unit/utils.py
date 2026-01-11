@@ -61,7 +61,7 @@ def assert_datas_equals(
     test_case: unittest.TestCase, dyn_data: dyn.Data, pin_data: pin.Data
 ):
     # Check joint placements
-    dyn_placements = dyn_data.joint_placements  # .oMfi also works
+    dyn_placements = dyn_data.joint_placements  # .oMi also works
     pin_placements = pin_data.oMi
     test_case.assertEqual(len(dyn_placements), len(pin_placements))
     for i in range(len(dyn_placements)):

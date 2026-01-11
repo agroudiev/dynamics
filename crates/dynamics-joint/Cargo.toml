@@ -1,5 +1,5 @@
 [package]
-name = "joint"
+name = "dynamics-joint"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -9,13 +9,13 @@ repository.workspace = true
 license-file.workspace = true
 
 [dependencies]
-pyo3 = { workspace = true }
-rand = { workspace = true }
+pyo3.workspace = true
+rand.workspace = true
 
-spatial = { workspace = true }
+dynamics-spatial.workspace = true
 
 [dev-dependencies]
-approx = { workspace = true }
+approx.workspace = true
 
 [package.metadata.docs.rs]
 rustdoc-args = [ "--html-in-header", "../../dynamics-py/src/docs-header.html" ]

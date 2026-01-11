@@ -2,11 +2,11 @@ use std::vec;
 
 use crate::data::{Data, PyData};
 use crate::model::{Model, PyModel};
+use dynamics_spatial::configuration::{Configuration, ConfigurationError};
+use dynamics_spatial::se3::SE3;
 use numpy::PyReadonlyArray1;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
-use spatial::configuration::{Configuration, ConfigurationError};
-use spatial::se3::SE3;
 
 /// Computes the forward kinematics of the robot model.
 ///

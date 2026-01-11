@@ -45,17 +45,85 @@ dependencies = [
 ]
 
 [[package]]
+name = "dynamics-inertia"
+version = "0.1.0"
+dependencies = [
+ "dynamics-spatial",
+ "pyo3",
+]
+
+[[package]]
+name = "dynamics-joint"
+version = "0.1.0"
+dependencies = [
+ "approx",
+ "dynamics-spatial",
+ "pyo3",
+ "rand",
+]
+
+[[package]]
+name = "dynamics-model"
+version = "0.1.0"
+dependencies = [
+ "collider",
+ "dynamics-inertia",
+ "dynamics-joint",
+ "dynamics-spatial",
+ "numpy",
+ "once_cell",
+ "pyo3",
+ "rand",
+]
+
+[[package]]
+name = "dynamics-parse"
+version = "0.1.0"
+dependencies = [
+ "collider",
+ "dynamics-inertia",
+ "dynamics-joint",
+ "dynamics-model",
+ "dynamics-spatial",
+ "nalgebra",
+ "pyo3",
+ "roxmltree",
+]
+
+[[package]]
 name = "dynamics-py"
 version = "0.1.0"
 dependencies = [
  "collider",
- "inertia",
- "joint",
- "model",
+ "dynamics-inertia",
+ "dynamics-joint",
+ "dynamics-model",
+ "dynamics-parse",
+ "dynamics-spatial",
  "numpy",
- "parse",
  "pyo3",
- "spatial",
+]
+
+[[package]]
+name = "dynamics-spatial"
+version = "0.1.0"
+dependencies = [
+ "approx",
+ "nalgebra",
+ "numpy",
+ "pyo3",
+ "rand",
+]
+
+[[package]]
+name = "dynamics-tests"
+version = "0.1.0"
+dependencies = [
+ "approx",
+ "dynamics-joint",
+ "dynamics-model",
+ "dynamics-parse",
+ "dynamics-spatial",
 ]
 
 [[package]]
@@ -81,24 +149,6 @@ name = "indoc"
 version = "2.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f4c7245a08504955605670dbf141fceab975f15ca21570696aebe9d2e71576bd"
-
-[[package]]
-name = "inertia"
-version = "0.1.0"
-dependencies = [
- "pyo3",
- "spatial",
-]
-
-[[package]]
-name = "joint"
-version = "0.1.0"
-dependencies = [
- "approx",
- "pyo3",
- "rand",
- "spatial",
-]
 
 [[package]]
 name = "libc"
@@ -134,20 +184,6 @@ dependencies = [
  "numpy",
  "pyo3",
  "shape",
-]
-
-[[package]]
-name = "model"
-version = "0.1.0"
-dependencies = [
- "collider",
- "inertia",
- "joint",
- "numpy",
- "once_cell",
- "pyo3",
- "rand",
- "spatial",
 ]
 
 [[package]]
@@ -261,20 +297,6 @@ name = "once_cell"
 version = "1.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
-
-[[package]]
-name = "parse"
-version = "0.1.0"
-dependencies = [
- "collider",
- "inertia",
- "joint",
- "model",
- "nalgebra",
- "pyo3",
- "roxmltree",
- "spatial",
-]
 
 [[package]]
 name = "paste"
@@ -473,17 +495,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "spatial"
-version = "0.1.0"
-dependencies = [
- "approx",
- "nalgebra",
- "numpy",
- "pyo3",
- "rand",
-]
-
-[[package]]
 name = "syn"
 version = "2.0.100"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -499,17 +510,6 @@ name = "target-lexicon"
 version = "0.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e502f78cdbb8ba4718f566c418c52bc729126ffd16baee5baa718cf25dd5a69a"
-
-[[package]]
-name = "tests"
-version = "0.1.0"
-dependencies = [
- "approx",
- "joint",
- "model",
- "parse",
- "spatial",
-]
 
 [[package]]
 name = "typenum"

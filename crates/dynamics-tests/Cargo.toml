@@ -1,5 +1,5 @@
 [package]
-name = "tests"
+name = "dynamics-tests"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -9,10 +9,10 @@ repository.workspace = true
 license-file.workspace = true
 
 [dependencies]
-model.workspace = true
-joint.workspace = true
-spatial.workspace = true
-parse.workspace = true
+dynamics-model.workspace = true
+dynamics-joint.workspace = true
+dynamics-spatial.workspace = true
+dynamics-parse.workspace = true
 
 [dev-dependencies]
 approx.workspace = true

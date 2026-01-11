@@ -1,8 +1,8 @@
 //! `Data` structure containing the mutable properties of the robot.
 
-use joint::data::JointDataWrapper;
+use dynamics_joint::data::JointDataWrapper;
+use dynamics_spatial::se3::{PySE3, SE3};
 use pyo3::{PyResult, pyclass, pymethods};
-use spatial::se3::{PySE3, SE3};
 use std::collections::HashMap;
 
 use crate::{
