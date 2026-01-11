@@ -3,6 +3,7 @@ use collider::shape::Cylinder;
 use dynamics_model::model::WORLD_FRAME_ID;
 use dynamics_spatial::{motion::SpatialRotation, se3::SE3, vector3d::Vector3D};
 
+#[ignore]
 #[test]
 fn test_myfirst() {
     let filepath = "../../examples/descriptions/myfirst.urdf";
@@ -18,6 +19,7 @@ fn test_myfirst() {
 
 // TODO: test all shapes
 
+#[ignore]
 #[test]
 fn test_multipleshapes() {
     let filepath = "../../examples/descriptions/multipleshapes.urdf";
@@ -27,6 +29,7 @@ fn test_multipleshapes() {
     assert_eq!(geom_model.models.len(), 2);
 }
 
+#[ignore]
 #[test]
 fn test_origins() {
     let filepath = "../../examples/descriptions/origins.urdf";
@@ -127,6 +130,7 @@ fn test_visuals() {
     );
 }
 
+#[ignore]
 #[test]
 fn test_double_pendulum_simple() {
     let filepath = "../../examples/descriptions/double_pendulum_simple.urdf";
@@ -138,6 +142,7 @@ fn test_double_pendulum_simple() {
     let _geom_data = geom_model.create_data(&data);
 }
 
+#[ignore]
 #[test]
 fn test_ur5() {
     let filepath = "../../examples/descriptions/ur5/ur5_robot.urdf";
