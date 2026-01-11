@@ -139,7 +139,7 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                         "Warning: no inertial information provided for link: {}",
                         link_name
                     );
-                    (Inertia::default(), SE3::identity())
+                    (Inertia::zeros(), SE3::identity())
                 };
 
                 // append inertia to the model

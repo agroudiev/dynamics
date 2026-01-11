@@ -16,6 +16,15 @@ use std::ops::Mul;
 pub struct SpatialInertia(Matrix6<f64>);
 
 impl SpatialInertia {
+    /// Creates a new `SpatialInertia` object with the given elements.
+    ///
+    /// # Arguments
+    ///
+    /// * `ixx`, `iyy`, `izz` - Diagonal elements of the rotational inertia matrix.
+    /// * `ixy`, `ixz`, `iyz` - Off-diagonal elements of the rotational inertia matrix.
+    ///
+    /// # Returns
+    /// A new `SpatialInertia` object.
     pub fn new(ixx: f64, ixy: f64, ixz: f64, iyy: f64, iyz: f64, izz: f64) -> Self {
         let mut mat = Matrix6::<f64>::zeros();
         mat[(0, 0)] = ixx;
@@ -30,6 +39,19 @@ impl SpatialInertia {
         Self(mat)
     }
 
+    /// Creates a new `SpatialInertia` object with all elements set to zero.
+    pub fn zeros() -> Self {
+        Self(Matrix6::<f64>::zeros())
+    }
+
+    /// Creates a new `SpatialInertia` object from a diagonal vector.
+    ///
+    /// # Arguments
+    ///
+    /// * `diag` - A 6D vector representing the diagonal elements of the spatial inertia matrix.
+    ///
+    /// # Returns
+    /// A new `SpatialInertia` object.
     pub fn from_diagonal(diag: &Vector6D) -> Self {
         Self(diag.as_diagonal())
     }

@@ -14,7 +14,7 @@ pub struct Inertia {
     /// The center of mass of the object.
     pub com: Vector3D,
     /// The inertia matrix of the object.
-    pub inertia: SpatialInertia,
+    pub inertia: SpatialInertia, // TODO: change to I_c
 }
 
 impl Inertia {
@@ -27,6 +27,18 @@ impl Inertia {
     /// * `inertia` - The inertia matrix of the object (3x3 matrix).
     pub fn new(mass: f64, com: Vector3D, inertia: SpatialInertia) -> Self {
         Self { mass, com, inertia }
+    }
+
+    /// Creates a new `Inertia` object with zero mass, zero center of mass, and zero inertia matrix.
+    ///
+    /// # Returns
+    /// A new `Inertia` object with all properties set to zero.
+    pub fn zeros() -> Self {
+        Self {
+            mass: 0.0,
+            com: Vector3D::zeros(),
+            inertia: SpatialInertia::zeros(),
+        }
     }
 
     /// Creates a new `Inertia` object representing a sphere with the given mass and radius.
@@ -106,5 +118,18 @@ impl PyInertia {
         Inertia::from_sphere(mass, radius)
             .map(|inner| PyInertia { inner })
             .map_err(|e| PyValueError::new_err(format!("Failed to create Inertia: {:?}", e)))
+    }
+
+    #[getter]
+    pub fn mass(&self) -> f64 {
+        self.inner.mass
+    }
+
+    // TODO: com getter
+
+    // TODO: inertia getter
+
+    fn __repr__(slf: PyRef<'_, Self>) -> String {
+        format!("{:?}", slf.inner)
     }
 }

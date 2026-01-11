@@ -1,7 +1,8 @@
 //! `Model` structure containing the robot model and its immutable properties.
 
 use crate::data::{Data, PyData};
-use dynamics_inertia::inertia::Inertia;
+use crate::frame::{Frame, FrameType};
+use dynamics_inertia::inertia::{Inertia, PyInertia};
 use dynamics_joint::fixed::JointModelFixed;
 use dynamics_joint::joint::{JointWrapper, PyJointWrapper};
 use dynamics_spatial::configuration::{Configuration, PyConfiguration};
@@ -19,22 +20,24 @@ pub static STANDARD_GRAVITY: Lazy<Vector3D> = Lazy::new(|| Vector3D::new(0.0, 0.
 /// Data structure that contains the immutable properties of the robot model.
 /// It contains information about the joints, frames, and their local placements.
 pub struct Model {
-    /// The name of the model.
+    /// Name of the model.
     pub name: String,
-    /// The names of the joints.
+    /// Names of the joints.
     pub joint_names: Vec<String>,
-    /// The parent joint of each joint.
+    /// Parent joint of each joint.
     pub joint_parents: Vec<usize>,
-    /// The placements of the joints relative to their parent joints.
+    /// Placements of the joints relative to their parent joints.
     pub joint_placements: Vec<SE3>,
-    /// The joint models.
+    /// Joint models.
     pub joint_models: Vec<JointWrapper>,
-    /// The number of position variables.
+    /// Number of position variables.
     pub nq: usize,
-    /// The number of velocity variables.
+    /// Number of velocity variables.
     pub nv: usize,
-    /// The inertias of the bodies.
+    /// Inertias of the bodies at each joint.
     pub inertias: Vec<Inertia>,
+    /// Operational frames at each joint
+    pub frames: Vec<Frame>,
     /// The spatial gravity of the model.
     pub gravity: Vector3D, // TODO: replace this by a SpartialMotion
 }
@@ -67,7 +70,15 @@ impl Model {
             joint_models: vec![Box::new(JointModelFixed::default())],
             nq: 0,
             nv: 0,
-            inertias: vec![Inertia::default()],
+            inertias: vec![Inertia::zeros()],
+            frames: vec![Frame::new(
+                "__WORLD_FRAME__".to_string(),
+                WORLD_FRAME_ID,
+                WORLD_FRAME_ID,
+                FrameType::Fixed,
+                SE3::identity(),
+                Inertia::zeros(),
+            )],
             gravity: *STANDARD_GRAVITY,
         }
     }
@@ -102,6 +113,7 @@ impl Model {
         self.nq += joint_model.nq();
         self.nv += joint_model.nv();
         self.joint_models.push(joint_model);
+        self.inertias.push(Inertia::zeros());
 
         // add the joint to the parent
         self.joint_parents.push(parent_id);
@@ -357,6 +369,17 @@ impl PyModel {
             .iter()
             .map(|joint_model| PyJointWrapper {
                 inner: joint_model.clone_box(),
+            })
+            .collect()
+    }
+
+    #[getter]
+    fn get_inertias(&self) -> Vec<PyInertia> {
+        self.inner
+            .inertias
+            .iter()
+            .map(|inertia| PyInertia {
+                inner: inertia.clone(),
             })
             .collect()
     }

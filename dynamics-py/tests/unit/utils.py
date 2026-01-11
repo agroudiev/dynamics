@@ -33,6 +33,14 @@ def assert_joint_models_equals(
     assert_joint_types_equals(test_case, dyn_joint_model, pin_joint_model)
 
 
+def assert_inertias_equals(
+    test_case: unittest.TestCase, dyn_inertia: dyn.Inertia, pin_inertia: pin.Inertia
+):
+    test_case.assertAlmostEqual(dyn_inertia.mass, pin_inertia.mass)
+    # TODO: compare com
+    # TODO: compare inertia matrix
+
+
 def assert_models_equals(
     test_case: unittest.TestCase, dyn_model: dyn.Model, pin_model: pin.Model
 ):
@@ -40,8 +48,9 @@ def assert_models_equals(
     test_case.assertEqual(dyn_model.nv, pin_model.nv)
     test_case.assertEqual(dyn_model.name, pin_model.name)
     test_case.assertTrue((dyn_model.gravity == pin_model.gravity.linear).all())
-    test_case.assertEqual(dyn_model.njoints, pin_model.njoints)
 
+    # Check joints
+    test_case.assertEqual(dyn_model.njoints, pin_model.njoints)
     for i in range(1, dyn_model.njoints):  # skip the universe joint
         test_case.assertEqual(dyn_model.joint_names[i], pin_model.names[i])
         test_case.assertEqual(dyn_model.joint_parents[i], pin_model.parents[i])
@@ -55,6 +64,13 @@ def assert_models_equals(
             dyn_model.joint_models[i],
             pin_model.joints[i],
         )
+
+    # Check inertias
+    test_case.assertEqual(len(dyn_model.inertias), len(pin_model.inertias))
+    for i in range(len(dyn_model.inertias)):
+        dyn_inertia = dyn_model.inertias[i]
+        pin_inertia = pin_model.inertias[i]
+        assert_inertias_equals(test_case, dyn_inertia, pin_inertia)
 
 
 def assert_datas_equals(
