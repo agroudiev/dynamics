@@ -4,7 +4,7 @@ use crate::data::{Data, PyData};
 use crate::forward_kinematics::forward_kinematics;
 use inertia::inertia::Inertia;
 use joint::{
-    joint::{Joint, JointWrapper, PyJointWrapper},
+    joint::{JointModel, JointWrapper, PyJointWrapper},
     revolute::PyJointModelRevolute,
 };
 use numpy::ToPyArray;
@@ -62,7 +62,7 @@ impl Model {
     pub fn new_empty() -> Self {
         Self {
             name: String::new(),
-            joint_names: vec!["__WORLD__".to_string()],
+            joint_names: vec!["universe".to_string()],
             joint_parents: vec![WORLD_FRAME_ID],
             joint_placements: vec![SE3::identity()],
             joint_models: Vec::new(),

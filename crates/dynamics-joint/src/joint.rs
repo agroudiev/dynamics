@@ -6,10 +6,10 @@ use rand::rngs::ThreadRng;
 use spatial::{configuration::Configuration, motion::SpatialMotion, se3::SE3};
 
 /// A wrapper type for the Shape trait to allow dynamic dispatch.
-pub type JointWrapper = Box<dyn Joint + Send + Sync>;
+pub type JointWrapper = Box<dyn JointModel + Send + Sync>;
 
 /// Joint trait for defining joints in a robotic system.
-pub trait Joint {
+pub trait JointModel {
     /// Returns the joint type.
     fn get_joint_type(&self) -> JointType;
 
@@ -49,7 +49,7 @@ pub enum JointType {
 }
 
 /// A Python wrapper for the JointWrapper type.
-#[pyo3::pyclass]
+#[pyclass(name = "JointModel")]
 pub struct PyJointWrapper {
     pub inner: JointWrapper,
 }

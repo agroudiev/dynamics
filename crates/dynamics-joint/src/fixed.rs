@@ -2,7 +2,7 @@
 
 use crate::{
     data::{JointData, JointDataWrapper, JointError},
-    joint::{Joint, JointType, JointWrapper},
+    joint::{JointModel, JointType, JointWrapper},
 };
 use pyo3::prelude::*;
 use spatial::{configuration::Configuration, se3::SE3};
@@ -11,7 +11,7 @@ use spatial::{configuration::Configuration, se3::SE3};
 #[derive(Clone, Debug, Default)]
 pub struct JointModelFixed {}
 
-impl Joint for JointModelFixed {
+impl JointModel for JointModelFixed {
     fn get_joint_type(&self) -> JointType {
         JointType::Fixed
     }

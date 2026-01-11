@@ -4,7 +4,7 @@ use std::f64::consts::PI;
 
 use crate::{
     data::{JointData, JointDataWrapper, JointError},
-    joint::{Joint, JointType, JointWrapper},
+    joint::{JointModel, JointType, JointWrapper},
 };
 use pyo3::prelude::*;
 use rand::Rng;
@@ -52,7 +52,7 @@ impl JointModelRevolute {
     }
 }
 
-impl Joint for JointModelRevolute {
+impl JointModel for JointModelRevolute {
     fn get_joint_type(&self) -> JointType {
         JointType::Revolute
     }
