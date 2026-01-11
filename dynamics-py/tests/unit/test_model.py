@@ -17,6 +17,6 @@ class TestData(unittest.TestCase):
         dyn_data = dyn.Data(dyn_model)
         pin_data = pin.Data(pin_model)
 
-        _ = dyn_data.oMf  # check pinocchio API compatibility
+        _ = dyn_data.oMi  # check pinocchio API compatibility
 
         assert_datas_equals(self, dyn_data, pin_data)

@@ -413,5 +413,6 @@ mod tests {
         let model = Model::new_empty();
         let data = model.create_data();
         assert_eq!(data.joint_placements.len(), model.njoints());
+        assert_eq!(data.joint_placements, vec![SE3::identity()]);
     }
 }

@@ -15,7 +15,7 @@ use crate::{
 pub struct Data {
     /// The data of the joints
     pub joint_data: Vec<JointDataWrapper>,
-    /// The placements of the joints in the world frame
+    /// The placements of the joints in the world frame (oMi)
     pub joint_placements: Vec<SE3>,
 }
 
@@ -75,7 +75,7 @@ impl PyData {
     /// Returns the placements of the joints in the world frame.
     ///
     /// This is an alias for `joint_placements` to match the Pinocchio API.
-    pub fn oMf(&self) -> Vec<PySE3> {
+    pub fn oMi(&self) -> Vec<PySE3> {
         self.joint_placements()
     }
 }
