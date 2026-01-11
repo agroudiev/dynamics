@@ -3,7 +3,7 @@
 use crate::data::{Data, PyData};
 use crate::forward_kinematics::forward_kinematics;
 use inertia::inertia::Inertia;
-use joint::revolute::JointModelRevolute;
+use joint::fixed::JointModelFixed;
 use joint::{
     joint::{JointModel, JointWrapper, PyJointWrapper},
     revolute::PyJointModelRevolute,
@@ -65,10 +65,10 @@ impl Model {
     pub fn new_empty() -> Self {
         Self {
             name: String::new(),
-            joint_names: vec!["universe".to_string()],
+            joint_names: vec!["__WORLD__".to_string()],
             joint_parents: vec![WORLD_FRAME_ID],
             joint_placements: vec![SE3::identity()],
-            joint_models: vec![Box::new(JointModelRevolute::new_rx())],
+            joint_models: vec![Box::new(JointModelFixed::default())],
             nq: 0,
             nv: 0,
             inertias: vec![Inertia::default()],
@@ -139,14 +139,13 @@ impl Model {
     /// The data associated with the model.
     pub fn create_data(&self) -> Data {
         // create the data for each joint
-        let mut joints_data = Vec::with_capacity(self.joint_models.len());
-        for joint_model in self.joint_models.iter() {
+        let mut joints_data = Vec::with_capacity(self.njoints());
+        for joint_model in &self.joint_models {
             let joint_data = joint_model.create_joint_data();
             joints_data.push(joint_data);
         }
 
-        // TODO: initialize the placements
-        let mut data = Data::new(joints_data, Vec::with_capacity(self.joint_models.len()));
+        let mut data = Data::new(joints_data, vec![SE3::identity(); self.njoints()]);
 
         forward_kinematics(self, &mut data, &Configuration::zeros(self.nq))
             .expect("Failed to compute forward kinematics");
@@ -393,5 +392,26 @@ impl PyModel {
 
     fn __repr__(slf: PyRef<'_, Self>) -> String {
         format!("{:#?}", slf.inner)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_create_empty_model() {
+        let model = Model::new_empty();
+        assert_eq!(model.name, "");
+        assert_eq!(model.njoints(), 1);
+        assert_eq!(model.nq, 0);
+        assert_eq!(model.nv, 0);
+    }
+
+    #[test]
+    fn create_data_empty_model() {
+        let model = Model::new_empty();
+        let data = model.create_data();
+        assert_eq!(data.joint_placements.len(), model.njoints());
     }
 }

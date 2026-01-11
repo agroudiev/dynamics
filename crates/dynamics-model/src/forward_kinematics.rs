@@ -38,7 +38,7 @@ pub fn forward_kinematics(
 
     // update the joints data
     let mut offset = 0;
-    for id in 0..model.joint_models.len() {
+    for id in 0..model.njoints() {
         let joint_data = &mut data.joint_data[id];
         let joint_model = &model.joint_models[id];
         let q_joint = q.rows(offset, joint_model.nq());
@@ -53,7 +53,7 @@ pub fn forward_kinematics(
     // by traversing the joint tree
     data.joint_placements = vec![SE3::identity()];
 
-    for joint_id in 0..model.joint_models.len() {
+    for joint_id in 1..model.njoints() {
         let parent_id = model.joint_parents.get(joint_id).unwrap(); // we checked that the parent existed before
         // get the placement of the parent join in the world frame
         let parent_placement = data.joint_placements[*parent_id];

@@ -42,7 +42,7 @@ def assert_models_equals(
     test_case.assertTrue((dyn_model.gravity == pin_model.gravity.linear).all())
     test_case.assertEqual(dyn_model.njoints, pin_model.njoints)
 
-    for i in range(dyn_model.njoints):
+    for i in range(1, dyn_model.njoints):  # skip the universe joint
         test_case.assertEqual(dyn_model.joint_names[i], pin_model.names[i])
         test_case.assertEqual(dyn_model.joint_parents[i], pin_model.parents[i])
         assert_se3_equals(

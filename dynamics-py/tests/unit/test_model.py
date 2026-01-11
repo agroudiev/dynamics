@@ -9,7 +9,6 @@ class TestModel(unittest.TestCase):
         assert_models_equals(self, dyn.Model(), pin.Model())
 
 
-@unittest.skip("")
 class TestData(unittest.TestCase):
     def test_empty_model_data(self):
         dyn_model = dyn.Model()
