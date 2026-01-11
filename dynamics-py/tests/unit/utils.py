@@ -69,3 +69,9 @@ def assert_datas_equals(
 
     # Check joint data
     # TODO
+
+    # Check velocities
+    # TODO
+
+    # Check accelerations
+    # TODO

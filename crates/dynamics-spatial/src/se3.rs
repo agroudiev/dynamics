@@ -243,6 +243,6 @@ impl PySE3 {
     }
 
     fn __repr__(slf: PyRef<'_, Self>) -> String {
-        format!("{:#?}", slf.inner)
+        format!("{:?}", slf.inner)
     }
 }

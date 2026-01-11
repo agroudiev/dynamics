@@ -1,17 +1,13 @@
 //! `Model` structure containing the robot model and its immutable properties.
 
 use crate::data::{Data, PyData};
-use crate::forward_kinematics::forward_kinematics;
 use inertia::inertia::Inertia;
 use joint::fixed::JointModelFixed;
-use joint::{
-    joint::{JointModel, JointWrapper, PyJointWrapper},
-    revolute::PyJointModelRevolute,
-};
+use joint::joint::{JointWrapper, PyJointWrapper};
 use numpy::ToPyArray;
 use numpy::ndarray::Array1;
 use once_cell::sync::Lazy;
-use pyo3::{exceptions::PyValueError, prelude::*, types::PyTuple};
+use pyo3::{exceptions::PyValueError, prelude::*};
 use spatial::configuration::{Configuration, PyConfiguration};
 use spatial::se3::{PySE3, SE3};
 use spatial::vector3d::Vector3D;
@@ -138,19 +134,13 @@ impl Model {
     ///
     /// The data associated with the model.
     pub fn create_data(&self) -> Data {
-        // create the data for each joint
-        let mut joints_data = Vec::with_capacity(self.njoints());
-        for joint_model in &self.joint_models {
-            let joint_data = joint_model.create_joint_data();
-            joints_data.push(joint_data);
-        }
+        let joints_data = self
+            .joint_models
+            .iter()
+            .map(|joint_model| joint_model.create_joint_data())
+            .collect();
 
-        let mut data = Data::new(joints_data, vec![SE3::identity(); self.njoints()]);
-
-        forward_kinematics(self, &mut data, &Configuration::zeros(self.nq))
-            .expect("Failed to compute forward kinematics");
-
-        data
+        Data::new(joints_data, vec![SE3::identity(); self.njoints()])
     }
 
     // /// Appends a body of given inertia to the joint with given id.
@@ -289,41 +279,22 @@ impl PyModel {
     /// * `joint_model` - The joint model to add.
     /// * `placement` - The placement of the joint in the parent frame.
     /// * `name` - The name of the joint.
-    #[pyo3(signature = (*py_args))]
-    fn add_joint(&mut self, py_args: &Bound<'_, PyTuple>) -> PyResult<usize> {
-        if py_args.len() == 4 {
-            let parent_id: usize = py_args.get_item(0)?.extract()?;
-
-            let joint_model: PyJointWrapper = if let Ok(revolute) = py_args
-                .get_item(1)?
-                .extract::<PyRef<PyJointModelRevolute>>()
-            {
-                PyJointWrapper {
-                    inner: revolute.inner.clone_box(),
-                }
-            } else {
-                return Err(PyValueError::new_err(format!(
-                    "add_joint() second argument must be a joint model, but got {:?}.",
-                    py_args.get_item(1)?.get_type()
-                )));
-            };
-
-            let placement = py_args.get_item(2)?.extract::<PyRef<PySE3>>()?;
-            let name: String = py_args.get_item(3)?.extract()?;
-
-            match self.inner.add_joint(
-                parent_id,
-                joint_model.inner.clone_box(),
-                placement.inner,
-                name,
-            ) {
-                Ok(id) => Ok(id),
-                Err(model_error) => Err(PyValueError::new_err(format!("{:?}", model_error))),
-            }
-        } else {
-            Err(PyValueError::new_err(
-                "add_joint() takes exactly 4 arguments",
-            ))
+    #[pyo3(signature = (parent_id, joint_model, placement, name))]
+    fn add_joint(
+        &mut self,
+        parent_id: usize,
+        joint_model: &PyJointWrapper,
+        placement: &PySE3,
+        name: String,
+    ) -> PyResult<usize> {
+        match self.inner.add_joint(
+            parent_id,
+            joint_model.inner.clone_box(),
+            placement.inner,
+            name,
+        ) {
+            Ok(id) => Ok(id),
+            Err(model_error) => Err(PyValueError::new_err(format!("{:?}", model_error))),
         }
     }
 

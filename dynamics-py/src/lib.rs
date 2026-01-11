@@ -8,7 +8,7 @@
 use inertia::inertia::PyInertia;
 use joint::{
     joint::{JointType, PyJointWrapper},
-    revolute::{PyJointModelRevolute, new_rx, new_ry, new_rz},
+    revolute::{new_rx, new_ry, new_rz},
 };
 use model::{
     data::{PyData, PyGeometryData},
@@ -99,7 +99,6 @@ fn add_spatial_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult<
 }
 
 fn add_joint_bindings(dynamics: &Bound<'_, PyModule>) -> PyResult<()> {
-    dynamics.add_class::<PyJointModelRevolute>()?;
     dynamics.add_class::<JointType>()?;
     dynamics.add_function(wrap_pyfunction!(new_rx, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(new_ry, dynamics)?)?;

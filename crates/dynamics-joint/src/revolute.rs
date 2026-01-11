@@ -4,7 +4,7 @@ use std::f64::consts::PI;
 
 use crate::{
     data::{JointData, JointDataWrapper, JointError},
-    joint::{JointModel, JointType, JointWrapper},
+    joint::{JointModel, JointType, JointWrapper, PyJointWrapper},
 };
 use pyo3::prelude::*;
 use rand::Rng;
@@ -169,33 +169,27 @@ impl JointData for JointDataRevolute {
     }
 }
 
-/// A Python wrapper for the `JointModelRevolute` struct.
-#[pyclass(name = "JointModelRevolute")]
-pub struct PyJointModelRevolute {
-    pub inner: JointModelRevolute,
-}
-
 /// Creates a new revolute joint model with `x` as axis of rotation.
 #[pyfunction(name = "JointModelRX")]
-pub fn new_rx() -> PyJointModelRevolute {
-    PyJointModelRevolute {
-        inner: JointModelRevolute::new_rx(),
+pub fn new_rx() -> PyJointWrapper {
+    PyJointWrapper {
+        inner: Box::new(JointModelRevolute::new_rx()),
     }
 }
 
 /// Creates a new revolute joint model with `y` as axis of rotation.
 #[pyfunction(name = "JointModelRY")]
-pub fn new_ry() -> PyJointModelRevolute {
-    PyJointModelRevolute {
-        inner: JointModelRevolute::new_ry(),
+pub fn new_ry() -> PyJointWrapper {
+    PyJointWrapper {
+        inner: Box::new(JointModelRevolute::new_ry()),
     }
 }
 
 /// Creates a new revolute joint model with `z` as axis of rotation.
 #[pyfunction(name = "JointModelRZ")]
-pub fn new_rz() -> PyJointModelRevolute {
-    PyJointModelRevolute {
-        inner: JointModelRevolute::new_rz(),
+pub fn new_rz() -> PyJointWrapper {
+    PyJointWrapper {
+        inner: Box::new(JointModelRevolute::new_rz()),
     }
 }
 
