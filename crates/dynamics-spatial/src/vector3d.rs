@@ -1,3 +1,5 @@
+//! Defines **3D vectors** and related operations.
+
 use nalgebra::Vector3;
 use std::ops::{Add, Mul, Sub};
 

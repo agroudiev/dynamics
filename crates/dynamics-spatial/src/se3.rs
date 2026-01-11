@@ -1,6 +1,8 @@
-//! Special Euclidean group SE(3) implementation.
+//! Defines the **special Euclidean group** SE(3) and related operations.
 //!
-//! This module provides Rust and Python wrappers for the SE(3) group.
+//! This module defines the SE(3) transformation, which combines rotation and translation in 3D space.
+//! An SE(3) transformation consists of a rotation matrix and a translation vector.
+//! Operations such as composition, inversion, and action on points are provided.
 
 use nalgebra::{IsometryMatrix3, Rotation3, Translation3};
 use numpy::{
@@ -12,6 +14,9 @@ use pyo3::{exceptions::PyValueError, prelude::*};
 use crate::{motion::SpatialRotation, transform::SpatialTransform, vector3d::Vector3D};
 
 /// SE(3) transformation represented as an isometry matrix.
+///
+/// An SE(3) transformation combines a rotation and a translation in 3D space.
+/// It combines a rotation matrix $R\in \text{SO}(3)$ and a translation vector $t \in \mathbb{R}^3$
 #[derive(Clone, Debug, Copy, PartialEq, Default)]
 pub struct SE3(pub(crate) IsometryMatrix3<f64>);
 

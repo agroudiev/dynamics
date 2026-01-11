@@ -1,3 +1,5 @@
+//! Defines spatial **motion** and related operations.
+
 use nalgebra::{Matrix6, Rotation3, Vector6};
 
 use crate::{se3::SE3, vector3d::Vector3D};
@@ -115,6 +117,7 @@ impl Mul<f64> for &SpatialMotion {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+/// Spatial rotation, represented as a 3x3 rotation matrix.
 pub struct SpatialRotation(pub(crate) Rotation3<f64>);
 
 impl SpatialRotation {

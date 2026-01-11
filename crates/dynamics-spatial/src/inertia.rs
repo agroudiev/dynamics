@@ -1,3 +1,5 @@
+//! Defines spatial **inertia** and related operations.
+
 use nalgebra::Matrix6;
 
 use crate::{motion::SpatialMotion, vector6d::Vector6D};
@@ -5,6 +7,12 @@ use std::ops::Mul;
 
 #[derive(Debug, Clone, PartialEq, Default)]
 /// Spatial inertia matrix, represented as a 6x6 matrix.
+///
+/// The spatial inertia matrix is expressed as:
+/// $$\begin{bmatrix} mI_3 & -mc_\times \\\\ mc_\times & I_c \end{bmatrix}$$
+/// where $m$ is the mass, $I_3$ is the 3x3 identity matrix,
+/// $c_\times=\[c\]_\times$ is the skew-symmetric matrix of the center
+/// of mass vector, and $I_c$ is the rotational inertia matrix about the center of mass.
 pub struct SpatialInertia(Matrix6<f64>);
 
 impl SpatialInertia {

@@ -1,3 +1,5 @@
+//! Defines RGBA color representation, used for geometric visualization.
+
 use nalgebra::Vector4;
 
 #[derive(Debug, Clone, Copy, PartialEq)]

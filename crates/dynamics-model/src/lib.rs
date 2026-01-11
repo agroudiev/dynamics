@@ -1,3 +1,5 @@
+//! This crate is part of the `dynamics` ecosystem, and is not intended for direct use.
+//!
 //! This crate defines properties and traits for models, data, and geometry objects.
 //! All these structures represent the robot model and its properties.
 //!

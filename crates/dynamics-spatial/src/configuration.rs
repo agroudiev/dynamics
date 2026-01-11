@@ -1,9 +1,10 @@
-use std::ops::{Add, Index, Mul};
+//! Defines **configurations** of multi-body systems and related operations.
 
 use approx::{AbsDiffEq, RelativeEq};
 use nalgebra::DVector;
 use numpy::{PyReadonlyArrayDyn, ToPyArray, ndarray::Array1};
 use pyo3::prelude::*;
+use std::ops::{Add, Index, Mul};
 
 #[derive(Clone, Debug, PartialEq)]
 /// Configuration of a multi-body system, represented as a vector of joint positions.

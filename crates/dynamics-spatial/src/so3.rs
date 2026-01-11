@@ -1,3 +1,5 @@
+//! Defines **special orthogonal group** SO(3) and related operations.
+
 use crate::vector3d::Vector3D;
 use nalgebra::Matrix3;
 

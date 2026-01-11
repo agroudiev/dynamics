@@ -1,8 +1,14 @@
+//! Defines **spatial (6D) vectors** and related operations.
+
 use nalgebra::{Matrix6, Vector6};
 use pyo3::prelude::*;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 /// A 6D vector representing spatial motion (angular and linear components).
+///
+/// A spatial vector is represented as a 6-dimensional vector,
+/// which can be decomposed into $\begin{bmatrix} \omega & v \end{bmatrix}$,
+/// where $\omega$ is the angular component and $v$ is the linear component.
 pub struct Vector6D(pub(crate) Vector6<f64>);
 
 impl Vector6D {

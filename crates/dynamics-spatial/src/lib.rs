@@ -1,4 +1,8 @@
-//! Spatial representation and operations.
+//! This crate is part of the `dynamics` ecosystem, and is not intended for direct use.
+//!
+//! This crate provides spatial algebra utilities for rigid body dynamics.
+//! It implements 6-dimensional vectors, encoding both rotational and translational components,
+//! as well as spatial transformations and operations.
 
 pub mod color;
 pub mod configuration;
