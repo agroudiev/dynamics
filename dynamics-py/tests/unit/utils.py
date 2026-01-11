@@ -41,6 +41,28 @@ def assert_inertias_equals(
     # TODO: compare inertia matrix
 
 
+def assert_frames_equals(
+    test_case: unittest.TestCase, dyn_frame: dyn.Frame, pin_frame: pin.Frame
+):
+    test_case.assertEqual(dyn_frame.name, pin_frame.name)
+    test_case.assertEqual(dyn_frame.parent, pin_frame.parent)
+    match dyn_frame.frame_type:
+        case dyn.FrameType.Operational:
+            test_case.assertEqual(pin_frame.type, pin.FrameType.OP_FRAME)
+        case dyn.FrameType.Joint:
+            test_case.assertEqual(pin_frame.type, pin.FrameType.JOINT)
+        case dyn.FrameType.Fixed:
+            test_case.assertEqual(pin_frame.type, pin.FrameType.FIXED)
+        case dyn.FrameType.Body:
+            test_case.assertEqual(pin_frame.type, pin.FrameType.BODY)
+        case dyn.FrameType.Sensor:
+            test_case.assertEqual(pin_frame.type, pin.FrameType.SENSOR)
+        case _:
+            test_case.assertTrue(False, "Unknown frame type")
+    assert_se3_equals(test_case, dyn_frame.placement, pin_frame.placement)
+    assert_inertias_equals(test_case, dyn_frame.inertia, pin_frame.inertia)
+
+
 def assert_models_equals(
     test_case: unittest.TestCase, dyn_model: dyn.Model, pin_model: pin.Model
 ):
@@ -71,6 +93,13 @@ def assert_models_equals(
         dyn_inertia = dyn_model.inertias[i]
         pin_inertia = pin_model.inertias[i]
         assert_inertias_equals(test_case, dyn_inertia, pin_inertia)
+
+    # Check frames
+    test_case.assertEqual(dyn_model.nframes, pin_model.nframes)
+    for i in range(1, dyn_model.nframes):  # skip the world frame
+        dyn_frame = dyn_model.frames[i]
+        pin_frame = pin_model.frames[i]
+        assert_frames_equals(test_case, dyn_frame, pin_frame)
 
 
 def assert_datas_equals(

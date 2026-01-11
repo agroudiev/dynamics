@@ -1,7 +1,7 @@
 //! `Model` structure containing the robot model and its immutable properties.
 
 use crate::data::{Data, PyData};
-use crate::frame::{Frame, FrameType};
+use crate::frame::{Frame, FrameType, PyFrame};
 use dynamics_inertia::inertia::{Inertia, PyInertia};
 use dynamics_joint::fixed::JointModelFixed;
 use dynamics_joint::joint::{JointWrapper, PyJointWrapper};
@@ -196,6 +196,11 @@ impl Model {
     pub fn njoints(&self) -> usize {
         self.joint_names.len()
     }
+
+    /// Returns the number of frames in the model, including the world frame.
+    pub fn nframes(&self) -> usize {
+        self.frames.len()
+    }
 }
 
 impl Debug for Model {
@@ -330,6 +335,11 @@ impl PyModel {
         self.inner.njoints()
     }
 
+    #[getter]
+    fn nframes(&self) -> usize {
+        self.inner.nframes()
+    }
+
     #[pyo3(signature = (name))]
     fn get_joint_id(&self, name: &str) -> Option<usize> {
         self.inner.get_joint_id(name)
@@ -380,6 +390,17 @@ impl PyModel {
             .iter()
             .map(|inertia| PyInertia {
                 inner: inertia.clone(),
+            })
+            .collect()
+    }
+
+    #[getter]
+    fn get_frames(&self) -> Vec<PyFrame> {
+        self.inner
+            .frames
+            .iter()
+            .map(|frame| PyFrame {
+                inner: frame.clone(),
             })
             .collect()
     }

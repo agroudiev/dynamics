@@ -2,7 +2,10 @@
 
 use dynamics_inertia::inertia::Inertia;
 use dynamics_spatial::se3::SE3;
+use pyo3::prelude::*;
 
+#[derive(Clone, Debug)]
+#[pyclass]
 pub enum FrameType {
     /// Operational frames for task space control.
     Operational,
@@ -12,8 +15,11 @@ pub enum FrameType {
     Fixed,
     /// Frames attached to robot bodies.
     Body,
+    /// Frames for sensor locations.
+    Sensor,
 }
 
+#[derive(Clone, Debug)]
 pub struct Frame {
     /// Name of the frame.
     pub name: String,
@@ -47,5 +53,18 @@ impl Frame {
             placement,
             inertia,
         }
+    }
+}
+
+#[pyclass(name = "Frame")]
+pub struct PyFrame {
+    pub inner: Frame,
+}
+
+#[pymethods]
+impl PyFrame {
+    #[getter]
+    pub fn name(&self) -> String {
+        self.inner.name.clone()
     }
 }

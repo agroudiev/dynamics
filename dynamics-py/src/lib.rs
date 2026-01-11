@@ -14,11 +14,11 @@ use dynamics_model::{
     data::{PyData, PyGeometryData},
     forward_dynamics::{py_aba, py_forward_dynamics},
     forward_kinematics::py_forward_kinematics,
+    frame::{FrameType, PyFrame},
     geometry_model::PyGeometryModel,
     geometry_object::PyGeometryObject,
     inverse_dynamics::{py_inverse_dynamics, py_rnea},
-    model::py_random_configuration,
-    model::{PyModel, STANDARD_GRAVITY, WORLD_FRAME_ID},
+    model::{PyModel, STANDARD_GRAVITY, WORLD_FRAME_ID, py_random_configuration},
     neutral::py_neutral,
 };
 use pyo3::prelude::*;
@@ -60,6 +60,8 @@ fn add_dynamics_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult
     dynamics.add_class::<PyConfiguration>()?;
     dynamics.add_class::<PyModel>()?;
     dynamics.add_class::<PyData>()?;
+    dynamics.add_class::<PyFrame>()?;
+    dynamics.add_class::<FrameType>()?;
     dynamics.add_class::<PyJointWrapper>()?;
     dynamics.add_class::<PyGeometryModel>()?;
     dynamics.add_class::<PyGeometryData>()?;
