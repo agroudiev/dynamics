@@ -18,7 +18,7 @@ use dynamics_spatial::symmetric3::Symmetric3;
 use dynamics_spatial::vector3d::Vector3D;
 use nalgebra::Vector3;
 use pyo3::prelude::*;
-use roxmltree::Document;
+use roxmltree::{Document, Node};
 use std::{collections::HashMap, fs, str::FromStr};
 
 /// Parses a URDF file and builds the corresponding `Model` and `GeometryModel`.
@@ -96,53 +96,7 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                 }
 
                 // parse the inertial node
-                let (link_inertia, link_placement) = if let Some(inertial_node) =
-                    main_node.children().find(|n| n.has_tag_name("inertial"))
-                {
-                    let mass_node = inertial_node
-                        .children()
-                        .find(|n| n.has_tag_name("mass"))
-                        .ok_or(ParseError::InertialWithoutMass(link_name.clone()))?;
-                    let mass = extract_parameter::<f64>("value", &mass_node)?;
-
-                    let inertia_node = inertial_node
-                        .children()
-                        .find(|n| n.has_tag_name("inertia"))
-                        .ok_or(ParseError::InertialWithoutInertia(link_name.clone()))?;
-
-                    let ixx = extract_parameter::<f64>("ixx", &inertia_node)?;
-                    let ixy = extract_parameter::<f64>("ixy", &inertia_node)?;
-                    let ixz = extract_parameter::<f64>("ixz", &inertia_node)?;
-                    let iyy = extract_parameter::<f64>("iyy", &inertia_node)?;
-                    let iyz = extract_parameter::<f64>("iyz", &inertia_node)?;
-                    let izz = extract_parameter::<f64>("izz", &inertia_node)?;
-
-                    let origin_node = inertial_node
-                        .children()
-                        .find(|n| n.has_tag_name("origin"))
-                        .ok_or(ParseError::MissingParameter("origin".to_string()))?;
-                    let rpy = extract_parameter_list::<f64>("rpy", &origin_node, Some(3))?;
-                    let xyz = extract_parameter_list::<f64>("xyz", &origin_node, Some(3))?;
-                    let rotation = SpatialRotation::from_euler_angles(rpy[0], rpy[1], rpy[2]);
-                    let translation = Vector3D::new(xyz[0], xyz[1], xyz[2]);
-                    let inertial_origin = SE3::from_parts(translation, rotation);
-
-                    (
-                        Inertia::new(
-                            mass,
-                            translation,
-                            Symmetric3::new(ixx, ixy, ixz, iyy, iyz, izz),
-                        ),
-                        inertial_origin,
-                    )
-                } else {
-                    (Inertia::zeros(), SE3::identity())
-                };
-
-                // append inertia to the model
-                // model
-                //     .add_frame(link_placement, link_name.clone(), 0)
-                //     .map_err(|e| ParseError::ModelError(format!("{:?}", e)))?;
+                let (link_inertia, link_placement) = parse_inertia(main_node, link_name.clone())?;
 
                 // parse the collision node
                 if let Some(collision_node) =
@@ -170,115 +124,7 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
             }
             // parse joints and frames
             "joint" => {
-                let joint_node = main_node;
-
-                // extract the name and type of joint
-                let joint_name = joint_node
-                    .attribute("name")
-                    .ok_or(ParseError::NameMissing)?
-                    .to_string();
-                let joint_type = joint_node
-                    .attribute("type")
-                    .ok_or(ParseError::MissingParameter("type".to_string()))?;
-
-                // extract the origin of the joint if any
-                let link_origin = parse_origin(&joint_node)?;
-
-                // find the parent
-                let parent_node = joint_node
-                    .descendants()
-                    .find(|n| n.has_tag_name("parent"))
-                    .ok_or(ParseError::MissingParameter("parent".to_string()))?;
-                let parent_link_name = extract_parameter::<String>("link", &parent_node)?;
-
-                // find the child
-                let child_node = joint_node
-                    .descendants()
-                    .find(|n| n.has_tag_name("child"))
-                    .ok_or(ParseError::MissingParameter("child".to_string()))?;
-                let child_link_name = extract_parameter::<String>("link", &child_node)?;
-
-                // we retrieve the parent joint id of the parent link
-                let parent_joint_id = match geom_model.indices.get(&parent_link_name) {
-                    Some(parent_id) => geom_model.models.get_mut(parent_id).unwrap().parent_joint,
-                    None => {
-                        return Err(ParseError::UnknownLinkName(parent_link_name.to_string()));
-                    }
-                };
-
-                // we retrieve the child object to change its parent frame
-                let child_object = match geom_model.indices.get(&child_link_name) {
-                    Some(child_id) => geom_model.models.get_mut(child_id).unwrap(),
-                    None => {
-                        return Err(ParseError::UnknownLinkName(child_link_name.to_string()));
-                    }
-                };
-
-                let joint_id = match joint_type {
-                    "fixed" => {
-                        let parent_frame = &model.frames[parent_joint_id];
-                        let placement = parent_frame.placement * link_origin;
-
-                        let frame = Frame::new(
-                            child_link_name.clone(),
-                            parent_frame.parent_joint,
-                            parent_frame.parent_frame,
-                            placement,
-                            FrameType::Fixed,
-                            Inertia::zeros(), // TODO: handle inertia properly
-                        );
-                        model.add_frame(frame, false)
-                    }
-                    "revolute" => {
-                        // we extract the axis of rotation
-                        let axis_node = joint_node
-                            .children()
-                            .find(|n| n.has_tag_name("axis"))
-                            .ok_or(ParseError::MissingParameter("axis".to_string()))?;
-                        let axis = match extract_parameter_list::<f64>("xyz", &axis_node, Some(3)) {
-                            Ok(xyz) => Vector3D::new(xyz[0], xyz[1], xyz[2]),
-                            Err(e) => return Err(e),
-                        };
-
-                        // we extract the limit of the joint
-                        let limit_node = joint_node
-                            .children()
-                            .find(|n| n.has_tag_name("limit"))
-                            .ok_or(ParseError::MissingParameter("limit".to_string()))?;
-
-                        // TODO: extract dynamics (damping, ...)
-
-                        let mut joint_model = JointModelRevolute::new(axis);
-
-                        // optional parameters
-                        if let Ok(lower) = extract_parameter::<f64>("lower", &limit_node) {
-                            joint_model.lower_limit = lower
-                        };
-                        if let Ok(upper) = extract_parameter::<f64>("upper", &limit_node) {
-                            joint_model.upper_limit = upper
-                        };
-
-                        // required parameters
-                        let effort = extract_parameter::<f64>("effort", &limit_node)?;
-                        joint_model.effort_limit = effort;
-
-                        let velocity = extract_parameter::<f64>("velocity", &limit_node)?;
-                        joint_model.velocity_limit = velocity;
-
-                        model.add_joint(
-                            parent_joint_id,
-                            Box::new(joint_model),
-                            link_origin,
-                            joint_name,
-                        )
-                    }
-                    _ => return Err(ParseError::UnknownJointType(joint_type.to_string())),
-                };
-                let joint_id = match joint_id {
-                    Ok(id) => id,
-                    Err(e) => return Err(ParseError::ModelError(format!("{:?}", e))),
-                };
-                child_object.parent_joint = joint_id;
+                parse_joint(main_node, &mut model, &mut geom_model)?;
             }
             // we ignore empty lines and tags not used in simulation
             "" | "gazebo" | "transmission" => {}
@@ -292,6 +138,166 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
     }
 
     Ok((model, geom_model))
+}
+
+/// Parses a joint from the URDF file and adds it to the model.
+fn parse_joint(
+    joint_node: Node,
+    model: &mut Model,
+    geom_model: &mut GeometryModel,
+) -> Result<(), ParseError> {
+    // extract the name and type of joint
+    let joint_name = joint_node
+        .attribute("name")
+        .ok_or(ParseError::NameMissing)?
+        .to_string();
+    let joint_type = joint_node
+        .attribute("type")
+        .ok_or(ParseError::MissingParameter("type".to_string()))?;
+
+    // extract the origin of the joint if any
+    let link_origin = parse_origin(&joint_node)?;
+
+    // find the parent
+    let parent_node = joint_node
+        .descendants()
+        .find(|n| n.has_tag_name("parent"))
+        .ok_or(ParseError::MissingParameter("parent".to_string()))?;
+    let parent_link_name = extract_parameter::<String>("link", &parent_node)?;
+
+    // find the child
+    let child_node = joint_node
+        .descendants()
+        .find(|n| n.has_tag_name("child"))
+        .ok_or(ParseError::MissingParameter("child".to_string()))?;
+    let child_link_name = extract_parameter::<String>("link", &child_node)?;
+
+    // we retrieve the parent joint id of the parent link
+    let parent_joint_id = match geom_model.indices.get(&parent_link_name) {
+        Some(parent_id) => geom_model.models.get_mut(parent_id).unwrap().parent_joint,
+        None => {
+            return Err(ParseError::UnknownLinkName(parent_link_name.to_string()));
+        }
+    };
+
+    // we retrieve the child object to change its parent frame
+    let child_object = match geom_model.indices.get(&child_link_name) {
+        Some(child_id) => geom_model.models.get_mut(child_id).unwrap(),
+        None => {
+            return Err(ParseError::UnknownLinkName(child_link_name.to_string()));
+        }
+    };
+
+    let joint_id = match joint_type {
+        "fixed" => {
+            let parent_frame = &model.frames[parent_joint_id];
+            let placement = parent_frame.placement * link_origin;
+
+            let frame = Frame::new(
+                child_link_name.clone(),
+                parent_frame.parent_joint,
+                parent_frame.parent_frame,
+                placement,
+                FrameType::Fixed,
+                Inertia::zeros(), // TODO: handle inertia properly
+            );
+            model.add_frame(frame, false)
+        }
+        "revolute" => {
+            // we extract the axis of rotation
+            let axis_node = joint_node
+                .children()
+                .find(|n| n.has_tag_name("axis"))
+                .ok_or(ParseError::MissingParameter("axis".to_string()))?;
+            let axis = match extract_parameter_list::<f64>("xyz", &axis_node, Some(3)) {
+                Ok(xyz) => Vector3D::new(xyz[0], xyz[1], xyz[2]),
+                Err(e) => return Err(e),
+            };
+
+            // we extract the limit of the joint
+            let limit_node = joint_node
+                .children()
+                .find(|n| n.has_tag_name("limit"))
+                .ok_or(ParseError::MissingParameter("limit".to_string()))?;
+
+            // TODO: extract dynamics (damping, ...)
+
+            let mut joint_model = JointModelRevolute::new(axis);
+
+            // optional parameters
+            if let Ok(lower) = extract_parameter::<f64>("lower", &limit_node) {
+                joint_model.lower_limit = lower
+            };
+            if let Ok(upper) = extract_parameter::<f64>("upper", &limit_node) {
+                joint_model.upper_limit = upper
+            };
+
+            // required parameters
+            let effort = extract_parameter::<f64>("effort", &limit_node)?;
+            joint_model.effort_limit = effort;
+
+            let velocity = extract_parameter::<f64>("velocity", &limit_node)?;
+            joint_model.velocity_limit = velocity;
+
+            model.add_joint(
+                parent_joint_id,
+                Box::new(joint_model),
+                link_origin,
+                joint_name,
+            )
+        }
+        _ => return Err(ParseError::UnknownJointType(joint_type.to_string())),
+    };
+    let joint_id = match joint_id {
+        Ok(id) => id,
+        Err(e) => return Err(ParseError::ModelError(format!("{:?}", e))),
+    };
+    child_object.parent_joint = joint_id;
+    Ok(())
+}
+
+/// Parses the inertia of a link from the URDF file.
+fn parse_inertia(node: Node, link_name: String) -> Result<(Inertia, SE3), ParseError> {
+    if let Some(inertial_node) = node.children().find(|n| n.has_tag_name("inertial")) {
+        let mass_node = inertial_node
+            .children()
+            .find(|n| n.has_tag_name("mass"))
+            .ok_or(ParseError::InertialWithoutMass(link_name.clone()))?;
+        let mass = extract_parameter::<f64>("value", &mass_node)?;
+
+        let inertia_node = inertial_node
+            .children()
+            .find(|n| n.has_tag_name("inertia"))
+            .ok_or(ParseError::InertialWithoutInertia(link_name.clone()))?;
+
+        let ixx = extract_parameter::<f64>("ixx", &inertia_node)?;
+        let ixy = extract_parameter::<f64>("ixy", &inertia_node)?;
+        let ixz = extract_parameter::<f64>("ixz", &inertia_node)?;
+        let iyy = extract_parameter::<f64>("iyy", &inertia_node)?;
+        let iyz = extract_parameter::<f64>("iyz", &inertia_node)?;
+        let izz = extract_parameter::<f64>("izz", &inertia_node)?;
+
+        let origin_node = inertial_node
+            .children()
+            .find(|n| n.has_tag_name("origin"))
+            .ok_or(ParseError::MissingParameter("origin".to_string()))?;
+        let rpy = extract_parameter_list::<f64>("rpy", &origin_node, Some(3))?;
+        let xyz = extract_parameter_list::<f64>("xyz", &origin_node, Some(3))?;
+        let rotation = SpatialRotation::from_euler_angles(rpy[0], rpy[1], rpy[2]);
+        let translation = Vector3D::new(xyz[0], xyz[1], xyz[2]);
+        let inertial_origin = SE3::from_parts(translation, rotation);
+
+        Ok((
+            Inertia::new(
+                mass,
+                translation,
+                Symmetric3::new(ixx, ixy, ixz, iyy, iyz, izz),
+            ),
+            inertial_origin,
+        ))
+    } else {
+        Ok((Inertia::zeros(), SE3::identity()))
+    }
 }
 
 /// Parses the geometry of a link from the URDF file.
