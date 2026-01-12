@@ -2,12 +2,13 @@
 
 use nalgebra::{Matrix6, Rotation3, Vector6};
 
-use crate::{se3::SE3, vector3d::Vector3D};
+use crate::{se3::SE3, vector3d::Vector3D, vector6d::Vector6D};
 use std::ops::{Add, Mul};
 
 #[derive(Clone, Debug, PartialEq, Default)]
 /// Spatial motion vector, combining angular and linear velocity components.
 pub struct SpatialMotion(pub(crate) Vector6<f64>);
+// TODO: rewrite this with Vector6D to avoid double implementation
 
 impl SpatialMotion {
     /// Creates a new `SpatialMotion` from a 3D axis (for revolute joints).
@@ -33,6 +34,10 @@ impl SpatialMotion {
     }
 
     /// Creates a `SpatialMotion` from angular and linear components.
+    ///
+    /// # Arguments
+    /// * `angular` - The angular velocity component (3D vector).
+    /// * `linear` - The linear velocity component (3D vector).
     pub fn from_parts(angular: Vector3D, linear: Vector3D) -> Self {
         let mut v = Vector6::zeros();
         v.fixed_rows_mut::<3>(0).copy_from(&angular.0);
@@ -40,7 +45,22 @@ impl SpatialMotion {
         Self(v)
     }
 
+    /// Creates a `SpatialMotion` from a 6D vector.
+    ///
+    /// # Arguments
+    /// * `v` - The 6D vector representing spatial motion; the first three elements are angular, the last three are linear.
+    pub fn from_vector6d(v: Vector6D) -> Self {
+        Self(v.0)
+    }
+
     /// Constructs the cross product matrix for spatial motion vectors.
+    ///
+    /// # Arguments
+    /// * `angular` - The angular velocity component (3D vector).
+    /// * `linear` - The linear velocity component (3D vector).
+    ///
+    /// # Returns
+    /// A 6x6 matrix representing the cross product operation.
     fn cross_matrix(angular: Vector3D, linear: Vector3D) -> Matrix6<f64> {
         let mut cross_matrix = Matrix6::zeros();
         let angular_so3 = crate::so3::SO3::from_vector3d(&angular);
@@ -58,6 +78,12 @@ impl SpatialMotion {
     }
 
     /// Computes the cross product of two spatial motion vectors.
+    ///
+    /// # Arguments
+    /// * `other` - The other spatial motion vector to compute the cross product with.
+    ///
+    /// # Returns
+    /// A new `SpatialMotion` representing the cross product.
     pub fn cross(&self, other: &SpatialMotion) -> SpatialMotion {
         let angular = self.rotation();
         let linear = self.translation();
@@ -68,6 +94,12 @@ impl SpatialMotion {
     }
 
     /// Computes the dual cross product of two spatial motion vectors.
+    ///
+    /// # Arguments
+    /// * `other` - The other spatial motion vector to compute the dual cross product with.
+    ///
+    /// # Returns
+    /// A new `SpatialMotion` representing the dual cross product.
     pub fn cross_star(&self, other: &SpatialMotion) -> SpatialMotion {
         let angular = self.rotation();
         let linear = self.translation();

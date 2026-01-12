@@ -97,7 +97,10 @@ pub fn inverse_dynamics(
                 + local_acceleration
                 + velocities[&id].cross(&local_velocity),
         );
-        forces.insert(id, inertia * &accelerations[&id]);
+        forces.insert(
+            id,
+            SpatialMotion::from_vector6d(inertia * &accelerations[&id]),
+        );
 
         offset += joint_model.nq();
     }

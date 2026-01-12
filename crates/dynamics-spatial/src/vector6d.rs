@@ -16,6 +16,10 @@ impl Vector6D {
         Self(Vector6::new(x, y, z, w, v, u))
     }
 
+    pub fn from_slice(data: &[f64; 6]) -> Self {
+        Self(Vector6::from_column_slice(data))
+    }
+
     pub fn zeros() -> Self {
         Self(Vector6::zeros())
     }

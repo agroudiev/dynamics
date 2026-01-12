@@ -1,7 +1,7 @@
 //! Structures to represent the inertia of a rigid body.
 
 use dynamics_spatial::{
-    inertia::SpatialInertia, motion::SpatialMotion, vector3d::Vector3D, vector6d::Vector6D,
+    force::SpatialForce, motion::SpatialMotion, symmetric3::Symmetric3, vector3d::Vector3D,
 };
 use pyo3::{exceptions::PyValueError, prelude::*};
 use std::ops::Mul;
@@ -13,8 +13,8 @@ pub struct Inertia {
     pub mass: f64,
     /// The center of mass of the object.
     pub com: Vector3D,
-    /// The inertia matrix of the object.
-    pub inertia: SpatialInertia, // TODO: change to I_c
+    /// Rotational inertia matrix at the center of mass.
+    pub inertia: Symmetric3,
 }
 
 impl Inertia {
@@ -23,9 +23,9 @@ impl Inertia {
     /// # Arguments
     ///
     /// * `mass` - The mass of the object.
-    /// * `com` - The center of mass of the object (3D vector).
-    /// * `inertia` - The inertia matrix of the object (3x3 matrix).
-    pub fn new(mass: f64, com: Vector3D, inertia: SpatialInertia) -> Self {
+    /// * `com` - The center of mass of the object.
+    /// * `inertia` - The rotational inertia matrix of the object at the center of mass.
+    pub fn new(mass: f64, com: Vector3D, inertia: Symmetric3) -> Self {
         Self { mass, com, inertia }
     }
 
@@ -37,8 +37,39 @@ impl Inertia {
         Self {
             mass: 0.0,
             com: Vector3D::zeros(),
-            inertia: SpatialInertia::zeros(),
+            inertia: Symmetric3::zeros(),
         }
+    }
+
+    /// Creates a new `Inertia` object representing an ellipsoid with the given mass and semi-axis lengths.
+    ///
+    /// # Arguments
+    /// * `mass` - The mass of the ellipsoid.
+    /// * `x` - The semi-axis length along the x-axis.
+    /// * `y` - The semi-axis length along the y-axis.
+    /// * `z` - The semi-axis length along the z-axis.
+    ///
+    /// # Returns
+    /// A new `Inertia` object representing an ellipsoid.
+    pub fn from_ellipsoid(mass: f64, x: f64, y: f64, z: f64) -> Result<Self, InertiaError> {
+        if mass <= 0.0 {
+            return Err(InertiaError::InvalidParameter("mass".to_string()));
+        }
+        if x <= 0.0 {
+            return Err(InertiaError::InvalidParameter("x".to_string()));
+        }
+        if y <= 0.0 {
+            return Err(InertiaError::InvalidParameter("y".to_string()));
+        }
+        if z <= 0.0 {
+            return Err(InertiaError::InvalidParameter("z".to_string()));
+        }
+
+        let a = mass * (y.powi(2) + z.powi(2)) / 5.0;
+        let b = mass * (x.powi(2) + z.powi(2)) / 5.0;
+        let c = mass * (x.powi(2) + y.powi(2)) / 5.0;
+        let inertia_matrix = Symmetric3::new(a, 0.0, b, 0.0, 0.0, c);
+        Ok(Self::new(mass, Vector3D::zeros(), inertia_matrix))
     }
 
     /// Creates a new `Inertia` object representing a sphere with the given mass and radius.
@@ -51,26 +82,17 @@ impl Inertia {
     /// # Returns
     /// A new `Inertia` object representing a sphere.
     pub fn from_sphere(mass: f64, radius: f64) -> Result<Self, InertiaError> {
-        if mass <= 0.0 {
-            return Err(InertiaError::InvalidParameter("mass".to_string()));
-        }
-        if radius <= 0.0 {
-            return Err(InertiaError::InvalidParameter("radius".to_string()));
-        }
-
-        let inertia = (2.0 / 5.0) * mass * radius.powi(2);
-        let diag = Vector6D::new(inertia, inertia, inertia, mass, mass, mass);
-        let inertia_matrix = SpatialInertia::from_diagonal(&diag);
-
-        Ok(Self::new(mass, Vector3D::zeros(), inertia_matrix))
+        Inertia::from_ellipsoid(mass, radius, radius, radius)
     }
 }
 
 impl Mul<&SpatialMotion> for &Inertia {
-    type Output = SpatialMotion;
+    type Output = SpatialForce;
 
     fn mul(self, rhs: &SpatialMotion) -> Self::Output {
-        &self.inertia * rhs
+        let linear = self.mass * (rhs.translation() - self.com.cross(&rhs.rotation()));
+        let angular = &self.inertia * &rhs.rotation() + self.com.cross(&linear);
+        SpatialForce::from_components(angular, linear)
     }
 }
 

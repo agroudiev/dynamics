@@ -11,9 +11,9 @@ use dynamics_model::{
     model::{Model, PyModel, WORLD_FRAME_ID},
 };
 use dynamics_spatial::color::Color;
-use dynamics_spatial::inertia::SpatialInertia;
 use dynamics_spatial::motion::SpatialRotation;
 use dynamics_spatial::se3::SE3;
+use dynamics_spatial::symmetric3::Symmetric3;
 use dynamics_spatial::vector3d::Vector3D;
 use nalgebra::Vector3;
 use pyo3::prelude::*;
@@ -130,7 +130,7 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                         Inertia::new(
                             mass,
                             translation,
-                            SpatialInertia::new(ixx, ixy, ixz, iyy, iyz, izz),
+                            Symmetric3::new(ixx, ixy, ixz, iyy, iyz, izz),
                         ),
                         inertial_origin,
                     )

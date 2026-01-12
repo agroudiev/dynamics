@@ -44,6 +44,11 @@ impl Vector3D {
         Self(Vector3::z())
     }
 
+    /// Computes the cross product of two 3D vectors.
+    pub fn cross(&self, other: &Vector3D) -> Vector3D {
+        Vector3D(self.0.cross(&other.0))
+    }
+
     pub fn to_numpy(&self, py: Python) -> Py<PyAny> {
         Array1::from_iter(self.0.iter().copied())
             .to_pyarray(py)
@@ -81,5 +86,29 @@ impl Mul<f64> for Vector3D {
 
     fn mul(self, rhs: f64) -> Self::Output {
         Vector3D(self.0 * rhs)
+    }
+}
+
+impl Mul<f64> for &Vector3D {
+    type Output = Vector3D;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Vector3D(self.0 * rhs)
+    }
+}
+
+impl Mul<&Vector3D> for f64 {
+    type Output = Vector3D;
+
+    fn mul(self, rhs: &Vector3D) -> Self::Output {
+        Vector3D(rhs.0 * self)
+    }
+}
+
+impl Mul<Vector3D> for f64 {
+    type Output = Vector3D;
+
+    fn mul(self, rhs: Vector3D) -> Self::Output {
+        Vector3D(rhs.0 * self)
     }
 }
