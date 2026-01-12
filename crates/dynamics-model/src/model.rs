@@ -148,7 +148,10 @@ impl Model {
         self.frames.push(frame);
 
         if append_inertia {
-            unimplemented!("Appending inertia when adding a frame is not yet implemented.");
+            self.inertias[self.frames[id].parent_joint] += self.frames[id]
+                .placement
+                .clone()
+                .act(&self.frames[id].inertia);
         }
 
         Ok(id)

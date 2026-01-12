@@ -5,6 +5,7 @@ use collider::mesh::Mesh;
 use collider::shape::{Cylinder, ShapeWrapper, Sphere};
 use dynamics_inertia::inertia::Inertia;
 use dynamics_joint::revolute::JointModelRevolute;
+use dynamics_model::frame::{Frame, FrameType};
 use dynamics_model::{
     geometry_model::{GeometryModel, PyGeometryModel},
     geometry_object::GeometryObject,
@@ -95,7 +96,7 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                 }
 
                 // parse the inertial node
-                let (_link_inertia, _link_placement) = if let Some(inertial_node) =
+                let (link_inertia, link_placement) = if let Some(inertial_node) =
                     main_node.children().find(|n| n.has_tag_name("inertial"))
                 {
                     let mass_node = inertial_node
@@ -135,10 +136,6 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                         inertial_origin,
                     )
                 } else {
-                    eprintln!(
-                        "Warning: no inertial information provided for link: {}",
-                        link_name
-                    );
                     (Inertia::zeros(), SE3::identity())
                 };
 
@@ -152,9 +149,24 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
                     main_node.children().find(|n| n.has_tag_name("visual"))
                 {
                     let geom_obj =
-                        parse_geometry(link_name, &collision_node, &materials, filepath)?;
+                        parse_geometry(link_name.clone(), &collision_node, &materials, filepath)?;
                     coll_model.add_geometry_object(geom_obj);
                 }
+
+                // add a frame for the link
+                let parent_joint = WORLD_FRAME_ID;
+                let parent_frame = WORLD_FRAME_ID;
+                let frame = Frame::new(
+                    link_name,
+                    parent_joint,
+                    parent_frame,
+                    link_placement,
+                    FrameType::Body,
+                    link_inertia,
+                );
+                model
+                    .add_frame(frame, true)
+                    .map_err(|e| ParseError::ModelError(format!("{:?}", e)))?;
             }
             // parse joints and frames
             "joint" => {

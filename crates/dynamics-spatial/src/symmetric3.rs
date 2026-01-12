@@ -3,9 +3,9 @@
 use nalgebra::Matrix3;
 use numpy::{ToPyArray, ndarray::Array2};
 use pyo3::prelude::*;
-use std::ops::{Index, Mul};
+use std::ops::{Add, Index, Mul, Sub};
 
-use crate::vector3d::Vector3D;
+use crate::{motion::SpatialRotation, vector3d::Vector3D};
 
 /// A symmetric 3x3 matrix.
 ///
@@ -96,6 +96,43 @@ impl Symmetric3 {
             .into_any()
             .unbind()
     }
+
+    pub fn skew_square(v: Vector3D) -> Symmetric3 {
+        let x = v.0[0];
+        let y = v.0[1];
+        let z = v.0[2];
+
+        Symmetric3::new(
+            y * y + z * z,
+            x * x + z * z,
+            x * x + y * y,
+            -x * y,
+            -x * z,
+            -y * z,
+        )
+    }
+
+    /// Computes the matrix product $RSR^\top$ where $R$ is a spatial rotation and $S$ is this symmetric matrix.
+    ///
+    /// # Arguments
+    /// * `rotation` - The spatial rotation to apply.
+    ///
+    /// # Returns
+    /// The rotated symmetric matrix.
+    pub fn rotate(&self, rotation: &SpatialRotation) -> Symmetric3 {
+        // TODO: avoid constructing the full matrix
+        let r = &rotation.0;
+        let s = &self.matrix();
+        let rsrt = r * s * r.transpose();
+        Symmetric3::new(
+            rsrt[(0, 0)],
+            rsrt[(1, 1)],
+            rsrt[(2, 2)],
+            rsrt[(0, 1)],
+            rsrt[(0, 2)],
+            rsrt[(1, 2)],
+        )
+    }
 }
 
 impl Index<(usize, usize)> for Symmetric3 {
@@ -103,6 +140,40 @@ impl Index<(usize, usize)> for Symmetric3 {
 
     fn index(&self, index: (usize, usize)) -> &Self::Output {
         self.get(index.0, index.1)
+    }
+}
+
+impl Add<Symmetric3> for Symmetric3 {
+    type Output = Symmetric3;
+
+    fn add(self, rhs: Symmetric3) -> Self::Output {
+        Symmetric3 {
+            data: [
+                self.data[0] + rhs.data[0],
+                self.data[1] + rhs.data[1],
+                self.data[2] + rhs.data[2],
+                self.data[3] + rhs.data[3],
+                self.data[4] + rhs.data[4],
+                self.data[5] + rhs.data[5],
+            ],
+        }
+    }
+}
+
+impl Sub<Symmetric3> for Symmetric3 {
+    type Output = Symmetric3;
+
+    fn sub(self, rhs: Symmetric3) -> Self::Output {
+        Symmetric3 {
+            data: [
+                self.data[0] - rhs.data[0],
+                self.data[1] - rhs.data[1],
+                self.data[2] - rhs.data[2],
+                self.data[3] - rhs.data[3],
+                self.data[4] - rhs.data[4],
+                self.data[5] - rhs.data[5],
+            ],
+        }
     }
 }
 
@@ -115,6 +186,40 @@ impl Mul<&Vector3D> for &Symmetric3 {
             self[(1, 0)] * rhs.0[0] + self[(1, 1)] * rhs.0[1] + self[(1, 2)] * rhs.0[2],
             self[(2, 0)] * rhs.0[0] + self[(2, 1)] * rhs.0[1] + self[(2, 2)] * rhs.0[2],
         )
+    }
+}
+
+impl Mul<f64> for Symmetric3 {
+    type Output = Symmetric3;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Symmetric3 {
+            data: [
+                self.data[0] * rhs,
+                self.data[1] * rhs,
+                self.data[2] * rhs,
+                self.data[3] * rhs,
+                self.data[4] * rhs,
+                self.data[5] * rhs,
+            ],
+        }
+    }
+}
+
+impl Mul<Symmetric3> for f64 {
+    type Output = Symmetric3;
+
+    fn mul(self, rhs: Symmetric3) -> Self::Output {
+        Symmetric3 {
+            data: [
+                rhs.data[0] * self,
+                rhs.data[1] * self,
+                rhs.data[2] * self,
+                rhs.data[3] * self,
+                rhs.data[4] * self,
+                rhs.data[5] * self,
+            ],
+        }
     }
 }
 
@@ -152,5 +257,56 @@ mod tests {
         let result = &sym * &vec;
         let expected = Vector3D::new(1.0, 4.0, 9.0);
         assert_relative_eq!(result.0, expected.0);
+    }
+
+    #[test]
+    fn test_symmetric3_rotate() {
+        let full = Matrix3::new(1.0, 2.0, 3.0, 2.0, 4.0, 5.0, 3.0, 5.0, 6.0);
+        assert!(full == full.transpose());
+
+        let sym = Symmetric3::new(
+            full[(0, 0)],
+            full[(1, 1)],
+            full[(2, 2)],
+            full[(0, 1)],
+            full[(0, 2)],
+            full[(1, 2)],
+        );
+
+        let rotation = SpatialRotation::from_axis_angle(
+            &Vector3D::new(0.0, 0.0, 1.0),
+            std::f64::consts::FRAC_PI_2,
+        );
+        let rotated_sym = sym.rotate(&rotation);
+
+        let expected = rotation.0 * full * rotation.0.transpose();
+        let expected_sym = Symmetric3::new(
+            expected[(0, 0)],
+            expected[(1, 1)],
+            expected[(2, 2)],
+            expected[(0, 1)],
+            expected[(0, 2)],
+            expected[(1, 2)],
+        );
+        assert_relative_eq!(rotated_sym.matrix(), expected_sym.matrix());
+    }
+}
+
+#[pyclass(name = "Symmetric3")]
+pub struct PySymmetric3 {
+    inner: Symmetric3,
+}
+
+#[pymethods]
+impl PySymmetric3 {
+    #[new]
+    pub fn new(m11: f64, m22: f64, m33: f64, m12: f64, m13: f64, m23: f64) -> Self {
+        PySymmetric3 {
+            inner: Symmetric3::new(m11, m22, m33, m12, m13, m23),
+        }
+    }
+
+    pub fn to_numpy(&self, py: Python) -> Py<PyAny> {
+        self.inner.to_numpy(py)
     }
 }

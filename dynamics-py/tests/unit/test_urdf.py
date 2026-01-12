@@ -11,24 +11,28 @@ def compare_urdf_construction(test_case, file_path):
     assert_models_equals(test_case, dyn_model, pin_model)
 
 
-@unittest.skip("Skipping URDF tests for now")
 class TestURDF(unittest.TestCase):
     def test_build_myfirst(self):
         compare_urdf_construction(self, "examples/descriptions/myfirst.urdf")
 
+    @unittest.skip("Skipping URDF tests for now")
     def test_build_double_pendulum_simple(self):
         compare_urdf_construction(
             self, "examples/descriptions/double_pendulum_simple.urdf"
         )
 
+    @unittest.skip("Skipping URDF tests for now")
     def test_build_materials(self):
         compare_urdf_construction(self, "examples/descriptions/materials.urdf")
 
+    @unittest.skip("Skipping URDF tests for now")
     def test_build_multipleshapes(self):
         compare_urdf_construction(self, "examples/descriptions/multipleshapes.urdf")
 
+    @unittest.skip("Skipping URDF tests for now")
     def test_build_origins(self):
         compare_urdf_construction(self, "examples/descriptions/origins.urdf")
 
+    @unittest.skip("Skipping URDF tests for now")
     def test_build_visuals(self):
         compare_urdf_construction(self, "examples/descriptions/visuals.urdf")

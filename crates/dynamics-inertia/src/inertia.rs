@@ -1,10 +1,14 @@
 //! Structures to represent the inertia of a rigid body.
 
 use dynamics_spatial::{
-    force::SpatialForce, motion::SpatialMotion, symmetric3::Symmetric3, vector3d::Vector3D,
+    force::SpatialForce,
+    motion::SpatialMotion,
+    se3::{ActSE3, SE3},
+    symmetric3::Symmetric3,
+    vector3d::Vector3D,
 };
 use pyo3::{exceptions::PyValueError, prelude::*};
-use std::ops::Mul;
+use std::ops::{Add, AddAssign, Mul};
 
 /// A data structure that contains the information about the inertia of a rigid body (mass, center of mass, and inertia matrix).
 #[derive(Clone, Debug, Default)]
@@ -93,6 +97,38 @@ impl Mul<&SpatialMotion> for &Inertia {
         let linear = self.mass * (rhs.translation() - self.com.cross(&rhs.rotation()));
         let angular = &self.inertia * &rhs.rotation() + self.com.cross(&linear);
         SpatialForce::from_components(angular, linear)
+    }
+}
+
+impl Add for Inertia {
+    type Output = Inertia;
+
+    fn add(self, rhs: Inertia) -> Self::Output {
+        let total_mass = self.mass + rhs.mass;
+        let total_mass_inv = 1.0 / total_mass.max(f64::EPSILON);
+        let ab = self.com - rhs.com;
+        Inertia::new(
+            total_mass,
+            (self.mass * self.com + rhs.mass * rhs.com) * total_mass_inv,
+            self.inertia + rhs.inertia
+                - (self.mass * rhs.mass * total_mass_inv) * Symmetric3::skew_square(ab),
+        )
+    }
+}
+
+impl AddAssign for Inertia {
+    fn add_assign(&mut self, rhs: Inertia) {
+        *self = self.clone() + rhs;
+    }
+}
+
+impl ActSE3 for Inertia {
+    fn act(&self, t: &SE3) -> Self {
+        Inertia::new(
+            self.mass,
+            t.translation() + t.rotation() * &self.com,
+            self.inertia.rotate(&t.rotation()),
+        )
     }
 }
 

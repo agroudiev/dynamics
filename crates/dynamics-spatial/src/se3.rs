@@ -96,6 +96,18 @@ impl std::ops::Mul<&SE3> for SE3 {
     }
 }
 
+/// Trait for objects on which SE(3) transformations can act.
+pub trait ActSE3 {
+    fn act(&self, se3: &SE3) -> Self;
+}
+
+impl SE3 {
+    /// Applies the SE(3) transformation to an object implementing the `ActSE3` trait.
+    pub fn act<T: ActSE3>(&self, obj: &T) -> T {
+        obj.act(self)
+    }
+}
+
 /// Python wrapper for the SE(3) group.
 #[pyclass(name = "SE3")]
 #[derive(Clone, Debug, Default)]

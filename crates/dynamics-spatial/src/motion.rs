@@ -179,6 +179,14 @@ impl SpatialRotation {
     }
 }
 
+impl Mul<&Vector3D> for SpatialRotation {
+    type Output = Vector3D;
+
+    fn mul(self, rhs: &Vector3D) -> Self::Output {
+        Vector3D(self.0 * rhs.0)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::so3::SO3;
