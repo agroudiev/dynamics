@@ -1,8 +1,9 @@
 //! Defines **symmetric matrices** of size 3x3 and related operations.
 
-use std::ops::{Index, Mul};
-
 use nalgebra::Matrix3;
+use numpy::{ToPyArray, ndarray::Array2};
+use pyo3::prelude::*;
+use std::ops::{Index, Mul};
 
 use crate::vector3d::Vector3D;
 
@@ -86,6 +87,14 @@ impl Symmetric3 {
             self.data[5],
             self.data[2],
         )
+    }
+
+    pub fn to_numpy(&self, py: Python) -> Py<PyAny> {
+        let mat = self.matrix();
+        Array2::from_shape_fn((3, 3), |(i, j)| mat[(i, j)])
+            .to_pyarray(py)
+            .into_any()
+            .unbind()
     }
 }
 

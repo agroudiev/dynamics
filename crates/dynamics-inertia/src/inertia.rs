@@ -159,9 +159,23 @@ impl PyInertia {
         self.inner.mass
     }
 
-    // TODO: com getter
+    #[getter]
+    pub fn com(&self, py: Python) -> Py<PyAny> {
+        self.inner.com.to_numpy(py)
+    }
 
-    // TODO: inertia getter
+    /// Returns the lever (center of mass) of the inertia.
+    ///
+    /// This is an alias for the `com` property.
+    #[getter]
+    pub fn lever(&self, py: Python) -> Py<PyAny> {
+        self.inner.com.to_numpy(py)
+    }
+
+    #[getter]
+    pub fn inertia(&self, py: Python) -> Py<PyAny> {
+        self.inner.inertia.to_numpy(py)
+    }
 
     fn __repr__(slf: PyRef<'_, Self>) -> String {
         format!("{:?}", slf.inner)

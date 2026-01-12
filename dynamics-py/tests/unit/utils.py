@@ -39,8 +39,10 @@ def assert_inertias_equals(
     test_case: unittest.TestCase, dyn_inertia: dyn.Inertia, pin_inertia: pin.Inertia
 ):
     test_case.assertAlmostEqual(dyn_inertia.mass, pin_inertia.mass)
-    # TODO: compare com
-    # TODO: compare inertia matrix
+    test_case.assertTrue(np.linalg.norm(dyn_inertia.com - pin_inertia.lever) < 1e-15)
+    test_case.assertTrue(
+        np.linalg.norm(dyn_inertia.inertia - pin_inertia.inertia) < 1e-15
+    )
 
 
 def assert_frames_equals(
