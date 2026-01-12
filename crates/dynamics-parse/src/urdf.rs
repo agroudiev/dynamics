@@ -216,9 +216,18 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
 
                 let joint_id = match joint_type {
                     "fixed" => {
-                        // we create a new frame for the link
-                        // model.add_frame(link_origin, joint_name, parent_joint_id)
-                        unimplemented!();
+                        let parent_frame = &model.frames[parent_joint_id];
+                        let placement = parent_frame.placement * link_origin;
+
+                        let frame = Frame::new(
+                            child_link_name.clone(),
+                            parent_frame.parent_joint,
+                            parent_frame.parent_frame,
+                            placement,
+                            FrameType::Fixed,
+                            Inertia::zeros(), // TODO: handle inertia properly
+                        );
+                        model.add_frame(frame, false)
                     }
                     "revolute" => {
                         // we extract the axis of rotation
