@@ -203,7 +203,7 @@ fn parse_joint(
     };
     let joint_id = match joint_id {
         Ok(id) => id,
-        Err(e) => return Err(ParseError::ModelError(format!("{:?}", e))),
+        Err(e) => return Err(ParseError::ModelError(e)),
     };
     child_object.parent_joint = joint_id;
     Ok(())
@@ -257,7 +257,7 @@ fn parse_link(
     );
     model
         .add_frame(frame, true)
-        .map_err(|e| ParseError::ModelError(format!("{:?}", e)))?;
+        .map_err(ParseError::ModelError)?;
     Ok(())
 }
 

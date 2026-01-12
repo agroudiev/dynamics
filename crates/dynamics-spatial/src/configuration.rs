@@ -11,26 +11,56 @@ use std::ops::{Add, Index, Mul};
 pub struct Configuration(DVector<f64>);
 
 impl Configuration {
+    /// Creates a new [`Configuration`] with the given size, initialized to zeros.
+    /// # Arguments
+    /// * `size` - The size of the configuration vector.
+    /// # Returns
+    /// A new [`Configuration`] object with all values set to zero.
     pub fn zeros(size: usize) -> Self {
         Configuration(DVector::zeros(size))
     }
 
+    /// Creates a new [`Configuration`] with the given size, initialized to ones.
+    /// # Arguments
+    /// * `size` - The size of the configuration vector.
+    /// # Returns
+    /// A new [`Configuration`] object with all values set to one.
     pub fn ones(size: usize) -> Self {
         Configuration(DVector::from_element(size, 1.0))
     }
 
+    /// Returns the length of the configuration vector.
     pub fn len(&self) -> usize {
         self.0.len()
     }
 
+    /// Checks if the configuration vector is empty.
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
 
+    /// Returns a slice of the configuration vector from `start` to `start + nrows - 1` (inclusive).
+    ///
+    /// The returned slice goes from index `start` to `start + nrows - 1`,
+    /// included, and contains `nrows` elements.
+    ///
+    /// # Arguments
+    /// * `start` - The starting index of the slice.
+    /// * `nrows` - The number of rows to include in the slice.
+    ///
+    /// # Returns
+    /// A new [`Configuration`] object containing the specified slice.
     pub fn rows(&self, start: usize, nrows: usize) -> Configuration {
         Configuration(self.0.rows(start, nrows).into_owned())
     }
 
+    /// Updates a slice of the configuration vector starting from `start` with the values from another configuration.
+    ///
+    /// The slice to be updated starts at index `start` and has the same length as the provided `values` configuration.
+    ///
+    /// # Arguments
+    /// * `start` - The starting index of the slice to be updated.
+    /// * `values` - The configuration containing the new values to be copied.
     pub fn update_rows(&mut self, start: usize, values: &Configuration) {
         assert_eq!(
             self.0.rows(start, values.len()),
@@ -40,20 +70,31 @@ impl Configuration {
         self.0.rows_mut(start, values.len()).copy_from(&values.0);
     }
 
+    /// Creates a new [`Configuration`] from a slice of scalar values.
+    /// # Arguments
+    /// * `data` - A slice of scalar values.
+    /// # Returns
+    /// A new [`Configuration`] object containing the values from the slice.
     pub fn from_row_slice(data: &[f64]) -> Self {
         Configuration(DVector::from_row_slice(data))
     }
 
-    pub fn from_vec(data: Vec<f64>) -> Self {
-        Configuration(DVector::from_vec(data))
-    }
-
+    /// Creates a new [`Configuration`] from a NumPy array.
+    /// # Arguments
+    /// * `array` - A read-only NumPy array of scalar values.
+    /// # Returns
+    /// A new [`Configuration`] object containing the values from the NumPy array.
     pub fn from_pyarray(array: PyReadonlyArrayDyn<f64>) -> Result<Configuration, PyErr> {
         let array = array.as_array();
         let flat: Vec<f64> = array.iter().copied().collect();
         Ok(Configuration::from_row_slice(&flat))
     }
 
+    /// Concatenates multiple [`Configuration`] objects into a single configuration.
+    /// # Arguments
+    /// * `configs` - A slice of [`Configuration`] objects to concatenate.
+    /// # Returns
+    /// A new [`Configuration`] object containing all values from the input configurations.
     pub fn concat(configs: &[Configuration]) -> Configuration {
         let mut all_values = Vec::new();
         for config in configs {

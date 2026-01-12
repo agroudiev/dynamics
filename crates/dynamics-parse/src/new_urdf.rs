@@ -269,7 +269,7 @@ fn parse_joint(
         }
         _ => return Err(ParseError::UnknownJointType(joint_type.to_string())),
     }
-    .map_err(|e| ParseError::ModelError(format!("{:?}", e)))?;
+    .map_err(ParseError::ModelError)?;
 
     Ok(())
 }
@@ -331,7 +331,7 @@ fn parse_link(
     );
     model
         .add_frame(frame, true)
-        .map_err(|e| ParseError::ModelError(format!("{:?}", e)))?;
+        .map_err(ParseError::ModelError)?;
     Ok(())
 }
 
