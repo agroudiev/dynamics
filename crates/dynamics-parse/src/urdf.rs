@@ -21,7 +21,7 @@ use pyo3::prelude::*;
 use roxmltree::{Document, Node};
 use std::{collections::HashMap, fs, str::FromStr};
 
-/// Parses a URDF file and builds the corresponding [[`Model`]] and [[`GeometryModel`]].
+/// Parses a URDF file and builds the corresponding [`Model`] and [`GeometryModel`].
 ///
 /// # Arguments
 ///
@@ -29,7 +29,7 @@ use std::{collections::HashMap, fs, str::FromStr};
 ///
 /// # Returns
 ///
-/// A tuple containing the [[`Model`]] and [[`GeometryModel`]] objects if successful.
+/// A tuple containing the [`Model`] and [`GeometryModel`] objects if successful.
 /// Returns a [`ParseError`] if there is an error during parsing.
 pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), ParseError> {
     // TODO: separate file reading and parsing for testing
@@ -47,7 +47,7 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
     let mut model = Model::new(robot_name);
     let mut geom_model = GeometryModel::new();
     let mut coll_model = GeometryModel::new();
-    let mut materials: HashMap<&str, Color> = HashMap::new();
+    let mut materials = HashMap::new();
 
     let priority_order = ["material", "link", "joint"];
     let priority_map: HashMap<&str, usize> = priority_order
@@ -63,66 +63,19 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
         match main_node.tag_name().name() {
             // materials not attached to a link
             "material" => {
-                // extract name
-                let material_name = main_node.attribute("name").ok_or(ParseError::NameMissing)?;
-
-                // extract and convert color
-                let color_node = main_node
-                    .children()
-                    .find(|n| n.has_tag_name("color"))
-                    .ok_or(ParseError::MaterialWithoutColor)?;
-                let rgba = extract_parameter_list::<f64>("rgba", &color_node, Some(4))?;
-                let color = Color::new(rgba[0], rgba[1], rgba[2], rgba[3]);
-
-                materials.insert(material_name, color);
+                parse_material(main_node, &mut materials)?;
             }
             "link" => {
-                let link_name = main_node.attribute("name").unwrap_or("").to_string();
-
-                // parse the visual node
-                if let Some(visual_node) = main_node.children().find(|n| n.has_tag_name("visual")) {
-                    let geom_obj =
-                        parse_geometry(link_name.clone(), &visual_node, &materials, filepath)?;
-                    geom_model.add_geometry_object(geom_obj);
-                } else {
-                    // add a default geometry object if no visual node is found
-                    geom_model.add_geometry_object(GeometryObject::new(
-                        link_name.clone(),
-                        WORLD_FRAME_ID,
-                        Box::new(Sphere::new(0.0)),
-                        Color::transparent(),
-                        SE3::identity(),
-                    ));
-                }
-
-                // parse the inertial node
-                let (link_inertia, link_placement) = parse_inertia(main_node, link_name.clone())?;
-
-                // parse the collision node
-                if let Some(collision_node) =
-                    main_node.children().find(|n| n.has_tag_name("visual"))
-                {
-                    let geom_obj =
-                        parse_geometry(link_name.clone(), &collision_node, &materials, filepath)?;
-                    coll_model.add_geometry_object(geom_obj);
-                }
-
-                // add a frame for the link
-                let parent_joint = WORLD_FRAME_ID;
-                let parent_frame = WORLD_FRAME_ID;
-                let frame = Frame::new(
-                    link_name,
-                    parent_joint,
-                    parent_frame,
-                    link_placement,
-                    FrameType::Body,
-                    link_inertia,
-                );
-                model
-                    .add_frame(frame, true)
-                    .map_err(|e| ParseError::ModelError(format!("{:?}", e)))?;
+                parse_link(
+                    main_node,
+                    &mut model,
+                    &mut geom_model,
+                    &mut coll_model,
+                    &materials,
+                    filepath,
+                )?;
             }
-            // parse joints and frames
+            // parse joints
             "joint" => {
                 parse_joint(main_node, &mut model, &mut geom_model)?;
             }
@@ -256,6 +209,78 @@ fn parse_joint(
     Ok(())
 }
 
+/// Parses a link node.
+fn parse_link(
+    node: Node,
+    model: &mut Model,
+    geom_model: &mut GeometryModel,
+    coll_model: &mut GeometryModel,
+    materials: &HashMap<String, Color>,
+    filepath: &str,
+) -> Result<(), ParseError> {
+    let link_name = node.attribute("name").unwrap_or("").to_string();
+
+    // parse the visual node
+    if let Some(visual_node) = node.children().find(|n| n.has_tag_name("visual")) {
+        let geom_obj = parse_geometry(link_name.clone(), &visual_node, materials, filepath)?;
+        geom_model.add_geometry_object(geom_obj);
+    } else {
+        // add a default geometry object if no visual node is found
+        geom_model.add_geometry_object(GeometryObject::new(
+            link_name.clone(),
+            WORLD_FRAME_ID,
+            Box::new(Sphere::new(0.0)),
+            Color::transparent(),
+            SE3::identity(),
+        ));
+    }
+
+    // parse the inertial node
+    let (link_inertia, link_placement) = parse_inertia(node, link_name.clone())?;
+
+    // parse the collision node
+    if let Some(collision_node) = node.children().find(|n| n.has_tag_name("visual")) {
+        let geom_obj = parse_geometry(link_name.clone(), &collision_node, materials, filepath)?;
+        coll_model.add_geometry_object(geom_obj);
+    }
+
+    // add a frame for the link
+    let parent_joint = WORLD_FRAME_ID;
+    let parent_frame = WORLD_FRAME_ID;
+    let frame = Frame::new(
+        link_name,
+        parent_joint,
+        parent_frame,
+        link_placement,
+        FrameType::Body,
+        link_inertia,
+    );
+    model
+        .add_frame(frame, true)
+        .map_err(|e| ParseError::ModelError(format!("{:?}", e)))?;
+    Ok(())
+}
+
+/// Parses a material from the URDF file.
+fn parse_material(node: Node, materials: &mut HashMap<String, Color>) -> Result<(), ParseError> {
+    // extract name
+    let material_name = node
+        .attribute("name")
+        .ok_or(ParseError::NameMissing)?
+        .to_string();
+
+    // extract and convert color
+    let color_node = node
+        .children()
+        .find(|n| n.has_tag_name("color"))
+        .ok_or(ParseError::MaterialWithoutColor)?;
+    let rgba = extract_parameter_list::<f64>("rgba", &color_node, Some(4))?;
+    let color = Color::new(rgba[0], rgba[1], rgba[2], rgba[3]);
+
+    materials.insert(material_name, color);
+    Ok(())
+}
+
 /// Parses the inertia of a link from the URDF file.
 fn parse_inertia(node: Node, link_name: String) -> Result<(Inertia, SE3), ParseError> {
     if let Some(inertial_node) = node.children().find(|n| n.has_tag_name("inertial")) {
@@ -305,7 +330,7 @@ fn parse_inertia(node: Node, link_name: String) -> Result<(Inertia, SE3), ParseE
 fn parse_geometry(
     link_name: String,
     visual_node: &roxmltree::Node,
-    materials: &HashMap<&str, Color>,
+    materials: &HashMap<String, Color>,
     urdf_filepath: &str,
 ) -> Result<GeometryObject, ParseError> {
     let geometry_node = visual_node
