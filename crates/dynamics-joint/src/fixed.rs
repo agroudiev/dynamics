@@ -54,14 +54,14 @@ pub struct JointDataFixed {
 }
 
 impl JointDataFixed {
-    /// Creates a new `JointDataFixed` from given joint model.
+    /// Creates a new [`JointDataFixed`] from given joint model.
     ///
     /// # Arguments
     ///
     /// * `joint_model` - The fixed joint model.
     ///
     /// # Returns
-    /// A new `JointDataFixed` object.
+    /// A new [`JointDataFixed`] object.
     pub fn new(joint_model: &JointModelFixed) -> Self {
         let mut data = JointDataFixed::default();
         let joint_model_box: JointWrapper = Box::new(joint_model.clone());

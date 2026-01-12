@@ -21,7 +21,7 @@ use pyo3::prelude::*;
 use roxmltree::{Document, Node};
 use std::{collections::HashMap, fs, str::FromStr};
 
-/// Parses a URDF file and builds the corresponding `Model` and `GeometryModel`.
+/// Parses a URDF file and builds the corresponding [[`Model`]] and [[`GeometryModel`]].
 ///
 /// # Arguments
 ///
@@ -29,8 +29,8 @@ use std::{collections::HashMap, fs, str::FromStr};
 ///
 /// # Returns
 ///
-/// A tuple containing the `Model` and `GeometryModel` objects if successful.
-/// Returns a `ParseError` if there is an error during parsing.
+/// A tuple containing the [[`Model`]] and [[`GeometryModel`]] objects if successful.
+/// Returns a [`ParseError`] if there is an error during parsing.
 pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), ParseError> {
     // TODO: separate file reading and parsing for testing
     let contents = fs::read_to_string(filepath).map_err(ParseError::IoError)?;
@@ -155,7 +155,7 @@ fn parse_joint(
         .attribute("type")
         .ok_or(ParseError::MissingParameter("type".to_string()))?;
 
-    // extract the origin of the joint if any
+    // extract the origin of the joint
     let link_origin = parse_origin(&joint_node)?;
 
     // find the parent
@@ -306,7 +306,6 @@ fn parse_geometry(
     link_name: String,
     visual_node: &roxmltree::Node,
     materials: &HashMap<&str, Color>,
-    // parent_frame_id: Option<usize>,
     urdf_filepath: &str,
 ) -> Result<GeometryObject, ParseError> {
     let geometry_node = visual_node

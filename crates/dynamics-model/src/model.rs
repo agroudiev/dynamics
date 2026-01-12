@@ -1,4 +1,4 @@
-//! `Model` structure containing the robot model and its immutable properties.
+//! [`Model`] structure containing the robot model and its immutable properties.
 
 use crate::data::{Data, PyData};
 use crate::frame::{Frame, FrameType, PyFrame};
@@ -43,7 +43,7 @@ pub struct Model {
 }
 
 impl Model {
-    /// Creates a new `Model` with given name.
+    /// Creates a new [`Model`] with given name.
     ///
     /// Same as `Model::new_empty()`.
     ///
@@ -56,11 +56,11 @@ impl Model {
         model
     }
 
-    /// Creates a new empty `Model`.
+    /// Creates a new empty [`Model`].
     ///
     /// # Returns
     ///
-    /// A new empty `Model`.
+    /// A new empty [`Model`].
     pub fn new_empty() -> Self {
         Self {
             name: String::new(),
@@ -177,7 +177,7 @@ impl Model {
     // /// # Arguments
     // ///
     // /// * `joint_id` - The identifier of the joint to append the body to.
-    // /// * `inertia` - The inertia of the body to append.
+    // /// * [`Inertia`] - The inertia of the body to append.
     // /// * `placement` - The placement of the body in the joint frame.
     // ///
     // /// # Returns
@@ -258,7 +258,7 @@ pub fn py_random_configuration(model: &mut PyModel) -> PyConfiguration {
     PyConfiguration::new(q)
 }
 
-/// A `Model` is a data structure that contains the information about the robot model,
+/// A [`Model`] is a data structure that contains the information about the robot model,
 /// including the joints models, placements, the link inertias, and the frames.
 #[pyclass(name = "Model")]
 pub struct PyModel {
@@ -267,7 +267,7 @@ pub struct PyModel {
 
 #[pymethods]
 impl PyModel {
-    /// Creates a new empty `Model`.
+    /// Creates a new empty [`Model`].
     // TODO: update this function for more flexibility
     #[new]
     fn new_empty() -> Self {

@@ -24,7 +24,7 @@ impl Default for GeometryModel {
 }
 
 impl GeometryModel {
-    /// Creates a new `GeometryModel` with an empty list of objects.
+    /// Creates a new [`GeometryModel`] with an empty list of objects.
     pub fn new() -> Self {
         GeometryModel {
             models: HashMap::new(),
@@ -63,7 +63,7 @@ impl GeometryModel {
     }
 }
 
-/// A Python wrapper for the `GeometryModel` struct.
+/// A Python wrapper for the [`GeometryModel`] struct.
 #[pyclass(name = "GeometryModel")]
 pub struct PyGeometryModel {
     pub inner: GeometryModel,
@@ -77,7 +77,7 @@ impl Default for PyGeometryModel {
 
 #[pymethods]
 impl PyGeometryModel {
-    /// Creates a new `GeometryModel` with an empty list of objects.
+    /// Creates a new [`GeometryModel`] with an empty list of objects.
     #[new]
     pub fn new() -> Self {
         PyGeometryModel {

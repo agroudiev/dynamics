@@ -22,21 +22,21 @@ pub struct Inertia {
 }
 
 impl Inertia {
-    /// Creates a new `Inertia` object with the given parameters.
+    /// Creates a new [`Inertia`] object with the given parameters.
     ///
     /// # Arguments
     ///
     /// * `mass` - The mass of the object.
     /// * `com` - The center of mass of the object.
-    /// * `inertia` - The rotational inertia matrix of the object at the center of mass.
+    /// * [`Inertia`] - The rotational inertia matrix of the object at the center of mass.
     pub fn new(mass: f64, com: Vector3D, inertia: Symmetric3) -> Self {
         Self { mass, com, inertia }
     }
 
-    /// Creates a new `Inertia` object with zero mass, zero center of mass, and zero inertia matrix.
+    /// Creates a new [`Inertia`] object with zero mass, zero center of mass, and zero inertia matrix.
     ///
     /// # Returns
-    /// A new `Inertia` object with all properties set to zero.
+    /// A new [`Inertia`] object with all properties set to zero.
     pub fn zeros() -> Self {
         Self {
             mass: 0.0,
@@ -45,7 +45,7 @@ impl Inertia {
         }
     }
 
-    /// Creates a new `Inertia` object representing an ellipsoid with the given mass and semi-axis lengths.
+    /// Creates a new [`Inertia`] object representing an ellipsoid with the given mass and semi-axis lengths.
     ///
     /// # Arguments
     /// * `mass` - The mass of the ellipsoid.
@@ -54,7 +54,7 @@ impl Inertia {
     /// * `z` - The semi-axis length along the z-axis.
     ///
     /// # Returns
-    /// A new `Inertia` object representing an ellipsoid.
+    /// A new [`Inertia`] object representing an ellipsoid.
     pub fn from_ellipsoid(mass: f64, x: f64, y: f64, z: f64) -> Result<Self, InertiaError> {
         if mass <= 0.0 {
             return Err(InertiaError::InvalidParameter("mass".to_string()));
@@ -76,7 +76,7 @@ impl Inertia {
         Ok(Self::new(mass, Vector3D::zeros(), inertia_matrix))
     }
 
-    /// Creates a new `Inertia` object representing a sphere with the given mass and radius.
+    /// Creates a new [`Inertia`] object representing a sphere with the given mass and radius.
     ///
     /// # Arguments
     ///
@@ -84,7 +84,7 @@ impl Inertia {
     /// * `radius` - The radius of the sphere.
     ///
     /// # Returns
-    /// A new `Inertia` object representing a sphere.
+    /// A new [`Inertia`] object representing a sphere.
     pub fn from_sphere(mass: f64, radius: f64) -> Result<Self, InertiaError> {
         Inertia::from_ellipsoid(mass, radius, radius, radius)
     }
@@ -132,7 +132,7 @@ impl ActSE3 for Inertia {
     }
 }
 
-/// An error type for the `Inertia` struct.
+/// An error type for the [`Inertia`] struct.
 pub enum InertiaError {
     InvalidParameter(String),
 }
@@ -153,7 +153,7 @@ impl std::fmt::Debug for InertiaError {
     }
 }
 
-/// A Python wrapper for the `Inertia` struct.
+/// A Python wrapper for the [`Inertia`] struct.
 #[pyclass(name = "Inertia")]
 #[derive(Clone, Debug, Default)]
 pub struct PyInertia {
@@ -170,7 +170,7 @@ impl PyInertia {
     /// * `radius` - The radius of the sphere.
     ///
     /// # Returns
-    /// A new `Inertia` object representing a sphere.
+    /// A new [`Inertia`] object representing a sphere.
     #[pyo3(name = "FromSphere")]
     #[staticmethod]
     pub fn from_sphere(mass: f64, radius: f64) -> PyResult<Self> {
@@ -179,10 +179,10 @@ impl PyInertia {
             .map_err(|e| PyValueError::new_err(format!("Failed to create Inertia: {:?}", e)))
     }
 
-    /// Creates a new `Inertia` object with zero mass, zero center of mass, and zero inertia matrix.
+    /// Creates a new [`Inertia`] object with zero mass, zero center of mass, and zero inertia matrix.
     ///
     /// # Returns
-    /// A new `Inertia` object with all properties set to zero.
+    /// A new [`Inertia`] object with all properties set to zero.
     #[staticmethod]
     pub fn zeros() -> Self {
         PyInertia {
