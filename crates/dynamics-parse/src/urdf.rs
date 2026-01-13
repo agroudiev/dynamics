@@ -33,7 +33,6 @@ use std::{collections::HashMap, fs, str::FromStr};
 /// A tuple containing the [`Model`] and [`GeometryModel`] objects if successful.
 /// Returns a [`ParseError`] if there is an error during parsing.
 pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), ParseError> {
-    // TODO: separate file reading and parsing for testing
     let contents = fs::read_to_string(filepath).map_err(ParseError::IoError)?;
     let doc = Document::parse(&contents).map_err(ParseError::XmlError)?;
 
@@ -60,6 +59,7 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
         parse_node(
             &robot_node,
             node,
+            &robot_node,
             &mut model,
             &mut geom_model,
             &mut coll_model,
@@ -72,9 +72,11 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
 }
 
 /// Parse the given node and call itself recursively on its children.
+#[allow(clippy::too_many_arguments)] // TODO: refactor
 fn parse_node(
     robot_node: &Node,
     node: Node,
+    parent_node: &Node,
     model: &mut Model,
     geom_model: &mut GeometryModel,
     coll_model: &mut GeometryModel,
@@ -85,7 +87,16 @@ fn parse_node(
     // parse the current node and extract its children
     let children = match node.tag_name().name() {
         "link" => {
-            parse_link(node, model, geom_model, coll_model, materials, filepath)?;
+            parse_link(
+                robot_node,
+                node,
+                parent_node,
+                model,
+                geom_model,
+                coll_model,
+                materials,
+                filepath,
+            )?;
 
             // find all joints that have this link as parent
             let mut children = Vec::new();
@@ -141,9 +152,9 @@ fn parse_node(
     };
 
     // recursively parse children
-    for node in children {
+    for child_node in children {
         parse_node(
-            robot_node, node, model, geom_model, coll_model, materials, filepath,
+            robot_node, child_node, &node, model, geom_model, coll_model, materials, filepath,
         )?;
     }
     Ok(())
@@ -285,7 +296,9 @@ fn parse_materials(robot_node: &Node) -> Result<HashMap<String, Color>, ParseErr
 
 /// Parses a link node.
 fn parse_link(
+    robot_node: &Node,
     node: Node,
+    parent_node: &Node,
     model: &mut Model,
     geom_model: &mut GeometryModel,
     coll_model: &mut GeometryModel,
@@ -320,7 +333,18 @@ fn parse_link(
 
     // add a frame for the link
     let parent_joint = WORLD_FRAME_ID;
-    let parent_frame = WORLD_FRAME_ID;
+    let parent_name = parent_node
+        .attribute("name")
+        .ok_or(ParseError::NameMissing)?;
+
+    let parent_frame = if parent_name == robot_node.attribute("name").unwrap_or("") {
+        // parent is the world frame
+        WORLD_FRAME_ID
+    } else {
+        model
+            .get_frame_id(parent_name)
+            .ok_or(ParseError::UnknownParent(parent_name.to_string()))?
+    };
     let frame = Frame::new(
         link_name,
         parent_joint,

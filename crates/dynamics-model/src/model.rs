@@ -209,6 +209,16 @@ impl Model {
         None
     }
 
+    /// Returns the index of the frame with the given name.
+    pub fn get_frame_id(&self, name: &str) -> Option<usize> {
+        for (id, frame) in self.frames.iter().enumerate() {
+            if frame.name == name {
+                return Some(id);
+            }
+        }
+        None
+    }
+
     /// Returns the number of joints in the model, including the world frame.
     pub fn njoints(&self) -> usize {
         self.joint_names.len()

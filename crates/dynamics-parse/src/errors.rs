@@ -39,4 +39,6 @@ pub enum ParseError {
     InertialWithoutInertia(String),
     /// An inertial tag is present without mass data.
     InertialWithoutMass(String),
+    /// A frame references a parent that does not exist.
+    UnknownParent(String),
 }

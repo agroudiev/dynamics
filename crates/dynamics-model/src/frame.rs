@@ -118,4 +118,16 @@ impl PyFrame {
             inner: self.inner.inertia.clone(),
         }
     }
+
+    pub fn __repr__(&self) -> String {
+        format!(
+            "Frame (name='{}', parent joint={}, parent frame={}, frame_type={:?})\n Placement={:?}\n Inertia={:?}",
+            self.inner.name,
+            self.inner.parent_joint,
+            self.inner.parent_frame,
+            self.inner.frame_type,
+            self.inner.placement,
+            self.inner.inertia
+        )
+    }
 }
