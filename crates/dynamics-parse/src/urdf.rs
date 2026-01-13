@@ -295,6 +295,7 @@ fn parse_materials(robot_node: &Node) -> Result<HashMap<String, Color>, ParseErr
 }
 
 /// Parses a link node.
+#[allow(clippy::too_many_arguments)] // TODO: refactor
 fn parse_link(
     robot_node: &Node,
     node: Node,
@@ -323,7 +324,11 @@ fn parse_link(
     }
 
     // parse the inertial node
-    let (link_inertia, link_placement) = parse_inertia(node, link_name.clone())?;
+    let (link_inertia, _inertia_origin) = parse_inertia(node, link_name.clone())?;
+
+    // compute the placement of the link frame
+    let parent_frame = &model.frames[get_parent_frame(parent_node, robot_node, model)?];
+    let link_placement = parent_frame.placement * parse_origin(&node)?;
 
     // parse the collision node
     if let Some(collision_node) = node.children().find(|n| n.has_tag_name("visual")) {
@@ -333,30 +338,43 @@ fn parse_link(
 
     // add a frame for the link
     let parent_joint = WORLD_FRAME_ID;
-    let parent_name = parent_node
-        .attribute("name")
-        .ok_or(ParseError::NameMissing)?;
-
-    let parent_frame = if parent_name == robot_node.attribute("name").unwrap_or("") {
-        // parent is the world frame
-        WORLD_FRAME_ID
-    } else {
-        model
-            .get_frame_id(parent_name)
-            .ok_or(ParseError::UnknownParent(parent_name.to_string()))?
-    };
+    let parent_frame = get_parent_frame(parent_node, robot_node, model)?;
     let frame = Frame::new(
         link_name,
         parent_joint,
         parent_frame,
         link_placement,
         FrameType::Body,
-        link_inertia,
+        link_inertia, // TODO: handle inertia origin properly
     );
     model
         .add_frame(frame, true)
         .map_err(ParseError::ModelError)?;
     Ok(())
+}
+
+/// Retrieves the parent frame index from the parent node.
+fn get_parent_frame(
+    parent_node: &Node,
+    robot_node: &Node,
+    model: &Model,
+) -> Result<usize, ParseError> {
+    // extract the name of the parent link
+    let parent_name = parent_node
+        .attribute("name")
+        .ok_or(ParseError::NameMissing)?;
+    let robot_name = robot_node
+        .attribute("name")
+        .ok_or(ParseError::NameMissing)?;
+
+    // check if the parent is the world frame
+    if parent_name == robot_name {
+        Ok(WORLD_FRAME_ID)
+    } else {
+        model
+            .get_frame_id(parent_name)
+            .ok_or(ParseError::UnknownParent(parent_name.to_string()))
+    }
 }
 
 /// Parses a material from the URDF file.
