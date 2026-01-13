@@ -4,7 +4,6 @@
 //! Currently, it supports URDF (Unified Robot Description Format) parsing.
 
 pub mod errors;
-pub mod new_urdf;
 pub mod urdf;
 
 #[cfg(test)]
