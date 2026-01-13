@@ -24,11 +24,9 @@ class TestURDF(unittest.TestCase):
             self, "examples/descriptions/double_pendulum_simple.urdf"
         )
 
-    @unittest.skip("Skipping URDF tests for now")
     def test_build_materials(self):
         compare_urdf_construction(self, "examples/descriptions/materials.urdf")
 
-    # @unittest.skip("Skipping URDF tests for now")
     def test_build_origins(self):
         compare_urdf_construction(self, "examples/descriptions/origins.urdf")
 

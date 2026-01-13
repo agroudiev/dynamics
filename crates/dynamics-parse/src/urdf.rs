@@ -54,6 +54,10 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
     // find root nodes (links without parents)
     let root_nodes = find_root_nodes(&robot_node)?;
 
+    // sort root nodes in alphabetical order
+    let mut root_nodes: Vec<Node> = root_nodes.into_iter().collect();
+    root_nodes.sort_by_key(|n| n.attribute("name").unwrap_or(""));
+
     // recursively parse from the root nodes
     for node in root_nodes {
         parse_node(
@@ -150,6 +154,10 @@ fn parse_node(
             return Err(ParseError::UnknownTag(node.tag_name().name().to_string()));
         }
     };
+
+    // sort the children in alphabetical order
+    let mut children: Vec<Node> = children.into_iter().collect();
+    children.sort_by_key(|n| n.attribute("name").unwrap_or(""));
 
     // recursively parse children
     for child_node in children {
