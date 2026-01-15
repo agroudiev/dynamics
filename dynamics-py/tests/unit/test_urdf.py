@@ -30,6 +30,5 @@ class TestURDF(unittest.TestCase):
     def test_build_origins(self):
         compare_urdf_construction(self, "examples/descriptions/origins.urdf")
 
-    @unittest.skip("Skipping URDF tests for now")
     def test_build_visuals(self):
         compare_urdf_construction(self, "examples/descriptions/visuals.urdf")

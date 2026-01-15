@@ -123,7 +123,7 @@ fn parse_node(
 
         // parse joints
         "joint" => {
-            parse_joint(node, model, geom_model)?;
+            parse_joint(robot_node, node, parent_node, model)?;
 
             // add the eventual child link to the children to be parsed next
             if let Some(child_node) = node.children().find(|n| n.has_tag_name("child")) {
@@ -194,14 +194,15 @@ fn find_root_nodes<'a>(robot_node: &'a Node) -> Result<HashSet<Node<'a, 'a>>, Pa
 
 /// Parses a joint from the URDF file and adds it to the model.
 fn parse_joint(
+    robot_node: &Node,
     joint_node: Node,
+    parent_node: &Node,
     model: &mut Model,
-    geom_model: &mut GeometryModel,
 ) -> Result<(), ParseError> {
     // extract the name and type of joint
     let joint_name = joint_node
         .attribute("name")
-        .ok_or(ParseError::NameMissing)?
+        .ok_or(ParseError::NameMissing(format!("{:#?}", joint_node)))?
         .to_string();
     let joint_type = joint_node
         .attribute("type")
@@ -211,30 +212,32 @@ fn parse_joint(
     let link_origin = parse_origin(&joint_node)?;
 
     // find the parent link
-    let parent_node = joint_node
-        .descendants()
-        .find(|n| n.has_tag_name("parent"))
-        .ok_or(ParseError::MissingParameter("parent".to_string()))?;
-    let parent_link_name = extract_parameter::<String>("link", &parent_node)?;
+    // let parent_tag = joint_node
+    //     .descendants()
+    //     .find(|n| n.has_tag_name("parent"))
+    //     .ok_or(ParseError::MissingParameter("parent".to_string()))?;
+    // let parent_link_name = extract_parameter::<String>("link", &parent_tag)?;
 
     // we retrieve the parent joint id of the parent link
-    let parent_joint_id = match geom_model.indices.get(&parent_link_name) {
-        Some(parent_id) => geom_model.models.get_mut(parent_id).unwrap().parent_joint,
-        None => {
-            return Err(ParseError::UnknownLinkName(parent_link_name.to_string()));
-        }
-    };
+    // let parent_joint_id = match geom_model.indices.get(&parent_link_name) {
+    //     Some(parent_id) => geom_model.models.get_mut(parent_id).unwrap().parent_joint,
+    //     None => {
+    //         return Err(ParseError::UnknownLinkName(parent_link_name.to_string()));
+    //     }
+    // };
+    let parent_joint_id = WORLD_FRAME_ID;
 
     match joint_type {
         // if the joint is fixed, we create a fixed frame
         "fixed" => {
-            let parent_frame = &model.frames[parent_joint_id];
+            let parent_frame_id = get_parent_frame(parent_node, robot_node, model)?;
+            let parent_frame = &model.frames[parent_frame_id];
             let placement = parent_frame.placement * link_origin;
 
             let frame = Frame::new(
                 joint_name,
-                parent_frame.parent_joint,
-                parent_frame.parent_frame,
+                parent_joint_id,
+                parent_frame_id,
                 placement,
                 FrameType::Fixed,
                 Inertia::zeros(), // TODO: handle inertia properly
@@ -370,10 +373,10 @@ fn get_parent_frame(
     // extract the name of the parent link
     let parent_name = parent_node
         .attribute("name")
-        .ok_or(ParseError::NameMissing)?;
+        .ok_or(ParseError::NameMissing(format!("{:#?}", parent_node)))?;
     let robot_name = robot_node
         .attribute("name")
-        .ok_or(ParseError::NameMissing)?;
+        .ok_or(ParseError::NameMissing(format!("{:#?}", robot_node)))?;
 
     // check if the parent is the world frame
     if parent_name == robot_name {
@@ -390,7 +393,7 @@ fn parse_material(node: Node, materials: &mut HashMap<String, Color>) -> Result<
     // extract name
     let material_name = node
         .attribute("name")
-        .ok_or(ParseError::NameMissing)?
+        .ok_or(ParseError::NameMissing(format!("{:#?}", node)))?
         .to_string();
 
     // extract and convert color

@@ -50,6 +50,7 @@ def assert_frames_equals(
 ):
     test_case.assertEqual(dyn_frame.name, pin_frame.name)
     test_case.assertEqual(dyn_frame.parent_joint, pin_frame.parentJoint)
+    test_case.assertEqual(dyn_frame.parent_frame, pin_frame.parentFrame)
     match str(dyn_frame.frame_type):
         case "FrameType.Operational":
             test_case.assertEqual(pin_frame.type, pin.FrameType.OP_FRAME)

@@ -22,7 +22,7 @@ pub enum ParseError {
     /// The given parameter has an invalid value.
     InvalidParameter(String),
     /// A joint, link, or material is missing a name attribute.
-    NameMissing,
+    NameMissing(String),
     /// A material is defined without a color.
     MaterialWithoutColor,
     /// An unknown joint type was encountered.
