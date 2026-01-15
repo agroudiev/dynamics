@@ -64,6 +64,7 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
             &robot_node,
             node,
             &robot_node,
+            WORLD_FRAME_ID, // TODO: rename to WORLD_ID or similar
             &mut model,
             &mut geom_model,
             &mut coll_model,
@@ -81,6 +82,7 @@ fn parse_node(
     robot_node: &Node,
     node: Node,
     parent_node: &Node,
+    parent_joint_id: usize,
     model: &mut Model,
     geom_model: &mut GeometryModel,
     coll_model: &mut GeometryModel,
@@ -88,6 +90,7 @@ fn parse_node(
     filepath: &str,
 ) -> Result<(), ParseError> {
     let node_name = node.attribute("name").unwrap_or("");
+    let mut new_parent_joint_id = parent_joint_id;
     // parse the current node and extract its children
     let children = match node.tag_name().name() {
         "link" => {
@@ -123,7 +126,8 @@ fn parse_node(
 
         // parse joints
         "joint" => {
-            parse_joint(robot_node, node, parent_node, model)?;
+            new_parent_joint_id =
+                parse_joint(robot_node, node, parent_node, parent_joint_id, model)?;
 
             // add the eventual child link to the children to be parsed next
             if let Some(child_node) = node.children().find(|n| n.has_tag_name("child")) {
@@ -162,7 +166,15 @@ fn parse_node(
     // recursively parse children
     for child_node in children {
         parse_node(
-            robot_node, child_node, &node, model, geom_model, coll_model, materials, filepath,
+            robot_node,
+            child_node,
+            &node,
+            new_parent_joint_id,
+            model,
+            geom_model,
+            coll_model,
+            materials,
+            filepath,
         )?;
     }
     Ok(())
@@ -197,8 +209,9 @@ fn parse_joint(
     robot_node: &Node,
     joint_node: Node,
     parent_node: &Node,
+    parent_joint_id: usize,
     model: &mut Model,
-) -> Result<(), ParseError> {
+) -> Result<usize, ParseError> {
     // extract the name and type of joint
     let joint_name = joint_node
         .attribute("name")
@@ -211,25 +224,10 @@ fn parse_joint(
     // extract the origin of the joint
     let link_origin = parse_origin(&joint_node)?;
 
-    // find the parent link
-    // let parent_tag = joint_node
-    //     .descendants()
-    //     .find(|n| n.has_tag_name("parent"))
-    //     .ok_or(ParseError::MissingParameter("parent".to_string()))?;
-    // let parent_link_name = extract_parameter::<String>("link", &parent_tag)?;
-
-    // we retrieve the parent joint id of the parent link
-    // let parent_joint_id = match geom_model.indices.get(&parent_link_name) {
-    //     Some(parent_id) => geom_model.models.get_mut(parent_id).unwrap().parent_joint,
-    //     None => {
-    //         return Err(ParseError::UnknownLinkName(parent_link_name.to_string()));
-    //     }
-    // };
-    let parent_joint_id = WORLD_FRAME_ID;
     let parent_frame_id = get_parent_frame(parent_node, robot_node, model)?;
     let parent_frame = &model.frames[parent_frame_id];
 
-    match joint_type {
+    let new_joint_id = match joint_type {
         // if the joint is fixed, we create a fixed frame
         "fixed" => {
             let placement = parent_frame.placement * link_origin;
@@ -242,7 +240,8 @@ fn parse_joint(
                 FrameType::Fixed,
                 Inertia::zeros(), // TODO: handle inertia properly
             );
-            model.add_frame(frame, false)
+            let _ = model.add_frame(frame, false);
+            Ok(WORLD_FRAME_ID)
         }
 
         // if the joint is revolute, we create a revolute joint
@@ -306,7 +305,7 @@ fn parse_joint(
         .add_frame(frame, true)
         .map_err(ParseError::ModelError)?;
 
-    Ok(())
+    Ok(new_joint_id)
 }
 
 /// Parses all materials defined in the robot node.
