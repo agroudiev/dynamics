@@ -293,17 +293,19 @@ fn parse_joint(
     .map_err(ParseError::ModelError)?;
 
     // if the joint is not fixed, we also add a frame
-    let frame = Frame::new(
-        joint_name,
-        parent_joint_id,
-        parent_frame_id,
-        SE3::identity(),
-        FrameType::Joint,
-        Inertia::zeros(),
-    );
-    model
-        .add_frame(frame, true)
-        .map_err(ParseError::ModelError)?;
+    if joint_type != "fixed" {
+        let frame = Frame::new(
+            joint_name,
+            parent_joint_id,
+            parent_frame_id,
+            SE3::identity(),
+            FrameType::Joint,
+            Inertia::zeros(),
+        );
+        model
+            .add_frame(frame, true)
+            .map_err(ParseError::ModelError)?;
+    }
 
     Ok(new_joint_id)
 }
