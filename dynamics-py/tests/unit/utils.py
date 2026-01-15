@@ -92,19 +92,19 @@ def assert_models_equals(
             pin_model.joints[i],
         )
 
-    # Check inertias
-    test_case.assertEqual(len(dyn_model.inertias), len(pin_model.inertias))
-    for i in range(len(dyn_model.inertias)):
-        dyn_inertia = dyn_model.inertias[i]
-        pin_inertia = pin_model.inertias[i]
-        assert_inertias_equals(test_case, dyn_inertia, pin_inertia)
-
     # Check frames
     test_case.assertEqual(dyn_model.nframes, pin_model.nframes)
     for i in range(1, dyn_model.nframes):  # skip the world frame
         dyn_frame = dyn_model.frames[i]
         pin_frame = pin_model.frames[i]
         assert_frames_equals(test_case, dyn_frame, pin_frame)
+
+    # Check inertias
+    test_case.assertEqual(len(dyn_model.inertias), len(pin_model.inertias))
+    for i in range(len(dyn_model.inertias)):
+        dyn_inertia = dyn_model.inertias[i]
+        pin_inertia = pin_model.inertias[i]
+        assert_inertias_equals(test_case, dyn_inertia, pin_inertia)
 
 
 def assert_datas_equals(

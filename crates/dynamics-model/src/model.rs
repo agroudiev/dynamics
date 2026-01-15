@@ -146,12 +146,10 @@ impl Model {
         // otherwise, add the frame
         let id = self.frames.len();
         self.frames.push(frame);
+        let frame = &self.frames[id];
 
         if append_inertia {
-            self.inertias[self.frames[id].parent_joint] += self.frames[id]
-                .placement
-                .clone()
-                .act(&self.frames[id].inertia);
+            self.inertias[frame.parent_joint] += frame.placement.act(&frame.inertia);
         }
 
         Ok(id)
