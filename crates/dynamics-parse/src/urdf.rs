@@ -297,7 +297,7 @@ fn parse_joint(
     if joint_type != "fixed" {
         let frame = Frame::new(
             joint_name,
-            parent_joint_id,
+            new_joint_id,
             parent_frame_id,
             SE3::identity(),
             FrameType::Joint,
