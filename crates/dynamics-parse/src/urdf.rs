@@ -246,7 +246,9 @@ fn parse_joint(
                 Inertia::zeros(),
             );
             let _ = model.add_frame(frame, false);
-            Ok(WORLD_FRAME_ID)
+
+            // we return the parent joint id as there is no new joint
+            Ok(parent_joint_id)
         }
 
         // if the joint is revolute, we create a revolute joint
@@ -356,10 +358,16 @@ fn parse_link(
     }
 
     // parse the inertial node
-    let (link_inertia, _inertia_origin) = if is_root {
-        parse_inertia(node, link_name.clone())?
+    let (link_inertia, _inertia_origin) = parse_inertia(node, link_name.clone())?;
+
+    // inertia associated with the new frame
+    // if this is the root link, we put the inertia in the frame
+    // otherwise, we associate the inertia to the joint (in model.inertias)
+    let frame_inertia = if is_root {
+        link_inertia
     } else {
-        (Inertia::zeros(), SE3::identity())
+        model.inertias[parent_joint_id] += link_inertia;
+        Inertia::zeros()
     };
 
     // compute the placement of the link frame
@@ -380,7 +388,7 @@ fn parse_link(
         parent_frame,
         link_placement,
         FrameType::Body,
-        link_inertia, // TODO: handle inertia origin properly
+        frame_inertia,
     );
     model
         .add_frame(frame, true)
