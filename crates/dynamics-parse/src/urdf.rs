@@ -98,6 +98,7 @@ fn parse_node(
                 robot_node,
                 node,
                 parent_node,
+                parent_joint_id,
                 model,
                 geom_model,
                 coll_model,
@@ -238,7 +239,7 @@ fn parse_joint(
                 parent_frame_id,
                 placement,
                 FrameType::Fixed,
-                Inertia::zeros(), // TODO: handle inertia properly
+                Inertia::zeros(),
             );
             let _ = model.add_frame(frame, false);
             Ok(WORLD_FRAME_ID)
@@ -325,6 +326,7 @@ fn parse_link(
     robot_node: &Node,
     node: Node,
     parent_node: &Node,
+    parent_joint_id: usize,
     model: &mut Model,
     geom_model: &mut GeometryModel,
     coll_model: &mut GeometryModel,
@@ -362,11 +364,10 @@ fn parse_link(
     }
 
     // add a frame for the link
-    let parent_joint = WORLD_FRAME_ID;
     let parent_frame = get_parent_frame(parent_node, robot_node, model)?;
     let frame = Frame::new(
         link_name,
-        parent_joint,
+        parent_joint_id,
         parent_frame,
         link_placement,
         FrameType::Body,
@@ -457,7 +458,7 @@ fn parse_inertia(node: Node, link_name: String) -> Result<(Inertia, SE3), ParseE
             Inertia::new(
                 mass,
                 translation,
-                Symmetric3::new(ixx, ixy, ixz, iyy, iyz, izz),
+                Symmetric3::new(ixx, iyy, izz, ixy, ixz, iyz),
             ),
             inertial_origin,
         ))
