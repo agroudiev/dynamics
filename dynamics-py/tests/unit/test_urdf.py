@@ -18,7 +18,6 @@ class TestURDF(unittest.TestCase):
     def test_build_multipleshapes(self):
         compare_urdf_construction(self, "examples/descriptions/multipleshapes.urdf")
 
-    @unittest.skip("Skipping URDF tests for now")
     def test_build_double_pendulum_simple(self):
         compare_urdf_construction(
             self, "examples/descriptions/double_pendulum_simple.urdf"

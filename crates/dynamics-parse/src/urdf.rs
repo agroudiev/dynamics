@@ -226,16 +226,16 @@ fn parse_joint(
     //     }
     // };
     let parent_joint_id = WORLD_FRAME_ID;
+    let parent_frame_id = get_parent_frame(parent_node, robot_node, model)?;
+    let parent_frame = &model.frames[parent_frame_id];
 
     match joint_type {
         // if the joint is fixed, we create a fixed frame
         "fixed" => {
-            let parent_frame_id = get_parent_frame(parent_node, robot_node, model)?;
-            let parent_frame = &model.frames[parent_frame_id];
             let placement = parent_frame.placement * link_origin;
 
             let frame = Frame::new(
-                joint_name,
+                joint_name.clone(),
                 parent_joint_id,
                 parent_frame_id,
                 placement,
@@ -286,12 +286,25 @@ fn parse_joint(
                 parent_joint_id,
                 Box::new(joint_model),
                 link_origin,
-                joint_name,
+                joint_name.clone(),
             )
         }
         _ => return Err(ParseError::UnknownJointType(joint_type.to_string())),
     }
     .map_err(ParseError::ModelError)?;
+
+    // if the joint is not fixed, we also add a frame
+    let frame = Frame::new(
+        joint_name,
+        parent_joint_id,
+        parent_frame_id,
+        SE3::identity(),
+        FrameType::Joint,
+        Inertia::zeros(),
+    );
+    model
+        .add_frame(frame, true)
+        .map_err(ParseError::ModelError)?;
 
     Ok(())
 }
