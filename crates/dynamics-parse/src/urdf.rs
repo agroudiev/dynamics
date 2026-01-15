@@ -65,6 +65,7 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
             node,
             &robot_node,
             WORLD_FRAME_ID, // TODO: rename to WORLD_ID or similar
+            true,
             &mut model,
             &mut geom_model,
             &mut coll_model,
@@ -83,6 +84,7 @@ fn parse_node(
     node: Node,
     parent_node: &Node,
     parent_joint_id: usize,
+    is_root: bool,
     model: &mut Model,
     geom_model: &mut GeometryModel,
     coll_model: &mut GeometryModel,
@@ -99,6 +101,7 @@ fn parse_node(
                 node,
                 parent_node,
                 parent_joint_id,
+                is_root,
                 model,
                 geom_model,
                 coll_model,
@@ -171,6 +174,7 @@ fn parse_node(
             child_node,
             &node,
             new_parent_joint_id,
+            false,
             model,
             geom_model,
             coll_model,
@@ -327,6 +331,7 @@ fn parse_link(
     node: Node,
     parent_node: &Node,
     parent_joint_id: usize,
+    is_root: bool,
     model: &mut Model,
     geom_model: &mut GeometryModel,
     coll_model: &mut GeometryModel,
@@ -351,7 +356,11 @@ fn parse_link(
     }
 
     // parse the inertial node
-    let (link_inertia, _inertia_origin) = parse_inertia(node, link_name.clone())?;
+    let (link_inertia, _inertia_origin) = if is_root {
+        parse_inertia(node, link_name.clone())?
+    } else {
+        (Inertia::zeros(), SE3::identity())
+    };
 
     // compute the placement of the link frame
     let parent_frame = &model.frames[get_parent_frame(parent_node, robot_node, model)?];
