@@ -32,20 +32,13 @@ impl GeometryModel {
     /// # Arguments
     ///
     /// * `object` - The geometry object to be added to the model.
-    pub fn add_geometry_object(&mut self, mut object: GeometryObject) -> usize {
-        let id = self.objects.len();
-        object.id = id;
-        self.objects.insert(id, object);
-        id
+    pub fn add_geometry_object(&mut self, object: GeometryObject) -> usize {
+        self.objects.push(object);
+        self.objects.len() - 1
     }
 
     pub fn get_geometry_id(&self, name: &str) -> Option<usize> {
-        for object in &self.objects {
-            if object.name == name {
-                return Some(object.id);
-            }
-        }
-        None
+        self.objects.iter().position(|o| o.name == name)
     }
 
     /// Creates a new `GeometryData` object based on the provided model and data.

@@ -347,18 +347,14 @@ fn parse_link(
 
     // parse the visual node
     if let Some(visual_node) = node.children().find(|n| n.has_tag_name("visual")) {
-        let geom_obj = parse_geometry(link_name.clone(), &visual_node, materials, filepath)?;
+        let geom_obj = parse_geometry(
+            format!("{}_0", link_name),
+            &visual_node,
+            materials,
+            filepath,
+        )?;
         viz_model.add_geometry_object(geom_obj);
-    } else {
-        // add a default geometry object if no visual node is found
-        viz_model.add_geometry_object(GeometryObject::new(
-            link_name.clone(),
-            WORLD_FRAME_ID,
-            Box::new(Sphere::new(0.0)),
-            Color::transparent(),
-            SE3::identity(),
-        ));
-    }
+    } // TODO: handle multiple visual nodes
 
     // parse the inertial node
     let (link_inertia, _inertia_origin) = parse_inertia(node, link_name.clone())?;
@@ -378,10 +374,15 @@ fn parse_link(
     let link_placement = parent_frame.placement * parse_origin(&node)?;
 
     // parse the collision node
-    if let Some(collision_node) = node.children().find(|n| n.has_tag_name("visual")) {
-        let geom_obj = parse_geometry(link_name.clone(), &collision_node, materials, filepath)?;
+    if let Some(collision_node) = node.children().find(|n| n.has_tag_name("collision")) {
+        let geom_obj = parse_geometry(
+            format!("{}_0", link_name),
+            &collision_node,
+            materials,
+            filepath,
+        )?;
         coll_model.add_geometry_object(geom_obj);
-    }
+    } // TODO: handle multiple collision nodes
 
     // add a frame for the link
     let parent_frame = get_parent_frame(parent_node, robot_node, model)?;

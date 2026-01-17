@@ -13,8 +13,6 @@ use pyo3::{exceptions::PyValueError, prelude::*, types::PyTuple};
 /// A `GeometryObject` is a data structure that contains the information about the geometry object,
 /// used for visualization, collision detection and distance computation.
 pub struct GeometryObject {
-    /// The identifier of the geometry object.
-    pub id: usize,
     /// The name of the geometry object.
     pub name: String,
     /// Whether to disable collision detection and distance check for this object.
@@ -47,7 +45,6 @@ impl GeometryObject {
         placement: SE3,
     ) -> Self {
         Self {
-            id: 0,
             name,
             disable_collision: false,
             geometry,
@@ -61,7 +58,6 @@ impl GeometryObject {
 impl Clone for GeometryObject {
     fn clone(&self) -> Self {
         Self {
-            id: self.id,
             name: self.name.clone(),
             disable_collision: self.disable_collision,
             geometry: self.geometry.clone_box(),
@@ -75,7 +71,6 @@ impl Clone for GeometryObject {
 impl Debug for GeometryObject {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("GeometryObject")
-            .field("id", &self.id)
             .field("name", &self.name)
             .field("disable_collision", &self.disable_collision)
             // .field("geometry", &self.geometry)
@@ -181,11 +176,6 @@ impl PyGeometryObject {
             .into_pyarray(py)
             .into_any()
             .unbind()
-    }
-
-    #[getter]
-    fn get_id(&self) -> usize {
-        self.inner.id
     }
 
     #[getter]
