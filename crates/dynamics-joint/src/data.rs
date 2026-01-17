@@ -5,7 +5,7 @@ use dynamics_spatial::{
     configuration::{Configuration, PyConfiguration},
     se3::{PySE3, SE3},
 };
-use pyo3::prelude::*;
+use pyo3::{exceptions::PyValueError, prelude::*};
 
 /// Dynamic type for a joint.
 pub type JointDataWrapper = Box<dyn JointData + Send + Sync>;
@@ -55,7 +55,7 @@ impl PyJointDataWrapper {
             .update(&joint_model.inner, q_joint.to_configuration())
         {
             Ok(_) => Ok(()),
-            Err(e) => Err(pyo3::exceptions::PyValueError::new_err(format!(
+            Err(e) => Err(PyValueError::new_err(format!(
                 "Failed to update joint data: {:?}",
                 e
             ))),
