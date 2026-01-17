@@ -30,9 +30,12 @@ use std::{collections::HashMap, fs, str::FromStr};
 ///
 /// # Returns
 ///
-/// A tuple containing the [`Model`] and [`GeometryModel`] objects if successful.
+/// A tuple containing the [`Model`], a collision [`GeometryModel`], and a visualization [`GeometryModel`] objects if successful.
+///
 /// Returns a [`ParseError`] if there is an error during parsing.
-pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), ParseError> {
+pub fn build_models_from_urdf(
+    filepath: &str,
+) -> Result<(Model, GeometryModel, GeometryModel), ParseError> {
     let contents = fs::read_to_string(filepath).map_err(ParseError::IoError)?;
     let doc = Document::parse(&contents).map_err(ParseError::XmlError)?;
 
@@ -45,8 +48,8 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
 
     // elements will sequentially be added to the models
     let mut model = Model::new(robot_name);
-    let mut geom_model = GeometryModel::new();
     let mut coll_model = GeometryModel::new();
+    let mut viz_model = GeometryModel::new();
 
     // start by parsing materials
     let materials = parse_materials(&robot_node)?;
@@ -67,14 +70,14 @@ pub fn build_models_from_urdf(filepath: &str) -> Result<(Model, GeometryModel), 
             WORLD_FRAME_ID, // TODO: rename to WORLD_ID or similar
             true,
             &mut model,
-            &mut geom_model,
             &mut coll_model,
+            &mut viz_model,
             &materials,
             filepath,
         )?;
     }
 
-    Ok((model, geom_model))
+    Ok((model, coll_model, viz_model))
 }
 
 /// Parse the given node and call itself recursively on its children.
@@ -86,8 +89,8 @@ fn parse_node(
     parent_joint_id: usize,
     is_root: bool,
     model: &mut Model,
-    geom_model: &mut GeometryModel,
     coll_model: &mut GeometryModel,
+    viz_model: &mut GeometryModel,
     materials: &HashMap<String, Color>,
     filepath: &str,
 ) -> Result<(), ParseError> {
@@ -103,8 +106,8 @@ fn parse_node(
                 parent_joint_id,
                 is_root,
                 model,
-                geom_model,
                 coll_model,
+                viz_model,
                 materials,
                 filepath,
             )?;
@@ -176,8 +179,8 @@ fn parse_node(
             new_parent_joint_id,
             false,
             model,
-            geom_model,
             coll_model,
+            viz_model,
             materials,
             filepath,
         )?;
@@ -335,8 +338,8 @@ fn parse_link(
     parent_joint_id: usize,
     is_root: bool,
     model: &mut Model,
-    geom_model: &mut GeometryModel,
     coll_model: &mut GeometryModel,
+    viz_model: &mut GeometryModel,
     materials: &HashMap<String, Color>,
     filepath: &str,
 ) -> Result<(), ParseError> {
@@ -345,10 +348,10 @@ fn parse_link(
     // parse the visual node
     if let Some(visual_node) = node.children().find(|n| n.has_tag_name("visual")) {
         let geom_obj = parse_geometry(link_name.clone(), &visual_node, materials, filepath)?;
-        geom_model.add_geometry_object(geom_obj);
+        viz_model.add_geometry_object(geom_obj);
     } else {
         // add a default geometry object if no visual node is found
-        geom_model.add_geometry_object(GeometryObject::new(
+        viz_model.add_geometry_object(GeometryObject::new(
             link_name.clone(),
             WORLD_FRAME_ID,
             Box::new(Sphere::new(0.0)),
@@ -636,11 +639,14 @@ fn parse_origin(node: &roxmltree::Node) -> Result<SE3, ParseError> {
 
 /// A Python wrapper for the `build_models_from_urdf` function.
 #[pyfunction(name = "build_models_from_urdf")]
-pub fn py_build_models_from_urdf(filepath: &str) -> PyResult<(PyModel, PyGeometryModel)> {
+pub fn py_build_models_from_urdf(
+    filepath: &str,
+) -> PyResult<(PyModel, PyGeometryModel, PyGeometryModel)> {
     match build_models_from_urdf(filepath) {
-        Ok((model, geom_model)) => Ok((
+        Ok((model, coll_model, viz_model)) => Ok((
             PyModel { inner: model },
-            PyGeometryModel { inner: geom_model },
+            PyGeometryModel { inner: coll_model },
+            PyGeometryModel { inner: viz_model },
         )),
         Err(e) => Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!(
             "{:?}",

@@ -107,6 +107,14 @@ def assert_models_equals(
         assert_inertias_equals(test_case, dyn_inertia, pin_inertia)
 
 
+def assert_geometry_models_equals(
+    test_case: unittest.TestCase,
+    dyn_geom_model: dyn.GeometryModel,
+    pin_geom_model: pin.GeometryModel,
+):
+    pass
+
+
 def assert_datas_equals(
     test_case: unittest.TestCase, dyn_data: dyn.Data, pin_data: pin.Data
 ):

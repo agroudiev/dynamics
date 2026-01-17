@@ -2,7 +2,7 @@ import numpy as np
 import dynamics as dyn
 
 # load an URDF file
-model, geom_model = dyn.build_models_from_urdf(
+model, geom_model, _ = dyn.build_models_from_urdf(
     "examples/descriptions/ur5/ur5_robot.urdf"
 )
 

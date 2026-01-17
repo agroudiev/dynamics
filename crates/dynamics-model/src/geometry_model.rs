@@ -1,7 +1,5 @@
 //! Model for a geometry structure, containing multiple geometry objects.
 
-use std::collections::HashMap;
-
 use crate::{
     data::{Data, GeometryData, PyData, PyGeometryData},
     geometry_object::{GeometryObject, PyGeometryObject},
@@ -12,9 +10,7 @@ use pyo3::prelude::*;
 #[derive(Clone, Debug)]
 pub struct GeometryModel {
     /// The list of geometry objects contained in this model.
-    pub models: HashMap<usize, GeometryObject>,
-    /// The indices of the geometry objects by name.
-    pub indices: HashMap<String, usize>,
+    pub objects: Vec<GeometryObject>,
 }
 
 impl Default for GeometryModel {
@@ -27,8 +23,7 @@ impl GeometryModel {
     /// Creates a new [`GeometryModel`] with an empty list of objects.
     pub fn new() -> Self {
         GeometryModel {
-            models: HashMap::new(),
-            indices: HashMap::new(),
+            objects: Vec::new(),
         }
     }
 
@@ -38,12 +33,19 @@ impl GeometryModel {
     ///
     /// * `object` - The geometry object to be added to the model.
     pub fn add_geometry_object(&mut self, mut object: GeometryObject) -> usize {
-        let id = self.models.len();
+        let id = self.objects.len();
         object.id = id;
-        self.models.insert(id, object);
-        self.indices
-            .insert(self.models.get(&id).unwrap().name.clone(), id);
+        self.objects.insert(id, object);
         id
+    }
+
+    pub fn get_geometry_id(&self, name: &str) -> Option<usize> {
+        for object in &self.objects {
+            if object.name == name {
+                return Some(object.id);
+            }
+        }
+        None
     }
 
     /// Creates a new `GeometryData` object based on the provided model and data.
@@ -102,19 +104,10 @@ impl PyGeometryModel {
     #[getter]
     pub fn geometry_objects(&self) -> Vec<PyGeometryObject> {
         self.inner
-            .models
-            .values()
+            .objects
+            .iter()
             .map(|obj| PyGeometryObject { inner: obj.clone() })
             .collect()
-    }
-
-    /// Adds a new geometry object to the list of objects in the model.
-    ///
-    /// # Arguments
-    ///
-    /// * `object` - The geometry object to be added to the model.
-    pub fn add_geometry_object_from_py(&mut self, object: &PyGeometryObject) {
-        self.inner.add_geometry_object(object.inner.clone());
     }
 
     /// Creates a new `GeometryData` object based on the provided model and data.
@@ -133,5 +126,10 @@ impl PyGeometryModel {
 
     fn __repr__(slf: PyRef<'_, Self>) -> String {
         format!("{:#?}", slf.inner)
+    }
+
+    #[getter]
+    pub fn ngeoms(&self) -> usize {
+        self.inner.objects.len()
     }
 }

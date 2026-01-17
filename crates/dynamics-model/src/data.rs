@@ -3,7 +3,6 @@
 use dynamics_joint::data::JointDataWrapper;
 use dynamics_spatial::se3::{PySE3, SE3};
 use pyo3::{PyResult, pyclass, pymethods};
-use std::collections::HashMap;
 
 use crate::{
     geometry_model::{GeometryModel, PyGeometryModel},
@@ -84,7 +83,7 @@ impl PyData {
 #[derive(Default)]
 pub struct GeometryData {
     /// The placements of the objects in the world frame
-    pub object_placements: HashMap<usize, SE3>,
+    pub object_placements: Vec<SE3>,
 }
 
 impl GeometryData {
@@ -97,7 +96,7 @@ impl GeometryData {
     /// # Returns
     /// An `Option` containing the object placement if it exists, otherwise `None`.
     pub fn get_object_placement(&self, object_index: usize) -> Option<&SE3> {
-        self.object_placements.get(&object_index)
+        self.object_placements.get(object_index)
     }
 
     /// Updates the geometry data with the given model and geometry model.
@@ -113,11 +112,11 @@ impl GeometryData {
     pub fn update_geometry_data(&mut self, data: &Data, geom_model: &GeometryModel) {
         self.object_placements.clear();
 
-        for (object_id, object) in geom_model.models.iter() {
+        for object in geom_model.objects.iter() {
             let parent_joint_id = object.parent_joint;
             let parent_joint_placement = data.joint_placements[parent_joint_id];
             let object_placement = parent_joint_placement * object.placement;
-            self.object_placements.insert(*object_id, object_placement);
+            self.object_placements.push(object_placement);
         }
     }
 }
