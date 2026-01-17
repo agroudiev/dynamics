@@ -350,6 +350,7 @@ fn parse_link(
         let geom_obj = parse_geometry(
             format!("{}_0", link_name),
             &visual_node,
+            parent_joint_id,
             materials,
             filepath,
         )?;
@@ -378,6 +379,7 @@ fn parse_link(
         let geom_obj = parse_geometry(
             format!("{}_0", link_name),
             &collision_node,
+            parent_joint_id,
             materials,
             filepath,
         )?;
@@ -492,7 +494,8 @@ fn parse_inertia(node: Node, link_name: String) -> Result<(Inertia, SE3), ParseE
 /// Extracts the geometry shape and its parameters.
 fn parse_geometry(
     link_name: String,
-    visual_node: &roxmltree::Node,
+    visual_node: &Node,
+    parent_joint_id: usize,
     materials: &HashMap<String, Color>,
     urdf_filepath: &str,
 ) -> Result<GeometryObject, ParseError> {
@@ -565,26 +568,25 @@ fn parse_geometry(
     let placement = parse_origin(visual_node)?;
 
     // extract the material color
-    let mut color = Color::new(0.0, 0.0, 0.0, 1.0);
+    let mut color = Color::new(0.9, 0.9, 0.9, 1.0);
     // if there is a material node
     if let Some(material_node) = visual_node.children().find(|n| n.has_tag_name("material")) {
         // if this material node has a name
-        if let Some(material_name) = material_node.attribute("name") {
-            // if this material was already defined in the robot node
-            if let Some(material_color) = materials.get(material_name) {
-                color = *material_color;
-            }
-            // else, check if it has a color node
-            else if let Ok(rgba) = extract_parameter_list::<f64>("rgba", &material_node, Some(4))
-            {
-                color = Color::new(rgba[0], rgba[1], rgba[2], rgba[3]);
-            }
-        } else if let Ok(rgba) = extract_parameter_list::<f64>("rgba", &material_node, Some(4)) {
+        // and this material was already defined in the robot node
+        if let Some(material_name) = material_node.attribute("name")
+            && let Some(material_color) = materials.get(material_name)
+        {
+            color = *material_color;
+        }
+        // else, check if it has a color node
+        else if let Some(color_node) = material_node.children().find(|n| n.has_tag_name("color"))
+            && let Ok(rgba) = extract_parameter_list::<f64>("rgba", &color_node, Some(4))
+        {
             color = Color::new(rgba[0], rgba[1], rgba[2], rgba[3]);
         }
     }
 
-    let geom_obj = GeometryObject::new(link_name, 0, shape, color, placement);
+    let geom_obj = GeometryObject::new(link_name, parent_joint_id, shape, color, placement);
     Ok(geom_obj)
 }
 

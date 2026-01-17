@@ -15,6 +15,8 @@ use pyo3::{exceptions::PyValueError, prelude::*, types::PyTuple};
 pub struct GeometryObject {
     /// The name of the geometry object.
     pub name: String,
+    /// The identifier of the parent joint. If the object is not attached to a joint, this is set to 0 (WORLD_FRAME_ID).
+    pub parent_joint: usize,
     /// Whether to disable collision detection and distance check for this object.
     pub disable_collision: bool,
     /// The `collider` geometry object.
@@ -23,8 +25,6 @@ pub struct GeometryObject {
     pub mesh_color: Color,
     /// The placement of the geometry object in the parent frame.
     pub placement: SE3,
-    /// The identifier of the parent joint. If the object is not attached to a joint, this is set to 0 (WORLD_FRAME_ID).
-    pub parent_joint: usize,
 }
 
 impl GeometryObject {
@@ -46,11 +46,11 @@ impl GeometryObject {
     ) -> Self {
         Self {
             name,
+            parent_joint,
             disable_collision: false,
             geometry,
             mesh_color,
             placement,
-            parent_joint,
         }
     }
 }
@@ -59,11 +59,11 @@ impl Clone for GeometryObject {
     fn clone(&self) -> Self {
         Self {
             name: self.name.clone(),
+            parent_joint: self.parent_joint,
             disable_collision: self.disable_collision,
             geometry: self.geometry.clone_box(),
             mesh_color: self.mesh_color,
             placement: self.placement,
-            parent_joint: self.parent_joint,
         }
     }
 }
@@ -72,11 +72,11 @@ impl Debug for GeometryObject {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("GeometryObject")
             .field("name", &self.name)
+            .field("parent_joint", &self.parent_joint)
             .field("disable_collision", &self.disable_collision)
             // .field("geometry", &self.geometry)
             .field("mesh_color", &self.mesh_color)
             .field("placement", &self.placement)
-            .field("parent_joint", &self.parent_joint)
             .finish()
     }
 }
@@ -195,6 +195,16 @@ impl PyGeometryObject {
         PySE3 {
             inner: self.inner.placement,
         }
+    }
+
+    #[getter]
+    fn get_disable_collision(&self) -> bool {
+        self.inner.disable_collision
+    }
+
+    #[getter]
+    fn get_parent_joint(&self) -> usize {
+        self.inner.parent_joint
     }
 
     fn __repr__(slf: PyRef<'_, Self>) -> String {
