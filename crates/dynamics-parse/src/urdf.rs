@@ -10,7 +10,7 @@ use dynamics_model::frame::{Frame, FrameType};
 use dynamics_model::{
     geometry_model::{GeometryModel, PyGeometryModel},
     geometry_object::GeometryObject,
-    model::{Model, PyModel, WORLD_FRAME_ID},
+    model::{Model, PyModel, WORLD_ID},
 };
 use dynamics_spatial::color::Color;
 use dynamics_spatial::motion::SpatialRotation;
@@ -69,7 +69,7 @@ pub fn build_models_from_urdf(
             &robot_node,
             node,
             &robot_node,
-            WORLD_FRAME_ID, // TODO: rename to WORLD_ID or similar
+            WORLD_ID,
             true,
             &mut model,
             &mut coll_model,
@@ -423,7 +423,7 @@ fn get_parent_frame(
 
     // check if the parent is the world frame
     if parent_name == robot_name {
-        Ok(WORLD_FRAME_ID)
+        Ok(WORLD_ID)
     } else {
         model
             .get_frame_id(parent_name)

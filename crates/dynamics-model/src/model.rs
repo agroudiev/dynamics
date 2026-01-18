@@ -14,7 +14,7 @@ use pyo3::{exceptions::PyValueError, prelude::*};
 use std::fmt::Debug;
 use std::sync::LazyLock;
 
-pub const WORLD_FRAME_ID: usize = 0;
+pub const WORLD_ID: usize = 0;
 pub static STANDARD_GRAVITY: LazyLock<Vector3D> = LazyLock::new(|| Vector3D::new(0.0, 0.0, -9.81));
 
 /// Data structure that contains the immutable properties of the robot model.
@@ -67,7 +67,7 @@ impl Model {
         Self {
             name: String::new(),
             joint_names: vec!["__WORLD__".to_string()],
-            joint_parents: vec![WORLD_FRAME_ID],
+            joint_parents: vec![WORLD_ID],
             joint_placements: vec![SE3::identity()],
             joint_models: vec![Box::new(JointModelFixed::default())],
             nq: 0,
@@ -75,8 +75,8 @@ impl Model {
             inertias: vec![Inertia::zeros()],
             frames: vec![Frame::new(
                 "__WORLD_FRAME__".to_string(),
-                WORLD_FRAME_ID,
-                WORLD_FRAME_ID,
+                WORLD_ID,
+                WORLD_ID,
                 SE3::identity(),
                 FrameType::Fixed,
                 Inertia::zeros(),

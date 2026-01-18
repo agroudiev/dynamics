@@ -9,7 +9,7 @@ use dynamics_model::frame::{Frame, FrameType};
 use dynamics_model::{
     geometry_model::{GeometryModel, PyGeometryModel},
     geometry_object::GeometryObject,
-    model::{Model, PyModel, WORLD_FRAME_ID},
+    model::{Model, PyModel, WORLD_ID},
 };
 use dynamics_spatial::color::Color;
 use dynamics_spatial::motion::SpatialRotation;
@@ -228,7 +228,7 @@ fn parse_link(
         // add a default geometry object if no visual node is found
         geom_model.add_geometry_object(GeometryObject::new(
             link_name.clone(),
-            WORLD_FRAME_ID,
+            WORLD_ID,
             Box::new(Sphere::new(0.0)),
             Color::transparent(),
             SE3::identity(),
@@ -245,8 +245,8 @@ fn parse_link(
     }
 
     // add a frame for the link
-    let parent_joint = WORLD_FRAME_ID;
-    let parent_frame = WORLD_FRAME_ID;
+    let parent_joint = WORLD_ID;
+    let parent_frame = WORLD_ID;
     let frame = Frame::new(
         link_name,
         parent_joint,

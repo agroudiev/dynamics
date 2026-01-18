@@ -18,7 +18,7 @@ use dynamics_model::{
     geometry_model::PyGeometryModel,
     geometry_object::PyGeometryObject,
     inverse_dynamics::{py_inverse_dynamics, py_rnea},
-    model::{PyModel, STANDARD_GRAVITY, WORLD_FRAME_ID, py_random_configuration},
+    model::{PyModel, STANDARD_GRAVITY, WORLD_ID, py_random_configuration},
     neutral::py_neutral,
 };
 use pyo3::prelude::*;
@@ -70,7 +70,7 @@ fn add_dynamics_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult
     dynamics.add_function(wrap_pyfunction!(py_random_configuration, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(py_build_models_from_urdf, dynamics)?)?;
 
-    dynamics.add("WORLD_FRAME_ID", WORLD_FRAME_ID)?;
+    dynamics.add("WORLD_ID", WORLD_ID)?;
     dynamics.add(
         "STANDARD_GRAVITY",
         PyArray1::from_slice(py, STANDARD_GRAVITY.as_slice()),

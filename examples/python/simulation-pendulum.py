@@ -8,7 +8,7 @@ import math
 model = dyn.Model()
 geom_model = dyn.GeometryModel()
 
-parent_id = dyn.WORLD_FRAME_ID
+parent_id = dyn.WORLD_ID
 
 base_radius = 0.2
 shape_base = col.Sphere(base_radius)
