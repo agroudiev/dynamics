@@ -12,7 +12,7 @@ parent_id = dyn.WORLD_FRAME_ID
 
 base_radius = 0.2
 shape_base = col.Sphere(base_radius)
-geom_base = dyn.GeometryObject("base", 0, shape_base, dyn.SE3.Identity())
+geom_base = dyn.GeometryObject("base", 0, 0, shape_base, dyn.SE3.Identity())
 geom_base.mesh_color = np.array([1.0, 0.1, 0.1, 1.0])
 geom_model.add_geometry_object(geom_base)
 
@@ -31,7 +31,7 @@ body_placement.translation = np.array([0.0, 0.0, 1.0])
 
 geom1_name = "ball"
 shape1 = col.Sphere(body_radius)
-geom1_obj = dyn.GeometryObject(geom1_name, joint_id, shape1, body_placement)
+geom1_obj = dyn.GeometryObject(geom1_name, joint_id, 0, shape1, body_placement)
 geom1_obj.mesh_color = np.ones(4)
 geom_model.add_geometry_object(geom1_obj)
 
@@ -41,7 +41,7 @@ shape2_placement = body_placement.copy()
 # shape2_placement.translation[2] /= 2.0
 shape2_placement.translation = np.array([0.0, 0.0, 0.5])
 
-geom2_obj = dyn.GeometryObject(geom2_name, joint_id, shape2, shape2_placement)
+geom2_obj = dyn.GeometryObject(geom2_name, joint_id, 0, shape2, shape2_placement)
 geom2_obj.mesh_color = np.array([0.0, 0.0, 0.0, 1.0])
 geom_model.add_geometry_object(geom2_obj)
 

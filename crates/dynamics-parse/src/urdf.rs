@@ -345,21 +345,6 @@ fn parse_link(
 ) -> Result<(), ParseError> {
     let link_name = node.attribute("name").unwrap_or("").to_string();
 
-    // parse the visual node
-    if let Some(visual_node) = node.children().find(|n| n.has_tag_name("visual")) {
-        let geom_obj = parse_geometry(
-            format!("{link_name}_0"),
-            &visual_node,
-            parent_joint_id,
-            parent_node,
-            robot_node,
-            model,
-            materials,
-            filepath,
-        )?;
-        viz_model.add_geometry_object(geom_obj);
-    } // TODO: handle multiple visual nodes
-
     // parse the inertial node
     let (link_inertia, _inertia_origin) = parse_inertia(node, &link_name)?;
 
@@ -374,8 +359,22 @@ fn parse_link(
     };
 
     // compute the placement of the link frame
-    let parent_frame = &model.frames[get_parent_frame(parent_node, robot_node, model)?];
+    let parent_frame_id = get_parent_frame(parent_node, robot_node, model)?;
+    let parent_frame = &model.frames[parent_frame_id];
     let link_placement = parent_frame.placement * parse_origin(&node)?;
+
+    // add a frame for the link
+    let frame = Frame::new(
+        link_name.to_string(),
+        parent_joint_id,
+        parent_frame_id,
+        link_placement,
+        FrameType::Body,
+        frame_inertia,
+    );
+    let new_frame_id = model
+        .add_frame(frame, true)
+        .map_err(ParseError::ModelError)?;
 
     // parse the collision node
     if let Some(collision_node) = node.children().find(|n| n.has_tag_name("collision")) {
@@ -383,8 +382,7 @@ fn parse_link(
             format!("{link_name}_0"),
             &collision_node,
             parent_joint_id,
-            parent_node,
-            robot_node,
+            new_frame_id,
             model,
             materials,
             filepath,
@@ -392,19 +390,20 @@ fn parse_link(
         coll_model.add_geometry_object(geom_obj);
     } // TODO: handle multiple collision nodes
 
-    // add a frame for the link
-    let parent_frame = get_parent_frame(parent_node, robot_node, model)?;
-    let frame = Frame::new(
-        link_name,
-        parent_joint_id,
-        parent_frame,
-        link_placement,
-        FrameType::Body,
-        frame_inertia,
-    );
-    model
-        .add_frame(frame, true)
-        .map_err(ParseError::ModelError)?;
+    // parse the visual node
+    if let Some(visual_node) = node.children().find(|n| n.has_tag_name("visual")) {
+        let geom_obj = parse_geometry(
+            format!("{link_name}_0"),
+            &visual_node,
+            parent_joint_id,
+            new_frame_id,
+            model,
+            materials,
+            filepath,
+        )?;
+        viz_model.add_geometry_object(geom_obj);
+    } // TODO: handle multiple visual nodes
+
     Ok(())
 }
 
@@ -502,8 +501,7 @@ fn parse_geometry(
     link_name: String,
     node: &Node,
     parent_joint_id: usize,
-    parent_node: &Node,
-    robot_node: &Node,
+    parent_frame_id: usize,
     model: &Model,
     materials: &HashMap<String, Color>,
     urdf_filepath: &str,
@@ -570,7 +568,7 @@ fn parse_geometry(
     };
 
     // extract the origin from the visual node
-    let parent_frame = &model.frames[get_parent_frame(parent_node, robot_node, model)?];
+    let parent_frame = &model.frames[parent_frame_id];
     let placement = parent_frame.placement * parse_origin(node)?;
 
     // extract the material color
@@ -592,7 +590,14 @@ fn parse_geometry(
         }
     }
 
-    let geom_obj = GeometryObject::new(link_name, parent_joint_id, shape, color, placement);
+    let geom_obj = GeometryObject::new(
+        link_name,
+        parent_joint_id,
+        parent_frame_id,
+        shape,
+        color,
+        placement,
+    );
     Ok(geom_obj)
 }
 

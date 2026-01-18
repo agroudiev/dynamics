@@ -114,7 +114,7 @@ def assert_geometry_objects_equals(
 ):
     test_case.assertEqual(dyn_geom.name, pin_geom.name)
     test_case.assertEqual(dyn_geom.parent_joint, pin_geom.parentJoint)
-    # test_case.assertEqual(dyn_geom.parent_frame, pin_geom.parentFrame)
+    test_case.assertEqual(dyn_geom.parent_frame, pin_geom.parentFrame)
     assert_se3_equals(test_case, dyn_geom.placement, pin_geom.placement)
     # assert_geometries_equals(test_case, dyn_geom.geometry, pin_geom.geometry)
     test_case.assertEqual(dyn_geom.disable_collision, pin_geom.disableCollision)

@@ -17,8 +17,10 @@ use pyo3::{exceptions::PyValueError, prelude::*, types::PyTuple};
 pub struct GeometryObject {
     /// The name of the geometry object.
     pub name: String,
-    /// The identifier of the parent joint. If the object is not attached to a joint, this is set to 0 (`WORLD_FRAME_ID`).
+    /// The identifier of the parent joint.
     pub parent_joint: usize,
+    /// The identifier of the parent frame.
+    pub parent_frame: usize,
     /// Whether to disable collision detection and distance check for this object.
     pub disable_collision: bool,
     /// The `collider` geometry object.
@@ -43,6 +45,7 @@ impl GeometryObject {
     pub fn new(
         name: String,
         parent_joint: usize,
+        parent_frame: usize,
         geometry: ShapeWrapper,
         mesh_color: Color,
         placement: SE3,
@@ -50,6 +53,7 @@ impl GeometryObject {
         Self {
             name,
             parent_joint,
+            parent_frame,
             disable_collision: false,
             geometry,
             mesh_color,
@@ -63,6 +67,7 @@ impl Clone for GeometryObject {
         Self {
             name: self.name.clone(),
             parent_joint: self.parent_joint,
+            parent_frame: self.parent_frame,
             disable_collision: self.disable_collision,
             geometry: self.geometry.clone_box(),
             mesh_color: self.mesh_color,
@@ -76,6 +81,7 @@ impl Debug for GeometryObject {
         f.debug_struct("GeometryObject")
             .field("name", &self.name)
             .field("parent_joint", &self.parent_joint)
+            .field("parent_frame", &self.parent_frame)
             .field("disable_collision", &self.disable_collision)
             // .field("geometry", &self.geometry)
             .field("mesh_color", &self.mesh_color)
@@ -98,33 +104,35 @@ impl PyGeometryObject {
     ///
     /// * `name` - The name of the geometry object.
     /// * `parent_joint` - The identifier of the parent joint.
+    /// * `parent_frame` - The identifier of the parent frame.
     /// * `geometry` - The `collider` shape of the geometry object (used for collisions).
     /// * `placement` - The placement of the geometry object in the parent frame.
     #[new]
     #[pyo3(signature = (*py_args))]
     fn new(py_args: &Bound<'_, PyTuple>) -> PyResult<Self> {
-        if py_args.len() == 4 {
+        if py_args.len() == 5 {
             let name: String = py_args.get_item(0)?.extract()?;
             let parent_joint: usize = py_args.get_item(1)?.extract()?;
+            let parent_frame: usize = py_args.get_item(2)?.extract()?;
 
             let geometry: PyShapeWrapper =
-                if let Ok(capsule) = py_args.get_item(2)?.extract::<PyRef<PyCapsule>>() {
+                if let Ok(capsule) = py_args.get_item(3)?.extract::<PyRef<PyCapsule>>() {
                     PyShapeWrapper {
                         inner: capsule.inner.clone_box(),
                     }
-                } else if let Ok(cone) = py_args.get_item(2)?.extract::<PyRef<PyCone>>() {
+                } else if let Ok(cone) = py_args.get_item(3)?.extract::<PyRef<PyCone>>() {
                     PyShapeWrapper {
                         inner: cone.inner.clone_box(),
                     }
-                } else if let Ok(cuboid) = py_args.get_item(2)?.extract::<PyRef<PyCuboid>>() {
+                } else if let Ok(cuboid) = py_args.get_item(3)?.extract::<PyRef<PyCuboid>>() {
                     PyShapeWrapper {
                         inner: cuboid.inner.clone_box(),
                     }
-                } else if let Ok(cylinder) = py_args.get_item(2)?.extract::<PyRef<PyCylinder>>() {
+                } else if let Ok(cylinder) = py_args.get_item(3)?.extract::<PyRef<PyCylinder>>() {
                     PyShapeWrapper {
                         inner: cylinder.inner.clone_box(),
                     }
-                } else if let Ok(sphere) = py_args.get_item(2)?.extract::<PyRef<PySphere>>() {
+                } else if let Ok(sphere) = py_args.get_item(3)?.extract::<PyRef<PySphere>>() {
                     PyShapeWrapper {
                         inner: sphere.inner.clone_box(),
                     }
@@ -141,6 +149,7 @@ impl PyGeometryObject {
                 inner: GeometryObject::new(
                     name,
                     parent_joint,
+                    parent_frame,
                     geometry.inner.clone_box(),
                     Color::black(),
                     placement.inner,
@@ -148,7 +157,7 @@ impl PyGeometryObject {
             })
         } else {
             Err(PyValueError::new_err(format!(
-                "incorrect number of arguments, expected 4, but got {}. Signature: GeometryObject(name, parent_joint, geometry, placement)",
+                "incorrect number of arguments, expected 5, but got {}. Signature: GeometryObject(name, parent_joint, parent_frame, geometry, placement)",
                 py_args.len()
             )))
         }
@@ -208,6 +217,11 @@ impl PyGeometryObject {
     #[getter]
     fn get_parent_joint(&self) -> usize {
         self.inner.parent_joint
+    }
+
+    #[getter]
+    fn get_parent_frame(&self) -> usize {
+        self.inner.parent_frame
     }
 
     fn __repr__(slf: PyRef<'_, Self>) -> String {
