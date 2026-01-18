@@ -1,4 +1,5 @@
 //! Parser for the URDF (Unified Robot Description Format) file format.
+#![allow(clippy::too_many_arguments)] // TODO: refactor functions
 
 use crate::errors::ParseError;
 use collider::mesh::Mesh;
@@ -81,7 +82,6 @@ pub fn build_models_from_urdf(
 }
 
 /// Parse the given node and call itself recursively on its children.
-#[allow(clippy::too_many_arguments)] // TODO: refactor
 fn parse_node(
     robot_node: &Node,
     node: Node,
@@ -330,7 +330,6 @@ fn parse_materials(robot_node: &Node) -> Result<HashMap<String, Color>, ParseErr
 }
 
 /// Parses a link node.
-#[allow(clippy::too_many_arguments)] // TODO: refactor
 fn parse_link(
     robot_node: &Node,
     node: Node,
@@ -351,6 +350,9 @@ fn parse_link(
             format!("{}_0", link_name),
             &visual_node,
             parent_joint_id,
+            parent_node,
+            robot_node,
+            model,
             materials,
             filepath,
         )?;
@@ -380,6 +382,9 @@ fn parse_link(
             format!("{}_0", link_name),
             &collision_node,
             parent_joint_id,
+            parent_node,
+            robot_node,
+            model,
             materials,
             filepath,
         )?;
@@ -494,12 +499,15 @@ fn parse_inertia(node: Node, link_name: String) -> Result<(Inertia, SE3), ParseE
 /// Extracts the geometry shape and its parameters.
 fn parse_geometry(
     link_name: String,
-    visual_node: &Node,
+    node: &Node,
     parent_joint_id: usize,
+    parent_node: &Node,
+    robot_node: &Node,
+    model: &Model,
     materials: &HashMap<String, Color>,
     urdf_filepath: &str,
 ) -> Result<GeometryObject, ParseError> {
-    let geometry_node = visual_node
+    let geometry_node = node
         .children()
         .find(|n| n.has_tag_name("geometry"))
         .ok_or(ParseError::VisualWithoutGeometry)?;
@@ -565,12 +573,13 @@ fn parse_geometry(
     };
 
     // extract the origin from the visual node
-    let placement = parse_origin(visual_node)?;
+    let parent_frame = &model.frames[get_parent_frame(parent_node, robot_node, model)?];
+    let placement = parent_frame.placement * parse_origin(node)?;
 
     // extract the material color
     let mut color = Color::new(0.9, 0.9, 0.9, 1.0);
     // if there is a material node
-    if let Some(material_node) = visual_node.children().find(|n| n.has_tag_name("material")) {
+    if let Some(material_node) = node.children().find(|n| n.has_tag_name("material")) {
         // if this material node has a name
         // and this material was already defined in the robot node
         if let Some(material_name) = material_node.attribute("name")
