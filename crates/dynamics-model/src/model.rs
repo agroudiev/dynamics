@@ -379,9 +379,9 @@ impl PyModel {
     }
 
     #[pyo3(signature = ())]
-    fn create_data(&self) -> PyResult<PyData> {
+    fn create_data(&self) -> PyData {
         let data = self.inner.create_data();
-        Ok(PyData { inner: data })
+        PyData { inner: data }
     }
 
     #[getter]

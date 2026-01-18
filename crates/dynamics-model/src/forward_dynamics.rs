@@ -81,9 +81,9 @@ pub fn py_forward_dynamics(
     v: PyReadonlyArrayDyn<f64>,
     tau: PyReadonlyArrayDyn<f64>,
 ) -> PyResult<()> {
-    let q = Configuration::from_pyarray(q)?;
-    let v = Configuration::from_pyarray(v)?;
-    let tau = Configuration::from_pyarray(tau)?;
+    let q = Configuration::from_pyarray(&q)?;
+    let v = Configuration::from_pyarray(&v)?;
+    let tau = Configuration::from_pyarray(&tau)?;
 
     forward_dynamics(&model.inner, &mut data.inner, &q, &v, &tau)
         .map_err(|e| PyValueError::new_err(format!("Forward dynamics failed: {e:?}")))?;

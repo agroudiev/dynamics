@@ -90,7 +90,7 @@ impl Configuration {
     /// * `array` - A read-only `NumPy` array of scalar values.
     /// # Returns
     /// A new [`Configuration`] object containing the values from the `NumPy` array.
-    pub fn from_pyarray(array: PyReadonlyArrayDyn<f64>) -> Result<Configuration, PyErr> {
+    pub fn from_pyarray(array: &PyReadonlyArrayDyn<f64>) -> Result<Configuration, PyErr> {
         let array = array.as_array();
         let flat: Vec<f64> = array.iter().copied().collect();
         Ok(Configuration::from_row_slice(&flat))
@@ -175,7 +175,7 @@ impl PyConfiguration {
         PyConfiguration(config)
     }
 
-    pub fn from_pyarray(array: PyReadonlyArrayDyn<f64>) -> Result<Self, PyErr> {
+    pub fn from_pyarray(array: &PyReadonlyArrayDyn<f64>) -> Result<Self, PyErr> {
         let config = Configuration::from_pyarray(array)?;
         Ok(PyConfiguration::new(config))
     }

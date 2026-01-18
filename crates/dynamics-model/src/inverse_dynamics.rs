@@ -49,7 +49,7 @@ pub fn inverse_dynamics(
     // Forward pass: compute velocities and accelerations
     for id in 0..model.joint_models.len() {
         // retrieve the joint model and the corresponding configuration
-        let joint_model: Box<&JointWrapper> = Box::new(model.joint_models.get(id).unwrap());
+        let joint_model: Box<&JointWrapper> = Box::new(&model.joint_models[id]);
         let parent_id = model.joint_parents[id];
 
         // extract the joint configuration, velocity and acceleration from configuration vectors
@@ -145,9 +145,9 @@ pub fn py_inverse_dynamics(
     v: PyReadonlyArrayDyn<f64>,
     a: PyReadonlyArrayDyn<f64>,
 ) -> PyResult<PyConfiguration> {
-    let q = Configuration::from_pyarray(q)?;
-    let v = Configuration::from_pyarray(v)?;
-    let a = Configuration::from_pyarray(a)?;
+    let q = Configuration::from_pyarray(&q)?;
+    let v = Configuration::from_pyarray(&v)?;
+    let a = Configuration::from_pyarray(&a)?;
 
     let tau = inverse_dynamics(&model.inner, &mut data.inner, &q, &v, &a).map_err(|e| {
         PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Error in inverse dynamics: {e}"))
