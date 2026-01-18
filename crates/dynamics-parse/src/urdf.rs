@@ -287,10 +287,10 @@ fn parse_joint(
 
             // required parameters
             let effort = extract_parameter::<f64>("effort", &limit_node)?;
-            joint_model.limits.effort = effort;
+            joint_model.limits.effort[0] = effort;
 
             let velocity = extract_parameter::<f64>("velocity", &limit_node)?;
-            joint_model.limits.velocity = velocity;
+            joint_model.limits.velocity[0] = velocity;
 
             model.add_joint(
                 parent_joint_id,

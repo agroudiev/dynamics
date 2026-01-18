@@ -6,17 +6,17 @@ use dynamics_spatial::configuration::Configuration;
 #[derive(Clone, Debug, PartialEq)]
 pub struct JointLimits {
     /// Maximum torque/force that can be applied by the joint.
-    pub effort: f64,
+    pub effort: Configuration,
     /// Maximum velocity of the joint.
-    pub velocity: f64,
+    pub velocity: Configuration,
     /// Minimum configuration of the joint.
     pub min_configuration: Configuration,
     /// Maximum configuration of the joint.
     pub max_configuration: Configuration,
     /// Joint friction coefficient.
-    pub friction: f64,
+    pub friction: Configuration,
     /// Joint damping coefficient.
-    pub damping: f64,
+    pub damping: Configuration,
     /// Dry friction loss.
     pub friction_loss: f64,
 }
@@ -38,12 +38,12 @@ impl JointLimits {
     /// A new [`JointLimit`] object.
     #[must_use]
     pub fn new(
-        effort: f64,
-        velocity: f64,
+        effort: Configuration,
+        velocity: Configuration,
         min_configuration: Configuration,
         max_configuration: Configuration,
-        friction: f64,
-        damping: f64,
+        friction: Configuration,
+        damping: Configuration,
         friction_loss: f64,
     ) -> Self {
         Self {
@@ -63,12 +63,12 @@ impl JointLimits {
     /// A new unbounded [`JointLimits`] object.
     pub fn new_unbounded(nq: usize) -> Self {
         Self {
-            effort: f64::INFINITY,
-            velocity: f64::INFINITY,
+            effort: Configuration::from_element(nq, f64::INFINITY),
+            velocity: Configuration::from_element(nq, f64::INFINITY),
             min_configuration: Configuration::from_element(nq, f64::NEG_INFINITY),
             max_configuration: Configuration::from_element(nq, f64::INFINITY),
-            friction: 0.0,
-            damping: 0.0,
+            friction: Configuration::zeros(nq),
+            damping: Configuration::zeros(nq),
             friction_loss: 0.0,
         }
     }
