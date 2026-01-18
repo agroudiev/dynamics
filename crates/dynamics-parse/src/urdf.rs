@@ -18,6 +18,7 @@ use dynamics_spatial::se3::SE3;
 use dynamics_spatial::symmetric3::Symmetric3;
 use dynamics_spatial::vector3d::Vector3D;
 use nalgebra::Vector3;
+use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use roxmltree::{Document, Node};
 use std::collections::HashSet;
@@ -360,7 +361,7 @@ fn parse_link(
     } // TODO: handle multiple visual nodes
 
     // parse the inertial node
-    let (link_inertia, _inertia_origin) = parse_inertia(node, link_name.clone())?;
+    let (link_inertia, _inertia_origin) = parse_inertia(node, &link_name)?;
 
     // inertia associated with the new frame
     // if this is the root link, we put the inertia in the frame
@@ -416,10 +417,10 @@ fn get_parent_frame(
     // extract the name of the parent link
     let parent_name = parent_node
         .attribute("name")
-        .ok_or(ParseError::NameMissing(format!("{:#?}", parent_node)))?;
+        .ok_or(ParseError::NameMissing(format!("{parent_node:#?}")))?;
     let robot_name = robot_node
         .attribute("name")
-        .ok_or(ParseError::NameMissing(format!("{:#?}", robot_node)))?;
+        .ok_or(ParseError::NameMissing(format!("{robot_node:#?}")))?;
 
     // check if the parent is the world frame
     if parent_name == robot_name {
@@ -436,7 +437,7 @@ fn parse_material(node: Node, materials: &mut HashMap<String, Color>) -> Result<
     // extract name
     let material_name = node
         .attribute("name")
-        .ok_or(ParseError::NameMissing(format!("{:#?}", node)))?
+        .ok_or(ParseError::NameMissing(format!("{node:#?}")))?
         .to_string();
 
     // extract and convert color
@@ -452,18 +453,18 @@ fn parse_material(node: Node, materials: &mut HashMap<String, Color>) -> Result<
 }
 
 /// Parses the inertia of a link from the URDF file.
-fn parse_inertia(node: Node, link_name: String) -> Result<(Inertia, SE3), ParseError> {
+fn parse_inertia(node: Node, link_name: &str) -> Result<(Inertia, SE3), ParseError> {
     if let Some(inertial_node) = node.children().find(|n| n.has_tag_name("inertial")) {
         let mass_node = inertial_node
             .children()
             .find(|n| n.has_tag_name("mass"))
-            .ok_or(ParseError::InertialWithoutMass(link_name.clone()))?;
+            .ok_or(ParseError::InertialWithoutMass(link_name.to_string()))?;
         let mass = extract_parameter::<f64>("value", &mass_node)?;
 
         let inertia_node = inertial_node
             .children()
             .find(|n| n.has_tag_name("inertia"))
-            .ok_or(ParseError::InertialWithoutInertia(link_name.clone()))?;
+            .ok_or(ParseError::InertialWithoutInertia(link_name.to_string()))?;
 
         let ixx = extract_parameter::<f64>("ixx", &inertia_node)?;
         let ixy = extract_parameter::<f64>("ixy", &inertia_node)?;
@@ -536,18 +537,15 @@ fn parse_geometry(
 
         let absolute_path = if filename.starts_with("package://") {
             unimplemented!("package:// URDF paths are not supported yet")
-        } else if filename.starts_with("/") {
+        } else if filename.starts_with('/') {
             filename.to_string()
         } else {
             // treat as relative path from .urdf file
             let urdf_path = std::path::Path::new(urdf_filepath);
-            let urdf_dir = match urdf_path.parent() {
-                Some(dir) => dir,
-                None => {
-                    return Err(ParseError::InvalidFilePath(
-                        "URDF file has no parent directory".to_string(),
-                    ));
-                }
+            let Some(urdf_dir) = urdf_path.parent() else {
+                return Err(ParseError::InvalidFilePath(
+                    "URDF file has no parent directory".to_string(),
+                ));
             };
             urdf_dir
                 .join(filename)
@@ -660,9 +658,6 @@ pub fn py_build_models_from_urdf(
             PyGeometryModel { inner: coll_model },
             PyGeometryModel { inner: viz_model },
         )),
-        Err(e) => Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!(
-            "{:?}",
-            e
-        ))),
+        Err(e) => Err(PyErr::new::<PyValueError, _>(format!("{e:?}"))),
     }
 }
