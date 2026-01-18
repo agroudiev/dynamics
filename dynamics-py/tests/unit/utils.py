@@ -1,7 +1,11 @@
 import unittest
-import dynamics as dyn
-import pinocchio as pin
 import numpy as np
+
+import dynamics as dyn
+import dynamics.collider as collider
+
+import pinocchio as pin
+import coal
 
 
 def assert_se3_equals(test_case: unittest.TestCase, dyn_se3: dyn.SE3, pin_se3: pin.SE3):
@@ -107,6 +111,52 @@ def assert_models_equals(
         assert_inertias_equals(test_case, dyn_inertia, pin_inertia)
 
 
+def assert_shapes_equals(
+    test_case: unittest.TestCase,
+    dyn_shape: collider.Shape,
+    pin_shape: pin.CollisionGeometry,
+):
+    match str(dyn_shape.shape_type):
+        case "ShapeType.Capsule":
+            test_case.assertEqual(type(pin_shape), coal.coal_pywrap.Capsule)
+            test_case.assertTrue(
+                np.linalg.norm(dyn_shape.radius - pin_shape.radius) < 1e-7
+            )
+            test_case.assertTrue(
+                np.linalg.norm(dyn_shape.half_length - pin_shape.halfLength) < 1e-7
+            )
+        case "ShapeType.Cone":
+            test_case.assertEqual(type(pin_shape), coal.coal_pywrap.Cone)
+            test_case.assertTrue(
+                np.linalg.norm(dyn_shape.radius - pin_shape.radius) < 1e-7
+            )
+            test_case.assertTrue(
+                np.linalg.norm(dyn_shape.half_length - pin_shape.halfLength) < 1e-7
+            )
+        case "ShapeType.Cuboid":
+            test_case.assertEqual(type(pin_shape), coal.coal_pywrap.Box)
+            test_case.assertTrue(
+                np.linalg.norm(dyn_shape.half_extents - pin_shape.halfSide) < 1e-7
+            )
+        case "ShapeType.Cylinder":
+            test_case.assertEqual(type(pin_shape), coal.coal_pywrap.Cylinder)
+            test_case.assertTrue(
+                np.linalg.norm(dyn_shape.radius - pin_shape.radius) < 1e-7
+            )
+            test_case.assertTrue(
+                np.linalg.norm(dyn_shape.half_length - pin_shape.halfLength) < 1e-7
+            )
+        case "ShapeType.Sphere":
+            test_case.assertEqual(type(pin_shape), coal.coal_pywrap.Sphere)
+            test_case.assertTrue(
+                np.linalg.norm(dyn_shape.radius - pin_shape.radius) < 1e-7
+            )
+        case "ShapeType.Mesh":
+            test_case.assertEqual(type(pin_shape), coal.coal_pywrap.Mesh)
+        case _:
+            test_case.fail(f"Unknown shape type '{dyn_shape.shape_type}'")
+
+
 def assert_geometry_objects_equals(
     test_case: unittest.TestCase,
     dyn_geom: dyn.GeometryObject,
@@ -116,7 +166,7 @@ def assert_geometry_objects_equals(
     test_case.assertEqual(dyn_geom.parent_joint, pin_geom.parentJoint)
     test_case.assertEqual(dyn_geom.parent_frame, pin_geom.parentFrame)
     assert_se3_equals(test_case, dyn_geom.placement, pin_geom.placement)
-    # assert_geometries_equals(test_case, dyn_geom.geometry, pin_geom.geometry)
+    assert_shapes_equals(test_case, dyn_geom.geometry, pin_geom.geometry)
     test_case.assertEqual(dyn_geom.disable_collision, pin_geom.disableCollision)
     test_case.assertTrue(
         np.linalg.norm(dyn_geom.mesh_color - pin_geom.meshColor) < 1e-5,
