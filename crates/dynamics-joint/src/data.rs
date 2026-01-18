@@ -38,6 +38,7 @@ pub struct PyJointDataWrapper {
 #[pymethods]
 impl PyJointDataWrapper {
     #[getter]
+    #[must_use]
     pub fn joint_placement(&self) -> PySE3 {
         PySE3 {
             inner: self.inner.get_joint_placement(),
@@ -54,10 +55,9 @@ impl PyJointDataWrapper {
             .inner
             .update(&joint_model.inner, q_joint.to_configuration())
         {
-            Ok(_) => Ok(()),
+            Ok(()) => Ok(()),
             Err(e) => Err(PyValueError::new_err(format!(
-                "Failed to update joint data: {:?}",
-                e
+                "Failed to update joint data: {e:?}"
             ))),
         }
     }

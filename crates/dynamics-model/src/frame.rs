@@ -37,6 +37,7 @@ pub struct Frame {
 
 impl Frame {
     /// Creates a new Frame.
+    #[must_use]
     pub fn new(
         name: String,
         parent_joint: usize,
@@ -65,6 +66,7 @@ pub struct PyFrame {
 #[pymethods]
 impl PyFrame {
     #[new]
+    #[must_use]
     pub fn new(
         name: String,
         parent_joint: usize,
@@ -86,26 +88,31 @@ impl PyFrame {
     }
 
     #[getter]
+    #[must_use]
     pub fn name(&self) -> String {
         self.inner.name.clone()
     }
 
     #[getter]
+    #[must_use]
     pub fn parent_joint(&self) -> usize {
         self.inner.parent_joint
     }
 
     #[getter]
+    #[must_use]
     pub fn parent_frame(&self) -> usize {
         self.inner.parent_frame
     }
 
     #[getter]
+    #[must_use]
     pub fn frame_type(&self) -> FrameType {
         self.inner.frame_type.clone()
     }
 
     #[getter]
+    #[must_use]
     pub fn placement(&self) -> PySE3 {
         PySE3 {
             inner: self.inner.placement,
@@ -113,12 +120,14 @@ impl PyFrame {
     }
 
     #[getter]
+    #[must_use]
     pub fn inertia(&self) -> PyInertia {
         PyInertia {
             inner: self.inner.inertia.clone(),
         }
     }
 
+    #[must_use]
     pub fn __repr__(&self) -> String {
         format!(
             "Frame (name='{}', parent joint={}, parent frame={}, frame_type={:?})\n Placement={:?}\n Inertia={:?}",

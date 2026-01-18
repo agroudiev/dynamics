@@ -24,6 +24,7 @@ impl Symmetric3 {
     ///
     /// * `m11`, `m22`, `m33` - The diagonal elements.
     /// * `m12`, `m13`, `m23` - The off-diagonal elements.
+    #[must_use]
     pub fn new(m11: f64, m22: f64, m33: f64, m12: f64, m13: f64, m23: f64) -> Self {
         Self {
             data: [m11, m22, m33, m12, m13, m23],
@@ -40,6 +41,7 @@ impl Symmetric3 {
     /// # Panics
     ///
     /// Panics if the row or column index is out of bounds.
+    #[must_use]
     pub fn get(&self, row: usize, col: usize) -> &f64 {
         match (row, col) {
             (0, 0) => &self.data[0],
@@ -53,11 +55,13 @@ impl Symmetric3 {
     }
 
     /// Returns the zero symmetric matrix.
+    #[must_use]
     pub fn zeros() -> Self {
         Self { data: [0.0; 6] }
     }
 
     /// Returns the identity symmetric matrix.
+    #[must_use]
     pub fn identity() -> Self {
         Self {
             data: [1.0, 1.0, 1.0, 0.0, 0.0, 0.0],
@@ -68,6 +72,7 @@ impl Symmetric3 {
     ///
     /// # Arguments
     /// * `diag` - A vector containing the diagonal elements [m11, m22, m33].
+    #[must_use]
     pub fn from_diagonal(diag: &[f64; 3]) -> Self {
         Self {
             data: [diag[0], diag[1], diag[2], 0.0, 0.0, 0.0],
@@ -75,6 +80,7 @@ impl Symmetric3 {
     }
 
     /// Convert the symmetric matrix to a full 3x3 matrix.
+    #[must_use]
     pub fn matrix(&self) -> Matrix3<f64> {
         Matrix3::new(
             self.data[0],
@@ -89,6 +95,7 @@ impl Symmetric3 {
         )
     }
 
+    #[must_use]
     pub fn to_numpy(&self, py: Python) -> Py<PyAny> {
         let mat = self.matrix();
         Array2::from_shape_fn((3, 3), |(i, j)| mat[(i, j)])
@@ -97,6 +104,7 @@ impl Symmetric3 {
             .unbind()
     }
 
+    #[must_use]
     pub fn skew_square(v: Vector3D) -> Symmetric3 {
         let x = v.0[0];
         let y = v.0[1];
@@ -119,6 +127,7 @@ impl Symmetric3 {
     ///
     /// # Returns
     /// The rotated symmetric matrix.
+    #[must_use]
     pub fn rotate(&self, rotation: &SpatialRotation) -> Symmetric3 {
         // TODO: avoid constructing the full matrix
         let r = &rotation.0;
@@ -300,12 +309,14 @@ pub struct PySymmetric3 {
 #[pymethods]
 impl PySymmetric3 {
     #[new]
+    #[must_use]
     pub fn new(m11: f64, m22: f64, m33: f64, m12: f64, m13: f64, m23: f64) -> Self {
         PySymmetric3 {
             inner: Symmetric3::new(m11, m22, m33, m12, m13, m23),
         }
     }
 
+    #[must_use]
     pub fn to_numpy(&self, py: Python) -> Py<PyAny> {
         self.inner.to_numpy(py)
     }

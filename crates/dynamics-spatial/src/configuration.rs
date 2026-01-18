@@ -16,6 +16,7 @@ impl Configuration {
     /// * `size` - The size of the configuration vector.
     /// # Returns
     /// A new [`Configuration`] object with all values set to zero.
+    #[must_use]
     pub fn zeros(size: usize) -> Self {
         Configuration(DVector::zeros(size))
     }
@@ -25,16 +26,19 @@ impl Configuration {
     /// * `size` - The size of the configuration vector.
     /// # Returns
     /// A new [`Configuration`] object with all values set to one.
+    #[must_use]
     pub fn ones(size: usize) -> Self {
         Configuration(DVector::from_element(size, 1.0))
     }
 
     /// Returns the length of the configuration vector.
+    #[must_use]
     pub fn len(&self) -> usize {
         self.0.len()
     }
 
     /// Checks if the configuration vector is empty.
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
@@ -50,6 +54,7 @@ impl Configuration {
     ///
     /// # Returns
     /// A new [`Configuration`] object containing the specified slice.
+    #[must_use]
     pub fn rows(&self, start: usize, nrows: usize) -> Configuration {
         Configuration(self.0.rows(start, nrows).into_owned())
     }
@@ -75,15 +80,16 @@ impl Configuration {
     /// * `data` - A slice of scalar values.
     /// # Returns
     /// A new [`Configuration`] object containing the values from the slice.
+    #[must_use]
     pub fn from_row_slice(data: &[f64]) -> Self {
         Configuration(DVector::from_row_slice(data))
     }
 
-    /// Creates a new [`Configuration`] from a NumPy array.
+    /// Creates a new [`Configuration`] from a `NumPy` array.
     /// # Arguments
-    /// * `array` - A read-only NumPy array of scalar values.
+    /// * `array` - A read-only `NumPy` array of scalar values.
     /// # Returns
-    /// A new [`Configuration`] object containing the values from the NumPy array.
+    /// A new [`Configuration`] object containing the values from the `NumPy` array.
     pub fn from_pyarray(array: PyReadonlyArrayDyn<f64>) -> Result<Configuration, PyErr> {
         let array = array.as_array();
         let flat: Vec<f64> = array.iter().copied().collect();
@@ -95,6 +101,7 @@ impl Configuration {
     /// * `configs` - A slice of [`Configuration`] objects to concatenate.
     /// # Returns
     /// A new [`Configuration`] object containing all values from the input configurations.
+    #[must_use]
     pub fn concat(configs: &[Configuration]) -> Configuration {
         let mut all_values = Vec::new();
         for config in configs {
@@ -163,6 +170,7 @@ impl Mul<f64> for &Configuration {
 pub struct PyConfiguration(Configuration);
 
 impl PyConfiguration {
+    #[must_use]
     pub fn new(config: Configuration) -> Self {
         PyConfiguration(config)
     }
@@ -172,6 +180,7 @@ impl PyConfiguration {
         Ok(PyConfiguration::new(config))
     }
 
+    #[must_use]
     pub fn to_configuration(&self) -> &Configuration {
         &self.0
     }
@@ -179,20 +188,24 @@ impl PyConfiguration {
 
 #[pymethods]
 impl PyConfiguration {
+    #[must_use]
     pub fn __repr__(slf: PyRef<'_, Self>) -> String {
         format!("{:#?}", slf.0)
     }
 
+    #[must_use]
     pub fn __mul__(&self, other: f64) -> PyConfiguration {
         let result = &self.0 * other;
         PyConfiguration(Configuration(result))
     }
 
+    #[must_use]
     pub fn __add__(&self, other: &PyConfiguration) -> PyConfiguration {
         let result = &self.0 + &other.0;
         PyConfiguration(result)
     }
 
+    #[must_use]
     pub fn to_numpy(&self, py: Python) -> Py<PyAny> {
         Array1::from_iter(self.0.0.iter().copied())
             .to_pyarray(py)
@@ -212,8 +225,7 @@ impl std::fmt::Display for ConfigurationError {
             ConfigurationError::InvalidSize(name, expected, actual) => {
                 write!(
                     f,
-                    "Parameter '{}' expected configuration size {}, but got {}",
-                    name, expected, actual
+                    "Parameter '{name}' expected configuration size {expected}, but got {actual}"
                 )
             }
         }
@@ -222,7 +234,7 @@ impl std::fmt::Display for ConfigurationError {
 
 impl std::fmt::Debug for ConfigurationError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{}", self)
+        write!(f, "{self}")
     }
 }
 

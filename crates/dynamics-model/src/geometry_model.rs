@@ -21,6 +21,7 @@ impl Default for GeometryModel {
 
 impl GeometryModel {
     /// Creates a new [`GeometryModel`] with an empty list of objects.
+    #[must_use]
     pub fn new() -> Self {
         GeometryModel {
             objects: Vec::new(),
@@ -37,6 +38,7 @@ impl GeometryModel {
         self.objects.len() - 1
     }
 
+    #[must_use]
     pub fn get_geometry_id(&self, name: &str) -> Option<usize> {
         self.objects.iter().position(|o| o.name == name)
     }
@@ -51,6 +53,7 @@ impl GeometryModel {
     /// # Returns
     ///
     /// A `GeometryData` object containing the geometry data for the model.
+    #[must_use]
     pub fn create_data(&self, data: &Data) -> GeometryData {
         let mut geom_data = GeometryData::default();
         geom_data.update_geometry_data(data, self);
@@ -74,6 +77,7 @@ impl Default for PyGeometryModel {
 impl PyGeometryModel {
     /// Creates a new [`GeometryModel`] with an empty list of objects.
     #[new]
+    #[must_use]
     pub fn new() -> Self {
         PyGeometryModel {
             inner: GeometryModel::new(),
@@ -95,6 +99,7 @@ impl PyGeometryModel {
 
     /// Returns the list of geometry objects in the model.
     #[getter]
+    #[must_use]
     pub fn geometry_objects(&self) -> Vec<PyGeometryObject> {
         self.inner
             .objects
@@ -122,6 +127,7 @@ impl PyGeometryModel {
     }
 
     #[getter]
+    #[must_use]
     pub fn ngeoms(&self) -> usize {
         self.inner.objects.len()
     }

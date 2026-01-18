@@ -71,7 +71,6 @@ dependencies = [
  "dynamics-joint",
  "dynamics-spatial",
  "numpy",
- "once_cell",
  "pyo3",
  "rand",
 ]

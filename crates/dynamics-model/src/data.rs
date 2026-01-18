@@ -23,11 +23,12 @@ impl Data {
     ///
     /// # Arguments
     ///
-    /// * `joints_data` - A HashMap of joint indices to their data.
-    /// * `joints_placements` - A HashMap of joint indices to their placements.
+    /// * `joints_data` - A `HashMap` of joint indices to their data.
+    /// * `joints_placements` - A `HashMap` of joint indices to their placements.
     ///
     /// # Returns
     /// A new `Data` object.
+    #[must_use]
     pub fn new(joint_data: Vec<JointDataWrapper>, joint_placements: Vec<SE3>) -> Self {
         Self {
             joint_data,
@@ -53,6 +54,7 @@ impl PyData {
     ///
     /// # Returns
     /// A new `Data` object corresponding to the given model.
+    #[must_use]
     pub fn new(model: &PyModel) -> Self {
         PyData {
             inner: model.inner.create_data(),
@@ -61,6 +63,7 @@ impl PyData {
 
     #[getter]
     /// Returns the placements of the joints in the world frame.
+    #[must_use]
     pub fn joint_placements(&self) -> Vec<PySE3> {
         self.inner
             .joint_placements
@@ -74,6 +77,7 @@ impl PyData {
     /// Returns the placements of the joints in the world frame.
     ///
     /// This is an alias for `joint_placements` to match the Pinocchio API.
+    #[must_use]
     pub fn oMi(&self) -> Vec<PySE3> {
         self.joint_placements()
     }
@@ -95,6 +99,7 @@ impl GeometryData {
     ///
     /// # Returns
     /// An `Option` containing the object placement if it exists, otherwise `None`.
+    #[must_use]
     pub fn get_object_placement(&self, object_index: usize) -> Option<&SE3> {
         self.object_placements.get(object_index)
     }
@@ -112,7 +117,7 @@ impl GeometryData {
     pub fn update_geometry_data(&mut self, data: &Data, geom_model: &GeometryModel) {
         self.object_placements.clear();
 
-        for object in geom_model.objects.iter() {
+        for object in &geom_model.objects {
             let parent_joint_id = object.parent_joint;
             let parent_joint_placement = data.joint_placements[parent_joint_id];
             let object_placement = parent_joint_placement * object.placement;
@@ -140,6 +145,7 @@ impl PyGeometryData {
     ///
     /// # Returns
     /// A new `GeometryData` object.
+    #[must_use]
     pub fn new(data: &PyData, geom_model: &PyGeometryModel) -> Self {
         let mut geom_data = GeometryData::default();
         geom_data.update_geometry_data(&data.inner, &geom_model.inner);
@@ -158,8 +164,7 @@ impl PyGeometryData {
         match self.inner.get_object_placement(object_index) {
             Some(placement) => Ok(PySE3 { inner: *placement }),
             None => Err(pyo3::exceptions::PyKeyError::new_err(format!(
-                "Object with index {} not found",
-                object_index
+                "Object with index {object_index} not found"
             ))),
         }
     }

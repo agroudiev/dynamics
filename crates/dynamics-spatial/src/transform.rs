@@ -12,6 +12,7 @@ use crate::motion::{SpatialMotion, SpatialRotation};
 pub struct SpatialTransform(Matrix6<f64>);
 
 impl SpatialTransform {
+    #[must_use]
     pub fn identity() -> Self {
         SpatialTransform(Matrix6::identity())
     }
@@ -20,6 +21,7 @@ impl SpatialTransform {
     ///
     /// The resulting spatial transformation has the rotation in both the top-left and bottom-right 3x3 blocks, and zeros elsewhere:
     /// $$\begin{bmatrix} R & 0 \\\\ 0 & R \end{bmatrix}$$
+    #[must_use]
     pub fn from_rotation(rotation: SpatialRotation) -> Self {
         let mut mat = Matrix6::zeros();
         mat.view_mut((0, 0), (3, 3)).copy_from(rotation.0.matrix());
@@ -33,6 +35,7 @@ impl SpatialTransform {
     /// If `R` is the rotation matrix and `t` is the translation vector of the SE(3) transformation, then the spatial transformation is given by:
     /// $$\begin{bmatrix} R & 0 \\\\ t_\times R & R \end{bmatrix}$$
     /// where $t_\times=\[t\]_\times$ is the skew-symmetric matrix of the translation vector $t$.
+    #[must_use]
     pub fn from_se3(se3: &crate::se3::SE3) -> Self {
         let rotation = se3.rotation().0;
         let translation = se3.translation().0;
@@ -64,6 +67,7 @@ impl SpatialTransform {
         SpatialTransform(mat)
     }
 
+    #[must_use]
     pub fn transpose(&self) -> Self {
         SpatialTransform(self.0.transpose())
     }

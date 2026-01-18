@@ -117,7 +117,7 @@ pub fn inverse_dynamics(
         offset -= joint_model.nq();
 
         let mut joint_torque = Vec::with_capacity(joint_model.nq());
-        for axis_i in axis.iter() {
+        for axis_i in &axis {
             joint_torque.push(axis_i.inner(&forces[&id]));
         }
         let joint_torque = Configuration::from_row_slice(&joint_torque);
@@ -150,7 +150,7 @@ pub fn py_inverse_dynamics(
     let a = Configuration::from_pyarray(a)?;
 
     let tau = inverse_dynamics(&model.inner, &mut data.inner, &q, &v, &a).map_err(|e| {
-        PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Error in inverse dynamics: {}", e))
+        PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Error in inverse dynamics: {e}"))
     })?;
 
     Ok(PyConfiguration::new(tau))

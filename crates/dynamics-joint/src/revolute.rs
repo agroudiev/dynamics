@@ -41,6 +41,7 @@ impl JointModelRevolute {
     ///
     /// # Returns
     /// A new `JointModelRevolute` object.
+    #[must_use]
     pub fn new(axis: Vector3D) -> Self {
         JointModelRevolute {
             axis,
@@ -55,6 +56,7 @@ impl JointModelRevolute {
     ///
     /// # Returns
     /// A new `JointModelRevolute` object.
+    #[must_use]
     pub fn new_rx() -> Self {
         Self::new(Vector3D::x())
     }
@@ -63,6 +65,7 @@ impl JointModelRevolute {
     ///
     /// # Returns
     /// A new `JointModelRevolute` object.
+    #[must_use]
     pub fn new_ry() -> Self {
         Self::new(Vector3D::y())
     }
@@ -71,6 +74,7 @@ impl JointModelRevolute {
     ///
     /// # Returns
     /// A new `JointModelRevolute` object.
+    #[must_use]
     pub fn new_rz() -> Self {
         Self::new(Vector3D::z())
     }
@@ -138,6 +142,7 @@ impl JointDataRevolute {
     ///
     /// # Returns
     /// A new `JointDataRevolute` object.
+    #[must_use]
     pub fn new(joint_model: &JointModelRevolute) -> Self {
         let mut data = JointDataRevolute::default();
         // safe since we just created a revolute joint model
@@ -171,6 +176,7 @@ impl JointData for JointDataRevolute {
 
 /// Creates a new revolute joint model with `x` as axis of rotation.
 #[pyfunction(name = "JointModelRX")]
+#[must_use]
 pub fn new_rx() -> PyJointWrapper {
     PyJointWrapper {
         inner: Box::new(JointModelRevolute::new_rx()),
@@ -179,6 +185,7 @@ pub fn new_rx() -> PyJointWrapper {
 
 /// Creates a new revolute joint model with `y` as axis of rotation.
 #[pyfunction(name = "JointModelRY")]
+#[must_use]
 pub fn new_ry() -> PyJointWrapper {
     PyJointWrapper {
         inner: Box::new(JointModelRevolute::new_ry()),
@@ -187,6 +194,7 @@ pub fn new_ry() -> PyJointWrapper {
 
 /// Creates a new revolute joint model with `z` as axis of rotation.
 #[pyfunction(name = "JointModelRZ")]
+#[must_use]
 pub fn new_rz() -> PyJointWrapper {
     PyJointWrapper {
         inner: Box::new(JointModelRevolute::new_rz()),

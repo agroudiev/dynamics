@@ -224,7 +224,7 @@ fn parse_joint(
     // extract the name and type of joint
     let joint_name = joint_node
         .attribute("name")
-        .ok_or(ParseError::NameMissing(format!("{:#?}", joint_node)))?
+        .ok_or(ParseError::NameMissing(format!("{joint_node:#?}")))?
         .to_string();
     let joint_type = joint_node
         .attribute("type")
@@ -279,11 +279,11 @@ fn parse_joint(
 
             // optional parameters
             if let Ok(lower) = extract_parameter::<f64>("lower", &limit_node) {
-                joint_model.lower_limit = lower
-            };
+                joint_model.lower_limit = lower;
+            }
             if let Ok(upper) = extract_parameter::<f64>("upper", &limit_node) {
-                joint_model.upper_limit = upper
-            };
+                joint_model.upper_limit = upper;
+            }
 
             // required parameters
             let effort = extract_parameter::<f64>("effort", &limit_node)?;
@@ -348,7 +348,7 @@ fn parse_link(
     // parse the visual node
     if let Some(visual_node) = node.children().find(|n| n.has_tag_name("visual")) {
         let geom_obj = parse_geometry(
-            format!("{}_0", link_name),
+            format!("{link_name}_0"),
             &visual_node,
             parent_joint_id,
             parent_node,
@@ -380,7 +380,7 @@ fn parse_link(
     // parse the collision node
     if let Some(collision_node) = node.children().find(|n| n.has_tag_name("collision")) {
         let geom_obj = parse_geometry(
-            format!("{}_0", link_name),
+            format!("{link_name}_0"),
             &collision_node,
             parent_joint_id,
             parent_node,
@@ -560,8 +560,7 @@ fn parse_geometry(
         // check if the file exists
         if !std::path::Path::new(&absolute_path).exists() {
             return Err(ParseError::InvalidFilePath(format!(
-                "Mesh file does not exist: {}",
-                absolute_path
+                "Mesh file does not exist: {absolute_path}"
             )));
         }
 

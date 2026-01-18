@@ -12,6 +12,7 @@ pub struct SpatialMotion(pub(crate) Vector6<f64>);
 
 impl SpatialMotion {
     /// Creates a new `SpatialMotion` from a 3D axis (for revolute joints).
+    #[must_use]
     pub fn from_axis(axis: &Vector3D) -> Self {
         let mut v = Vector6::zeros();
         v.fixed_rows_mut::<3>(0).copy_from(&axis.0);
@@ -19,16 +20,19 @@ impl SpatialMotion {
     }
 
     /// Extracts the rotation (angular velocity) component of the spatial motion.
+    #[must_use]
     pub fn rotation(&self) -> Vector3D {
         Vector3D(self.0.fixed_rows::<3>(0).into())
     }
 
     /// Extracts the translation (linear velocity) component of the spatial motion.
+    #[must_use]
     pub fn translation(&self) -> Vector3D {
         Vector3D(self.0.fixed_rows::<3>(3).into())
     }
 
     /// Zero spatial motion (no motion).
+    #[must_use]
     pub fn zero() -> Self {
         Self(Vector6::zeros())
     }
@@ -38,6 +42,7 @@ impl SpatialMotion {
     /// # Arguments
     /// * `angular` - The angular velocity component (3D vector).
     /// * `linear` - The linear velocity component (3D vector).
+    #[must_use]
     pub fn from_parts(angular: Vector3D, linear: Vector3D) -> Self {
         let mut v = Vector6::zeros();
         v.fixed_rows_mut::<3>(0).copy_from(&angular.0);
@@ -49,6 +54,7 @@ impl SpatialMotion {
     ///
     /// # Arguments
     /// * `v` - The 6D vector representing spatial motion; the first three elements are angular, the last three are linear.
+    #[must_use]
     pub fn from_vector6d(v: Vector6D) -> Self {
         Self(v.0)
     }
@@ -84,6 +90,7 @@ impl SpatialMotion {
     ///
     /// # Returns
     /// A new `SpatialMotion` representing the cross product.
+    #[must_use]
     pub fn cross(&self, other: &SpatialMotion) -> SpatialMotion {
         let angular = self.rotation();
         let linear = self.translation();
@@ -100,6 +107,7 @@ impl SpatialMotion {
     ///
     /// # Returns
     /// A new `SpatialMotion` representing the dual cross product.
+    #[must_use]
     pub fn cross_star(&self, other: &SpatialMotion) -> SpatialMotion {
         let angular = self.rotation();
         let linear = self.translation();
@@ -111,6 +119,7 @@ impl SpatialMotion {
     }
 
     /// Computes the inner product of two spatial motion vectors.
+    #[must_use]
     pub fn inner(&self, other: &SpatialMotion) -> f64 {
         self.0.dot(&other.0)
     }
@@ -154,26 +163,31 @@ pub struct SpatialRotation(pub(crate) Rotation3<f64>);
 
 impl SpatialRotation {
     /// Creates a new `SpatialRotation` from a 3D axis and an angle (for revolute joints).
+    #[must_use]
     pub fn from_axis_angle(axis: &Vector3D, angle: f64) -> Self {
         let rot = Rotation3::from_axis_angle(&nalgebra::Unit::new_normalize(axis.0), angle);
         Self(rot)
     }
 
     /// Converts the rotation to an [[[`SE3`]]] with the given translation.
+    #[must_use]
     pub fn to_se3(&self, translation: &Vector3D) -> SE3 {
         SE3::from_parts(*translation, *self)
     }
 
     /// Returns the identity rotation.
+    #[must_use]
     pub fn identity() -> Self {
         Self(Rotation3::identity())
     }
 
     /// Returns the angle of rotation in radians.
+    #[must_use]
     pub fn angle(&self) -> f64 {
         self.0.angle()
     }
 
+    #[must_use]
     pub fn from_euler_angles(roll: f64, pitch: f64, yaw: f64) -> Self {
         Self(Rotation3::from_euler_angles(roll, pitch, yaw))
     }

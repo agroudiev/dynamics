@@ -43,7 +43,7 @@ pub fn forward_kinematics(
         let joint_model = &model.joint_models[id];
         let q_joint = q.rows(offset, joint_model.nq());
         match joint_data.update(joint_model, &q_joint) {
-            Ok(_) => {}
+            Ok(()) => {}
             Err(e) => unimplemented!("handle joint data update error: {:?}", e),
         }
         offset += joint_model.nq();
@@ -93,6 +93,6 @@ pub fn py_forward_kinematics(
     let q = Configuration::from_row_slice(q);
 
     forward_kinematics(&model.inner, &mut data.inner, &q)
-        .map_err(|e| PyValueError::new_err(format!("Forward kinematics failed: {:?}", e)))?;
+        .map_err(|e| PyValueError::new_err(format!("Forward kinematics failed: {e:?}")))?;
     Ok(())
 }

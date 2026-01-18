@@ -9,10 +9,10 @@ use std::ops::Mul;
 /// Spatial inertia matrix, represented as a 6x6 matrix.
 ///
 /// The spatial inertia matrix is expressed as:
-/// $$\begin{bmatrix} mI_3 & -mc_\times \\\\ mc_\times & I_c \end{bmatrix}$$
-/// where $m$ is the mass, $I_3$ is the 3x3 identity matrix,
+/// $$\begin{bmatrix} `mI_3` & -mc_\times \\\\ mc_\times & `I_c` \end{bmatrix}$$
+/// where $m$ is the mass, $`I_3`$ is the 3x3 identity matrix,
 /// $c_\times=\[c\]_\times$ is the skew-symmetric matrix of the center
-/// of mass vector, and $I_c$ is the rotational inertia matrix about the center of mass.
+/// of mass vector, and $`I_c`$ is the rotational inertia matrix about the center of mass.
 pub struct SpatialInertia(Matrix6<f64>);
 
 impl SpatialInertia {
@@ -25,6 +25,7 @@ impl SpatialInertia {
     ///
     /// # Returns
     /// A new `SpatialInertia` object.
+    #[must_use]
     pub fn new(ixx: f64, ixy: f64, ixz: f64, iyy: f64, iyz: f64, izz: f64) -> Self {
         let mut mat = Matrix6::<f64>::zeros();
         mat[(0, 0)] = ixx;
@@ -40,6 +41,7 @@ impl SpatialInertia {
     }
 
     /// Creates a new `SpatialInertia` object with all elements set to zero.
+    #[must_use]
     pub fn zeros() -> Self {
         Self(Matrix6::<f64>::zeros())
     }
@@ -52,6 +54,7 @@ impl SpatialInertia {
     ///
     /// # Returns
     /// A new `SpatialInertia` object.
+    #[must_use]
     pub fn from_diagonal(diag: &Vector6D) -> Self {
         Self(diag.as_diagonal())
     }

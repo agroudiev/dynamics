@@ -2,7 +2,9 @@
 
 use std::fmt::Debug;
 
-use collider::shape::*;
+use collider::shape::{
+    PyCapsule, PyCone, PyCuboid, PyCylinder, PyShapeWrapper, PySphere, Shape, ShapeWrapper,
+};
 use dynamics_spatial::{
     color::Color,
     se3::{PySE3, SE3},
@@ -15,7 +17,7 @@ use pyo3::{exceptions::PyValueError, prelude::*, types::PyTuple};
 pub struct GeometryObject {
     /// The name of the geometry object.
     pub name: String,
-    /// The identifier of the parent joint. If the object is not attached to a joint, this is set to 0 (WORLD_FRAME_ID).
+    /// The identifier of the parent joint. If the object is not attached to a joint, this is set to 0 (`WORLD_FRAME_ID`).
     pub parent_joint: usize,
     /// Whether to disable collision detection and distance check for this object.
     pub disable_collision: bool,
@@ -37,6 +39,7 @@ impl GeometryObject {
     /// * `geometry` - The `collider` shape of the geometry object (used for collisions).
     /// * `mesh_color` - The RGBA color of the mesh.
     /// * `placement` - The placement of the geometry object in the parent frame.
+    #[must_use]
     pub fn new(
         name: String,
         parent_joint: usize,

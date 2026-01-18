@@ -22,6 +22,7 @@ pub struct SE3(pub(crate) IsometryMatrix3<f64>);
 
 impl SE3 {
     /// Creates a new SE(3) transformation from a rotation (given as axis-angle) and a translation.
+    #[must_use]
     pub fn new(translation: Vector3D, axis_angle: Vector3D) -> Self {
         let rotation = SpatialRotation::from_axis_angle(&axis_angle, axis_angle.norm());
         SE3::from_parts(
@@ -31,6 +32,7 @@ impl SE3 {
     }
 
     /// Creates a new SE(3) transformation from a rotation and a translation.
+    #[must_use]
     pub fn from_parts(translation: Vector3D, rotation: SpatialRotation) -> Self {
         SE3(IsometryMatrix3::from_parts(
             Translation3::from(translation.0),
@@ -39,26 +41,31 @@ impl SE3 {
     }
 
     /// Creates a new identity SE(3) transformation.
+    #[must_use]
     pub fn identity() -> Self {
         SE3(IsometryMatrix3::identity())
     }
 
     /// Returns the inverse of the SE(3) transformation.
+    #[must_use]
     pub fn inverse(&self) -> Self {
         SE3(self.0.inverse())
     }
 
     /// Returns the translation component of the SE(3) transformation.
+    #[must_use]
     pub fn translation(&self) -> Vector3D {
         Vector3D(self.0.translation.vector)
     }
 
     /// Returns the rotation component of the SE(3) transformation.
+    #[must_use]
     pub fn rotation(&self) -> SpatialRotation {
         SpatialRotation(self.0.rotation)
     }
 
     /// Computes the action of the SE(3) transformation on a 3D point.
+    #[must_use]
     pub fn action(&self) -> SpatialTransform {
         SpatialTransform::from_se3(self)
     }
@@ -151,7 +158,7 @@ impl PySE3 {
         // Create the translation and rotation components
         let translation = Vector3D::new(translation[0], translation[1], translation[2]);
         let rotation_matrix =
-            nalgebra::Matrix3::from_iterator(rotation.iter().cloned()).transpose();
+            nalgebra::Matrix3::from_iterator(rotation.iter().copied()).transpose();
         if !rotation_matrix.is_orthogonal(1e-6) {
             return Err(PyValueError::new_err(
                 "The rotation matrix is not orthogonal.",
@@ -165,6 +172,7 @@ impl PySE3 {
 
     #[pyo3(name = "Identity")]
     #[staticmethod]
+    #[must_use]
     pub fn identity() -> PySE3 {
         let inner = SE3::identity();
         PySE3 { inner }
@@ -172,6 +180,7 @@ impl PySE3 {
 
     #[pyo3(name = "Random")]
     #[staticmethod]
+    #[must_use]
     pub fn random() -> PySE3 {
         let translation = Vector3D::new(
             rand::random::<f64>() * 2.0 - 1.0,
@@ -188,6 +197,7 @@ impl PySE3 {
     }
 
     #[pyo3(name = "inverse")]
+    #[must_use]
     pub fn inverse(&self) -> PySE3 {
         PySE3 {
             inner: self.inner.inverse(),
@@ -195,6 +205,7 @@ impl PySE3 {
     }
 
     #[getter]
+    #[must_use]
     pub fn get_translation(&self, py: Python) -> Py<PyAny> {
         let translation = self.inner.translation();
         Array1::from_shape_vec(3, translation.as_slice().to_vec())
@@ -237,6 +248,7 @@ impl PySE3 {
         )
     }
 
+    #[must_use]
     pub fn copy(&self) -> PySE3 {
         PySE3 { inner: self.inner }
     }

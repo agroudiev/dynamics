@@ -86,7 +86,7 @@ pub fn py_forward_dynamics(
     let tau = Configuration::from_pyarray(tau)?;
 
     forward_dynamics(&model.inner, &mut data.inner, &q, &v, &tau)
-        .map_err(|e| PyValueError::new_err(format!("Forward dynamics failed: {:?}", e)))?;
+        .map_err(|e| PyValueError::new_err(format!("Forward dynamics failed: {e:?}")))?;
 
     Ok(())
 }

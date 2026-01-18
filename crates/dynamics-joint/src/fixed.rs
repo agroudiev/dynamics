@@ -62,6 +62,7 @@ impl JointDataFixed {
     ///
     /// # Returns
     /// A new [`JointDataFixed`] object.
+    #[must_use]
     pub fn new(joint_model: &JointModelFixed) -> Self {
         let mut data = JointDataFixed::default();
         let joint_model_box: JointWrapper = Box::new(joint_model.clone());

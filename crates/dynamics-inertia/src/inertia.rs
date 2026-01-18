@@ -29,6 +29,7 @@ impl Inertia {
     /// * `mass` - The mass of the object.
     /// * `com` - The center of mass of the object.
     /// * [`Inertia`] - The rotational inertia matrix of the object at the center of mass.
+    #[must_use]
     pub fn new(mass: f64, com: Vector3D, inertia: Symmetric3) -> Self {
         Self { mass, com, inertia }
     }
@@ -37,6 +38,7 @@ impl Inertia {
     ///
     /// # Returns
     /// A new [`Inertia`] object with all properties set to zero.
+    #[must_use]
     pub fn zeros() -> Self {
         Self {
             mass: 0.0,
@@ -141,7 +143,7 @@ impl std::fmt::Display for InertiaError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             InertiaError::InvalidParameter(param) => {
-                write!(f, "Invalid parameter: '{}' must be positive.", param)
+                write!(f, "Invalid parameter: '{param}' must be positive.")
             }
         }
     }
@@ -149,7 +151,7 @@ impl std::fmt::Display for InertiaError {
 
 impl std::fmt::Debug for InertiaError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "InertiaError: {}", self)
+        write!(f, "InertiaError: {self}")
     }
 }
 
@@ -176,7 +178,7 @@ impl PyInertia {
     pub fn from_sphere(mass: f64, radius: f64) -> PyResult<Self> {
         Inertia::from_sphere(mass, radius)
             .map(|inner| PyInertia { inner })
-            .map_err(|e| PyValueError::new_err(format!("Failed to create Inertia: {:?}", e)))
+            .map_err(|e| PyValueError::new_err(format!("Failed to create Inertia: {e:?}")))
     }
 
     /// Creates a new [`Inertia`] object with zero mass, zero center of mass, and zero inertia matrix.
@@ -184,6 +186,7 @@ impl PyInertia {
     /// # Returns
     /// A new [`Inertia`] object with all properties set to zero.
     #[staticmethod]
+    #[must_use]
     pub fn zeros() -> Self {
         PyInertia {
             inner: Inertia::zeros(),
@@ -191,11 +194,13 @@ impl PyInertia {
     }
 
     #[getter]
+    #[must_use]
     pub fn mass(&self) -> f64 {
         self.inner.mass
     }
 
     #[getter]
+    #[must_use]
     pub fn com(&self, py: Python) -> Py<PyAny> {
         self.inner.com.to_numpy(py)
     }
@@ -204,11 +209,13 @@ impl PyInertia {
     ///
     /// This is an alias for the `com` property.
     #[getter]
+    #[must_use]
     pub fn lever(&self, py: Python) -> Py<PyAny> {
         self.inner.com.to_numpy(py)
     }
 
     #[getter]
+    #[must_use]
     pub fn inertia(&self, py: Python) -> Py<PyAny> {
         self.inner.inertia.to_numpy(py)
     }

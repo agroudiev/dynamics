@@ -10,12 +10,12 @@ use dynamics_spatial::se3::{PySE3, SE3};
 use dynamics_spatial::vector3d::Vector3D;
 use numpy::ToPyArray;
 use numpy::ndarray::Array1;
-use once_cell::sync::Lazy;
 use pyo3::{exceptions::PyValueError, prelude::*};
 use std::fmt::Debug;
+use std::sync::LazyLock;
 
 pub const WORLD_FRAME_ID: usize = 0;
-pub static STANDARD_GRAVITY: Lazy<Vector3D> = Lazy::new(|| Vector3D::new(0.0, 0.0, -9.81));
+pub static STANDARD_GRAVITY: LazyLock<Vector3D> = LazyLock::new(|| Vector3D::new(0.0, 0.0, -9.81));
 
 /// Data structure that contains the immutable properties of the robot model.
 /// It contains information about the joints, frames, and their local placements.
@@ -50,6 +50,7 @@ impl Model {
     /// # Arguments
     ///
     /// * `name` - The name of the model.
+    #[must_use]
     pub fn new(name: String) -> Self {
         let mut model = Self::new_empty();
         model.name = name;
@@ -61,6 +62,7 @@ impl Model {
     /// # Returns
     ///
     /// A new empty [`Model`].
+    #[must_use]
     pub fn new_empty() -> Self {
         Self {
             name: String::new(),
@@ -160,6 +162,7 @@ impl Model {
     /// # Returns
     ///
     /// The data associated with the model.
+    #[must_use]
     pub fn create_data(&self) -> Data {
         let joints_data = self
             .joint_models
@@ -198,6 +201,7 @@ impl Model {
     // }
 
     /// Returns the index of the joint with the given name.
+    #[must_use]
     pub fn get_joint_id(&self, name: &str) -> Option<usize> {
         for (id, joint_name) in self.joint_names.iter().enumerate() {
             if joint_name == name {
@@ -208,6 +212,7 @@ impl Model {
     }
 
     /// Returns the index of the frame with the given name.
+    #[must_use]
     pub fn get_frame_id(&self, name: &str) -> Option<usize> {
         for (id, frame) in self.frames.iter().enumerate() {
             if frame.name == name {
@@ -218,11 +223,13 @@ impl Model {
     }
 
     /// Returns the number of joints in the model, including the world frame.
+    #[must_use]
     pub fn njoints(&self) -> usize {
         self.joint_names.len()
     }
 
     /// Returns the number of frames in the model, including the world frame.
+    #[must_use]
     pub fn nframes(&self) -> usize {
         self.frames.len()
     }
@@ -250,6 +257,7 @@ pub enum ModelError {
 }
 
 /// Generates a random configuration for the given model.
+#[must_use]
 pub fn random_configuration(model: &Model) -> Configuration {
     let mut rng = rand::rng();
     let q = model
@@ -336,7 +344,7 @@ impl PyModel {
             name,
         ) {
             Ok(id) => Ok(id),
-            Err(model_error) => Err(PyValueError::new_err(format!("{:?}", model_error))),
+            Err(model_error) => Err(PyValueError::new_err(format!("{model_error:?}"))),
         }
     }
 
@@ -433,7 +441,7 @@ impl PyModel {
     fn add_frame(&mut self, frame: PyFrame, append_inertia: bool) -> PyResult<usize> {
         match self.inner.add_frame(frame.inner, append_inertia) {
             Ok(id) => Ok(id),
-            Err(model_error) => Err(PyValueError::new_err(format!("{:?}", model_error))),
+            Err(model_error) => Err(PyValueError::new_err(format!("{model_error:?}"))),
         }
     }
 

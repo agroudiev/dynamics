@@ -57,16 +57,19 @@ pub struct PyJointWrapper {
 #[pymethods]
 impl PyJointWrapper {
     #[getter]
+    #[must_use]
     pub fn joint_type(&self) -> JointType {
         self.inner.get_joint_type()
     }
 
     #[getter]
+    #[must_use]
     pub fn nq(&self) -> usize {
         self.inner.nq()
     }
 
     #[getter]
+    #[must_use]
     pub fn nv(&self) -> usize {
         self.inner.nv()
     }

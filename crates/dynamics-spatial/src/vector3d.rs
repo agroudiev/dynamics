@@ -11,44 +11,53 @@ pub struct Vector3D(pub(crate) Vector3<f64>);
 
 impl Vector3D {
     /// Creates a new `Vector3D` with the given x, y, z components.
+    #[must_use]
     pub fn new(x: f64, y: f64, z: f64) -> Self {
         Self(Vector3::new(x, y, z))
     }
 
     /// Creates a zero vector.
+    #[must_use]
     pub fn zeros() -> Self {
         Self(Vector3::zeros())
     }
 
+    #[must_use]
     pub fn as_slice(&self) -> &[f64; 3] {
         self.0.as_slice().try_into().unwrap()
     }
 
     /// Returns the L2 norm of the vector.
+    #[must_use]
     pub fn norm(&self) -> f64 {
         self.0.norm()
     }
 
     /// Returns the `x` unit vector, that is (1, 0, 0).
+    #[must_use]
     pub fn x() -> Self {
         Self(Vector3::x())
     }
 
     /// Returns the `y` unit vector, that is (0, 1, 0).
+    #[must_use]
     pub fn y() -> Self {
         Self(Vector3::y())
     }
 
     /// Returns the `z` unit vector, that is (0, 0, 1).
+    #[must_use]
     pub fn z() -> Self {
         Self(Vector3::z())
     }
 
     /// Computes the cross product of two 3D vectors.
+    #[must_use]
     pub fn cross(&self, other: &Vector3D) -> Vector3D {
         Vector3D(self.0.cross(&other.0))
     }
 
+    #[must_use]
     pub fn to_numpy(&self, py: Python) -> Py<PyAny> {
         Array1::from_iter(self.0.iter().copied())
             .to_pyarray(py)

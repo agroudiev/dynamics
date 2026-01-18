@@ -16,6 +16,7 @@ impl SpatialForce {
     ///
     /// * `torque` - The torque component (3D vector).
     /// * `force` - The force component (3D vector).
+    #[must_use]
     pub fn from_components(torque: Vector3D, force: Vector3D) -> Self {
         let mut data = [0.0; 6];
         data[0..3].copy_from_slice(torque.as_slice());

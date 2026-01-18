@@ -28,5 +28,5 @@ pub fn main() {
         panic!("Python command failed");
     }
     let python_lib_path = String::from_utf8_lossy(&output.stdout);
-    println!("cargo:rustc-link-arg=-Wl,-rpath,{}", python_lib_path);
+    println!("cargo:rustc-link-arg=-Wl,-rpath,{python_lib_path}");
 }
