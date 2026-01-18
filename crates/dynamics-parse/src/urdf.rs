@@ -279,18 +279,18 @@ fn parse_joint(
 
             // optional parameters
             if let Ok(lower) = extract_parameter::<f64>("lower", &limit_node) {
-                joint_model.lower_limit = lower;
+                joint_model.limits.min_configuration[0] = lower;
             }
             if let Ok(upper) = extract_parameter::<f64>("upper", &limit_node) {
-                joint_model.upper_limit = upper;
+                joint_model.limits.max_configuration[0] = upper;
             }
 
             // required parameters
             let effort = extract_parameter::<f64>("effort", &limit_node)?;
-            joint_model.effort_limit = effort;
+            joint_model.limits.effort = effort;
 
             let velocity = extract_parameter::<f64>("velocity", &limit_node)?;
-            joint_model.velocity_limit = velocity;
+            joint_model.limits.velocity = velocity;
 
             model.add_joint(
                 parent_joint_id,

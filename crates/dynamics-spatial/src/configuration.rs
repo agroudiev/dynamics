@@ -4,7 +4,11 @@ use approx::{AbsDiffEq, RelativeEq};
 use nalgebra::DVector;
 use numpy::{PyReadonlyArrayDyn, ToPyArray, ndarray::Array1};
 use pyo3::prelude::*;
-use std::ops::{Add, Index, Mul};
+use rand::{Rng, rngs::ThreadRng};
+use std::{
+    f64::consts::PI,
+    ops::{Add, Index, IndexMut, Mul},
+};
 
 #[derive(Clone, Debug, PartialEq)]
 /// Configuration of a multi-body system, represented as a vector of joint positions.
@@ -29,6 +33,17 @@ impl Configuration {
     #[must_use]
     pub fn ones(size: usize) -> Self {
         Configuration(DVector::from_element(size, 1.0))
+    }
+
+    /// Creates a new [`Configuration`] with the given size, initialized to the specified value.
+    /// # Arguments
+    /// * `size` - The size of the configuration vector.
+    /// * `value` - The value to initialize each element of the configuration vector.
+    /// # Returns
+    /// A new [`Configuration`] object with all values set to the specified value.
+    #[must_use]
+    pub fn from_element(size: usize, value: f64) -> Self {
+        Configuration(DVector::from_element(size, value))
     }
 
     /// Returns the length of the configuration vector.
@@ -109,6 +124,40 @@ impl Configuration {
         }
         Configuration::from_row_slice(&all_values)
     }
+
+    /// Generates a random [`Configuration`] within specified minimum and maximum bounds.
+    ///
+    /// # Arguments
+    /// * `nq` - The size of the configuration vector.
+    /// * `rng` - A mutable reference to a random number generator.
+    /// * `min` - The minimum bounds for each element of the configuration.
+    /// * `max` - The maximum bounds for each element of the configuration.
+    /// # Returns
+    /// A new [`Configuration`] object with random values within the specified bounds.
+    pub fn random(
+        nq: usize,
+        rng: &mut ThreadRng,
+        min: &Configuration,
+        max: &Configuration,
+    ) -> Self {
+        let mut values = Vec::with_capacity(nq);
+        for i in 0..nq {
+            // if min is infinite, replace it with -2*pi
+            let min_i = if min[i].is_infinite() && min[i] < 0.0 {
+                -2.0 * PI
+            } else {
+                min[i]
+            };
+            // if max is infinite, replace it with 2*pi
+            let max_i = if max[i].is_infinite() && max[i] > 0.0 {
+                2.0 * PI
+            } else {
+                max[i]
+            };
+            values.push(rng.random_range(min_i..max_i));
+        }
+        Configuration::from_row_slice(&values)
+    }
 }
 
 impl Index<usize> for Configuration {
@@ -116,6 +165,12 @@ impl Index<usize> for Configuration {
 
     fn index(&self, index: usize) -> &Self::Output {
         &self.0[index]
+    }
+}
+
+impl IndexMut<usize> for Configuration {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.0[index]
     }
 }
 

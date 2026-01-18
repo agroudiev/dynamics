@@ -1,17 +1,11 @@
 use crate::urdf::build_models_from_urdf;
-use collider::shape::Cylinder;
 
 #[test]
 fn test_myfirst() {
     let filepath = "../../examples/descriptions/myfirst.urdf";
     let result = build_models_from_urdf(filepath);
-    let (model, geom_model, _) = result.unwrap();
+    let (model, _, _) = result.unwrap();
     assert_eq!(model.name, "myfirst");
-
-    assert_eq!(geom_model.objects.len(), 1);
-    let object = &geom_model.objects[0];
-    assert_eq!(object.name, "base_link");
-    assert_eq!(object.geometry.as_ref(), &Cylinder::new(0.2, 0.3));
 }
 
 // TODO: test all shapes

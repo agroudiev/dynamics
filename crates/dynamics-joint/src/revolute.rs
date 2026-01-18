@@ -1,10 +1,9 @@
 //! Revolute joint, constraining two objects to rotate around a given axis.
 
-use std::f64::consts::PI;
-
 use crate::{
     data::{JointData, JointDataWrapper, JointError},
     joint::{JointModel, JointType, JointWrapper, PyJointWrapper},
+    limits::JointLimits,
 };
 use dynamics_spatial::{
     configuration::Configuration,
@@ -13,7 +12,7 @@ use dynamics_spatial::{
     vector3d::Vector3D,
 };
 use pyo3::prelude::*;
-use rand::Rng;
+use rand::rngs::ThreadRng;
 
 /// Model of a revolute joint.
 ///
@@ -22,14 +21,8 @@ use rand::Rng;
 pub struct JointModelRevolute {
     /// The axis of rotation expressed in the local frame of the joint.
     pub axis: Vector3D,
-    /// The lower limit of the joint angle.
-    pub lower_limit: f64,
-    /// The upper limit of the joint angle.
-    pub upper_limit: f64,
-    /// The effort limit of the joint.
-    pub effort_limit: f64,
-    /// The velocity limit of the joint.
-    pub velocity_limit: f64,
+    /// The joint limits.
+    pub limits: JointLimits,
 }
 
 impl JointModelRevolute {
@@ -45,10 +38,7 @@ impl JointModelRevolute {
     pub fn new(axis: Vector3D) -> Self {
         JointModelRevolute {
             axis,
-            lower_limit: f64::NEG_INFINITY,
-            upper_limit: f64::INFINITY,
-            effort_limit: f64::INFINITY,
-            velocity_limit: f64::INFINITY,
+            limits: JointLimits::new_unbounded(1),
         }
     }
 
@@ -109,9 +99,13 @@ impl JointModel for JointModelRevolute {
         vec![SpatialMotion::from_axis(&self.axis)]
     }
 
-    fn random_configuration(&self, rng: &mut rand::rngs::ThreadRng) -> Configuration {
-        let q = rng.random_range(self.lower_limit.max(-PI)..self.upper_limit.min(PI));
-        Configuration::from_row_slice(&[q])
+    fn random_configuration(&self, rng: &mut ThreadRng) -> Configuration {
+        Configuration::random(
+            1,
+            rng,
+            &self.limits.min_configuration,
+            &self.limits.max_configuration,
+        )
     }
 
     fn transform(&self, q: &Configuration) -> SE3 {
@@ -209,17 +203,14 @@ mod tests {
 
     #[test]
     fn test_joint_model_revolute() {
-        let joint = JointModelRevolute {
-            axis: Vector3D::new(1.0, 0.0, 0.0),
-            lower_limit: f64::NEG_INFINITY,
-            upper_limit: f64::INFINITY,
-            effort_limit: f64::INFINITY,
-            velocity_limit: f64::INFINITY,
-        };
+        let joint = JointModelRevolute::new(Vector3D::new(1.0, 0.0, 0.0));
         assert_eq!(joint.get_joint_type(), JointType::Revolute);
         assert_eq!(joint.nq(), 1);
         assert_eq!(joint.nv(), 1);
         assert_eq!(joint.neutral(), Configuration::zeros(1));
+        let _ = joint.create_joint_data();
+        let _ = joint.get_axis();
+        let _ = joint.random_configuration(&mut rand::rng());
     }
 
     #[test]
