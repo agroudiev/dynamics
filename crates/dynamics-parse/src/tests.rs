@@ -4,8 +4,12 @@ use crate::urdf::build_models_from_urdf;
 fn test_myfirst() {
     let filepath = "../../examples/descriptions/myfirst.urdf";
     let result = build_models_from_urdf(filepath);
-    let (model, _, _) = result.unwrap();
+    let (model, coll_model, viz_model) = result.unwrap();
     assert_eq!(model.name, "myfirst");
+
+    let data = model.create_data();
+    let _coll_data = coll_model.create_data(&data);
+    let _viz_data = viz_model.create_data(&data);
 }
 
 // TODO: test all shapes
@@ -57,20 +61,22 @@ fn test_visuals() {
 fn test_double_pendulum_simple() {
     let filepath = "../../examples/descriptions/double_pendulum_simple.urdf";
     let result = build_models_from_urdf(filepath);
-    let (model, geom_model, _) = result.unwrap();
+    let (model, coll_model, viz_model) = result.unwrap();
     assert_eq!(model.name, "2dof_planar");
 
     let data = model.create_data();
-    let _geom_data = geom_model.create_data(&data);
+    let _coll_data = coll_model.create_data(&data);
+    let _viz_data = viz_model.create_data(&data);
 }
 
 #[test]
 fn test_ur5() {
     let filepath = "../../examples/descriptions/ur5/ur5_robot.urdf";
     let result = build_models_from_urdf(filepath);
-    let (model, geom_model, _) = result.unwrap();
+    let (model, coll_model, viz_model) = result.unwrap();
     assert_eq!(model.name, "ur5");
 
     let data = model.create_data();
-    let _geom_data = geom_model.create_data(&data);
+    let _coll_data = coll_model.create_data(&data);
+    let _viz_data = viz_model.create_data(&data);
 }
