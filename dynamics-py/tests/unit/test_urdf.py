@@ -8,9 +8,11 @@ from utils import (
 )
 
 
-def compare_urdf_construction(test_case, file_path):
+def compare_urdf_construction(test_case, file_path, mesh_dir=None):
     dyn_model, dyn_col_model, dyn_viz_model = dyn.build_models_from_urdf(file_path)
-    pin_model, pin_col_model, pin_viz_model = pin.buildModelsFromUrdf(file_path)
+    pin_model, pin_col_model, pin_viz_model = pin.buildModelsFromUrdf(
+        file_path, mesh_dir
+    )
     assert_models_equals(test_case, dyn_model, pin_model)
     assert_geometry_models_equals(test_case, dyn_col_model, pin_col_model)
     assert_geometry_models_equals(test_case, dyn_viz_model, pin_viz_model)
@@ -40,3 +42,10 @@ class TestURDF(unittest.TestCase):
 
     def test_build_visuals(self):
         compare_urdf_construction(self, "examples/descriptions/visuals.urdf")
+
+    def test_build_ur5(self):
+        compare_urdf_construction(
+            self,
+            "./examples/descriptions/ur5/ur5_robot.urdf",
+            "./examples/descriptions/ur5",
+        )

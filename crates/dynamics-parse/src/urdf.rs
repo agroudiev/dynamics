@@ -5,6 +5,7 @@ use crate::errors::ParseError;
 use collider::mesh::Mesh;
 use collider::shape::{Cylinder, ShapeWrapper, Sphere};
 use dynamics_inertia::inertia::Inertia;
+use dynamics_joint::joint::JointType;
 use dynamics_joint::revolute::JointModelRevolute;
 use dynamics_model::frame::{Frame, FrameType};
 use dynamics_model::{
@@ -353,6 +354,15 @@ fn parse_link(
     // otherwise, we associate the inertia to the joint (in model.inertias)
     let frame_inertia = if is_root {
         link_inertia
+    }
+    // if the parent joint type is fixed, we put the inertia in the parent's frame
+    else if let Some(joint) = model.joint_models.get(parent_joint_id)
+        && joint.get_joint_type() == JointType::Fixed
+    {
+        let parent_frame = get_parent_frame(parent_node, robot_node, model)?;
+        model.frames[parent_frame].inertia += link_inertia.clone(); // TODO: check if this can be avoided
+        model.inertias[parent_joint_id] += link_inertia;
+        Inertia::zeros()
     } else {
         model.inertias[parent_joint_id] += link_inertia;
         Inertia::zeros()
