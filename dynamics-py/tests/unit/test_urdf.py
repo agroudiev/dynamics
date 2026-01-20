@@ -9,7 +9,9 @@ from utils import (
 
 
 def compare_urdf_construction(test_case, file_path, mesh_dir=None):
-    dyn_model, dyn_col_model, dyn_viz_model = dyn.build_models_from_urdf(file_path)
+    dyn_model, dyn_col_model, dyn_viz_model = dyn.build_models_from_urdf(
+        file_path, mesh_dir
+    )
     pin_model, pin_col_model, pin_viz_model = pin.buildModelsFromUrdf(
         file_path, mesh_dir
     )

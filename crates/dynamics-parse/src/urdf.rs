@@ -23,6 +23,7 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use roxmltree::{Document, Node};
 use std::collections::HashSet;
+use std::path::Path;
 use std::{collections::HashMap, fs, str::FromStr};
 
 /// Parses a URDF file and builds the corresponding [`Model`] and [`GeometryModel`].
@@ -39,7 +40,7 @@ use std::{collections::HashMap, fs, str::FromStr};
 /// Returns a [`ParseError`] if there is an error during parsing.
 pub fn build_models_from_urdf(
     filepath: &str,
-    _package_dir: Option<&str>,
+    package_dir: Option<&str>,
 ) -> Result<(Model, GeometryModel, GeometryModel), ParseError> {
     let contents = fs::read_to_string(filepath).map_err(ParseError::IoError)?;
     let doc = Document::parse(&contents).map_err(ParseError::XmlError)?;
@@ -78,7 +79,7 @@ pub fn build_models_from_urdf(
             &mut coll_model,
             &mut viz_model,
             &materials,
-            filepath,
+            package_dir,
         )?;
     }
 
@@ -103,7 +104,7 @@ pub fn build_models_from_urdf(
 /// - `coll_model`: The collision geometry model being built.
 /// - `viz_model`: The visualization geometry model being built.
 /// - `materials`: The map of materials defined in the robot.
-/// - `filepath`: The path to the URDF file.
+/// - `package_dir`: The path to the folder containing the mesh files referenced in the URDF.
 ///
 /// # Returns:
 /// - `Result<(), ParseError>`: `Ok` if successful, or a [`ParseError`] if an error occurs.
@@ -117,7 +118,7 @@ fn parse_node(
     coll_model: &mut GeometryModel,
     viz_model: &mut GeometryModel,
     materials: &HashMap<String, Color>,
-    filepath: &str,
+    package_dir: Option<&str>,
 ) -> Result<(), ParseError> {
     let node_name = node.attribute("name").unwrap_or("");
     let mut new_parent_joint_id = parent_joint_id;
@@ -135,7 +136,7 @@ fn parse_node(
                 coll_model,
                 viz_model,
                 materials,
-                filepath,
+                package_dir,
             )?;
 
             // find all joints that have this link as parent
@@ -208,7 +209,7 @@ fn parse_node(
             coll_model,
             viz_model,
             materials,
-            filepath,
+            package_dir,
         )?;
     }
     Ok(())
@@ -388,7 +389,7 @@ fn parse_link(
     coll_model: &mut GeometryModel,
     viz_model: &mut GeometryModel,
     materials: &HashMap<String, Color>,
-    filepath: &str,
+    package_dir: Option<&str>,
 ) -> Result<(), ParseError> {
     let link_name = node.attribute("name").unwrap_or("").to_string();
 
@@ -441,7 +442,7 @@ fn parse_link(
             new_frame_id,
             model,
             materials,
-            filepath,
+            package_dir,
         )?;
         coll_model.add_geometry_object(geom_obj);
     } // TODO: handle multiple collision nodes
@@ -455,7 +456,7 @@ fn parse_link(
             new_frame_id,
             model,
             materials,
-            filepath,
+            package_dir,
         )?;
         viz_model.add_geometry_object(geom_obj);
     } // TODO: handle multiple visual nodes
@@ -560,7 +561,7 @@ fn parse_geometry(
     parent_frame_id: usize,
     model: &Model,
     materials: &HashMap<String, Color>,
-    urdf_filepath: &str,
+    package_dir: Option<&str>,
 ) -> Result<GeometryObject, ParseError> {
     let geometry_node = node
         .children()
@@ -594,19 +595,17 @@ fn parse_geometry(
         } else if filename.starts_with('/') {
             filename.to_string()
         } else {
-            // treat as relative path from .urdf file
-            let urdf_path = std::path::Path::new(urdf_filepath);
-            let Some(urdf_dir) = urdf_path.parent() else {
-                return Err(ParseError::InvalidFilePath(
-                    "URDF file has no parent directory".to_string(),
-                ));
-            };
-            urdf_dir
+            // treat path as relative path from package_dir
+            let package_dir = package_dir.ok_or(ParseError::InvalidFilePath(
+                "'package_dir' must be provided to resolve mesh file paths".to_string(),
+            ))?;
+            let package_dir = Path::new(package_dir);
+            package_dir
                 .join(filename)
                 .to_str()
                 .ok_or(ParseError::InvalidFilePath(format!(
-                    "Cannot convert path to string: {}",
-                    urdf_dir.join(filename).display()
+                    "Invalide path: {}",
+                    package_dir.join(filename).display()
                 )))?
                 .to_string()
         };
