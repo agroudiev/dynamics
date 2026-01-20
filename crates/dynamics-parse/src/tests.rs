@@ -3,7 +3,7 @@ use crate::urdf::build_models_from_urdf;
 #[test]
 fn test_myfirst() {
     let filepath = "../../examples/descriptions/myfirst.urdf";
-    let result = build_models_from_urdf(filepath);
+    let result = build_models_from_urdf(filepath, None);
     let (model, coll_model, viz_model) = result.unwrap();
     assert_eq!(model.name, "myfirst");
 
@@ -17,7 +17,7 @@ fn test_myfirst() {
 #[test]
 fn test_multipleshapes() {
     let filepath = "../../examples/descriptions/multipleshapes.urdf";
-    let result = build_models_from_urdf(filepath);
+    let result = build_models_from_urdf(filepath, None);
     let (model, coll_model, viz_model) = result.unwrap();
 
     let data = model.create_data();
@@ -28,7 +28,7 @@ fn test_multipleshapes() {
 #[test]
 fn test_origins() {
     let filepath = "../../examples/descriptions/origins.urdf";
-    let result = build_models_from_urdf(filepath);
+    let result = build_models_from_urdf(filepath, None);
     let (model, geom_model, viz_model) = result.unwrap();
 
     let data = model.create_data();
@@ -39,7 +39,7 @@ fn test_origins() {
 #[test]
 fn test_materials() {
     let filepath = "../../examples/descriptions/materials.urdf";
-    let result = build_models_from_urdf(filepath);
+    let result = build_models_from_urdf(filepath, None);
     let (model, coll_model, viz_model) = result.unwrap();
 
     let data = model.create_data();
@@ -50,7 +50,7 @@ fn test_materials() {
 #[test]
 fn test_visuals() {
     let filepath = "../../examples/descriptions/visuals.urdf";
-    let (model, coll_model, viz_model) = build_models_from_urdf(filepath).unwrap();
+    let (model, coll_model, viz_model) = build_models_from_urdf(filepath, None).unwrap();
 
     let data = model.create_data();
     let _coll_data = coll_model.create_data(&data);
@@ -60,7 +60,7 @@ fn test_visuals() {
 #[test]
 fn test_double_pendulum_simple() {
     let filepath = "../../examples/descriptions/double_pendulum_simple.urdf";
-    let result = build_models_from_urdf(filepath);
+    let result = build_models_from_urdf(filepath, None);
     let (model, coll_model, viz_model) = result.unwrap();
     assert_eq!(model.name, "2dof_planar");
 
@@ -72,7 +72,7 @@ fn test_double_pendulum_simple() {
 #[test]
 fn test_ur5() {
     let filepath = "../../examples/descriptions/ur5/ur5_robot.urdf";
-    let result = build_models_from_urdf(filepath);
+    let result = build_models_from_urdf(filepath, None);
     let (model, coll_model, viz_model) = result.unwrap();
     assert_eq!(model.name, "ur5");
 

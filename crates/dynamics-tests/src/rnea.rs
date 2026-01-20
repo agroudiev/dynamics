@@ -7,7 +7,7 @@ use dynamics_spatial::configuration::Configuration;
 #[test]
 fn test_rnea_ur5() {
     let path = "../../examples/descriptions/ur5/ur5_robot.urdf";
-    let (model, _, _) = build_models_from_urdf(path).unwrap();
+    let (model, _, _) = build_models_from_urdf(path, None).unwrap();
     let mut data = model.create_data();
 
     let q = Configuration::from_row_slice(&[

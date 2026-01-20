@@ -30,14 +30,16 @@ use std::{collections::HashMap, fs, str::FromStr};
 /// # Arguments
 ///
 /// * `filepath` - The path to the URDF file.
+/// * `package_dir` - The path to the folder containing the mesh files referenced in the URDF.
 ///
 /// # Returns
 ///
-/// A tuple containing the [`Model`], a collision [`GeometryModel`], and a visualization [`GeometryModel`] objects if successful.
+/// A 3-tuple containing the [`Model`], a collision [`GeometryModel`], and a visualization [`GeometryModel`] objects if successful.
 ///
 /// Returns a [`ParseError`] if there is an error during parsing.
 pub fn build_models_from_urdf(
     filepath: &str,
+    _package_dir: Option<&str>,
 ) -> Result<(Model, GeometryModel, GeometryModel), ParseError> {
     let contents = fs::read_to_string(filepath).map_err(ParseError::IoError)?;
     let doc = Document::parse(&contents).map_err(ParseError::XmlError)?;
@@ -84,6 +86,27 @@ pub fn build_models_from_urdf(
 }
 
 /// Parse the given node and call itself recursively on its children.
+///
+/// The steps are:
+/// - Depending on the type of node (link or joint), call the corresponding parse function.
+/// - Find all children nodes (joints for links, child links for joints).
+/// - Sort the children nodes in alphabetical order.
+/// - Recursively call `parse_node` on each child node.
+///
+/// # Arguments:
+/// - `robot_node`: The root robot node containing all links and joints.
+/// - `node`: The current node to parse.
+/// - `parent_node`: The parent node of the current node.
+/// - `parent_joint_id`: The ID of the parent joint in the model.
+/// - `is_root`: Whether the current node is a root node.
+/// - `model`: The model being built.
+/// - `coll_model`: The collision geometry model being built.
+/// - `viz_model`: The visualization geometry model being built.
+/// - `materials`: The map of materials defined in the robot.
+/// - `filepath`: The path to the URDF file.
+///
+/// # Returns:
+/// - `Result<(), ParseError>`: `Ok` if successful, or a [`ParseError`] if an error occurs.
 fn parse_node(
     robot_node: &Node,
     node: Node,
@@ -98,6 +121,7 @@ fn parse_node(
 ) -> Result<(), ParseError> {
     let node_name = node.attribute("name").unwrap_or("");
     let mut new_parent_joint_id = parent_joint_id;
+
     // parse the current node and extract its children
     let children = match node.tag_name().name() {
         "link" => {
@@ -191,6 +215,14 @@ fn parse_node(
 }
 
 /// Finds the root nodes (links without parents) in the robot node.
+///
+/// It starts by collecting all link nodes, then removes those that are children of joints.
+///
+/// # Arguments:
+/// - `robot_node`: The root robot node containing all links and joints.
+///
+/// # Returns:
+/// - `Result<HashSet<Node>, ParseError>`: A set of root link nodes if successful, or a [`ParseError`] if an error occurs.
 fn find_root_nodes<'a>(robot_node: &'a Node) -> Result<HashSet<Node<'a, 'a>>, ParseError> {
     // collect all link nodes
     let mut parent_links: HashSet<Node> = robot_node
@@ -215,6 +247,20 @@ fn find_root_nodes<'a>(robot_node: &'a Node) -> Result<HashSet<Node<'a, 'a>>, Pa
 }
 
 /// Parses a joint from the URDF file and adds it to the model.
+///
+/// It extracts the joint name, type, origin, axis, and limits, and creates the corresponding joint model.
+/// If the joint is fixed, no joint model is created, only a fixed frame is added.
+/// In any case, a frame (of type either fixed or joint) is added for the joint.
+///
+/// # Arguments:
+/// - `robot_node`: The root robot node containing all links and joints.
+/// - `joint_node`: The joint node to parse.
+/// - `parent_node`: The parent node of the joint.
+/// - `parent_joint_id`: The ID of the parent joint in the model.
+/// - `model`: The model being built.
+///
+/// # Returns:
+/// - `Result<usize, ParseError>`: The ID of the newly added joint if successful, or a [`ParseError`] if an error occurs.
 fn parse_joint(
     robot_node: &Node,
     joint_node: Node,
@@ -663,10 +709,12 @@ fn parse_origin(node: &roxmltree::Node) -> Result<SE3, ParseError> {
 
 /// A Python wrapper for the `build_models_from_urdf` function.
 #[pyfunction(name = "build_models_from_urdf")]
+#[pyo3(signature = (filepath, package_dir = None))]
 pub fn py_build_models_from_urdf(
     filepath: &str,
+    package_dir: Option<&str>,
 ) -> PyResult<(PyModel, PyGeometryModel, PyGeometryModel)> {
-    match build_models_from_urdf(filepath) {
+    match build_models_from_urdf(filepath, package_dir) {
         Ok((model, coll_model, viz_model)) => Ok((
             PyModel { inner: model },
             PyGeometryModel { inner: coll_model },
