@@ -2,8 +2,7 @@ import unittest
 import numpy as np
 
 import dynamics as dyn
-
-# import dynamics.collider as collider
+import dynamics.collider as collider  # type: ignore
 
 import pinocchio as pin
 import coal
@@ -117,7 +116,7 @@ def assert_models_equals(
 
 def assert_shapes_equals(
     test_case: unittest.TestCase,
-    dyn_shape,  #: collider.Shape, # TODO: fix in CI
+    dyn_shape: collider.Shape,
     pin_shape: pin.CollisionGeometry,
 ):
     match str(dyn_shape.shape_type):

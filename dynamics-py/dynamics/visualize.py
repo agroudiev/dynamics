@@ -137,7 +137,7 @@ class DaeMeshGeometry(mg.ReferenceSceneElement):
         img_lib_element = Et.parse(dae_path).find(
             "{http://www.collada.org/2005/11/COLLADASchema}library_images"
         )
-        if img_lib_element:
+        if img_lib_element is not None:
             img_resource_paths = [
                 Path(e.text) for e in img_lib_element.iter() if e.tag.count("init_from")
             ]
@@ -238,7 +238,7 @@ class MeshcatVisualizer:
         load_model: bool = False,
         url: str | None = None,
     ):
-        """Start a new meschat server and client."""
+        """Start a new meshcat server and client."""
 
         self.viewer = meshcat.Visualizer(url) if viewer is None else viewer
 
@@ -255,9 +255,7 @@ class MeshcatVisualizer:
         if load_model:
             self.load_model()
 
-    def load_shape(
-        self, geometry: collider.PyShapeWrapper, geometry_type: GeometryType
-    ):
+    def load_shape(self, geometry: collider.Shape, geometry_type: GeometryType):
         object = None
 
         # Cylinders need to be rotated
@@ -321,11 +319,11 @@ class MeshcatVisualizer:
         meshcat_node = self.viewer[geometry_object.name]
 
         if (
-            isinstance(geometry, collider.PyShapeWrapper)
+            isinstance(geometry, collider.Shape)
             and str(geometry.shape_type) == "ShapeType.Mesh"
         ):
             object = self.load_mesh(geometry)
-        elif isinstance(geometry, collider.PyShapeWrapper):
+        elif isinstance(geometry, collider.Shape):
             object = self.load_shape(geometry, geometry_type)
         else:
             raise NotImplementedError(
@@ -404,7 +402,8 @@ class MeshcatVisualizer:
         geom_data.update_geometry_data(self.data, geom_model)
         for object in geom_model.geometry_objects:
             # placement in world frame
-            placement = geom_data.get_object_placement(object.id)
+            object_id = geom_model.get_geometry_id(object.name)
+            placement = geom_data.get_object_placement(object_id)
             T = placement.homogeneous
             self.viewer[object.name].set_transform(T)
 
@@ -417,3 +416,6 @@ class MeshcatVisualizer:
             dynamics.forward_kinematics(self.model, self.data, q)
 
         self.update_placements(GeometryType.VISUAL)
+
+    def clean(self):
+        self.viewer.delete()

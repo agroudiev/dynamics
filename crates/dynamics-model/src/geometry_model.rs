@@ -131,4 +131,9 @@ impl PyGeometryModel {
     pub fn ngeoms(&self) -> usize {
         self.inner.objects.len()
     }
+
+    /// Returns the ID of the geometry object with the given name, if it exists.
+    pub fn get_geometry_id(&self, name: &str) -> Option<usize> {
+        self.inner.get_geometry_id(name)
+    }
 }
