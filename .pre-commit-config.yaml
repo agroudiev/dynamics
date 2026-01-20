@@ -13,7 +13,7 @@ repos:
     rev: v1.0
     hooks:
     - id: cargo-check
-      args: ["--workspace"]
+      args: ["--workspace", "--tests"]
     - id: fmt
       args: ["--", "--check"]
     - id: clippy
