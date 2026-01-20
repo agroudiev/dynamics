@@ -3,8 +3,9 @@ import dynamics as dyn
 import time
 
 # load an URDF file
-model, geom_model, _ = dyn.build_models_from_urdf(
-    "examples/descriptions/ur5/ur5_robot.urdf"
+model, coll_model, viz_model = dyn.build_models_from_urdf(
+    "examples/descriptions/ur5/ur5_robot.urdf",
+    "examples/descriptions/ur5",
 )
 
 # Build a data frame associated with the model
@@ -14,7 +15,7 @@ data = model.create_data()
 q = dyn.neutral(model)
 q = q.to_numpy()
 
-viz = dyn.visualize.MeshcatVisualizer(model, geom_model, geom_model)
+viz = dyn.visualize.MeshcatVisualizer(model, coll_model, viz_model)
 viz.init_viewer(load_model=True)
 viz.open()
 
