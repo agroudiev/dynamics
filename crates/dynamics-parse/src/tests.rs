@@ -72,7 +72,7 @@ fn test_double_pendulum_simple() {
 #[test]
 fn test_ur5() {
     let filepath = "../../examples/descriptions/ur5/ur5_robot.urdf";
-    let result = build_models_from_urdf(filepath, None);
+    let result = build_models_from_urdf(filepath, Some("../../examples/descriptions/ur5"));
     let (model, coll_model, viz_model) = result.unwrap();
     assert_eq!(model.name, "ur5");
 
