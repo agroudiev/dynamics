@@ -97,6 +97,6 @@ class TestSpatial(unittest.TestCase):
         )
 
         pin_inertia_sum = pin_inertia1 + pin_inertia2
-        dyn_inertia_sum = dyn_inertia1.add(dyn_inertia2)
+        dyn_inertia_sum = dyn_inertia1 + dyn_inertia2
 
         assert_inertias_equals(self, dyn_inertia_sum, pin_inertia_sum)

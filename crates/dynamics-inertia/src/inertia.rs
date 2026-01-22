@@ -238,7 +238,7 @@ impl PyInertia {
         format!("{:?}", slf.inner)
     }
 
-    pub fn add(&self, other: &PyInertia) -> PyInertia {
+    pub fn __add__(&self, other: &PyInertia) -> PyInertia {
         PyInertia {
             inner: self.inner.clone() + other.inner.clone(),
         }
