@@ -434,9 +434,13 @@ fn parse_link(
         .map_err(ParseError::ModelError)?;
 
     // parse the collision node
-    if let Some(collision_node) = node.children().find(|n| n.has_tag_name("collision")) {
+    for (i, collision_node) in node
+        .children()
+        .filter(|n| n.has_tag_name("collision"))
+        .enumerate()
+    {
         let geom_obj = parse_geometry(
-            format!("{link_name}_0"),
+            format!("{link_name}_{i}"),
             &collision_node,
             parent_joint_id,
             new_frame_id,
@@ -445,12 +449,16 @@ fn parse_link(
             package_dir,
         )?;
         coll_model.add_geometry_object(geom_obj);
-    } // TODO: handle multiple collision nodes
+    }
 
     // parse the visual node
-    if let Some(visual_node) = node.children().find(|n| n.has_tag_name("visual")) {
+    for (i, visual_node) in node
+        .children()
+        .filter(|n| n.has_tag_name("visual"))
+        .enumerate()
+    {
         let geom_obj = parse_geometry(
-            format!("{link_name}_0"),
+            format!("{link_name}_{i}"),
             &visual_node,
             parent_joint_id,
             new_frame_id,
@@ -459,7 +467,7 @@ fn parse_link(
             package_dir,
         )?;
         viz_model.add_geometry_object(geom_obj);
-    } // TODO: handle multiple visual nodes
+    }
 
     Ok(())
 }
