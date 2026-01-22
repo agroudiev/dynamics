@@ -57,9 +57,14 @@ class TestURDF(unittest.TestCase):
         set_example_robot_data_path()
 
         paths = [
-            "ur_description/urdf/ur3_robot.urdf",
             "ur_description/urdf/ur3_gripper.urdf",
+            "ur_description/urdf/ur3_joint_limited_robot.urdf",
+            "ur_description/urdf/ur3_robot.urdf",
+            "ur_description/urdf/ur5_gripper.urdf",
+            "ur_description/urdf/ur5_joint_limited_robot.urdf",
             "ur_description/urdf/ur5_robot.urdf",
+            "ur_description/urdf/ur10_joint_limited_robot.urdf",
+            "ur_description/urdf/ur10_robot.urdf",
         ]
         robots_dir = "examples/descriptions/example-robot-data/robots/"
 
