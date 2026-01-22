@@ -70,9 +70,33 @@ fn test_double_pendulum_simple() {
 }
 
 #[test]
-fn test_ur5() {
+fn test_ur5_classical() {
     let filepath = "../../examples/descriptions/ur5/ur5_robot.urdf";
     let result = build_models_from_urdf(filepath, Some("../../examples/descriptions/ur5"));
+    let (model, coll_model, viz_model) = result.unwrap();
+    assert_eq!(model.name, "ur5");
+
+    let data = model.create_data();
+    let _coll_data = coll_model.create_data(&data);
+    let _viz_data = viz_model.create_data(&data);
+}
+
+#[test]
+fn test_ur5_example_robot_data() {
+    // set ROS_PACKAGE_PATH to find the example-robot-data package
+    unsafe {
+        std::env::set_var(
+            "ROS_PACKAGE_PATH",
+            "../../examples/descriptions/example-robot-data:".to_string()
+                + &std::env::var("ROS_PACKAGE_PATH").unwrap_or_default(),
+        );
+    }
+    // specifying the path here with ../.. is a bit ugly,
+    // but it is necessary to make the test work when run from the root
+
+    let filepath =
+        "../../examples/descriptions/example-robot-data/robots/ur_description/urdf/ur5_robot.urdf";
+    let result = build_models_from_urdf(filepath, None);
     let (model, coll_model, viz_model) = result.unwrap();
     assert_eq!(model.name, "ur5");
 
