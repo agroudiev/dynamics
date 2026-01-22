@@ -537,15 +537,24 @@ fn parse_inertia(node: Node, link_name: &str) -> Result<(Inertia, SE3), ParseErr
         let iyz = extract_parameter::<f64>("iyz", &inertia_node)?;
         let izz = extract_parameter::<f64>("izz", &inertia_node)?;
 
-        let origin_node = inertial_node
-            .children()
-            .find(|n| n.has_tag_name("origin"))
-            .ok_or(ParseError::MissingParameter("origin".to_string()))?;
-        let rpy = extract_parameter_list::<f64>("rpy", &origin_node, Some(3))?;
-        let xyz = extract_parameter_list::<f64>("xyz", &origin_node, Some(3))?;
-        let rotation = SpatialRotation::from_euler_angles(rpy[0], rpy[1], rpy[2]);
-        let translation = Vector3D::new(xyz[0], xyz[1], xyz[2]);
-        let inertial_origin = SE3::from_parts(translation, rotation);
+        let (translation, inertial_origin) = if let Some(origin_node) =
+            inertial_node.children().find(|n| n.has_tag_name("origin"))
+        {
+            // extract rpy and xyz (default to zeros if not specified)
+            let rpy =
+                extract_parameter_list::<f64>("rpy", &origin_node, Some(3)).unwrap_or(vec![0.0; 3]);
+            let xyz =
+                extract_parameter_list::<f64>("xyz", &origin_node, Some(3)).unwrap_or(vec![0.0; 3]);
+
+            // construct the rotation and translation
+            let rotation = SpatialRotation::from_euler_angles(rpy[0], rpy[1], rpy[2]);
+            let translation = Vector3D::new(xyz[0], xyz[1], xyz[2]);
+
+            (translation, SE3::from_parts(translation, rotation))
+        } else {
+            // defaults to identity if no origin is specified
+            (Vector3D::zeros(), SE3::identity())
+        };
 
         Ok((
             Inertia::new(
