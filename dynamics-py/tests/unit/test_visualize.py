@@ -43,30 +43,44 @@ class TestURDF(unittest.TestCase):
         with visualize_cm():
             test_visualizer(self, "examples/descriptions/myfirst.urdf")
 
-    def test_build_multipleshapes(self):
+    def test_viz_multipleshapes(self):
         with visualize_cm():
             test_visualizer(self, "examples/descriptions/multipleshapes.urdf")
 
-    def test_build_double_pendulum_simple(self):
+    def test_viz_double_pendulum_simple(self):
         with visualize_cm():
             test_visualizer(self, "examples/descriptions/double_pendulum_simple.urdf")
 
-    def test_build_materials(self):
+    def test_viz_materials(self):
         with visualize_cm():
             test_visualizer(self, "examples/descriptions/materials.urdf")
 
-    def test_build_origins(self):
+    def test_viz_origins(self):
         with visualize_cm():
             test_visualizer(self, "examples/descriptions/origins.urdf")
 
-    def test_build_visuals(self):
+    def test_viz_visuals(self):
         with visualize_cm():
             test_visualizer(self, "examples/descriptions/visuals.urdf")
 
-    def test_build_ur5(self):
+    def test_viz_ur5_classical(self):
         with visualize_cm():
             test_visualizer(
                 self,
                 "./examples/descriptions/ur5/ur5_robot.urdf",
                 "./examples/descriptions/ur5",
+            )
+
+    def test_viz_ur5_example_robot_data(self):
+        # set ROS_PACKAGE_PATH to find the example-robot-data package
+        os.environ["ROS_PACKAGE_PATH"] = (
+            "examples/descriptions/example-robot-data:"
+            + os.environ.get("ROS_PACKAGE_PATH", "")
+        )
+
+        robots_dir = "examples/descriptions/example-robot-data/robots/"
+        with visualize_cm():
+            test_visualizer(
+                self,
+                robots_dir + "ur_description/urdf/ur5_robot.urdf",
             )

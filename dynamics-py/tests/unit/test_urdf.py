@@ -1,4 +1,5 @@
 import unittest
+import os
 import dynamics as dyn
 import pinocchio as pin
 from utils import (
@@ -45,9 +46,22 @@ class TestURDF(unittest.TestCase):
     def test_build_visuals(self):
         compare_urdf_construction(self, "examples/descriptions/visuals.urdf")
 
-    def test_build_ur5(self):
+    def test_build_ur5_classical(self):
         compare_urdf_construction(
             self,
             "./examples/descriptions/ur5/ur5_robot.urdf",
             "./examples/descriptions/ur5",
+        )
+
+    def test_build_ur5_example_robot_data(self):
+        # set ROS_PACKAGE_PATH to find the example-robot-data package
+        os.environ["ROS_PACKAGE_PATH"] = (
+            "examples/descriptions/example-robot-data:"
+            + os.environ.get("ROS_PACKAGE_PATH", "")
+        )
+
+        robots_dir = "examples/descriptions/example-robot-data/robots/"
+        compare_urdf_construction(
+            self,
+            robots_dir + "ur_description/urdf/ur5_robot.urdf",
         )

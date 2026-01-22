@@ -590,8 +590,55 @@ fn parse_geometry(
             .attribute("filename")
             .ok_or(ParseError::MissingParameter("filename".to_string()))?;
 
-        let absolute_path = if filename.starts_with("package://") {
-            unimplemented!("package:// URDF paths are not supported yet")
+        let absolute_path = if let Some(filename) = filename.strip_prefix("package://") {
+            // retrieve the package path in between "package://" and the first "/"
+            let path_parts: Vec<&str> = filename.splitn(2, '/').collect();
+            if path_parts.len() != 2 {
+                return Err(ParseError::InvalidFilePath(format!(
+                    "Invalid package path: {}",
+                    filename
+                )));
+            }
+            let package_name = path_parts[0];
+            let relative_path = path_parts[1];
+
+            // retrieve the package path from the 'ROS_PACKAGE_PATH' environment variable
+            let ros_package_path = std::env::var("ROS_PACKAGE_PATH").map_err(|_| ParseError::InvalidFilePath(
+                "'package://' was used but the ROS_PACKAGE_PATH environment variable is not set".to_string(),
+            ))?;
+            let package_paths: Vec<&str> = ros_package_path
+                .split(':')
+                .filter(|s| !s.is_empty())
+                .collect();
+
+            // search for the package in the package paths
+            let mut package_path = None;
+            for path in package_paths {
+                // extract the last folder name in the path
+                let path_obj = Path::new(path);
+
+                // check if the folder name matches the package name
+                if let Some(folder_name) = path_obj.file_name().and_then(|s| s.to_str())
+                    && folder_name == package_name
+                {
+                    package_path = Some(path_obj.to_path_buf());
+                    break;
+                }
+            }
+
+            let package_path = package_path.ok_or(ParseError::InvalidFilePath(format!(
+                "Package '{package_name}' not found in ROS_PACKAGE_PATH",
+            )))?;
+
+            // construct the absolute path with the mesh relative path
+            package_path
+                .join(relative_path)
+                .to_str()
+                .ok_or(ParseError::InvalidFilePath(format!(
+                    "Invalide path: {}",
+                    package_path.join(relative_path).display()
+                )))?
+                .to_string()
         } else if filename.starts_with('/') {
             filename.to_string()
         } else {
