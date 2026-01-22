@@ -53,11 +53,18 @@ class TestURDF(unittest.TestCase):
             "./examples/descriptions/ur5",
         )
 
-    def test_build_ur5_example_robot_data(self):
+    def test_build_example_robot_data(self):
         set_example_robot_data_path()
 
+        paths = [
+            "ur_description/urdf/ur3_robot.urdf",
+            "ur_description/urdf/ur3_gripper.urdf",
+            "ur_description/urdf/ur5_robot.urdf",
+        ]
         robots_dir = "examples/descriptions/example-robot-data/robots/"
-        compare_urdf_construction(
-            self,
-            robots_dir + "ur_description/urdf/ur5_robot.urdf",
-        )
+
+        for path in paths:
+            compare_urdf_construction(
+                self,
+                robots_dir + path,
+            )
