@@ -393,7 +393,7 @@ fn parse_link(
     let link_name = node.attribute("name").unwrap_or("").to_string();
 
     // parse the inertial node
-    let (link_inertia, _inertia_origin) = parse_inertia(node, &link_name)?;
+    let link_inertia = parse_inertia(node, &link_name)?;
 
     // inertia associated with the new frame
     // if this is the root link, we put the inertia in the frame
@@ -516,7 +516,7 @@ fn parse_material(node: Node, materials: &mut HashMap<String, Color>) -> Result<
 }
 
 /// Parses the inertia of a link from the URDF file.
-fn parse_inertia(node: Node, link_name: &str) -> Result<(Inertia, SE3), ParseError> {
+fn parse_inertia(node: Node, link_name: &str) -> Result<Inertia, ParseError> {
     if let Some(inertial_node) = node.children().find(|n| n.has_tag_name("inertial")) {
         let mass_node = inertial_node
             .children()
@@ -535,8 +535,9 @@ fn parse_inertia(node: Node, link_name: &str) -> Result<(Inertia, SE3), ParseErr
         let iyy = extract_parameter::<f64>("iyy", &inertia_node)?;
         let iyz = extract_parameter::<f64>("iyz", &inertia_node)?;
         let izz = extract_parameter::<f64>("izz", &inertia_node)?;
+        let inertia_mat = Symmetric3::new(ixx, iyy, izz, ixy, ixz, iyz);
 
-        let (translation, inertial_origin) = if let Some(origin_node) =
+        let inertial_origin = if let Some(origin_node) =
             inertial_node.children().find(|n| n.has_tag_name("origin"))
         {
             // extract rpy and xyz (default to zeros if not specified)
@@ -549,22 +550,19 @@ fn parse_inertia(node: Node, link_name: &str) -> Result<(Inertia, SE3), ParseErr
             let rotation = SpatialRotation::from_euler_angles(rpy[0], rpy[1], rpy[2]);
             let translation = Vector3D::new(xyz[0], xyz[1], xyz[2]);
 
-            (translation, SE3::from_parts(translation, rotation))
+            SE3::from_parts(translation, rotation)
         } else {
             // defaults to identity if no origin is specified
-            (Vector3D::zeros(), SE3::identity())
+            SE3::identity()
         };
 
-        Ok((
-            Inertia::new(
-                mass,
-                translation,
-                Symmetric3::new(ixx, iyy, izz, ixy, ixz, iyz),
-            ),
-            inertial_origin,
+        Ok(Inertia::new(
+            mass,
+            inertial_origin.translation(),
+            inertia_mat.rotate(&inertial_origin.rotation()),
         ))
     } else {
-        Ok((Inertia::zeros(), SE3::identity()))
+        Ok(Inertia::zeros())
     }
 }
 
