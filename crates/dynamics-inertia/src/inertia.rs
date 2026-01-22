@@ -7,6 +7,7 @@ use dynamics_spatial::{
     symmetric3::Symmetric3,
     vector3d::Vector3D,
 };
+use numpy::PyReadonlyArrayDyn;
 use pyo3::{exceptions::PyValueError, prelude::*};
 use std::ops::{Add, AddAssign, Mul};
 
@@ -181,6 +182,19 @@ impl PyInertia {
             .map_err(|e| PyValueError::new_err(format!("Failed to create Inertia: {e:?}")))
     }
 
+    #[new]
+    pub fn new(
+        mass: f64,
+        com: PyReadonlyArrayDyn<f64>,
+        inertia: PyReadonlyArrayDyn<f64>,
+    ) -> PyResult<Self> {
+        let com = Vector3D::from_pyarray(&com)?;
+        let inertia = Symmetric3::from_pyarray(&inertia)?;
+        Ok(PyInertia {
+            inner: Inertia::new(mass, com, inertia),
+        })
+    }
+
     /// Creates a new [`Inertia`] object with zero mass, zero center of mass, and zero inertia matrix.
     ///
     /// # Returns
@@ -222,5 +236,11 @@ impl PyInertia {
 
     fn __repr__(slf: PyRef<'_, Self>) -> String {
         format!("{:?}", slf.inner)
+    }
+
+    pub fn add(&self, other: &PyInertia) -> PyInertia {
+        PyInertia {
+            inner: self.inner.clone() + other.inner.clone(),
+        }
     }
 }

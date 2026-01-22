@@ -43,6 +43,7 @@ name = "dynamics-inertia"
 version = "0.1.0"
 dependencies = [
  "dynamics-spatial",
+ "numpy",
  "pyo3",
 ]
 

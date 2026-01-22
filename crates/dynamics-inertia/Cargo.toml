@@ -10,6 +10,8 @@ license-file.workspace = true
 
 [dependencies]
 pyo3.workspace = true
+numpy.workspace = true
+
 dynamics-spatial.workspace = true
 
 [package.metadata.docs.rs]

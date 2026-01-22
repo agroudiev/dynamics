@@ -2,6 +2,7 @@ import unittest
 import dynamics as dyn
 import pinocchio as pin
 import numpy as np
+from utils import assert_inertias_equals
 
 
 class TestSpatial(unittest.TestCase):
@@ -78,3 +79,24 @@ class TestSpatial(unittest.TestCase):
         H_pin = M_pin.homogeneous
 
         self.assertTrue(np.linalg.norm(H_dyn - H_pin) < 1e-15)
+
+    def test_add_inertias(self):
+        np.random.seed(0)
+        pin_inertia1 = pin.Inertia.Random()
+        dyn_inertia1 = dyn.Inertia(
+            pin_inertia1.mass,
+            pin_inertia1.lever,
+            pin_inertia1.inertia,
+        )
+
+        pin_inertia2 = pin.Inertia.Random()
+        dyn_inertia2 = dyn.Inertia(
+            pin_inertia2.mass,
+            pin_inertia2.lever,
+            pin_inertia2.inertia,
+        )
+
+        pin_inertia_sum = pin_inertia1 + pin_inertia2
+        dyn_inertia_sum = dyn_inertia1.add(dyn_inertia2)
+
+        assert_inertias_equals(self, dyn_inertia_sum, pin_inertia_sum)

@@ -1,7 +1,7 @@
 //! Defines **3D vectors** and related operations.
 
 use nalgebra::Vector3;
-use numpy::{ToPyArray, ndarray::Array1};
+use numpy::{PyReadonlyArrayDyn, ToPyArray, ndarray::Array1};
 use pyo3::prelude::*;
 use std::ops::{Add, Mul, Sub};
 
@@ -63,6 +63,16 @@ impl Vector3D {
             .to_pyarray(py)
             .into_any()
             .unbind()
+    }
+
+    pub fn from_pyarray(array: &PyReadonlyArrayDyn<f64>) -> Result<Self, PyErr> {
+        let array = array.as_array();
+        if array.ndim() != 1 || array.len() != 3 {
+            return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(
+                "Input array must be one-dimensional with length 3.",
+            ));
+        }
+        Ok(Vector3D(Vector3::new(array[0], array[1], array[2])))
     }
 }
 

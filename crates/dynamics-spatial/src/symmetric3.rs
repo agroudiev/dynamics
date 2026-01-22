@@ -1,7 +1,7 @@
 //! Defines **symmetric matrices** of size 3x3 and related operations.
 
 use nalgebra::Matrix3;
-use numpy::{ToPyArray, ndarray::Array2};
+use numpy::{PyReadonlyArrayDyn, ToPyArray, ndarray::Array2};
 use pyo3::prelude::*;
 use std::ops::{Add, Index, Mul, Sub};
 
@@ -111,12 +111,12 @@ impl Symmetric3 {
         let z = v.0[2];
 
         Symmetric3::new(
-            y * y + z * z,
-            x * x + z * z,
-            x * x + y * y,
-            -x * y,
-            -x * z,
-            -y * z,
+            -y * y - z * z,
+            -x * x - z * z,
+            -x * x - y * y,
+            x * y,
+            x * z,
+            y * z,
         )
     }
 
@@ -141,6 +141,35 @@ impl Symmetric3 {
             rsrt[(0, 2)],
             rsrt[(1, 2)],
         )
+    }
+
+    pub fn from_pyarray(array: &PyReadonlyArrayDyn<f64>) -> Result<Self, PyErr> {
+        let array = array.as_array();
+        if array.shape() != [3, 3] {
+            return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(
+                "Input array must be of shape (3, 3)",
+            ));
+        }
+
+        // Check symmetry
+        for i in 0..3 {
+            for j in 0..3 {
+                if array[[i, j]] != array[[j, i]] {
+                    return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(
+                        "Input array must be symmetric",
+                    ));
+                }
+            }
+        }
+
+        Ok(Symmetric3::new(
+            array[[0, 0]],
+            array[[1, 1]],
+            array[[2, 2]],
+            array[[0, 1]],
+            array[[0, 2]],
+            array[[1, 2]],
+        ))
     }
 }
 
