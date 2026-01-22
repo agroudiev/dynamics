@@ -14,7 +14,7 @@ use dynamics_model::{
 };
 use dynamics_spatial::color::Color;
 use dynamics_spatial::motion::SpatialRotation;
-use dynamics_spatial::se3::SE3;
+use dynamics_spatial::se3::{ActSE3, SE3};
 use dynamics_spatial::symmetric3::Symmetric3;
 use dynamics_spatial::vector3d::Vector3D;
 use nalgebra::Vector3;
@@ -407,10 +407,11 @@ fn parse_link(
     {
         let parent_frame = get_parent_frame(parent_node, robot_node, model)?;
         model.frames[parent_frame].inertia += link_inertia.clone(); // TODO: check if this clone can be avoided
-        model.inertias[parent_joint_id] += link_inertia;
+        model.inertias[parent_joint_id] += link_inertia.act(&model.frames[parent_frame].placement);
         Inertia::zeros()
     } else {
-        model.inertias[parent_joint_id] += link_inertia;
+        let parent_frame = get_parent_frame(parent_node, robot_node, model)?;
+        model.inertias[parent_joint_id] += link_inertia.act(&model.frames[parent_frame].placement);
         Inertia::zeros()
     };
 

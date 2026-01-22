@@ -57,6 +57,8 @@ class TestURDF(unittest.TestCase):
         set_example_robot_data_path()
 
         paths = [
+            "a1_description/urdf/a1.urdf",
+            #
             "ur_description/urdf/ur3_gripper.urdf",
             "ur_description/urdf/ur3_joint_limited_robot.urdf",
             "ur_description/urdf/ur3_robot.urdf",
