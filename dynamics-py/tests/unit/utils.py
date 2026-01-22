@@ -8,6 +8,16 @@ import pinocchio as pin
 import coal
 
 
+def set_example_robot_data_path():
+    """Set ROS_PACKAGE_PATH to find the example-robot-data package."""
+    import os
+
+    os.environ["ROS_PACKAGE_PATH"] = (
+        "examples/descriptions/example-robot-data:"
+        + os.environ.get("ROS_PACKAGE_PATH", "")
+    )
+
+
 def assert_se3_equals(test_case: unittest.TestCase, dyn_se3: dyn.SE3, pin_se3: pin.SE3):
     test_case.assertTrue(np.linalg.norm(dyn_se3.rotation - pin_se3.rotation) < 1e-15)
     test_case.assertTrue(

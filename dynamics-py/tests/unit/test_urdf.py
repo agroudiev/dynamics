@@ -1,11 +1,11 @@
 import unittest
-import os
 import dynamics as dyn
 import pinocchio as pin
 from utils import (
     assert_models_equals,
     assert_geometry_models_equals,
     assert_datas_equals,
+    set_example_robot_data_path,
 )
 
 
@@ -54,11 +54,7 @@ class TestURDF(unittest.TestCase):
         )
 
     def test_build_ur5_example_robot_data(self):
-        # set ROS_PACKAGE_PATH to find the example-robot-data package
-        os.environ["ROS_PACKAGE_PATH"] = (
-            "examples/descriptions/example-robot-data:"
-            + os.environ.get("ROS_PACKAGE_PATH", "")
-        )
+        set_example_robot_data_path()
 
         robots_dir = "examples/descriptions/example-robot-data/robots/"
         compare_urdf_construction(
