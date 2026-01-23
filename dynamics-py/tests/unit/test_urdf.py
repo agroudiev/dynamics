@@ -71,6 +71,8 @@ class TestURDF(unittest.TestCase):
             "anymal_b_simple_description/robots/anymal-kinova.urdf",
             "anymal_b_simple_description/robots/anymal.urdf",
             #
+            "anymal_c_simple_description/urdf/anymal.urdf",
+            #
             "ur_description/urdf/ur3_gripper.urdf",
             "ur_description/urdf/ur3_joint_limited_robot.urdf",
             "ur_description/urdf/ur3_robot.urdf",

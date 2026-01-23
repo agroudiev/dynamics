@@ -397,6 +397,7 @@ fn parse_link(
     package_dir: Option<&str>,
 ) -> Result<(), ParseError> {
     let link_name = node.attribute("name").unwrap_or("").to_string();
+    let parent_frame_id = get_parent_frame(parent_node, robot_node, model)?;
 
     // parse the inertial node
     let link_inertia = parse_inertia(node, &link_name)?;
@@ -411,18 +412,17 @@ fn parse_link(
     else if let Some(parent_joint_type) = parent_node.attribute("type")
         && parent_joint_type == "fixed"
     {
-        let parent_frame = get_parent_frame(parent_node, robot_node, model)?;
-        model.frames[parent_frame].inertia += link_inertia.clone(); // TODO: check if this clone can be avoided
-        model.inertias[parent_joint_id] += link_inertia.act(&model.frames[parent_frame].placement);
+        model.frames[parent_frame_id].inertia += link_inertia.clone(); // TODO: check if this clone can be avoided
+        model.inertias[parent_joint_id] +=
+            link_inertia.act(&model.frames[parent_frame_id].placement);
         Inertia::zeros()
     } else {
-        let parent_frame = get_parent_frame(parent_node, robot_node, model)?;
-        model.inertias[parent_joint_id] += link_inertia.act(&model.frames[parent_frame].placement);
+        model.inertias[parent_joint_id] +=
+            link_inertia.act(&model.frames[parent_frame_id].placement);
         Inertia::zeros()
     };
 
     // compute the placement of the link frame
-    let parent_frame_id = get_parent_frame(parent_node, robot_node, model)?;
     let parent_frame = &model.frames[parent_frame_id];
     let link_placement = parent_frame.placement * parse_origin(&node)?;
 
@@ -497,9 +497,18 @@ fn get_parent_frame(
     // check if the parent is the world frame
     if parent_name == robot_name {
         Ok(WORLD_ID)
-    } else {
+    }
+    // else, retrieve the frame id from the model
+    else {
+        // compute the type of the parent node
+        let parent_type = parent_node.attribute("type").unwrap_or("");
+        let frame_type = match parent_type {
+            "fixed" => FrameType::Fixed,
+            "revolute" => FrameType::Joint,
+            _ => FrameType::Body,
+        };
         model
-            .get_frame_id(parent_name)
+            .get_frame_id(parent_name, Some(frame_type))
             .ok_or(ParseError::UnknownParent(parent_name.to_string()))
     }
 }

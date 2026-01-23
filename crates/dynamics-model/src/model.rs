@@ -212,10 +212,22 @@ impl Model {
     }
 
     /// Returns the index of the frame with the given name.
+    ///
+    /// # Arguments
+    /// * `name` - The name of the frame.
+    /// * `frame_type` - The type of the frame.
+    ///
+    /// # Returns
+    /// The index of the frame with the given name and type, or `None` if not found.
     #[must_use]
-    pub fn get_frame_id(&self, name: &str) -> Option<usize> {
+    pub fn get_frame_id(&self, name: &str, frame_type: Option<FrameType>) -> Option<usize> {
         for (id, frame) in self.frames.iter().enumerate() {
             if frame.name == name {
+                if let Some(ft) = &frame_type
+                    && &frame.frame_type != ft
+                {
+                    continue;
+                }
                 return Some(id);
             }
         }
