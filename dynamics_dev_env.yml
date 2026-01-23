@@ -11,3 +11,4 @@ dependencies:
   - flake8
   - pinocchio
   - coal
+  - parameterized

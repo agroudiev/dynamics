@@ -7,6 +7,7 @@ from utils import (
     assert_datas_equals,
     set_example_robot_data_path,
 )
+from parameterized import parameterized
 
 
 def compare_urdf_construction(test_case, file_path, mesh_dir=None):
@@ -53,10 +54,8 @@ class TestURDF(unittest.TestCase):
             "./examples/descriptions/ur5",
         )
 
-    def test_build_example_robot_data(self):
-        set_example_robot_data_path()
-
-        paths = [
+    @parameterized.expand(
+        [
             "a1_description/urdf/a1.urdf",
             #
             "alex_description/urdf/alex_nub_hands.urdf",
@@ -187,10 +186,11 @@ class TestURDF(unittest.TestCase):
             #
             "z1_description/urdf/z1.urdf",
         ]
+    )
+    def test_build_example_robot_data(self, path):
+        set_example_robot_data_path()
         robots_dir = "examples/descriptions/example-robot-data/robots/"
-
-        for path in paths:
-            compare_urdf_construction(
-                self,
-                robots_dir + path,
-            )
+        compare_urdf_construction(
+            self,
+            robots_dir + path,
+        )
