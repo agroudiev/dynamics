@@ -56,8 +56,8 @@ pub fn build_models_from_urdf(
     let mut coll_model = GeometryModel::new();
     let mut viz_model = GeometryModel::new();
 
-    // start by parsing materials
-    let materials = parse_materials(&robot_node)?;
+    // start by parsing materials at the root
+    let mut materials = parse_root_materials(&robot_node)?;
 
     // find root nodes (links without parents)
     let root_nodes = find_root_nodes(&robot_node)?;
@@ -77,7 +77,7 @@ pub fn build_models_from_urdf(
             &mut model,
             &mut coll_model,
             &mut viz_model,
-            &materials,
+            &mut materials,
             package_dir,
         )?;
     }
@@ -116,7 +116,7 @@ fn parse_node(
     model: &mut Model,
     coll_model: &mut GeometryModel,
     viz_model: &mut GeometryModel,
-    materials: &HashMap<String, Color>,
+    materials: &mut HashMap<String, Color>,
     package_dir: Option<&str>,
 ) -> Result<(), ParseError> {
     let node_name = node.attribute("name").unwrap_or("");
@@ -368,8 +368,8 @@ fn parse_joint(
     Ok(new_joint_id)
 }
 
-/// Parses all materials defined in the robot node.
-fn parse_materials(robot_node: &Node) -> Result<HashMap<String, Color>, ParseError> {
+/// Parses all materials defined at the root of the robot node.
+fn parse_root_materials(robot_node: &Node) -> Result<HashMap<String, Color>, ParseError> {
     let mut materials = HashMap::new();
     for material_node in robot_node.children().filter(|n| n.has_tag_name("material")) {
         parse_material(material_node, &mut materials)?;
@@ -387,7 +387,7 @@ fn parse_link(
     model: &mut Model,
     coll_model: &mut GeometryModel,
     viz_model: &mut GeometryModel,
-    materials: &HashMap<String, Color>,
+    materials: &mut HashMap<String, Color>,
     package_dir: Option<&str>,
 ) -> Result<(), ParseError> {
     let link_name = node.attribute("name").unwrap_or("").to_string();
@@ -575,7 +575,7 @@ fn parse_geometry(
     parent_joint_id: usize,
     parent_frame_id: usize,
     model: &Model,
-    materials: &HashMap<String, Color>,
+    materials: &mut HashMap<String, Color>,
     package_dir: Option<&str>,
 ) -> Result<GeometryObject, ParseError> {
     let geometry_node = node
@@ -704,6 +704,11 @@ fn parse_geometry(
             && let Ok(rgba) = extract_parameter_list::<f64>("rgba", &color_node, Some(4))
         {
             color = Color::new(rgba[0], rgba[1], rgba[2], rgba[3]);
+
+            // if the material has a name, we add it to the materials map
+            if let Some(material_name) = material_node.attribute("name") {
+                materials.insert(material_name.to_string(), color);
+            }
         }
     }
 
