@@ -65,6 +65,9 @@ class TestURDF(unittest.TestCase):
             #
             "alexander_description/urdf/alexander_v1.lowerBodyOnly.urdf",
             #
+            "allegro_hand_description/urdf/allegro_left_hand.urdf",
+            "allegro_hand_description/urdf/allegro_right_hand.urdf",
+            #
             "ur_description/urdf/ur3_gripper.urdf",
             "ur_description/urdf/ur3_joint_limited_robot.urdf",
             "ur_description/urdf/ur3_robot.urdf",
