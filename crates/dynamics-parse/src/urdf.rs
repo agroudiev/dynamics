@@ -277,17 +277,17 @@ fn parse_joint(
         .attribute("type")
         .ok_or(ParseError::MissingParameter("type".to_string()))?;
 
-    // extract the origin of the joint
-    let link_origin = parse_origin(&joint_node)?;
-
+    // get the parent frame
     let parent_frame_id = get_parent_frame(parent_node, robot_node, model)?;
     let parent_frame = &model.frames[parent_frame_id];
+
+    // compute the placement of the joint
+    let link_origin = parse_origin(&joint_node)?;
+    let placement = parent_frame.placement * link_origin;
 
     let new_joint_id = match joint_type {
         // if the joint is fixed, we create a fixed frame
         "fixed" => {
-            let placement = parent_frame.placement * link_origin;
-
             let frame = Frame::new(
                 joint_name.clone(),
                 parent_joint_id,
@@ -342,7 +342,7 @@ fn parse_joint(
             model.add_joint(
                 parent_joint_id,
                 Box::new(joint_model),
-                link_origin,
+                placement,
                 joint_name.clone(),
             )
         }
