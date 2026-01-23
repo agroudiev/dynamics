@@ -68,6 +68,9 @@ class TestURDF(unittest.TestCase):
             "allegro_hand_description/urdf/allegro_left_hand.urdf",
             "allegro_hand_description/urdf/allegro_right_hand.urdf",
             #
+            "anymal_b_simple_description/robots/anymal-kinova.urdf",
+            "anymal_b_simple_description/robots/anymal.urdf",
+            #
             "ur_description/urdf/ur3_gripper.urdf",
             "ur_description/urdf/ur3_joint_limited_robot.urdf",
             "ur_description/urdf/ur3_robot.urdf",
