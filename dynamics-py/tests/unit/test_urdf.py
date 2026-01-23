@@ -59,6 +59,12 @@ class TestURDF(unittest.TestCase):
         paths = [
             "a1_description/urdf/a1.urdf",
             #
+            "alex_description/urdf/alex_nub_hands.urdf",
+            "alex_description/urdf/alex_psyonic_hands.urdf",
+            "alex_description/urdf/alex_sake_hands.urdf",
+            #
+            "alexander_description/urdf/alexander_v1.lowerBodyOnly.urdf",
+            #
             "ur_description/urdf/ur3_gripper.urdf",
             "ur_description/urdf/ur3_joint_limited_robot.urdf",
             "ur_description/urdf/ur3_robot.urdf",
