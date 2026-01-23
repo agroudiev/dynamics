@@ -73,6 +73,17 @@ class TestURDF(unittest.TestCase):
             #
             "anymal_c_simple_description/urdf/anymal.urdf",
             #
+            "asr_twodof_description/urdf/TwoDofs.urdf",
+            #
+            "b1_description/urdf/b1-z1.urdf",
+            "b1_description/urdf/b1.urdf",
+            #
+            # "baxter_description/urdf/baxter.urdf",
+            #
+            # "bluevolta_description/urdf/bluevolta_bravo7_gripper.urdf",
+            # "bluevolta_description/urdf/bluevolta_bravo7_no_ee.urdf",
+            # "bluevolta_description/urdf/bluevolta.urdf",
+            #
             "ur_description/urdf/ur3_gripper.urdf",
             "ur_description/urdf/ur3_joint_limited_robot.urdf",
             "ur_description/urdf/ur3_robot.urdf",
