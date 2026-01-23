@@ -84,6 +84,81 @@ class TestURDF(unittest.TestCase):
             # "bluevolta_description/urdf/bluevolta_bravo7_no_ee.urdf",
             # "bluevolta_description/urdf/bluevolta.urdf",
             #
+            # "borinot_description/urdf/borinot_flying_arm_2.urdf",
+            #
+            # "bravo7_description/urdf/bravo7_gripper.urdf",
+            # "bravo7_description/urdf/bravo7_no_ee.urdf",
+            #
+            # "centauro_description/urdf/centauro.urdf",
+            #
+            # "double_pendulum_description/urdf/double_pendulum_continuous.urdf",
+            # "double_pendulum_description/urdf/double_pendulum_simple.urdf",
+            # "double_pendulum_description/urdf/double_pendulum.urdf",
+            #
+            # "falcon_description/urdf/falcon_bravo7_gripper.urdf",
+            # "falcon_description/urdf/falcon_bravo7_no_ee.urdf",
+            # "falcon_description/urdf/falcon.urdf",
+            #
+            # "finger_edu_description/robots/finger_edu.urdf",
+            #
+            # "g1_description/urdf/g1_29dof_rev_1_0.urdf",
+            # "g1_description/urdf/g1_29dof_with_hand_rev_1_0.urdf",
+            #
+            # "go1_description/urdf/go1.urdf",
+            #
+            # "go2_description/urdf/go2.urdf",
+            #
+            # "hector_description/robots/quadrotor_base.urdf",
+            #
+            # "hextilt_description/urdf/hextilt_flying_arm_5.urdf",
+            #
+            # "human_description/urdf/human.urdf",
+            #
+            # "hyq_description/robots/hyq_no_sensors.urdf",
+            #
+            # "icub_description/robots/icub_reduced.urdf",
+            # "icub_description/robots/icub.urdf",
+            #
+            # "iris_description/robots/iris_simple.urdf",
+            # "iris_description/robots/iris.urdf",
+            #
+            # "kinova_description/robots/kinova.urdf",
+            #
+            # "laikago_description/urdf/laikago.urdf",
+            #
+            # "panda_description/urdf/panda_collision.urdf",
+            # "panda_description/urdf/panda.urdf",
+            #
+            # "pr2_description/urdf/pr2.urdf",
+            #
+            # "quadruped_description/urdf/quadruped.urdf",
+            #
+            # "romeo_description/urdf/romeo_laas_small.urdf",
+            # "romeo_description/urdf/romeo_small.urdf",
+            # "romeo_description/urdf/romeo.urdf",
+            #
+            # "simple_humanoid_description/urdf/simple_humanoid_classic.urdf",
+            # "simple_humanoid_description/urdf/simple_humanoid.urdf",
+            #
+            # "so_arm_description/urdf/so100.urdf",
+            # "so_arm_description/urdf/so101.urdf",
+            #
+            # "solo_description/robots/solo.urdf",
+            # "solo_description/robots/solo12.urdf",
+            #
+            # "talos_data/robots/talos_full_v2_box.urdf",
+            # "talos_data/robots/talos_full_v2.urdf",
+            # "talos_data/robots/talos_left_arm.urdf",
+            # "talos_data/robots/talos_reduced_box.urdf",
+            # "talos_data/robots/talos_reduced_corrected.urdf",
+            # "talos_data/robots/talos_reduced.urdf",
+            #
+            # "tiago_description/robots/tiago_dual.urdf",
+            # "tiago_description/robots/tiago_no_hand.urdf",
+            # "tiago_description/robots/tiago.urdf",
+            #
+            # "tiago_pro_description/robots/tiago_pro.urdf",
+            #
             "ur_description/urdf/ur3_gripper.urdf",
             "ur_description/urdf/ur3_joint_limited_robot.urdf",
             "ur_description/urdf/ur3_robot.urdf",
@@ -92,6 +167,10 @@ class TestURDF(unittest.TestCase):
             "ur_description/urdf/ur5_robot.urdf",
             "ur_description/urdf/ur10_joint_limited_robot.urdf",
             "ur_description/urdf/ur10_robot.urdf",
+            #
+            # "xarm_description/urdf/xarm7.urdf",
+            #
+            # "z1_description/urdf/z1.urdf",
         ]
         robots_dir = "examples/descriptions/example-robot-data/robots/"
 
