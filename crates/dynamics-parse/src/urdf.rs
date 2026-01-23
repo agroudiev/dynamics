@@ -727,7 +727,9 @@ fn parse_geometry(
             color = Color::new(rgba[0], rgba[1], rgba[2], rgba[3]);
 
             // if the material has a name, we add it to the materials map
-            if let Some(material_name) = material_node.attribute("name") {
+            if let Some(material_name) = material_node.attribute("name")
+                && !material_name.is_empty()
+            {
                 materials.insert(material_name.to_string(), color);
             }
         }
