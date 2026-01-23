@@ -25,6 +25,12 @@ use std::collections::HashSet;
 use std::path::Path;
 use std::{collections::HashMap, fs, str::FromStr};
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum GeometryType {
+    Collision,
+    Visual,
+}
+
 /// Parses a URDF file and builds the corresponding [`Model`] and [`GeometryModel`].
 ///
 /// # Arguments
@@ -447,6 +453,7 @@ fn parse_link(
             model,
             materials,
             package_dir,
+            GeometryType::Collision,
         )?;
         coll_model.add_geometry_object(geom_obj);
     }
@@ -465,6 +472,7 @@ fn parse_link(
             model,
             materials,
             package_dir,
+            GeometryType::Visual,
         )?;
         viz_model.add_geometry_object(geom_obj);
     }
@@ -577,6 +585,7 @@ fn parse_geometry(
     model: &Model,
     materials: &mut HashMap<String, Color>,
     package_dir: Option<&str>,
+    geometry_type: GeometryType,
 ) -> Result<GeometryObject, ParseError> {
     let geometry_node = node
         .children()
@@ -690,8 +699,11 @@ fn parse_geometry(
 
     // extract the material color
     let mut color = Color::new(0.9, 0.9, 0.9, 1.0);
+    if geometry_type != GeometryType::Visual {
+        // default color for collision geometries (see above)
+    }
     // if there is a material node
-    if let Some(material_node) = node.children().find(|n| n.has_tag_name("material")) {
+    else if let Some(material_node) = node.children().find(|n| n.has_tag_name("material")) {
         // if this material node has a name
         // and this material was already defined in the robot node
         if let Some(material_name) = material_node.attribute("name")
