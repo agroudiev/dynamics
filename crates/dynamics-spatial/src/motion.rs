@@ -11,11 +11,19 @@ pub struct SpatialMotion(pub(crate) Vector6<f64>);
 // TODO: rewrite this with Vector6D to avoid double implementation
 
 impl SpatialMotion {
-    /// Creates a new `SpatialMotion` from a 3D axis (for revolute joints).
+    /// Creates a new `SpatialMotion` from a 3D rotational axis (for revolute and continuous joints).
     #[must_use]
-    pub fn from_axis(axis: &Vector3D) -> Self {
+    pub fn from_rotational_axis(axis: &Vector3D) -> Self {
         let mut v = Vector6::zeros();
         v.fixed_rows_mut::<3>(0).copy_from(&axis.0);
+        Self(v)
+    }
+
+    /// Creates a new `SpatialMotion` from a 3D translational axis (for prismatic joints).
+    #[must_use]
+    pub fn from_translational_axis(axis: &Vector3D) -> Self {
+        let mut v = Vector6::zeros();
+        v.fixed_rows_mut::<3>(3).copy_from(&axis.0);
         Self(v)
     }
 

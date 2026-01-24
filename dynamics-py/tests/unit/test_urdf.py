@@ -77,8 +77,7 @@ class TestURDF(unittest.TestCase):
             "b1_description/urdf/b1-z1.urdf",
             "b1_description/urdf/b1.urdf",
             #
-            # TODO: prismatic joints
-            # "baxter_description/urdf/baxter.urdf",
+            "baxter_description/urdf/baxter.urdf",
             #
             "bluevolta_description/urdf/bluevolta_bravo7_gripper.urdf",
             "bluevolta_description/urdf/bluevolta_bravo7_no_ee.urdf",
@@ -127,12 +126,10 @@ class TestURDF(unittest.TestCase):
             #
             "laikago_description/urdf/laikago.urdf",
             #
-            # TODO: prismatic joints
-            # "panda_description/urdf/panda_collision.urdf",
-            # "panda_description/urdf/panda.urdf",
+            "panda_description/urdf/panda_collision.urdf",
+            "panda_description/urdf/panda.urdf",
             #
-            # TODO: prismatic joints
-            # "pr2_description/urdf/pr2.urdf",
+            "pr2_description/urdf/pr2.urdf",
             #
             "quadruped_description/urdf/quadruped.urdf",
             #
@@ -159,13 +156,11 @@ class TestURDF(unittest.TestCase):
             # "talos_data/robots/talos_reduced_corrected.urdf",
             # "talos_data/robots/talos_reduced.urdf",
             #
-            # TODO: prismatic joints
-            # "tiago_description/robots/tiago_dual.urdf",
-            # "tiago_description/robots/tiago_no_hand.urdf",
-            # "tiago_description/robots/tiago.urdf",
+            "tiago_description/robots/tiago_dual.urdf",
+            "tiago_description/robots/tiago_no_hand.urdf",
+            "tiago_description/robots/tiago.urdf",
             #
-            # TODO: prismatic joints
-            # "tiago_pro_description/robots/tiago_pro.urdf",
+            "tiago_pro_description/robots/tiago_pro.urdf",
             #
             "ur_description/urdf/ur3_gripper.urdf",
             "ur_description/urdf/ur3_joint_limited_robot.urdf",

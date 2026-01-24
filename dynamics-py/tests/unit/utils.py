@@ -38,6 +38,16 @@ def assert_joint_types_equals(
             )
         case "JointType.Fixed":
             test_case.fail("Pinocchio does not have a Fixed joint model")
+        case "JointType.Prismatic":
+            test_case.assertTrue(
+                pin_joint.shortname()
+                in [
+                    "JointModelPX",
+                    "JointModelPY",
+                    "JointModelPZ",
+                    "JointModelPrismaticUnaligned",
+                ]
+            )
         case "JointType.Revolute":
             test_case.assertTrue(pin_joint.shortname().startswith("JointModelR"))
         case _:

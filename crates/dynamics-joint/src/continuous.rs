@@ -19,6 +19,9 @@ use crate::{
     limits::JointLimits,
 };
 
+/// Model of a continuous joint.
+///
+/// This joint constraints two objects to rotate around a given axis, without limits.
 #[derive(Clone, Debug)]
 pub struct JointModelContinuous {
     /// The axis of rotation expressed in the local frame of the joint.
@@ -97,7 +100,7 @@ impl JointModel for JointModelContinuous {
     }
 
     fn get_axis(&self) -> Vec<SpatialMotion> {
-        vec![SpatialMotion::from_axis(&self.axis)]
+        vec![SpatialMotion::from_rotational_axis(&self.axis)]
     }
 
     fn create_joint_data(&self) -> crate::data::JointDataWrapper {

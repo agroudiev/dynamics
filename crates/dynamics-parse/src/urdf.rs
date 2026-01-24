@@ -6,6 +6,7 @@ use collider::mesh::Mesh;
 use collider::shape::{Cylinder, ShapeWrapper, Sphere};
 use dynamics_inertia::inertia::Inertia;
 use dynamics_joint::continuous::JointModelContinuous;
+use dynamics_joint::prismatic::JointModelPrismatic;
 use dynamics_joint::revolute::JointModelRevolute;
 use dynamics_model::frame::{Frame, FrameType};
 use dynamics_model::{
@@ -367,6 +368,43 @@ fn parse_joint(
                 joint_name.clone(),
             )
         }
+
+        "prismatic" => {
+            let axis = parse_axis(joint_node)?;
+
+            // we extract the limit of the joint
+            let limit_node = joint_node
+                .children()
+                .find(|n| n.has_tag_name("limit"))
+                .ok_or(ParseError::MissingParameter("limit".to_string()))?;
+
+            // TODO: extract dynamics (damping, ...)
+
+            let mut joint_model = JointModelPrismatic::new(axis);
+
+            // optional parameters
+            if let Ok(lower) = extract_parameter::<f64>("lower", &limit_node) {
+                joint_model.limits.min_configuration[0] = lower;
+            }
+            if let Ok(upper) = extract_parameter::<f64>("upper", &limit_node) {
+                joint_model.limits.max_configuration[0] = upper;
+            }
+
+            // required parameters
+            let effort = extract_parameter::<f64>("effort", &limit_node)?;
+            joint_model.limits.effort[0] = effort;
+
+            let velocity = extract_parameter::<f64>("velocity", &limit_node)?;
+            joint_model.limits.velocity[0] = velocity;
+
+            model.add_joint(
+                parent_joint_id,
+                Box::new(joint_model),
+                placement,
+                joint_name.clone(),
+            )
+        }
+
         _ => return Err(ParseError::UnknownJointType(joint_type.to_string())),
     }
     .map_err(ParseError::ModelError)?;
@@ -534,7 +572,7 @@ fn get_parent_frame(
         let parent_type = parent_node.attribute("type").unwrap_or("");
         let frame_type = match parent_type {
             "fixed" => FrameType::Fixed,
-            "revolute" | "continuous" => FrameType::Joint,
+            "revolute" | "continuous" | "prismatic" => FrameType::Joint,
             _ => FrameType::Body,
         };
         model

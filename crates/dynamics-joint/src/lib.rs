@@ -8,4 +8,5 @@ pub mod limits;
 
 pub mod continuous;
 pub mod fixed;
+pub mod prismatic;
 pub mod revolute;

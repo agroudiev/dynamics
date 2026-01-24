@@ -96,7 +96,7 @@ impl JointModel for JointModelRevolute {
     }
 
     fn get_axis(&self) -> Vec<SpatialMotion> {
-        vec![SpatialMotion::from_axis(&self.axis)]
+        vec![SpatialMotion::from_rotational_axis(&self.axis)]
     }
 
     fn random_configuration(&self, rng: &mut ThreadRng) -> Configuration {

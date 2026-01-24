@@ -46,6 +46,7 @@ pub trait JointModel {
 pub enum JointType {
     Continuous,
     Fixed,
+    Prismatic,
     Revolute,
 }
 
