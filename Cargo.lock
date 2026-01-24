@@ -30,12 +30,33 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801"
 
 [[package]]
-name = "collider"
-version = "0.1.0"
-source = "git+https://github.com/agroudiev/collider#4f2dd74133944e3b069556ff4164f939ad2a0073"
+name = "collider-mesh"
+version = "0.0.1"
+source = "git+https://github.com/agroudiev/collider#9964701ab7375b59eb107a3d517b55849db2a011"
 dependencies = [
- "mesh",
- "shape",
+ "collider-shape",
+ "nalgebra",
+ "numpy",
+ "pyo3",
+]
+
+[[package]]
+name = "collider-rs"
+version = "0.0.1"
+source = "git+https://github.com/agroudiev/collider#9964701ab7375b59eb107a3d517b55849db2a011"
+dependencies = [
+ "collider-mesh",
+ "collider-shape",
+]
+
+[[package]]
+name = "collider-shape"
+version = "0.0.1"
+source = "git+https://github.com/agroudiev/collider#9964701ab7375b59eb107a3d517b55849db2a011"
+dependencies = [
+ "nalgebra",
+ "numpy",
+ "pyo3",
 ]
 
 [[package]]
@@ -61,7 +82,7 @@ dependencies = [
 name = "dynamics-model"
 version = "0.1.0"
 dependencies = [
- "collider",
+ "collider-rs",
  "dynamics-inertia",
  "dynamics-joint",
  "dynamics-spatial",
@@ -74,7 +95,7 @@ dependencies = [
 name = "dynamics-parse"
 version = "0.1.0"
 dependencies = [
- "collider",
+ "collider-rs",
  "dynamics-inertia",
  "dynamics-joint",
  "dynamics-model",
@@ -88,7 +109,7 @@ dependencies = [
 name = "dynamics-py"
 version = "0.1.0"
 dependencies = [
- "collider",
+ "collider-rs",
  "dynamics-inertia",
  "dynamics-joint",
  "dynamics-model",
@@ -170,17 +191,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "488016bfae457b036d996092f6cb448677611ce4449e970ceaf42695203f218a"
 dependencies = [
  "autocfg",
-]
-
-[[package]]
-name = "mesh"
-version = "0.1.0"
-source = "git+https://github.com/agroudiev/collider#4f2dd74133944e3b069556ff4164f939ad2a0073"
-dependencies = [
- "nalgebra",
- "numpy",
- "pyo3",
- "shape",
 ]
 
 [[package]]
@@ -472,16 +482,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "96b02de82ddbe1b636e6170c21be622223aea188ef2e139be0a5b219ec215323"
 dependencies = [
  "bytemuck",
-]
-
-[[package]]
-name = "shape"
-version = "0.1.0"
-source = "git+https://github.com/agroudiev/collider#4f2dd74133944e3b069556ff4164f939ad2a0073"
-dependencies = [
- "nalgebra",
- "numpy",
- "pyo3",
 ]
 
 [[package]]

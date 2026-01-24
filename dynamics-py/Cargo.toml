@@ -9,14 +9,15 @@ crate-type = ["cdylib"]
 
 [dependencies]
 pyo3.workspace = true
-collider = { workspace = true}
 numpy.workspace = true
 
-dynamics-inertia = { path = "../crates/dynamics-inertia" }
-dynamics-joint = { path = "../crates/dynamics-joint" }
-dynamics-model = { path = "../crates/dynamics-model" }
-dynamics-parse = { path = "../crates/dynamics-parse" }
-dynamics-spatial = { path = "../crates/dynamics-spatial" }
+collider-rs.workspace = true
+
+dynamics-inertia.workspace = true
+dynamics-joint.workspace = true
+dynamics-model.workspace = true
+dynamics-parse.workspace = true
+dynamics-spatial.workspace = true
 
 [package.metadata.docs.rs]
 rustdoc-args = [ "--html-in-header", "./src/docs-header.html" ]

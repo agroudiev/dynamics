@@ -23,8 +23,8 @@ use dynamics_model::{
 };
 use pyo3::prelude::*;
 
-use collider::mesh::PyMesh;
-use collider::shape::{
+use collider_rs::mesh::PyMesh;
+use collider_rs::shape::{
     PyShapeWrapper, ShapeType, capsule::PyCapsule, cone::PyCone, cuboid::PyCuboid,
     cylinder::PyCylinder, sphere::PySphere,
 };

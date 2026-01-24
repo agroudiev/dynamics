@@ -2,7 +2,7 @@
 
 use std::fmt::Debug;
 
-use collider::shape::{
+use collider_rs::shape::{
     PyCapsule, PyCone, PyCuboid, PyCylinder, PyShapeWrapper, PySphere, Shape, ShapeWrapper,
 };
 use dynamics_spatial::{

@@ -13,7 +13,7 @@ numpy.workspace = true
 pyo3.workspace = true
 rand.workspace = true
 
-collider.workspace = true
+collider-rs.workspace = true
 
 dynamics-inertia.workspace = true
 dynamics-joint.workspace = true

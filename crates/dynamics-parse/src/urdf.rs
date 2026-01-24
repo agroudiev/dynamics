@@ -24,8 +24,9 @@
 #![allow(clippy::too_many_arguments)] // TODO: refactor functions
 
 use crate::errors::ParseError;
-use collider::mesh::Mesh;
-use collider::shape::{Cylinder, ShapeWrapper, Sphere};
+use collider_rs::mesh::Mesh;
+use collider_rs::shape::Cuboid;
+use collider_rs::shape::{Cylinder, ShapeWrapper, Sphere};
 use dynamics_inertia::inertia::Inertia;
 use dynamics_joint::continuous::JointModelContinuous;
 use dynamics_joint::prismatic::JointModelPrismatic;
@@ -762,7 +763,7 @@ fn parse_geometry(
     {
         let size = extract_parameter_list::<f32>("size", &shape_node, Some(3))?;
         let half_extents = Vector3::new(size[0] / 2.0, size[1] / 2.0, size[2] / 2.0);
-        Box::new(collider::shape::Cuboid::new(half_extents))
+        Box::new(Cuboid::new(half_extents))
     } else if let Some(shape_node) = geometry_node
         .children()
         .find(|n| n.has_tag_name("cylinder"))

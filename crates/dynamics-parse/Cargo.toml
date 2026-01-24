@@ -13,7 +13,7 @@ pyo3.workspace = true
 roxmltree = { version = "0.20.0" }
 
 nalgebra.workspace = true # only for collider
-collider.workspace = true
+collider-rs.workspace = true
 
 dynamics-spatial.workspace = true
 dynamics-inertia.workspace = true
