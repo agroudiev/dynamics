@@ -120,6 +120,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "dynamics-rs"
+version = "0.1.0"
+dependencies = [
+ "collider-rs",
+ "dynamics-inertia",
+ "dynamics-joint",
+ "dynamics-model",
+ "dynamics-parse",
+ "dynamics-spatial",
+]
+
+[[package]]
 name = "dynamics-spatial"
 version = "0.1.0"
 dependencies = [
