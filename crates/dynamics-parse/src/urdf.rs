@@ -1,4 +1,26 @@
 //! Parser for the URDF (Unified Robot Description Format) file format.
+//!
+//! ## Overview
+//! This module provides functionality to parse URDF files and build corresponding [`Model`] and [`GeometryModel`] objects.
+//!
+//! ## Joints
+//! The following joint types are supported:
+//! - Fixed
+//! - Revolute
+//! - Continuous
+//! - Prismatic
+//!
+//! ## Meshes
+//! The parser supports mesh geometries in any format. The visualizers used might have limitations on the supported formats.
+//! Mesh paths can be resolved in three ways:
+//! - using absolute paths;
+//! - using ROS's `package://` (or `package:///`) syntax, as long as the package name is present in the environment variable `ROS_PACKAGE_PATH`;
+//! - using a user-provided package directory, passed as an argument to the parsing function.
+//!
+//! ## Tested models
+//! The parser has been tested at least on all models from [example-robot-data](https://github.com/Gepetto/example-robot-data/).
+//! However, some URDF features are still missing, so some models might not be parsed correctly yet.
+
 #![allow(clippy::too_many_arguments)] // TODO: refactor functions
 
 use crate::errors::ParseError;
@@ -28,6 +50,7 @@ use std::path::Path;
 use std::{collections::HashMap, fs, str::FromStr};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+/// Type of geometry being parsed.
 enum GeometryType {
     Collision,
     Visual,
@@ -427,7 +450,13 @@ fn parse_joint(
     Ok(new_joint_id)
 }
 
-/// Parses an axis defined in the URDF file.
+/// Parses an axis defined in the URDF file, given a joint node.
+///
+/// # Arguments:
+/// - `joint_node`: The joint node containing the axis definition.
+///
+/// # Returns:
+/// - `Result<Vector3D, ParseError>`: The parsed axis as a `Vector3D` if successful, or a [`ParseError`] if an error occurs.
 fn parse_axis(joint_node: Node) -> Result<Vector3D, ParseError> {
     if let Some(axis_node) = joint_node.children().find(|n| n.has_tag_name("axis")) {
         let axis_values = extract_parameter_list::<f64>("xyz", &axis_node, Some(3))?;
@@ -443,6 +472,12 @@ fn parse_axis(joint_node: Node) -> Result<Vector3D, ParseError> {
 }
 
 /// Parses all materials defined at the root of the robot node.
+///
+/// # Arguments:
+/// - `robot_node`: The root robot node containing material definitions.
+///
+/// # Returns:
+/// - A map from material names to their corresponding `Color` objects if successful, or a [`ParseError`] if an error occurs.
 fn parse_root_materials(robot_node: &Node) -> Result<HashMap<String, Color>, ParseError> {
     let mut materials = HashMap::new();
     for material_node in robot_node.children().filter(|n| n.has_tag_name("material")) {
@@ -452,6 +487,25 @@ fn parse_root_materials(robot_node: &Node) -> Result<HashMap<String, Color>, Par
 }
 
 /// Parses a link node.
+///
+/// This functions extracts the link's inertia, adds a frame for the link, and parses its collision and visual geometries.
+/// The geometries are added to the provided collision and visualization geometry models.
+/// To each link is associated exactly one frame in the model.
+///
+/// # Arguments:
+/// - `robot_node`: The root robot node containing all links and joints.
+/// - `node`: The link node to parse.
+/// - `parent_node`: The XML parent node of the link.
+/// - `parent_joint_id`: The ID of the parent joint in the model.
+/// - `is_root`: Whether the link is a root link.
+/// - `model`: The model being built.
+/// - `coll_model`: The collision geometry model being built.
+/// - `viz_model`: The visualization geometry model being built.
+/// - `materials`: The map of materials defined in the robot.
+/// - `package_dir`: The path to the folder containing the mesh files referenced in the URDF.
+///
+/// # Returns:
+/// - `Result<(), ParseError>`: `Ok` if successful, or a [`ParseError`] if an error occurs.
 fn parse_link(
     robot_node: &Node,
     node: Node,
@@ -582,6 +636,14 @@ fn get_parent_frame(
 }
 
 /// Parses a material from the URDF file.
+///
+/// # Arguments:
+/// - `node`: The material node to parse.
+/// - `materials`: The map of materials to update.
+///
+/// # Returns:
+/// - If successful, updates the `materials` map with the parsed material.
+/// - Otherwise, returns a [`ParseError`].
 fn parse_material(node: Node, materials: &mut HashMap<String, Color>) -> Result<(), ParseError> {
     // extract name
     let material_name = node
@@ -597,11 +659,21 @@ fn parse_material(node: Node, materials: &mut HashMap<String, Color>) -> Result<
     let rgba = extract_parameter_list::<f64>("rgba", &color_node, Some(4))?;
     let color = Color::new(rgba[0], rgba[1], rgba[2], rgba[3]);
 
+    // TODO: handle texture
+
     materials.insert(material_name, color);
     Ok(())
 }
 
 /// Parses the inertia of a link from the URDF file.
+///
+/// # Arguments:
+/// - `node`: The link node to parse.
+/// - `link_name`: The name of the link (for error reporting).
+///
+/// # Returns:
+/// - The parsed [`Inertia`] if successful.
+/// - A [`ParseError`] if an error occurs.
 fn parse_inertia(node: Node, link_name: &str) -> Result<Inertia, ParseError> {
     if let Some(inertial_node) = node.children().find(|n| n.has_tag_name("inertial")) {
         let mass_node = inertial_node
@@ -654,6 +726,20 @@ fn parse_inertia(node: Node, link_name: &str) -> Result<Inertia, ParseError> {
 
 /// Parses the geometry of a link from the URDF file.
 /// Extracts the geometry shape and its parameters.
+///
+/// # Arguments:
+/// - `link_name`: The name of the link (for error reporting).
+/// - `node`: The geometry node to parse.
+/// - `parent_joint_id`: The ID of the parent joint in the model.
+/// - `parent_frame_id`: The ID of the parent frame in the model.
+/// - `model`: The model being built.
+/// - `materials`: The map of materials defined in the robot.
+/// - `package_dir`: The path to the folder containing the mesh files referenced in the URDF.
+/// - `geometry_type`: The type of geometry being parsed (collision or visual).
+///
+/// # Returns:
+/// - The parsed [`GeometryObject`] if successful.
+/// - A [`ParseError`] if an error occurs.
 fn parse_geometry(
     link_name: String,
     node: &Node,
