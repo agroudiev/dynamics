@@ -94,10 +94,9 @@ class TestURDF(unittest.TestCase):
             "double_pendulum_description/urdf/double_pendulum_simple.urdf",
             "double_pendulum_description/urdf/double_pendulum.urdf",
             #
-            # TODO: fix
-            # "falcon_description/urdf/falcon_bravo7_gripper.urdf",
-            # "falcon_description/urdf/falcon_bravo7_no_ee.urdf",
-            # "falcon_description/urdf/falcon.urdf",
+            "falcon_description/urdf/falcon_bravo7_gripper.urdf",
+            "falcon_description/urdf/falcon_bravo7_no_ee.urdf",
+            # "falcon_description/urdf/falcon.urdf", # incorrect URDF
             #
             "finger_edu_description/robots/finger_edu.urdf",
             #
@@ -133,13 +132,12 @@ class TestURDF(unittest.TestCase):
             #
             "quadruped_description/urdf/quadruped.urdf",
             #
-            # TODO: fix
-            # "romeo_description/urdf/romeo_laas_small.urdf",
-            # "romeo_description/urdf/romeo_small.urdf",
-            # "romeo_description/urdf/romeo.urdf",
+            # "romeo_description/urdf/romeo_laas_small.urdf", # local path issue
+            "romeo_description/urdf/romeo_small.urdf",
+            "romeo_description/urdf/romeo.urdf",
             #
             "simple_humanoid_description/urdf/simple_humanoid_classical.urdf",
-            # TODO: fix
+            # TODO: collision_checking nodes
             # "simple_humanoid_description/urdf/simple_humanoid.urdf",
             #
             "so_arm_description/urdf/so100.urdf",
@@ -148,13 +146,12 @@ class TestURDF(unittest.TestCase):
             "solo_description/robots/solo.urdf",
             "solo_description/robots/solo12.urdf",
             #
-            # TODO: fix
-            # "talos_data/robots/talos_full_v2_box.urdf",
-            # "talos_data/robots/talos_full_v2.urdf",
-            # "talos_data/robots/talos_left_arm.urdf",
-            # "talos_data/robots/talos_reduced_box.urdf",
-            # "talos_data/robots/talos_reduced_corrected.urdf",
-            # "talos_data/robots/talos_reduced.urdf",
+            "talos_data/robots/talos_full_v2_box.urdf",
+            "talos_data/robots/talos_full_v2.urdf",
+            "talos_data/robots/talos_left_arm.urdf",
+            "talos_data/robots/talos_reduced_box.urdf",
+            "talos_data/robots/talos_reduced_corrected.urdf",
+            "talos_data/robots/talos_reduced.urdf",
             #
             "tiago_description/robots/tiago_dual.urdf",
             "tiago_description/robots/tiago_no_hand.urdf",

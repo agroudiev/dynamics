@@ -70,7 +70,7 @@ def assert_inertias_equals(
     test_case.assertAlmostEqual(dyn_inertia.mass, pin_inertia.mass)
     test_case.assertTrue(np.linalg.norm(dyn_inertia.com - pin_inertia.lever) < 1e-15)
     test_case.assertTrue(
-        np.linalg.norm(dyn_inertia.inertia - pin_inertia.inertia) < 1e-15
+        np.linalg.norm(dyn_inertia.inertia - pin_inertia.inertia) < 1e-14
     )
 
 

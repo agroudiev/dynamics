@@ -692,6 +692,9 @@ fn parse_geometry(
             .ok_or(ParseError::MissingParameter("filename".to_string()))?;
 
         let absolute_path = if let Some(filename) = filename.strip_prefix("package://") {
+            // if the filename starts with "package:///", we remove the first slash
+            let filename = filename.strip_prefix('/').unwrap_or(filename);
+
             // retrieve the package path in between "package://" and the first "/"
             let path_parts: Vec<&str> = filename.splitn(2, '/').collect();
             if path_parts.len() != 2 {
