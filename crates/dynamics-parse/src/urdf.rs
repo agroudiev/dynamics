@@ -308,17 +308,22 @@ fn parse_joint(
             Ok(parent_joint_id)
         }
 
+        // if the joint is continuous, we create a revolute joint without limits
+        "continuous" => {
+            let axis = parse_axis(joint_node)?;
+            let joint_model = JointModelRevolute::new(axis);
+
+            model.add_joint(
+                parent_joint_id,
+                Box::new(joint_model),
+                placement,
+                joint_name.clone(),
+            )
+        }
+
         // if the joint is revolute, we create a revolute joint
         "revolute" => {
-            // we extract the axis of rotation
-            let axis_node = joint_node
-                .children()
-                .find(|n| n.has_tag_name("axis"))
-                .ok_or(ParseError::MissingParameter("axis".to_string()))?;
-            let axis = match extract_parameter_list::<f64>("xyz", &axis_node, Some(3)) {
-                Ok(xyz) => Vector3D::new(xyz[0], xyz[1], xyz[2]),
-                Err(e) => return Err(e),
-            };
+            let axis = parse_axis(joint_node)?;
 
             // we extract the limit of the joint
             let limit_node = joint_node
@@ -372,6 +377,21 @@ fn parse_joint(
     }
 
     Ok(new_joint_id)
+}
+
+/// Parses an axis defined in the URDF file.
+fn parse_axis(joint_node: Node) -> Result<Vector3D, ParseError> {
+    if let Some(axis_node) = joint_node.children().find(|n| n.has_tag_name("axis")) {
+        let axis_values = extract_parameter_list::<f64>("xyz", &axis_node, Some(3))?;
+        Ok(Vector3D::new(
+            axis_values[0],
+            axis_values[1],
+            axis_values[2],
+        ))
+    } else {
+        // default axis if not specified
+        Ok(Vector3D::new(1.0, 0.0, 0.0))
+    }
 }
 
 /// Parses all materials defined at the root of the robot node.
@@ -504,7 +524,7 @@ fn get_parent_frame(
         let parent_type = parent_node.attribute("type").unwrap_or("");
         let frame_type = match parent_type {
             "fixed" => FrameType::Fixed,
-            "revolute" => FrameType::Joint,
+            "revolute" | "continuous" => FrameType::Joint,
             _ => FrameType::Body,
         };
         model

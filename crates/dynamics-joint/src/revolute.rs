@@ -26,7 +26,7 @@ pub struct JointModelRevolute {
 }
 
 impl JointModelRevolute {
-    /// Creates a new `JointModelRevolute` with the given axis of rotation.
+    /// Creates a new `JointModelRevolute` with the given axis of rotation and unbounded limits.
     ///
     /// # Arguments
     ///
