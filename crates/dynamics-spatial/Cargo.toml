@@ -1,13 +1,18 @@
 [package]
 name = "dynamics-spatial"
-version = "0.1.0"
-edition = "2024"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+readme.workspace = true
+description.workspace = true
+repository.workspace = true
+license-file.workspace = true
 
 [dependencies]
 nalgebra.workspace = true
-numpy = { workspace = true}
+numpy.workspace = true
 pyo3.workspace = true
-rand = { workspace = true}
+rand.workspace = true
 approx.workspace = true
 
 [package.metadata.docs.rs]
