@@ -2,21 +2,21 @@
 
 use dynamics_model::model::ModelError;
 
-use std::io;
+use std::{fmt::Display, io};
 
 #[derive(Debug)]
 /// Error types that can occur while parsing an URDF file.
 pub enum ParseError {
     /// IO error occurred while reading the file.
-    IoError(io::Error),
+    IoError(io::Error, String),
     /// Error occurred while parsing XML.
     XmlError(roxmltree::Error),
     /// The URDF file does not contain a <robot> tag.
     NoRobotTag,
     /// A <visual> tag is present without a corresponding <geometry> tag.
-    VisualWithoutGeometry,
+    VisualWithoutGeometry(String),
     /// A <geometry> tag is present without a corresponding shape tag.
-    GeometryWithoutShape,
+    GeometryWithoutShape(String),
     /// The given required parameter is missing in the URDF.
     MissingParameter(String),
     /// The given parameter has an invalid value.
@@ -24,7 +24,7 @@ pub enum ParseError {
     /// A joint, link, or material is missing a name attribute.
     NameMissing(String),
     /// A material is defined without a color.
-    MaterialWithoutColor,
+    MaterialWithoutColor(String),
     /// An unknown joint type was encountered.
     UnknownJointType(String),
     /// An unknown tag was encountered in the URDF.
@@ -41,4 +41,58 @@ pub enum ParseError {
     InertialWithoutMass(String),
     /// A frame references a parent that does not exist.
     UnknownParent(String),
+}
+
+impl Display for ParseError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ParseError::IoError(e, path) => write!(f, "IO error: {} (file: {})", e, path),
+            ParseError::XmlError(e) => write!(f, "XML parsing error: {}", e),
+            ParseError::NoRobotTag => write!(f, "No <robot> tag found in URDF."),
+            ParseError::VisualWithoutGeometry(visual) => {
+                write!(
+                    f,
+                    "the <visual> tag named '{}' does not have a corresponding <geometry> tag.",
+                    visual
+                )
+            }
+            ParseError::GeometryWithoutShape(geometry) => {
+                write!(
+                    f,
+                    "the <geometry> tag named '{}' does not have a corresponding shape tag.",
+                    geometry
+                )
+            }
+            ParseError::MissingParameter(param) => {
+                write!(f, "Missing required parameter: {}", param)
+            }
+            ParseError::InvalidParameter(param) => {
+                write!(f, "Invalid value for parameter: {}", param)
+            }
+            ParseError::NameMissing(entity) => write!(f, "Missing name attribute for {}.", entity),
+            ParseError::MaterialWithoutColor(material) => {
+                write!(
+                    f,
+                    "the <material> tag named '{}' does not have a corresponding <color> tag.",
+                    material
+                )
+            }
+            ParseError::UnknownJointType(joint_type) => {
+                write!(f, "unknown joint type ({}).", joint_type)
+            }
+            ParseError::UnknownTag(tag) => write!(f, "Unknown tag encountered: {}", tag),
+            ParseError::ModelError(e) => write!(f, "Model error: {}", e),
+            ParseError::UnknownLinkName(name) => write!(f, "Unknown link name: {}", name),
+            ParseError::InvalidFilePath(path) => write!(f, "Invalid file path: {}", path),
+            ParseError::InertialWithoutInertia(link) => {
+                write!(f, "<inertial> tag in link '{}' missing inertia data.", link)
+            }
+            ParseError::InertialWithoutMass(link) => {
+                write!(f, "<inertial> tag in link '{}' missing mass data.", link)
+            }
+            ParseError::UnknownParent(parent) => {
+                write!(f, "Frame references unknown parent: {}", parent)
+            }
+        }
+    }
 }

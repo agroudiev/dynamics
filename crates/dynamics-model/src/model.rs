@@ -11,7 +11,7 @@ use dynamics_spatial::vector3d::Vector3D;
 use numpy::ToPyArray;
 use numpy::ndarray::Array1;
 use pyo3::{exceptions::PyValueError, prelude::*};
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 use std::sync::LazyLock;
 
 pub const WORLD_ID: usize = 0;
@@ -266,6 +266,23 @@ pub enum ModelError {
     ParentJointDoesNotExist(usize),
     /// The name of the joint is already used.
     JointNameAlreadyUsed(String, usize),
+}
+
+impl Display for ModelError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ModelError::ParentJointDoesNotExist(id) => {
+                write!(f, "Parent joint with id {} does not exist.", id)
+            }
+            ModelError::JointNameAlreadyUsed(name, id) => {
+                write!(
+                    f,
+                    "Joint name '{}' is already used by joint with id {}.",
+                    name, id
+                )
+            }
+        }
+    }
 }
 
 /// Generates a random configuration for the given model.

@@ -72,7 +72,8 @@ pub fn build_models_from_urdf(
     filepath: &str,
     package_dir: Option<&str>,
 ) -> Result<(Model, GeometryModel, GeometryModel), ParseError> {
-    let contents = fs::read_to_string(filepath).map_err(ParseError::IoError)?;
+    let contents =
+        fs::read_to_string(filepath).map_err(|e| ParseError::IoError(e, filepath.to_string()))?;
     let doc = Document::parse(&contents).map_err(ParseError::XmlError)?;
 
     // identify the robot node
@@ -655,7 +656,7 @@ fn parse_material(node: Node, materials: &mut HashMap<String, Color>) -> Result<
     let color_node = node
         .children()
         .find(|n| n.has_tag_name("color"))
-        .ok_or(ParseError::MaterialWithoutColor)?;
+        .ok_or(ParseError::MaterialWithoutColor(material_name.clone()))?;
     let rgba = extract_parameter_list::<f64>("rgba", &color_node, Some(4))?;
     let color = Color::new(rgba[0], rgba[1], rgba[2], rgba[3]);
 
@@ -753,7 +754,7 @@ fn parse_geometry(
     let geometry_node = node
         .children()
         .find(|n| n.has_tag_name("geometry"))
-        .ok_or(ParseError::VisualWithoutGeometry)?;
+        .ok_or(ParseError::VisualWithoutGeometry(link_name.clone()))?;
 
     // extract the shape from the geometry node
     let shape: ShapeWrapper = if let Some(shape_node) =
@@ -856,7 +857,7 @@ fn parse_geometry(
 
         Box::new(Mesh::new(absolute_path))
     } else {
-        return Err(ParseError::GeometryWithoutShape);
+        return Err(ParseError::GeometryWithoutShape(link_name.clone()));
     };
 
     // extract the origin from the visual node
@@ -966,6 +967,6 @@ pub fn py_build_models_from_urdf(
             PyGeometryModel { inner: coll_model },
             PyGeometryModel { inner: viz_model },
         )),
-        Err(e) => Err(PyErr::new::<PyValueError, _>(format!("{e:?}"))),
+        Err(e) => Err(PyErr::new::<PyValueError, _>(format!("{e}"))),
     }
 }
