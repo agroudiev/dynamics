@@ -8,12 +8,14 @@ import pinocchio as pin
 import coal
 
 
-def set_example_robot_data_path():
-    """Set ROS_PACKAGE_PATH to find the example-robot-data package."""
+def set_ros_package_path(package: str):
+    """Set ROS_PACKAGE_PATH to find the given package."""
     import os
 
     os.environ["ROS_PACKAGE_PATH"] = (
-        "examples/descriptions/example-robot-data:"
+        "examples/descriptions/"
+        + package
+        + ":"
         + os.environ.get("ROS_PACKAGE_PATH", "")
     )
 

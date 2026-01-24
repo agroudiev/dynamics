@@ -1,3 +1,6 @@
 [submodule "examples/descriptions/example-robot-data"]
 	path = examples/descriptions/example-robot-data
 	url = https://github.com/Gepetto/example-robot-data/
+[submodule "examples/descriptions/upkie_description"]
+	path = examples/descriptions/upkie_description
+	url = https://github.com/upkie/upkie_description

@@ -5,7 +5,7 @@ import sys
 import os
 import warnings
 from contextlib import contextmanager
-from utils import set_example_robot_data_path
+from utils import set_ros_package_path
 
 
 @contextmanager
@@ -73,7 +73,7 @@ class TestURDF(unittest.TestCase):
             )
 
     def test_viz_ur5_example_robot_data(self):
-        set_example_robot_data_path()
+        set_ros_package_path("example-robot-data")
 
         robots_dir = "examples/descriptions/example-robot-data/robots/"
         with visualize_cm():

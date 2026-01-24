@@ -5,7 +5,7 @@ from utils import (
     assert_models_equals,
     assert_geometry_models_equals,
     assert_datas_equals,
-    set_example_robot_data_path,
+    set_ros_package_path,
 )
 from parameterized import parameterized
 
@@ -174,9 +174,16 @@ class TestURDF(unittest.TestCase):
         ]
     )
     def test_build_example_robot_data(self, path):
-        set_example_robot_data_path()
+        set_ros_package_path("example-robot-data")
         robots_dir = "examples/descriptions/example-robot-data/robots/"
         compare_urdf_construction(
             self,
             robots_dir + path,
+        )
+
+    def test_build_upkie(self):
+        set_ros_package_path("upkie_description")
+        compare_urdf_construction(
+            self,
+            "examples/descriptions/upkie_description/urdf/upkie.urdf",
         )
