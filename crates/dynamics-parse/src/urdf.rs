@@ -5,6 +5,7 @@ use crate::errors::ParseError;
 use collider::mesh::Mesh;
 use collider::shape::{Cylinder, ShapeWrapper, Sphere};
 use dynamics_inertia::inertia::Inertia;
+use dynamics_joint::continuous::JointModelContinuous;
 use dynamics_joint::revolute::JointModelRevolute;
 use dynamics_model::frame::{Frame, FrameType};
 use dynamics_model::{
@@ -311,7 +312,16 @@ fn parse_joint(
         // if the joint is continuous, we create a revolute joint without limits
         "continuous" => {
             let axis = parse_axis(joint_node)?;
-            let joint_model = JointModelRevolute::new(axis);
+            let mut joint_model = JointModelContinuous::new(axis);
+
+            // we extract the limit of the joint
+            if let Some(limit_node) = joint_node.children().find(|n| n.has_tag_name("limit")) {
+                let effort = extract_parameter::<f64>("effort", &limit_node)?;
+                joint_model.limits.effort[0] = effort;
+
+                let velocity = extract_parameter::<f64>("velocity", &limit_node)?;
+                joint_model.limits.velocity[0] = velocity;
+            }
 
             model.add_joint(
                 parent_joint_id,

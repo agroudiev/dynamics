@@ -44,6 +44,7 @@ pub trait JointModel {
 #[pyclass]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum JointType {
+    Continuous,
     Fixed,
     Revolute,
 }

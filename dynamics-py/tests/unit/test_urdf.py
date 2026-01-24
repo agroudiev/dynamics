@@ -80,27 +80,22 @@ class TestURDF(unittest.TestCase):
             # TODO: prismatic joints
             # "baxter_description/urdf/baxter.urdf",
             #
-            # TODO: continuous joints
-            # "bluevolta_description/urdf/bluevolta_bravo7_gripper.urdf",
-            # "bluevolta_description/urdf/bluevolta_bravo7_no_ee.urdf",
-            # "bluevolta_description/urdf/bluevolta.urdf",
+            "bluevolta_description/urdf/bluevolta_bravo7_gripper.urdf",
+            "bluevolta_description/urdf/bluevolta_bravo7_no_ee.urdf",
+            "bluevolta_description/urdf/bluevolta.urdf",
             #
             "borinot_description/urdf/borinot_flying_arm_2.urdf",
             #
-            # TODO: continuous joints
-            # "bravo7_description/urdf/bravo7_gripper.urdf",
-            # "bravo7_description/urdf/bravo7_no_ee.urdf",
+            "bravo7_description/urdf/bravo7_gripper.urdf",
+            "bravo7_description/urdf/bravo7_no_ee.urdf",
             #
             "centauro_description/urdf/centauro.urdf",
             #
-            # TODO: continuous joints
-            # "double_pendulum_description/urdf/double_pendulum_continuous.urdf",
-            # TODO: fix
-            # "double_pendulum_description/urdf/double_pendulum_simple.urdf",
-            # TODO: fix
-            # "double_pendulum_description/urdf/double_pendulum.urdf",
+            "double_pendulum_description/urdf/double_pendulum_continuous.urdf",
+            "double_pendulum_description/urdf/double_pendulum_simple.urdf",
+            "double_pendulum_description/urdf/double_pendulum.urdf",
             #
-            # TODO: continuous joints
+            # TODO: fix
             # "falcon_description/urdf/falcon_bravo7_gripper.urdf",
             # "falcon_description/urdf/falcon_bravo7_no_ee.urdf",
             # "falcon_description/urdf/falcon.urdf",
@@ -128,8 +123,7 @@ class TestURDF(unittest.TestCase):
             "iris_description/robots/iris_simple.urdf",
             "iris_description/robots/iris.urdf",
             #
-            # TODO: continuous joints
-            # "kinova_description/robots/kinova.urdf",
+            "kinova_description/robots/kinova.urdf",
             #
             "laikago_description/urdf/laikago.urdf",
             #
@@ -165,12 +159,12 @@ class TestURDF(unittest.TestCase):
             # "talos_data/robots/talos_reduced_corrected.urdf",
             # "talos_data/robots/talos_reduced.urdf",
             #
-            # TODO: continuous joints
+            # TODO: prismatic joints
             # "tiago_description/robots/tiago_dual.urdf",
             # "tiago_description/robots/tiago_no_hand.urdf",
             # "tiago_description/robots/tiago.urdf",
             #
-            # TODO: continuous joints
+            # TODO: prismatic joints
             # "tiago_pro_description/robots/tiago_pro.urdf",
             #
             "ur_description/urdf/ur3_gripper.urdf",

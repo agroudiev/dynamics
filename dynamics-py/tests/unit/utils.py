@@ -31,6 +31,11 @@ def assert_joint_types_equals(
     pin_joint: pin.JointModel,
 ):
     match str(dyn_joint.joint_type):
+        case "JointType.Continuous":
+            test_case.assertTrue(
+                pin_joint.shortname().startswith("JointModelRU")
+                or pin_joint.shortname() == ("JointModelRevoluteUnboundedUnaligned")
+            )
         case "JointType.Fixed":
             test_case.fail("Pinocchio does not have a Fixed joint model")
         case "JointType.Revolute":
