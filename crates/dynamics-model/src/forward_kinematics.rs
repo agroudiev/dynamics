@@ -29,7 +29,7 @@ pub fn forward_kinematics(
 ) -> Result<(), ConfigurationError> {
     // check if q is of the right size
     if q.len() != model.nq {
-        return Err(ConfigurationError::InvalidSize(
+        return Err(ConfigurationError::InvalidParameterSize(
             "q".to_string(),
             model.nq,
             q.len(),

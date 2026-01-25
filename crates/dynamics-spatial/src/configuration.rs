@@ -81,13 +81,24 @@ impl Configuration {
     /// # Arguments
     /// * `start` - The starting index of the slice to be updated.
     /// * `values` - The configuration containing the new values to be copied.
-    pub fn update_rows(&mut self, start: usize, values: &Configuration) {
-        assert_eq!(
-            self.0.rows(start, values.len()),
-            values.0,
-            "Mismatched sizes when updating configuration rows."
-        );
-        self.0.rows_mut(start, values.len()).copy_from(&values.0);
+    ///
+    /// # Returns
+    /// * `Ok(())` if the update was successful.
+    /// * `Err(ConfigurationError)` if the sizes of the slices do not match.
+    pub fn update_rows(
+        &mut self,
+        start: usize,
+        values: &Configuration,
+    ) -> Result<(), ConfigurationError> {
+        if self.0.rows(start, values.len()).len() != values.0.len() {
+            Err(ConfigurationError::MismatchedUpdateSize(
+                self.0.rows(start, values.len()).len(),
+                values.0.len(),
+            ))
+        } else {
+            self.0.rows_mut(start, values.len()).copy_from(&values.0);
+            Ok(())
+        }
     }
 
     /// Creates a new [`Configuration`] from a slice of scalar values.
@@ -271,16 +282,30 @@ impl PyConfiguration {
 
 /// Errors that can occur when working with configurations.
 pub enum ConfigurationError {
-    InvalidSize(String, usize, usize),
+    /// Error indicating that a parameter has an invalid size.
+    /// * `name` - The name of the parameter.
+    /// * `expected` - The expected size of the parameter.
+    /// * `actual` - The actual size of the parameter.
+    InvalidParameterSize(String, usize, usize),
+    /// Error when updating configuration rows with mismatched sizes.
+    /// * `expected` - The expected size of the parameter.
+    /// * `actual` - The actual size of the parameter.
+    MismatchedUpdateSize(usize, usize),
 }
 
 impl std::fmt::Display for ConfigurationError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            ConfigurationError::InvalidSize(name, expected, actual) => {
+            ConfigurationError::InvalidParameterSize(name, expected, actual) => {
                 write!(
                     f,
                     "Parameter '{name}' expected configuration size {expected}, but got {actual}"
+                )
+            }
+            ConfigurationError::MismatchedUpdateSize(expected, actual) => {
+                write!(
+                    f,
+                    "Mismatched sizes when updating configuration rows. Expected size {expected}, got {actual}."
                 )
             }
         }

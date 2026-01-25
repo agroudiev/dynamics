@@ -128,7 +128,7 @@ pub fn inverse_dynamics(
                 std::mem::take(parent_force) + position_transforms[&id].transpose() * force;
         }
 
-        tau.update_rows(offset, &joint_torque);
+        tau.update_rows(offset, &joint_torque)?;
     }
 
     // TODO: add things to the data?
