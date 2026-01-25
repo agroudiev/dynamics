@@ -2,10 +2,13 @@
 
 use nalgebra::Matrix3;
 use numpy::{PyReadonlyArrayDyn, ToPyArray, ndarray::Array2};
-use pyo3::prelude::*;
+use pyo3::{IntoPyObjectExt, prelude::*};
 use std::ops::{Add, Index, Mul, Sub};
 
-use crate::{motion::SpatialRotation, vector3d::Vector3D};
+use crate::{
+    motion::SpatialRotation,
+    vector3d::{PyVector3D, Vector3D},
+};
 
 /// A symmetric 3x3 matrix.
 ///
@@ -264,7 +267,7 @@ impl Mul<Symmetric3> for f64 {
 #[derive(FromPyObject)]
 pub enum PySymmetric3Mul {
     Scalar(f64),
-    // Vector3D(Vector3D),
+    Vector3D(PyVector3D),
 }
 
 #[pyclass(name = "Symmetric3")]
@@ -311,11 +314,16 @@ impl PySymmetric3 {
         }
     }
 
-    pub fn __mul__(&self, other: PySymmetric3Mul) -> PySymmetric3 {
+    pub fn __mul__(&self, py: Python, other: PySymmetric3Mul) -> Result<Py<PyAny>, PyErr> {
         match other {
             PySymmetric3Mul::Scalar(scalar) => PySymmetric3 {
                 inner: self.inner * scalar,
-            },
+            }
+            .into_py_any(py),
+            PySymmetric3Mul::Vector3D(vec) => PyVector3D {
+                inner: &self.inner * &vec.inner,
+            }
+            .into_py_any(py),
         }
     }
 

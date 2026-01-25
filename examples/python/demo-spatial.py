@@ -58,3 +58,9 @@ assert (s_sum.matrix() == 3.0 * s1.matrix() - s2.matrix() * 2.0).all()
 s = dynamics.Symmetric3(1.0, 2.0, 3.0, 0.1, 0.2, 0.3)
 assert s[0, 1] == 0.1
 assert s[1, 0] == 0.1
+
+# vector multiplication
+s = dynamics.Symmetric3(1.0, 2.0, 3.0, 0.1, 0.2, 0.3)
+v = dynamics.Vector3D(1.0, 2.0, 3.0)
+sv = s * v
+assert (sv.vector() == s.matrix() @ v.vector()).all()
