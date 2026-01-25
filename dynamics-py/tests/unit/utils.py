@@ -225,6 +225,13 @@ def assert_datas_equals(
     for i in range(len(dyn_placements)):
         assert_se3_equals(test_case, dyn_placements[i], pin_placements[i])
 
+    # Check frame placements
+    dyn_frame_placements = dyn_data.frame_placements  # .oMf also works
+    pin_frame_placements = pin_data.oMf
+    test_case.assertEqual(len(dyn_frame_placements), len(pin_frame_placements))
+    for i in range(len(dyn_frame_placements)):
+        assert_se3_equals(test_case, dyn_frame_placements[i], pin_frame_placements[i])
+
     # Check joint data
     # TODO
 

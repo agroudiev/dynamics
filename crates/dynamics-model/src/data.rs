@@ -16,6 +16,8 @@ pub struct Data {
     pub joint_data: Vec<JointDataWrapper>,
     /// The placements of the joints in the world frame (oMi)
     pub joint_placements: Vec<SE3>,
+    /// Placements of the frames in the world frame (oMf)
+    pub frame_placements: Vec<SE3>,
 }
 
 impl Data {
@@ -29,10 +31,15 @@ impl Data {
     /// # Returns
     /// A new `Data` object.
     #[must_use]
-    pub fn new(joint_data: Vec<JointDataWrapper>, joint_placements: Vec<SE3>) -> Self {
+    pub fn new(
+        joint_data: Vec<JointDataWrapper>,
+        joint_placements: Vec<SE3>,
+        frame_placements: Vec<SE3>,
+    ) -> Self {
         Self {
             joint_data,
             joint_placements,
+            frame_placements,
         }
     }
 }
@@ -73,6 +80,17 @@ impl PyData {
     }
 
     #[getter]
+    /// Returns the placements of the frames in the world frame.
+    #[must_use]
+    pub fn frame_placements(&self) -> Vec<PySE3> {
+        self.inner
+            .frame_placements
+            .iter()
+            .map(|p| PySE3 { inner: *p })
+            .collect()
+    }
+
+    #[getter]
     #[allow(non_snake_case)]
     /// Returns the placements of the joints in the world frame.
     ///
@@ -80,6 +98,16 @@ impl PyData {
     #[must_use]
     pub fn oMi(&self) -> Vec<PySE3> {
         self.joint_placements()
+    }
+
+    #[getter]
+    #[allow(non_snake_case)]
+    /// Returns the placements of the frames in the world frame.
+    ///
+    /// This is an alias for `frame_placements` to match the Pinocchio API.
+    #[must_use]
+    pub fn oMf(&self) -> Vec<PySE3> {
+        self.frame_placements()
     }
 }
 

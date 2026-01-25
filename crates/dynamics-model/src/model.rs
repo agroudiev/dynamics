@@ -170,7 +170,11 @@ impl Model {
             .map(|joint_model| joint_model.create_joint_data())
             .collect();
 
-        Data::new(joints_data, vec![SE3::identity(); self.njoints()])
+        Data::new(
+            joints_data,
+            vec![SE3::identity(); self.njoints()],
+            vec![SE3::identity(); self.nframes()],
+        )
     }
 
     // /// Appends a body of given inertia to the joint with given id.
