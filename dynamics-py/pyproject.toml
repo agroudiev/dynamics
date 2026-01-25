@@ -3,7 +3,7 @@ requires = ["maturin>=1.8,<2.0"]
 build-backend = "maturin"
 
 [project]
-name = "dynamics"
+name = "rdynamics-py"
 authors = [{ name = "Antoine Groudiev", email = "antoine.groudiev@ens.psl.eu"}]
 readme = "README.md"
 description = "An experimental implementation of Rigid Body Dynamics algorithms."

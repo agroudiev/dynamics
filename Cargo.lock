@@ -32,7 +32,7 @@ checksum = "9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801"
 [[package]]
 name = "collider-mesh"
 version = "0.0.1"
-source = "git+https://github.com/agroudiev/collider#9964701ab7375b59eb107a3d517b55849db2a011"
+source = "git+https://github.com/agroudiev/collider#809d4b5f5e4a35c4d0a368dc901bb8aac9bf4264"
 dependencies = [
  "collider-shape",
  "nalgebra",
@@ -43,7 +43,7 @@ dependencies = [
 [[package]]
 name = "collider-rs"
 version = "0.0.1"
-source = "git+https://github.com/agroudiev/collider#9964701ab7375b59eb107a3d517b55849db2a011"
+source = "git+https://github.com/agroudiev/collider#809d4b5f5e4a35c4d0a368dc901bb8aac9bf4264"
 dependencies = [
  "collider-mesh",
  "collider-shape",
@@ -52,7 +52,7 @@ dependencies = [
 [[package]]
 name = "collider-shape"
 version = "0.0.1"
-source = "git+https://github.com/agroudiev/collider#9964701ab7375b59eb107a3d517b55849db2a011"
+source = "git+https://github.com/agroudiev/collider#809d4b5f5e4a35c4d0a368dc901bb8aac9bf4264"
 dependencies = [
  "nalgebra",
  "numpy",
@@ -61,7 +61,7 @@ dependencies = [
 
 [[package]]
 name = "dynamics-inertia"
-version = "0.1.0"
+version = "0.0.1"
 dependencies = [
  "dynamics-spatial",
  "numpy",
@@ -70,7 +70,7 @@ dependencies = [
 
 [[package]]
 name = "dynamics-joint"
-version = "0.1.0"
+version = "0.0.1"
 dependencies = [
  "approx",
  "dynamics-spatial",
@@ -80,7 +80,7 @@ dependencies = [
 
 [[package]]
 name = "dynamics-model"
-version = "0.1.0"
+version = "0.0.1"
 dependencies = [
  "collider-rs",
  "dynamics-inertia",
@@ -93,7 +93,7 @@ dependencies = [
 
 [[package]]
 name = "dynamics-parse"
-version = "0.1.0"
+version = "0.0.1"
 dependencies = [
  "collider-rs",
  "dynamics-inertia",
@@ -121,7 +121,7 @@ dependencies = [
 
 [[package]]
 name = "dynamics-rs"
-version = "0.1.0"
+version = "0.0.1"
 dependencies = [
  "collider-rs",
  "dynamics-inertia",
@@ -133,7 +133,7 @@ dependencies = [
 
 [[package]]
 name = "dynamics-spatial"
-version = "0.1.0"
+version = "0.0.1"
 dependencies = [
  "approx",
  "nalgebra",
@@ -144,7 +144,7 @@ dependencies = [
 
 [[package]]
 name = "dynamics-tests"
-version = "0.1.0"
+version = "0.0.1"
 dependencies = [
  "approx",
  "dynamics-joint",
