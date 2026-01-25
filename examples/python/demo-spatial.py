@@ -1,6 +1,7 @@
 import dynamics
 import numpy as np
 
+# === SE3 ===
 # create a new isometry from a rotation matrix and a translation vector
 aMb = dynamics.SE3(np.eye(3), np.array([1.0, 2.0, 3.0]))
 assert (aMb.rotation == np.eye(3)).all()
@@ -30,3 +31,30 @@ bMc = dynamics.SE3(rotation, np.array([4.0, 5.0, 6.0]))
 cMb = aMb * bMc
 assert (cMb.rotation == np.eye(3)).all()
 assert (cMb.translation == np.array([1.0 + 6.0, 5.0 + 2.0, 3.0 + 4.0])).all()
+
+
+# === Symmetric3 ===
+# create a new symmetric matrix from its coefficients
+s = dynamics.Symmetric3(1.0, 2.0, 3.0, 0.1, 0.2, 0.3)
+assert (
+    s.matrix() == np.array([[1.0, 0.1, 0.2], [0.1, 2.0, 0.3], [0.2, 0.3, 3.0]])
+).all()
+
+# zero symmetric matrix
+s_zero = dynamics.Symmetric3.Zero()
+assert (s_zero.matrix() == np.zeros((3, 3))).all()
+
+# identity symmetric matrix
+s_identity = dynamics.Symmetric3.Identity()
+assert (s_identity.matrix() == np.eye(3)).all()
+
+# linear combinations
+s1 = dynamics.Symmetric3(1.0, 2.0, 3.0, 0.1, 0.2, 0.3)
+s2 = dynamics.Symmetric3(4.0, 5.0, 6.0, 0.4, 0.5, 0.6)
+s_sum = 3.0 * s1 - s2 * 2.0
+assert (s_sum.matrix() == 3.0 * s1.matrix() - s2.matrix() * 2.0).all()
+
+# element access
+s = dynamics.Symmetric3(1.0, 2.0, 3.0, 0.1, 0.2, 0.3)
+assert s[0, 1] == 0.1
+assert s[1, 0] == 0.1

@@ -261,6 +261,98 @@ impl Mul<Symmetric3> for f64 {
     }
 }
 
+#[derive(FromPyObject)]
+pub enum PySymmetric3Mul {
+    Scalar(f64),
+    // Vector3D(Vector3D),
+}
+
+#[pyclass(name = "Symmetric3")]
+#[derive(Debug, Clone, PartialEq)]
+pub struct PySymmetric3 {
+    inner: Symmetric3,
+}
+
+#[pymethods]
+impl PySymmetric3 {
+    #[new]
+    #[must_use]
+    pub fn from_elements(m11: f64, m22: f64, m33: f64, m12: f64, m13: f64, m23: f64) -> Self {
+        PySymmetric3 {
+            inner: Symmetric3::new(m11, m22, m33, m12, m13, m23),
+        }
+    }
+
+    #[staticmethod]
+    #[pyo3(name = "Zero")]
+    pub fn zeros() -> Self {
+        PySymmetric3 {
+            inner: Symmetric3::zeros(),
+        }
+    }
+
+    #[staticmethod]
+    #[pyo3(name = "Identity")]
+    pub fn identity() -> Self {
+        PySymmetric3 {
+            inner: Symmetric3::identity(),
+        }
+    }
+
+    pub fn __add__(&self, other: &PySymmetric3) -> PySymmetric3 {
+        PySymmetric3 {
+            inner: self.inner + other.inner,
+        }
+    }
+
+    pub fn __sub__(&self, other: &PySymmetric3) -> PySymmetric3 {
+        PySymmetric3 {
+            inner: self.inner - other.inner,
+        }
+    }
+
+    pub fn __mul__(&self, other: PySymmetric3Mul) -> PySymmetric3 {
+        match other {
+            PySymmetric3Mul::Scalar(scalar) => PySymmetric3 {
+                inner: self.inner * scalar,
+            },
+        }
+    }
+
+    pub fn __rmul__(&self, scalar: f64) -> PySymmetric3 {
+        PySymmetric3 {
+            inner: self.inner * scalar,
+        }
+    }
+
+    pub fn to_numpy(&self, py: Python) -> Py<PyAny> {
+        self.inner.to_numpy(py)
+    }
+
+    pub fn matrix(&self, py: Python) -> Py<PyAny> {
+        self.to_numpy(py)
+    }
+
+    fn __getitem__(&self, index: (usize, usize)) -> f64 {
+        self.inner[index]
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "Symmetric3(\n  [{:.4}, {:.4}, {:.4}],\n  [{:.4}, {:.4}, {:.4}],\n  [{:.4}, {:.4}, {:.4}]\n)",
+            self.inner[(0, 0)],
+            self.inner[(0, 1)],
+            self.inner[(0, 2)],
+            self.inner[(1, 0)],
+            self.inner[(1, 1)],
+            self.inner[(1, 2)],
+            self.inner[(2, 0)],
+            self.inner[(2, 1)],
+            self.inner[(2, 2)],
+        )
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -327,26 +419,5 @@ mod tests {
             expected[(1, 2)],
         );
         assert_relative_eq!(rotated_sym.matrix(), expected_sym.matrix());
-    }
-}
-
-#[pyclass(name = "Symmetric3")]
-pub struct PySymmetric3 {
-    inner: Symmetric3,
-}
-
-#[pymethods]
-impl PySymmetric3 {
-    #[new]
-    #[must_use]
-    pub fn new(m11: f64, m22: f64, m33: f64, m12: f64, m13: f64, m23: f64) -> Self {
-        PySymmetric3 {
-            inner: Symmetric3::new(m11, m22, m33, m12, m13, m23),
-        }
-    }
-
-    #[must_use]
-    pub fn to_numpy(&self, py: Python) -> Py<PyAny> {
-        self.inner.to_numpy(py)
     }
 }

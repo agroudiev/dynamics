@@ -29,7 +29,9 @@ use collider_rs::shape::{
     cylinder::PyCylinder, sphere::PySphere,
 };
 use dynamics_parse::urdf::py_build_models_from_urdf;
-use dynamics_spatial::{configuration::PyConfiguration, se3::PySE3, vector6d::PyVector6D};
+use dynamics_spatial::{
+    configuration::PyConfiguration, se3::PySE3, symmetric3::PySymmetric3, vector6d::PyVector6D,
+};
 use numpy::PyArray1;
 
 #[pymodule(name = "dynamics")]
@@ -96,6 +98,8 @@ fn add_spatial_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult<
     py.import("sys")?
         .getattr("modules")?
         .set_item("dynamics.SE3", se3)?;
+
+    dynamics.add_class::<PySymmetric3>()?;
 
     Ok(())
 }
