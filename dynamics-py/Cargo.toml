@@ -1,7 +1,12 @@
 [package]
 name = "dynamics-py"
-version = "0.1.0"
-edition = "2024"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+readme = "README.md"
+description.workspace = true
+repository.workspace = true
+license-file = "LICENSE"
 
 [lib]
 name = "dynamics"
