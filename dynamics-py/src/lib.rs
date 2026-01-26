@@ -7,6 +7,7 @@
 
 use dynamics_inertia::inertia::PyInertia;
 use dynamics_joint::{
+    continuous::{new_rux, new_ruy, new_ruz},
     joint::{JointType, PyJointWrapper},
     revolute::{new_rx, new_ry, new_rz},
 };
@@ -65,7 +66,6 @@ fn add_dynamics_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult
     dynamics.add_class::<PyData>()?;
     dynamics.add_class::<PyFrame>()?;
     dynamics.add_class::<FrameType>()?;
-    dynamics.add_class::<PyJointWrapper>()?;
     dynamics.add_class::<PyGeometryModel>()?;
     dynamics.add_class::<PyGeometryData>()?;
     dynamics.add_class::<PyGeometryObject>()?;
@@ -107,9 +107,15 @@ fn add_spatial_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult<
 
 fn add_joint_bindings(dynamics: &Bound<'_, PyModule>) -> PyResult<()> {
     dynamics.add_class::<JointType>()?;
+    dynamics.add_class::<PyJointWrapper>()?;
+
     dynamics.add_function(wrap_pyfunction!(new_rx, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(new_ry, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(new_rz, dynamics)?)?;
+
+    dynamics.add_function(wrap_pyfunction!(new_rux, dynamics)?)?;
+    dynamics.add_function(wrap_pyfunction!(new_ruy, dynamics)?)?;
+    dynamics.add_function(wrap_pyfunction!(new_ruz, dynamics)?)?;
 
     Ok(())
 }

@@ -2,6 +2,11 @@
 
 This file is used to track changes made to the project over time.
 
+## [Unreleased]
+### Added
+#### Joints
+- Python bindings for continuous joints (`JointModelRUX`, `JointModelRUY`, `JointModelRUZ`)
+
 ## [0.0.1] - 2025-01-25
 ### Added
 #### Spatial

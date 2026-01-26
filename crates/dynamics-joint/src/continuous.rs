@@ -11,11 +11,12 @@ use dynamics_spatial::{
     se3::SE3,
     vector3d::Vector3D,
 };
+use pyo3::prelude::*;
 use rand::Rng;
 
 use crate::{
     data::{JointData, JointError},
-    joint::{JointModel, JointType, JointWrapper},
+    joint::{JointModel, JointType, JointWrapper, PyJointWrapper},
     limits::JointLimits,
 };
 
@@ -201,5 +202,32 @@ impl JointData for JointDataContinuous {
 
     fn get_joint_placement(&self) -> SE3 {
         self.placement
+    }
+}
+
+/// Creates a new revolute joint model with `x` as axis of rotation.
+#[pyfunction(name = "JointModelRUX")]
+#[must_use]
+pub fn new_rux() -> PyJointWrapper {
+    PyJointWrapper {
+        inner: Box::new(JointModelContinuous::new_rx()),
+    }
+}
+
+/// Creates a new revolute joint model with `y` as axis of rotation.
+#[pyfunction(name = "JointModelRUY")]
+#[must_use]
+pub fn new_ruy() -> PyJointWrapper {
+    PyJointWrapper {
+        inner: Box::new(JointModelContinuous::new_ry()),
+    }
+}
+
+/// Creates a new revolute joint model with `z` as axis of rotation.
+#[pyfunction(name = "JointModelRUZ")]
+#[must_use]
+pub fn new_ruz() -> PyJointWrapper {
+    PyJointWrapper {
+        inner: Box::new(JointModelContinuous::new_rz()),
     }
 }
