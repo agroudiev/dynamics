@@ -206,27 +206,27 @@ impl JointData for JointDataContinuous {
 }
 
 /// Creates a new continuous joint model with `x` as axis of rotation.
-#[pyfunction(name = "JointModelRUX")]
+#[pyfunction(name = "JointModelRUBX")]
 #[must_use]
-pub fn new_rux() -> PyJointWrapper {
+pub fn new_rubx() -> PyJointWrapper {
     PyJointWrapper {
         inner: Box::new(JointModelContinuous::new_rux()),
     }
 }
 
 /// Creates a new continuous joint model with `y` as axis of rotation.
-#[pyfunction(name = "JointModelRUY")]
+#[pyfunction(name = "JointModelRUBY")]
 #[must_use]
-pub fn new_ruy() -> PyJointWrapper {
+pub fn new_ruby() -> PyJointWrapper {
     PyJointWrapper {
         inner: Box::new(JointModelContinuous::new_ruy()),
     }
 }
 
 /// Creates a new continuous joint model with `z` as axis of rotation.
-#[pyfunction(name = "JointModelRUZ")]
+#[pyfunction(name = "JointModelRUBZ")]
 #[must_use]
-pub fn new_ruz() -> PyJointWrapper {
+pub fn new_rubz() -> PyJointWrapper {
     PyJointWrapper {
         inner: Box::new(JointModelContinuous::new_ruz()),
     }
