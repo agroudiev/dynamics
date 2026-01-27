@@ -1,6 +1,7 @@
 use std::vec;
 
 use crate::data::{Data, PyData};
+use crate::errors::AlgorithmError;
 use crate::model::{Model, PyModel};
 use dynamics_spatial::configuration::{Configuration, ConfigurationError};
 use dynamics_spatial::se3::SE3;
@@ -21,38 +22,32 @@ use pyo3::prelude::*;
 /// # Returns
 ///
 /// * `Ok(())` if the forward kinematics was successful.
-/// * `Err(ConfigurationError)` if there was an error.
+/// * `Err(AlgorithmError)` if there was an error.
 pub fn forward_kinematics(
     model: &Model,
     data: &mut Data,
     q: &Configuration,
     v: &Option<Configuration>,
     a: &Option<Configuration>,
-) -> Result<(), ConfigurationError> {
+) -> Result<(), AlgorithmError> {
     // check if configurations are of the right size
     if q.len() != model.nq {
-        return Err(ConfigurationError::InvalidParameterSize(
-            "q".to_string(),
-            model.nq,
-            q.len(),
+        return Err(AlgorithmError::ConfigurationError(
+            ConfigurationError::InvalidParameterSize("q".to_string(), model.nq, q.len()),
         ));
-    }
+    } // TODO: reuse code
     if let Some(v) = v
         && v.len() != model.nv
     {
-        return Err(ConfigurationError::InvalidParameterSize(
-            "v".to_string(),
-            model.nv,
-            v.len(),
+        return Err(AlgorithmError::ConfigurationError(
+            ConfigurationError::InvalidParameterSize("v".to_string(), model.nv, v.len()),
         ));
     }
     if let Some(a) = a
         && a.len() != model.nv
     {
-        return Err(ConfigurationError::InvalidParameterSize(
-            "a".to_string(),
-            model.nv,
-            a.len(),
+        return Err(AlgorithmError::ConfigurationError(
+            ConfigurationError::InvalidParameterSize("a".to_string(), model.nv, a.len()),
         ));
     }
 
@@ -64,7 +59,9 @@ pub fn forward_kinematics(
         let q_joint = q.rows(offset, joint_model.nq());
         match joint_data.update(joint_model, &q_joint) {
             Ok(()) => {}
-            Err(e) => unimplemented!("handle joint data update error: {:?}", e),
+            Err(e) => {
+                return Err(AlgorithmError::JointError(model.joint_names[id].clone(), e));
+            }
         }
         offset += joint_model.nq();
     }
@@ -110,7 +107,7 @@ pub fn py_forward_kinematics(
     }
     let q = match q.as_slice() {
         Some(slice) => slice,
-        None => return Err(PyValueError::new_err("Failed to convert q to slice")),
+        None => return Err(PyValueError::new_err("Failed to convert 'q' to slice")),
     };
     let q = Configuration::from_row_slice(q);
 
@@ -126,7 +123,7 @@ pub fn py_forward_kinematics(
             }
             let v_slice = match v_array.as_slice() {
                 Some(slice) => slice,
-                None => return Err(PyValueError::new_err("Failed to convert v to slice")),
+                None => return Err(PyValueError::new_err("Failed to convert 'v' to slice")),
             };
             Some(Configuration::from_row_slice(v_slice))
         }
@@ -145,7 +142,7 @@ pub fn py_forward_kinematics(
             }
             let a_slice = match a_array.as_slice() {
                 Some(slice) => slice,
-                None => return Err(PyValueError::new_err("Failed to convert a to slice")),
+                None => return Err(PyValueError::new_err("Failed to convert 'a' to slice")),
             };
             Some(Configuration::from_row_slice(a_slice))
         }

@@ -1,5 +1,7 @@
 //! Structure containing the mutable properties of a joint.
 
+use std::fmt::Display;
+
 use crate::joint::{JointWrapper, PyJointWrapper};
 use dynamics_spatial::{
     configuration::{Configuration, PyConfiguration},
@@ -14,6 +16,16 @@ pub type JointDataWrapper = Box<dyn JointData + Send + Sync>;
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum JointError {
     MissingAttributeError(String),
+}
+
+impl Display for JointError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            JointError::MissingAttributeError(attr) => {
+                write!(f, "Missing attribute: {}", attr)
+            }
+        }
+    }
 }
 
 /// Trait for joint data, providing methods to access and update joint properties.
