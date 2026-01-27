@@ -18,7 +18,8 @@ def compare_urdf_fk(test_case, file_path, mesh_dir=None):
     dyn_data = dyn.Data(dyn_model)
     pin_data = pin.Data(pin_model)
 
-    q = np.random.rand(dyn_model.nq)
+    np.random.seed(0)
+    q = pin.randomConfiguration(pin_model)  # do not use np.random.rand
     dyn.forward_kinematics(dyn_model, dyn_data, q)
     pin.forwardKinematics(pin_model, pin_data, q)
 
