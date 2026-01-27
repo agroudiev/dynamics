@@ -12,7 +12,7 @@ license-file.workspace = true
 pyo3.workspace = true
 roxmltree = { version = "0.20.0" }
 
-nalgebra.workspace = true # only for collider
+nalgebra.workspace = true    # only for collider
 collider-rs.workspace = true
 
 dynamics-spatial.workspace = true
@@ -21,5 +21,5 @@ dynamics-joint.workspace = true
 dynamics-model.workspace = true
 
 [package.metadata.docs.rs]
-rustdoc-args = [ "--html-in-header", "../../dynamics-py/src/docs-header.html" ]
+rustdoc-args = ["--html-in-header", "./src/docs-header.html"]
 all-features = true

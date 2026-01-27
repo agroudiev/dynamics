@@ -7,7 +7,10 @@ This file is used to track changes made to the project over time.
 #### Joints
 - Python bindings for continuous joints (`JointModelRU*`) and prismatic joints (`JointModelP*`).
 
-## [0.0.1] - 2025-01-25
+### Fixed
+- Fix docs.rs build for all crates
+
+## [0.0.1] - 2026-01-25
 ### Added
 #### Spatial
 - The following spatial quantity types have been implemented:
