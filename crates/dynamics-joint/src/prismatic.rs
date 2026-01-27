@@ -166,6 +166,10 @@ impl JointData for JointDataPrismatic {
             SE3::from_parts(axis.translation() * q_joint[0], SpatialRotation::identity());
         Ok(())
     }
+
+    fn clone_box(&self) -> JointDataWrapper {
+        Box::new(self.clone())
+    }
 }
 
 /// Creates a new prismatic joint model with `x` as axis of rotation.

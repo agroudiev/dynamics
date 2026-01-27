@@ -119,7 +119,7 @@ impl JointModel for JointModelRevolute {
 }
 
 /// Data structure containing the mutable properties of a revolute joint.
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct JointDataRevolute {
     /// The angle of rotation.
     pub q: f64,
@@ -165,6 +165,10 @@ impl JointData for JointDataRevolute {
         let rot = SpatialRotation::from_axis_angle(&axis.rotation(), q);
         self.placement = rot.to_se3(&Vector3D::zeros());
         Ok(())
+    }
+
+    fn clone_box(&self) -> JointDataWrapper {
+        Box::new(self.clone())
     }
 }
 

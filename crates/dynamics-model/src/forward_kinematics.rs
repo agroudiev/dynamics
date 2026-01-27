@@ -71,14 +71,17 @@ pub fn forward_kinematics(
     data.joint_placements = vec![SE3::identity()];
 
     for joint_id in 1..model.njoints() {
-        let parent_id = model.joint_parents.get(joint_id).unwrap(); // we checked that the parent existed before
-        // get the placement of the parent join in the world frame
-        let parent_placement = data.joint_placements[*parent_id];
+        // get the placement of the parent joint in the world frame
+        let parent_id = model.joint_parents[joint_id]; // we checked that the parent existed before
+        let parent_placement = data.joint_placements[parent_id];
+
         // get the placement of the joint in the parent frame
         let local_joint_placement = model.joint_placements[joint_id];
+
         // get the joint transformation
         let joint_data = &data.joint_data[joint_id];
         let joint_placement = joint_data.get_joint_placement();
+
         // compute the placement of the joint in the world frame
         data.joint_placements.insert(
             joint_id,

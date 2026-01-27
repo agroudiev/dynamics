@@ -1,6 +1,6 @@
 //! `Data` structure containing the mutable properties of the robot.
 
-use dynamics_joint::data::JointDataWrapper;
+use dynamics_joint::data::{JointDataWrapper, PyJointDataWrapper};
 use dynamics_spatial::se3::{PySE3, SE3};
 use pyo3::{PyResult, pyclass, pymethods};
 
@@ -108,6 +108,17 @@ impl PyData {
     #[must_use]
     pub fn oMf(&self) -> Vec<PySE3> {
         self.frame_placements()
+    }
+
+    #[getter]
+    pub fn joints(&self) -> Vec<PyJointDataWrapper> {
+        self.inner
+            .joint_data
+            .iter()
+            .map(|jd| PyJointDataWrapper {
+                inner: jd.clone_box(),
+            })
+            .collect()
     }
 }
 

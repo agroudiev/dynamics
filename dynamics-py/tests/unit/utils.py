@@ -215,6 +215,25 @@ def assert_geometry_models_equals(
         assert_geometry_objects_equals(test_case, dyn_geom, pin_geom)
 
 
+def assert_joint_datas_equals(
+    test_case: unittest.TestCase,
+    dyn_joint_data: dyn.JointData,
+    pin_joint_data: pin.JointData,
+):
+    # Check the joint placement
+    assert_se3_equals(
+        test_case,
+        dyn_joint_data.joint_placement,
+        pin_joint_data.M,
+    )
+
+    # Check joint velocity
+    # TODO
+
+    # Check joint acceleration
+    # TODO
+
+
 def assert_datas_equals(
     test_case: unittest.TestCase, dyn_data: dyn.Data, pin_data: pin.Data
 ):
@@ -233,7 +252,12 @@ def assert_datas_equals(
         assert_se3_equals(test_case, dyn_frame_placements[i], pin_frame_placements[i])
 
     # Check joint data
-    # TODO
+    for i in range(len(dyn_data.joint_placements)):
+        assert_joint_datas_equals(
+            test_case,
+            dyn_data.joints[i],
+            pin_data.joints[i],
+        )
 
     # Check velocities
     # TODO

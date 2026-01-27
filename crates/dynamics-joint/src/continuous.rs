@@ -15,7 +15,7 @@ use pyo3::prelude::*;
 use rand::Rng;
 
 use crate::{
-    data::{JointData, JointError},
+    data::{JointData, JointDataWrapper, JointError},
     joint::{JointModel, JointType, JointWrapper, PyJointWrapper},
     limits::JointLimits,
 };
@@ -131,7 +131,7 @@ impl JointModel for JointModelContinuous {
 }
 
 /// Data structure containing the mutable properties of a continuous joint.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct JointDataContinuous {
     /// The cosine of the angle.
     pub cos: f64,
@@ -202,6 +202,10 @@ impl JointData for JointDataContinuous {
 
     fn get_joint_placement(&self) -> SE3 {
         self.placement
+    }
+
+    fn clone_box(&self) -> JointDataWrapper {
+        Box::new(self.clone())
     }
 }
 

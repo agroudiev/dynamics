@@ -48,7 +48,7 @@ impl JointModel for JointModelFixed {
 }
 
 /// Data structure containing the mutable properties of a fixed joint.
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct JointDataFixed {
     /// The placement of the joint in the local frame.
     pub placement: SE3,
@@ -82,6 +82,10 @@ impl JointData for JointDataFixed {
 
     fn update(&mut self, _joint_model: &JointWrapper, _: &Configuration) -> Result<(), JointError> {
         Ok(())
+    }
+
+    fn clone_box(&self) -> JointDataWrapper {
+        Box::new(self.clone())
     }
 }
 

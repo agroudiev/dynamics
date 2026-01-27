@@ -39,6 +39,9 @@ pub trait JointData {
         joint_model: &JointWrapper,
         q_joint: &Configuration,
     ) -> Result<(), JointError>;
+
+    /// Clones the joint data as a boxed trait object.
+    fn clone_box(&self) -> JointDataWrapper;
 }
 
 /// A Python wrapper for the `JointDataWrapper` type.
@@ -51,7 +54,19 @@ pub struct PyJointDataWrapper {
 impl PyJointDataWrapper {
     #[getter]
     #[must_use]
+    /// Returns the joint placement in the world frame.
     pub fn joint_placement(&self) -> PySE3 {
+        PySE3 {
+            inner: self.inner.get_joint_placement(),
+        }
+    }
+
+    #[getter]
+    #[allow(non_snake_case)]
+    /// Returns the joint placement in the world frame.
+    ///
+    /// Alias for `joint_placement` property.
+    pub fn M(&self) -> PySE3 {
         PySE3 {
             inner: self.inner.get_joint_placement(),
         }

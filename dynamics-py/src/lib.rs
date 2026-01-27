@@ -8,6 +8,7 @@
 use dynamics_inertia::inertia::PyInertia;
 use dynamics_joint::{
     continuous::{new_rubx, new_ruby, new_rubz},
+    data::PyJointDataWrapper,
     joint::{JointType, PyJointWrapper},
     prismatic::{new_px, new_py, new_pz},
     revolute::{new_rx, new_ry, new_rz},
@@ -109,6 +110,7 @@ fn add_spatial_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult<
 fn add_joint_bindings(dynamics: &Bound<'_, PyModule>) -> PyResult<()> {
     dynamics.add_class::<JointType>()?;
     dynamics.add_class::<PyJointWrapper>()?;
+    dynamics.add_class::<PyJointDataWrapper>()?;
 
     dynamics.add_function(wrap_pyfunction!(new_rx, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(new_ry, dynamics)?)?;
