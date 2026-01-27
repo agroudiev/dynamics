@@ -143,7 +143,7 @@ impl PyGeometryObject {
                     )));
                 };
 
-            let placement = py_args.get_item(3)?.extract::<PyRef<PySE3>>()?;
+            let placement = py_args.get_item(4)?.extract::<PyRef<PySE3>>()?;
 
             Ok(Self {
                 inner: GeometryObject::new(
