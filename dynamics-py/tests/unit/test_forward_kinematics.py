@@ -2,7 +2,27 @@ import unittest
 import dynamics as dyn
 import pinocchio as pin
 import numpy as np
-from utils import assert_models_equals, assert_datas_equals
+from utils import (
+    assert_models_equals,
+    assert_datas_equals,
+    set_ros_package_path,
+    EXAMPLE_ROBOT_DATA_URDFS,
+)
+import parameterized
+
+
+def compare_urdf_fk(test_case, file_path, mesh_dir=None):
+    dyn_model, _, _ = dyn.build_models_from_urdf(file_path, mesh_dir)
+    pin_model, _, _ = pin.buildModelsFromUrdf(file_path, mesh_dir)
+
+    dyn_data = dyn.Data(dyn_model)
+    pin_data = pin.Data(pin_model)
+
+    q = np.random.rand(dyn_model.nq)
+    dyn.forward_kinematics(dyn_model, dyn_data, q)
+    pin.forwardKinematics(pin_model, pin_data, q)
+
+    assert_datas_equals(test_case, dyn_data, pin_data)
 
 
 class TestForwardKinematics(unittest.TestCase):
@@ -60,3 +80,9 @@ class TestForwardKinematics(unittest.TestCase):
         dyn.forward_kinematics(dyn_model, dyn_data, q)
         pin.forwardKinematics(pin_model, pin_data, q)
         assert_datas_equals(self, dyn_data, pin_data)
+
+    @parameterized.parameterized.expand(EXAMPLE_ROBOT_DATA_URDFS)
+    def test_fk_example_robot_data(self, path):
+        robots_dir = "examples/descriptions/example-robot-data/robots/"
+        set_ros_package_path("example-robot-data")
+        compare_urdf_fk(self, robots_dir + path)
