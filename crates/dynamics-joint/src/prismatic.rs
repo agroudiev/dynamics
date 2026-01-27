@@ -6,11 +6,12 @@ use dynamics_spatial::{
     se3::SE3,
     vector3d::Vector3D,
 };
+use pyo3::prelude::*;
 use rand::rngs::ThreadRng;
 
 use crate::{
     data::{JointData, JointDataWrapper, JointError},
-    joint::{JointModel, JointType, JointWrapper},
+    joint::{JointModel, JointType, JointWrapper, PyJointWrapper},
     limits::JointLimits,
 };
 
@@ -164,5 +165,32 @@ impl JointData for JointDataPrismatic {
         self.placement =
             SE3::from_parts(axis.translation() * q_joint[0], SpatialRotation::identity());
         Ok(())
+    }
+}
+
+/// Creates a new prismatic joint model with `x` as axis of rotation.
+#[pyfunction(name = "JointModelPX")]
+#[must_use]
+pub fn new_px() -> PyJointWrapper {
+    PyJointWrapper {
+        inner: Box::new(JointModelPrismatic::new_px()),
+    }
+}
+
+/// Creates a new prismatic joint model with `y` as axis of rotation.
+#[pyfunction(name = "JointModelPY")]
+#[must_use]
+pub fn new_py() -> PyJointWrapper {
+    PyJointWrapper {
+        inner: Box::new(JointModelPrismatic::new_py()),
+    }
+}
+
+/// Creates a new prismatic joint model with `z` as axis of rotation.
+#[pyfunction(name = "JointModelPZ")]
+#[must_use]
+pub fn new_pz() -> PyJointWrapper {
+    PyJointWrapper {
+        inner: Box::new(JointModelPrismatic::new_pz()),
     }
 }

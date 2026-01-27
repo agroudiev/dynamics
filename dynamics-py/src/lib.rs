@@ -9,6 +9,7 @@ use dynamics_inertia::inertia::PyInertia;
 use dynamics_joint::{
     continuous::{new_rux, new_ruy, new_ruz},
     joint::{JointType, PyJointWrapper},
+    prismatic::{new_px, new_py, new_pz},
     revolute::{new_rx, new_ry, new_rz},
 };
 use dynamics_model::{
@@ -116,6 +117,10 @@ fn add_joint_bindings(dynamics: &Bound<'_, PyModule>) -> PyResult<()> {
     dynamics.add_function(wrap_pyfunction!(new_rux, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(new_ruy, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(new_ruz, dynamics)?)?;
+
+    dynamics.add_function(wrap_pyfunction!(new_px, dynamics)?)?;
+    dynamics.add_function(wrap_pyfunction!(new_py, dynamics)?)?;
+    dynamics.add_function(wrap_pyfunction!(new_pz, dynamics)?)?;
 
     Ok(())
 }

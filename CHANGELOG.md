@@ -5,7 +5,7 @@ This file is used to track changes made to the project over time.
 ## [Unreleased]
 ### Added
 #### Joints
-- Python bindings for continuous joints (`JointModelRUX`, `JointModelRUY`, `JointModelRUZ`)
+- Python bindings for continuous joints (`JointModelRU*`) and prismatic joints (`JointModelP*`).
 
 ## [0.0.1] - 2025-01-25
 ### Added

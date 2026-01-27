@@ -56,7 +56,7 @@ impl JointModelContinuous {
     /// # Returns
     /// A new `JointModelContinuous` object.
     #[must_use]
-    pub fn new_rx() -> Self {
+    pub fn new_rux() -> Self {
         Self::new(Vector3D::x())
     }
 
@@ -65,7 +65,7 @@ impl JointModelContinuous {
     /// # Returns
     /// A new `JointModelContinuous` object.
     #[must_use]
-    pub fn new_ry() -> Self {
+    pub fn new_ruy() -> Self {
         Self::new(Vector3D::y())
     }
 
@@ -74,7 +74,7 @@ impl JointModelContinuous {
     /// # Returns
     /// A new `JointModelContinuous` object.
     #[must_use]
-    pub fn new_rz() -> Self {
+    pub fn new_ruz() -> Self {
         Self::new(Vector3D::z())
     }
 }
@@ -205,29 +205,29 @@ impl JointData for JointDataContinuous {
     }
 }
 
-/// Creates a new revolute joint model with `x` as axis of rotation.
+/// Creates a new continuous joint model with `x` as axis of rotation.
 #[pyfunction(name = "JointModelRUX")]
 #[must_use]
 pub fn new_rux() -> PyJointWrapper {
     PyJointWrapper {
-        inner: Box::new(JointModelContinuous::new_rx()),
+        inner: Box::new(JointModelContinuous::new_rux()),
     }
 }
 
-/// Creates a new revolute joint model with `y` as axis of rotation.
+/// Creates a new continuous joint model with `y` as axis of rotation.
 #[pyfunction(name = "JointModelRUY")]
 #[must_use]
 pub fn new_ruy() -> PyJointWrapper {
     PyJointWrapper {
-        inner: Box::new(JointModelContinuous::new_ry()),
+        inner: Box::new(JointModelContinuous::new_ruy()),
     }
 }
 
-/// Creates a new revolute joint model with `z` as axis of rotation.
+/// Creates a new continuous joint model with `z` as axis of rotation.
 #[pyfunction(name = "JointModelRUZ")]
 #[must_use]
 pub fn new_ruz() -> PyJointWrapper {
     PyJointWrapper {
-        inner: Box::new(JointModelContinuous::new_rz()),
+        inner: Box::new(JointModelContinuous::new_ruz()),
     }
 }

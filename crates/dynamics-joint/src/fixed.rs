@@ -6,6 +6,7 @@ use crate::{
 };
 use dynamics_spatial::{configuration::Configuration, se3::SE3};
 use pyo3::prelude::*;
+use rand::rngs::ThreadRng;
 
 /// Model of a fixed joint.
 #[derive(Clone, Debug, Default)]
@@ -36,7 +37,7 @@ impl JointModel for JointModelFixed {
         Box::new(JointDataFixed::new(self))
     }
 
-    fn random_configuration(&self, _rng: &mut rand::rngs::ThreadRng) -> Configuration {
+    fn random_configuration(&self, _rng: &mut ThreadRng) -> Configuration {
         Configuration::zeros(0)
     }
 
