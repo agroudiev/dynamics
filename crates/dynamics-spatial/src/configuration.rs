@@ -169,6 +169,19 @@ impl Configuration {
         }
         Configuration::from_row_slice(&values)
     }
+
+    /// Checks if the size of the configuration matches the expected size.
+    pub fn check_size(&self, name: &str, expected_size: usize) -> Result<(), ConfigurationError> {
+        if self.len() != expected_size {
+            Err(ConfigurationError::InvalidParameterSize(
+                name.to_string(),
+                expected_size,
+                self.len(),
+            ))
+        } else {
+            Ok(())
+        }
+    }
 }
 
 impl Index<usize> for Configuration {

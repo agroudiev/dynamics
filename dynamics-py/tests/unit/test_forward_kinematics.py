@@ -22,7 +22,10 @@ def compare_urdf_fk(test_case, file_path, mesh_dir=None):
     q = pin.randomConfiguration(pin_model)  # do not use np.random.rand
     dyn.forward_kinematics(dyn_model, dyn_data, q)
     pin.forwardKinematics(pin_model, pin_data, q)
+    assert_datas_equals(test_case, dyn_data, pin_data)
 
+    dyn.update_frame_placements(dyn_model, dyn_data)
+    pin.updateFramePlacements(pin_model, pin_data)
     assert_datas_equals(test_case, dyn_data, pin_data)
 
 

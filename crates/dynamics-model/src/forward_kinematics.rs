@@ -3,7 +3,7 @@ use std::vec;
 use crate::data::{Data, PyData};
 use crate::errors::AlgorithmError;
 use crate::model::{Model, PyModel};
-use dynamics_spatial::configuration::{Configuration, ConfigurationError};
+use dynamics_spatial::configuration::Configuration;
 use dynamics_spatial::se3::SE3;
 use numpy::PyReadonlyArray1;
 use pyo3::exceptions::PyValueError;
@@ -17,12 +17,14 @@ use pyo3::prelude::*;
 ///
 /// * `model` - The robot model.
 /// * `data` - The data structure that contains the joint data.
-/// * `q` - The configuration of the robot.
+/// * `q` - The configuration of the robot of size `nq`.
+/// * `v` - The velocity configuration of the robot of size `nv` (optional).
+/// * `a` - The acceleration configuration of the robot of size `nv` (optional).
 ///
 /// # Returns
 ///
-/// * `Ok(())` if the forward kinematics was successful.
-/// * `Err(AlgorithmError)` if there was an error.
+/// * Updates `data.joint_data` and `data.joint_placements` in place if successful.
+/// * Returns an [`AlgorithmError`] if there was an error.
 pub fn forward_kinematics(
     model: &Model,
     data: &mut Data,
@@ -31,25 +33,20 @@ pub fn forward_kinematics(
     a: &Option<Configuration>,
 ) -> Result<(), AlgorithmError> {
     // check if configurations are of the right size
-    if q.len() != model.nq {
-        return Err(AlgorithmError::ConfigurationError(
-            ConfigurationError::InvalidParameterSize("q".to_string(), model.nq, q.len()),
-        ));
-    } // TODO: reuse code
-    if let Some(v) = v
-        && v.len() != model.nv
-    {
-        return Err(AlgorithmError::ConfigurationError(
-            ConfigurationError::InvalidParameterSize("v".to_string(), model.nv, v.len()),
-        ));
-    }
-    if let Some(a) = a
-        && a.len() != model.nv
-    {
-        return Err(AlgorithmError::ConfigurationError(
-            ConfigurationError::InvalidParameterSize("a".to_string(), model.nv, a.len()),
-        ));
-    }
+    q.check_size("q", model.nq)
+        .map_err(AlgorithmError::ConfigurationError)?;
+    v.as_ref()
+        .map(|v| {
+            v.check_size("v", model.nv)
+                .map_err(AlgorithmError::ConfigurationError)
+        })
+        .transpose()?;
+    a.as_ref()
+        .map(|a| {
+            a.check_size("a", model.nv)
+                .map_err(AlgorithmError::ConfigurationError)
+        })
+        .transpose()?;
 
     // update the joints data
     let mut offset = 0;
@@ -90,6 +87,25 @@ pub fn forward_kinematics(
     }
 
     Ok(())
+}
+
+/// Updates the placements of all frames in the world frame, based on the current joint placements.
+///
+/// This function must be called after `forward_kinematics`.
+///
+/// # Arguments
+/// * `model` - The robot model.
+/// * `data` - The data structure that contains the joint data.
+///
+/// # Returns
+///
+/// Updates `data.frame_placements` in place if successful.
+pub fn update_frame_placements(model: &Model, data: &mut Data) {
+    for frame_id in 1..model.nframes() {
+        let frame = &model.frames[frame_id];
+        let parent_joint_placement = data.joint_placements[frame.parent_joint];
+        data.frame_placements[frame_id] = parent_joint_placement * frame.placement;
+    }
 }
 
 #[pyfunction(name = "forward_kinematics", signature=(model, data, q, v=None, a=None))]
@@ -155,4 +171,9 @@ pub fn py_forward_kinematics(
     forward_kinematics(&model.inner, &mut data.inner, &q, &v, &a)
         .map_err(|e| PyValueError::new_err(format!("Forward kinematics failed: {e:?}")))?;
     Ok(())
+}
+
+#[pyfunction(name = "update_frame_placements", signature=(model, data))]
+pub fn py_update_frame_placements(model: &PyModel, data: &mut PyData) {
+    update_frame_placements(&model.inner, &mut data.inner);
 }

@@ -4,8 +4,11 @@ This file is used to track changes made to the project over time.
 
 ## [Unreleased]
 ### Added
+### Algorithms
+- Added `update_frame_placements` algorithm to update frame placements based on joint placements.
+
 #### Joints
-- Python bindings for continuous joints (`JointModelRU*`) and prismatic joints (`JointModelP*`).
+- Python bindings for continuous joints (`JointModelRUB*`) and prismatic joints (`JointModelP*`).
 
 ### Fixed
 - Fix docs.rs build for all crates

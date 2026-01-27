@@ -16,7 +16,7 @@ use dynamics_joint::{
 use dynamics_model::{
     data::{PyData, PyGeometryData},
     forward_dynamics::{py_aba, py_forward_dynamics},
-    forward_kinematics::py_forward_kinematics,
+    forward_kinematics::{py_forward_kinematics, py_update_frame_placements},
     frame::{FrameType, PyFrame},
     geometry_model::PyGeometryModel,
     geometry_object::PyGeometryObject,
@@ -149,6 +149,7 @@ fn add_shapes_bindings(collider: &Bound<'_, PyModule>) -> PyResult<()> {
 
 fn add_algorithms_bindings(_py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult<()> {
     dynamics.add_function(wrap_pyfunction!(py_forward_kinematics, dynamics)?)?;
+    dynamics.add_function(wrap_pyfunction!(py_update_frame_placements, dynamics)?)?;
 
     dynamics.add_function(wrap_pyfunction!(py_forward_dynamics, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(py_aba, dynamics)?)?;
