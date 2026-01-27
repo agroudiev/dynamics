@@ -2,7 +2,8 @@
 
 use crate::data::{Data, PyData};
 use crate::frame::{Frame, FrameType, PyFrame};
-use dynamics_inertia::inertia::{Inertia, PyInertia};
+use dynamics_inertia::inertia::Inertia;
+use dynamics_inertia::py_inertia::PyInertia;
 use dynamics_joint::fixed::JointModelFixed;
 use dynamics_joint::joint::{JointWrapper, PyJointWrapper};
 use dynamics_spatial::configuration::{Configuration, PyConfiguration};

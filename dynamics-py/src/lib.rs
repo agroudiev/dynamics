@@ -5,7 +5,7 @@
 //! should be used to interact between `collider` and `dynamics`. In the future,
 //! this may be changed (using for instance serialization of the shapes).
 
-use dynamics_inertia::inertia::PyInertia;
+use dynamics_inertia::py_inertia::PyInertia;
 use dynamics_joint::{
     continuous::{new_rubx, new_ruby, new_rubz},
     data::PyJointDataWrapper,

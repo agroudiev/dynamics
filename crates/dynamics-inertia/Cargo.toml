@@ -8,9 +8,13 @@ description.workspace = true
 repository.workspace = true
 license-file.workspace = true
 
+[features]
+python = ["pyo3", "numpy"]
+default = []
+
 [dependencies]
-pyo3.workspace = true
-numpy.workspace = true
+pyo3 = { workspace = true, optional = true }
+numpy = { workspace = true, optional = true }
 
 dynamics-spatial.workspace = true
 

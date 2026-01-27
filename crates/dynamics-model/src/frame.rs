@@ -1,6 +1,7 @@
 //! Coordinate frames attached to joints.
 
-use dynamics_inertia::inertia::{Inertia, PyInertia};
+use dynamics_inertia::inertia::Inertia;
+use dynamics_inertia::py_inertia::PyInertia;
 use dynamics_spatial::se3::{PySE3, SE3};
 use pyo3::prelude::*;
 
