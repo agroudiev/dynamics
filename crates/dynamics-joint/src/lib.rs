@@ -10,3 +10,8 @@ pub mod continuous;
 pub mod fixed;
 pub mod prismatic;
 pub mod revolute;
+
+#[cfg(feature = "python")]
+pub mod py_joint;
+#[cfg(feature = "python")]
+pub mod py_joint_data;

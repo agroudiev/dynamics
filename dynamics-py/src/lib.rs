@@ -7,11 +7,12 @@
 
 use dynamics_inertia::py_inertia::PyInertia;
 use dynamics_joint::{
-    continuous::{new_rubx, new_ruby, new_rubz},
-    joint::{JointType, PyJointWrapper},
-    joint_data::PyJointDataWrapper,
-    prismatic::{new_px, new_py, new_pz},
-    revolute::{new_rx, new_ry, new_rz},
+    joint::JointType,
+    py_joint::PyJointWrapper,
+    py_joint::{new_px, new_py, new_pz},
+    py_joint::{new_rubx, new_ruby, new_rubz},
+    py_joint::{new_rx, new_ry, new_rz},
+    py_joint_data::PyJointDataWrapper,
 };
 use dynamics_model::{
     data::{PyData, PyGeometryData},

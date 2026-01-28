@@ -1,7 +1,7 @@
 //! Revolute joint, constraining two objects to rotate around a given axis.
 
 use crate::{
-    joint::{JointModel, JointType, JointWrapper, PyJointWrapper},
+    joint::{JointModel, JointType, JointWrapper},
     joint_data::{JointData, JointDataWrapper, JointError},
     limits::JointLimits,
 };
@@ -11,7 +11,6 @@ use dynamics_spatial::{
     se3::SE3,
     vector3d::Vector3D,
 };
-use pyo3::prelude::*;
 use rand::rngs::ThreadRng;
 
 /// Model of a revolute joint.
@@ -169,33 +168,6 @@ impl JointData for JointDataRevolute {
 
     fn clone_box(&self) -> JointDataWrapper {
         Box::new(self.clone())
-    }
-}
-
-/// Creates a new revolute joint model with `x` as axis of rotation.
-#[pyfunction(name = "JointModelRX")]
-#[must_use]
-pub fn new_rx() -> PyJointWrapper {
-    PyJointWrapper {
-        inner: Box::new(JointModelRevolute::new_rx()),
-    }
-}
-
-/// Creates a new revolute joint model with `y` as axis of rotation.
-#[pyfunction(name = "JointModelRY")]
-#[must_use]
-pub fn new_ry() -> PyJointWrapper {
-    PyJointWrapper {
-        inner: Box::new(JointModelRevolute::new_ry()),
-    }
-}
-
-/// Creates a new revolute joint model with `z` as axis of rotation.
-#[pyfunction(name = "JointModelRZ")]
-#[must_use]
-pub fn new_rz() -> PyJointWrapper {
-    PyJointWrapper {
-        inner: Box::new(JointModelRevolute::new_rz()),
     }
 }
 

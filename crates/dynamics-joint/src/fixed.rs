@@ -5,7 +5,6 @@ use crate::{
     joint_data::{JointData, JointDataWrapper, JointError},
 };
 use dynamics_spatial::{configuration::Configuration, se3::SE3};
-use pyo3::prelude::*;
 use rand::rngs::ThreadRng;
 
 /// Model of a fixed joint.
@@ -87,10 +86,4 @@ impl JointData for JointDataFixed {
     fn clone_box(&self) -> JointDataWrapper {
         Box::new(self.clone())
     }
-}
-
-/// A Python wrapper for the `JointModelFixed` struct.
-#[pyclass(name = "JointModelFixed")]
-pub struct PyJointModelFixed {
-    pub inner: JointModelFixed,
 }

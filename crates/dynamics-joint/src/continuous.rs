@@ -11,11 +11,10 @@ use dynamics_spatial::{
     se3::SE3,
     vector3d::Vector3D,
 };
-use pyo3::prelude::*;
 use rand::Rng;
 
 use crate::{
-    joint::{JointModel, JointType, JointWrapper, PyJointWrapper},
+    joint::{JointModel, JointType, JointWrapper},
     joint_data::{JointData, JointDataWrapper, JointError},
     limits::JointLimits,
 };
@@ -206,32 +205,5 @@ impl JointData for JointDataContinuous {
 
     fn clone_box(&self) -> JointDataWrapper {
         Box::new(self.clone())
-    }
-}
-
-/// Creates a new continuous joint model with `x` as axis of rotation.
-#[pyfunction(name = "JointModelRUBX")]
-#[must_use]
-pub fn new_rubx() -> PyJointWrapper {
-    PyJointWrapper {
-        inner: Box::new(JointModelContinuous::new_rux()),
-    }
-}
-
-/// Creates a new continuous joint model with `y` as axis of rotation.
-#[pyfunction(name = "JointModelRUBY")]
-#[must_use]
-pub fn new_ruby() -> PyJointWrapper {
-    PyJointWrapper {
-        inner: Box::new(JointModelContinuous::new_ruy()),
-    }
-}
-
-/// Creates a new continuous joint model with `z` as axis of rotation.
-#[pyfunction(name = "JointModelRUBZ")]
-#[must_use]
-pub fn new_rubz() -> PyJointWrapper {
-    PyJointWrapper {
-        inner: Box::new(JointModelContinuous::new_ruz()),
     }
 }
