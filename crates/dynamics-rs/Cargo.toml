@@ -8,6 +8,17 @@ description.workspace = true
 repository.workspace = true
 license-file.workspace = true
 
+[features]
+python = [
+    "dynamics-inertia/python",
+    "dynamics-joint/python",
+    "dynamics-model/python",
+    "dynamics-parse/python",
+    "dynamics-spatial/python",
+    "collider-rs/python",
+]
+default = []
+
 [dependencies]
 collider-rs.workspace = true
 
@@ -19,4 +30,4 @@ dynamics-spatial.workspace = true
 
 [package.metadata.docs.rs]
 rustdoc-args = ["--html-in-header", "./src/docs-header.html"]
-all-features = true
+no-default-features = true

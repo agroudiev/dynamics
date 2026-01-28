@@ -1,5 +1,6 @@
 use collider_rs::shape::{
-    PyCapsule, PyCone, PyCuboid, PyCylinder, PyShapeWrapper, PySphere, Shape,
+    Shape, py_capsule::PyCapsule, py_cone::PyCone, py_cuboid::PyCuboid, py_cylinder::PyCylinder,
+    py_shape::PyShapeWrapper, py_sphere::PySphere,
 };
 use dynamics_spatial::{color::Color, py_se3::PySE3};
 use numpy::{IntoPyArray, PyReadonlyArrayDyn, ndarray::Array1};

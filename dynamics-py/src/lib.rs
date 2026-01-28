@@ -29,10 +29,12 @@ use dynamics_model::{
 };
 use pyo3::prelude::*;
 
-use collider_rs::mesh::PyMesh;
-use collider_rs::shape::{
-    PyShapeWrapper, ShapeType, capsule::PyCapsule, cone::PyCone, cuboid::PyCuboid,
-    cylinder::PyCylinder, sphere::PySphere,
+use collider_rs::{
+    mesh::py_mesh::PyMesh,
+    shape::{
+        ShapeType, py_capsule::PyCapsule, py_cone::PyCone, py_cuboid::PyCuboid,
+        py_cylinder::PyCylinder, py_shape::PyShapeWrapper, py_sphere::PySphere,
+    },
 };
 use dynamics_parse::py_urdf::py_build_models_from_urdf;
 use dynamics_spatial::{

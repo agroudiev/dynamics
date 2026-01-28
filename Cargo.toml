@@ -22,8 +22,9 @@ numpy = { version = "0.24.0" }
 pyo3 = { version = "0.24.1", features = ["extension-module"] }
 rand = { version = "0.9.1" }
 
-# collider-rs = { path = "../collider/crates/collider" } # for local development
-collider-rs = { git = "https://github.com/agroudiev/collider", version = "0.0.1" }
+# collider-rs = { path = "../collider/crates/collider-rs" } # for local development
+# collider-rs = { git = "https://github.com/agroudiev/collider", version = "0.0.1" } # for release (specify version)
+collider-rs = { git = "https://github.com/agroudiev/collider" }
 
 dynamics-inertia = { path = "crates/dynamics-inertia", version = "0.0.1" }
 dynamics-joint = { path = "crates/dynamics-joint", version = "0.0.1" }

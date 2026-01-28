@@ -15,6 +15,7 @@ python = [
     "dynamics-spatial/python",
     "dynamics-inertia/python",
     "dynamics-joint/python",
+    "collider-rs/python",
 ]
 default = []
 
