@@ -8,8 +8,8 @@
 use dynamics_inertia::py_inertia::PyInertia;
 use dynamics_joint::{
     continuous::{new_rubx, new_ruby, new_rubz},
-    data::PyJointDataWrapper,
     joint::{JointType, PyJointWrapper},
+    joint_data::PyJointDataWrapper,
     prismatic::{new_px, new_py, new_pz},
     revolute::{new_rx, new_ry, new_rz},
 };

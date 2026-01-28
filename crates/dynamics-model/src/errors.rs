@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use dynamics_joint::data::JointError;
+use dynamics_joint::joint_data::JointError;
 use dynamics_spatial::configuration::ConfigurationError;
 
 #[derive(Debug)]

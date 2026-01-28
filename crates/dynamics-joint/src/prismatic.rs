@@ -10,8 +10,8 @@ use pyo3::prelude::*;
 use rand::rngs::ThreadRng;
 
 use crate::{
-    data::{JointData, JointDataWrapper, JointError},
     joint::{JointModel, JointType, JointWrapper, PyJointWrapper},
+    joint_data::{JointData, JointDataWrapper, JointError},
     limits::JointLimits,
 };
 

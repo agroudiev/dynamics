@@ -15,8 +15,8 @@ use pyo3::prelude::*;
 use rand::Rng;
 
 use crate::{
-    data::{JointData, JointDataWrapper, JointError},
     joint::{JointModel, JointType, JointWrapper, PyJointWrapper},
+    joint_data::{JointData, JointDataWrapper, JointError},
     limits::JointLimits,
 };
 
@@ -104,7 +104,7 @@ impl JointModel for JointModelContinuous {
         vec![SpatialMotion::from_rotational_axis(&self.axis)]
     }
 
-    fn create_joint_data(&self) -> crate::data::JointDataWrapper {
+    fn create_joint_data(&self) -> crate::joint_data::JointDataWrapper {
         Box::new(JointDataContinuous::new(self))
     }
 

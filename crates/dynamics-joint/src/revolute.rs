@@ -1,8 +1,8 @@
 //! Revolute joint, constraining two objects to rotate around a given axis.
 
 use crate::{
-    data::{JointData, JointDataWrapper, JointError},
     joint::{JointModel, JointType, JointWrapper, PyJointWrapper},
+    joint_data::{JointData, JointDataWrapper, JointError},
     limits::JointLimits,
 };
 use dynamics_spatial::{
