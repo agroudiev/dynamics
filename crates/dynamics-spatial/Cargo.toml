@@ -10,6 +10,7 @@ license-file.workspace = true
 
 [features]
 python = ["pyo3", "numpy"]
+default = []
 
 [dependencies]
 nalgebra.workspace = true
@@ -20,4 +21,4 @@ approx.workspace = true
 
 [package.metadata.docs.rs]
 rustdoc-args = ["--html-in-header", "./src/docs-header.html"]
-all-features = true
+no-default-features = true

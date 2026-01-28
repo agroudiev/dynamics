@@ -9,7 +9,13 @@ repository.workspace = true
 license-file.workspace = true
 
 [features]
-python = ["pyo3"]
+python = [
+    "pyo3",
+    "dynamics-spatial/python",
+    "dynamics-inertia/python",
+    "dynamics-joint/python",
+    "dynamics-model/python",
+]
 default = []
 
 [dependencies]
@@ -26,4 +32,4 @@ dynamics-model.workspace = true
 
 [package.metadata.docs.rs]
 rustdoc-args = ["--html-in-header", "./src/docs-header.html"]
-all-features = true
+no-default-features = true

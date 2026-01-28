@@ -9,7 +9,7 @@ repository.workspace = true
 license-file.workspace = true
 
 [features]
-python = ["pyo3", "numpy"]
+python = ["pyo3", "numpy", "dynamics-spatial/python"]
 default = []
 
 [dependencies]
@@ -20,4 +20,4 @@ dynamics-spatial.workspace = true
 
 [package.metadata.docs.rs]
 rustdoc-args = ["--html-in-header", "./src/docs-header.html"]
-all-features = true
+no-default-features = true

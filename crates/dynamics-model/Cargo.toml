@@ -9,7 +9,13 @@ repository.workspace = true
 license-file.workspace = true
 
 [features]
-python = ["pyo3", "numpy"]
+python = [
+    "pyo3",
+    "numpy",
+    "dynamics-spatial/python",
+    "dynamics-inertia/python",
+    "dynamics-joint/python",
+]
 default = []
 
 [dependencies]
