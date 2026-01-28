@@ -34,7 +34,7 @@ use collider_rs::shape::{
     PyShapeWrapper, ShapeType, capsule::PyCapsule, cone::PyCone, cuboid::PyCuboid,
     cylinder::PyCylinder, sphere::PySphere,
 };
-use dynamics_parse::urdf::py_build_models_from_urdf;
+use dynamics_parse::py_urdf::py_build_models_from_urdf;
 use dynamics_spatial::{
     configuration::PyConfiguration, se3::PySE3, symmetric3::PySymmetric3, vector3d::PyVector3D,
     vector6d::PyVector6D,

@@ -33,8 +33,6 @@ use dynamics_joint::prismatic::JointModelPrismatic;
 use dynamics_joint::revolute::JointModelRevolute;
 use dynamics_model::frame::{Frame, FrameType};
 use dynamics_model::model::Model;
-use dynamics_model::py_geometry_model::PyGeometryModel;
-use dynamics_model::py_model::PyModel;
 use dynamics_model::{
     geometry_model::GeometryModel, geometry_object::GeometryObject, model::WORLD_ID,
 };
@@ -44,8 +42,6 @@ use dynamics_spatial::se3::{ActSE3, SE3};
 use dynamics_spatial::symmetric3::Symmetric3;
 use dynamics_spatial::vector3d::Vector3D;
 use nalgebra::Vector3;
-use pyo3::exceptions::PyValueError;
-use pyo3::prelude::*;
 use roxmltree::{Document, Node};
 use std::collections::HashSet;
 use std::path::Path;
@@ -954,21 +950,4 @@ fn parse_origin(node: &roxmltree::Node) -> Result<SE3, ParseError> {
         SE3::identity()
     };
     Ok(isometry)
-}
-
-/// A Python wrapper for the `build_models_from_urdf` function.
-#[pyfunction(name = "build_models_from_urdf")]
-#[pyo3(signature = (filepath, package_dir = None))]
-pub fn py_build_models_from_urdf(
-    filepath: &str,
-    package_dir: Option<&str>,
-) -> PyResult<(PyModel, PyGeometryModel, PyGeometryModel)> {
-    match build_models_from_urdf(filepath, package_dir) {
-        Ok((model, coll_model, viz_model)) => Ok((
-            PyModel { inner: model },
-            PyGeometryModel { inner: coll_model },
-            PyGeometryModel { inner: viz_model },
-        )),
-        Err(e) => Err(PyErr::new::<PyValueError, _>(format!("{e}"))),
-    }
 }

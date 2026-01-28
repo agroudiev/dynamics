@@ -8,8 +8,12 @@ description.workspace = true
 repository.workspace = true
 license-file.workspace = true
 
+[features]
+python = ["pyo3"]
+default = []
+
 [dependencies]
-pyo3.workspace = true
+pyo3 = { workspace = true, optional = true }
 roxmltree = { version = "0.20.0" }
 
 nalgebra.workspace = true    # only for collider

@@ -6,5 +6,8 @@
 pub mod errors;
 pub mod urdf;
 
+#[cfg(feature = "python")]
+pub mod py_urdf;
+
 #[cfg(test)]
 mod tests;
