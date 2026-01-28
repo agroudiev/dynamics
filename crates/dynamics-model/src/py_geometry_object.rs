@@ -1,7 +1,7 @@
 use collider_rs::shape::{
     PyCapsule, PyCone, PyCuboid, PyCylinder, PyShapeWrapper, PySphere, Shape,
 };
-use dynamics_spatial::{color::Color, se3::PySE3};
+use dynamics_spatial::{color::Color, py_se3::PySE3};
 use numpy::{IntoPyArray, PyReadonlyArrayDyn, ndarray::Array1};
 use pyo3::{exceptions::PyValueError, prelude::*, types::PyTuple};
 

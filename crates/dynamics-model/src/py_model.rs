@@ -1,6 +1,6 @@
 use dynamics_inertia::py_inertia::PyInertia;
 use dynamics_joint::py_joint::PyJointWrapper;
-use dynamics_spatial::{configuration::PyConfiguration, se3::PySE3};
+use dynamics_spatial::{py_configuration::PyConfiguration, py_se3::PySE3};
 use numpy::ToPyArray;
 use numpy::ndarray::Array1;
 use pyo3::{exceptions::PyValueError, prelude::*};

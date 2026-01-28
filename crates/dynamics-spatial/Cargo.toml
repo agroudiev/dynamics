@@ -8,10 +8,13 @@ description.workspace = true
 repository.workspace = true
 license-file.workspace = true
 
+[features]
+python = ["pyo3", "numpy"]
+
 [dependencies]
 nalgebra.workspace = true
-numpy.workspace = true
-pyo3.workspace = true
+numpy = { workspace = true, optional = true }
+pyo3 = { workspace = true, optional = true }
 rand.workspace = true
 approx.workspace = true
 

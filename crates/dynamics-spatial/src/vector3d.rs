@@ -1,9 +1,12 @@
 //! Defines **3D vectors** and related operations.
 
 use nalgebra::Vector3;
-use numpy::{PyReadonlyArrayDyn, ToPyArray, ndarray::Array1};
-use pyo3::prelude::*;
 use std::ops::{Add, Mul, Sub};
+
+#[cfg(feature = "python")]
+use numpy::{PyReadonlyArrayDyn, ToPyArray, ndarray::Array1};
+#[cfg(feature = "python")]
+use pyo3::prelude::*;
 
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 /// A 3D vector, commonly used for positions.
@@ -58,6 +61,8 @@ impl Vector3D {
     }
 
     #[must_use]
+    #[cfg(feature = "python")]
+    /// Converts the `Vector3D` to a one-dimensional NumPy array of length 3.
     pub fn to_numpy(&self, py: Python) -> Py<PyAny> {
         Array1::from_iter(self.0.iter().copied())
             .to_pyarray(py)
@@ -65,6 +70,11 @@ impl Vector3D {
             .unbind()
     }
 
+    #[cfg(feature = "python")]
+    /// Creates a `Vector3D` from a one-dimensional NumPy array of length 3.
+    ///
+    /// # Errors
+    /// Returns a `PyValueError` if the input array does not have the correct shape
     pub fn from_pyarray(array: &PyReadonlyArrayDyn<f64>) -> Result<Self, PyErr> {
         let array = array.as_array();
         if array.ndim() != 1 || array.len() != 3 {
@@ -129,72 +139,5 @@ impl Mul<Vector3D> for f64 {
 
     fn mul(self, rhs: Vector3D) -> Self::Output {
         Vector3D(rhs.0 * self)
-    }
-}
-
-#[pyclass(name = "Vector3D")]
-#[derive(Debug, Clone, PartialEq)]
-pub struct PyVector3D {
-    pub inner: Vector3D,
-}
-
-#[pymethods]
-impl PyVector3D {
-    #[new]
-    pub fn new(x: f64, y: f64, z: f64) -> Self {
-        PyVector3D {
-            inner: Vector3D::new(x, y, z),
-        }
-    }
-
-    #[staticmethod]
-    pub fn zeros() -> Self {
-        PyVector3D {
-            inner: Vector3D::zeros(),
-        }
-    }
-
-    #[staticmethod]
-    pub fn ones() -> Self {
-        PyVector3D {
-            inner: Vector3D::new(1.0, 1.0, 1.0),
-        }
-    }
-
-    pub fn __add__(&self, other: &PyVector3D) -> PyVector3D {
-        PyVector3D {
-            inner: self.inner + other.inner,
-        }
-    }
-
-    pub fn __sub__(&self, other: &PyVector3D) -> PyVector3D {
-        PyVector3D {
-            inner: self.inner - other.inner,
-        }
-    }
-
-    pub fn __mul__(&self, other: &PyVector3D) -> PyVector3D {
-        PyVector3D {
-            inner: self.inner * other.inner,
-        }
-    }
-
-    pub fn to_numpy(&self, py: Python) -> Py<PyAny> {
-        self.inner.to_numpy(py)
-    }
-
-    pub fn norm(&self) -> f64 {
-        self.inner.norm()
-    }
-
-    pub fn vector(&self, py: Python) -> Py<PyAny> {
-        self.inner.to_numpy(py)
-    }
-
-    pub fn __repr__(&self) -> String {
-        format!(
-            "Vector3D({}, {}, {})",
-            self.inner.0.x, self.inner.0.y, self.inner.0.z
-        )
     }
 }

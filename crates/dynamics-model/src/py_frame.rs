@@ -1,5 +1,5 @@
 use dynamics_inertia::py_inertia::PyInertia;
-use dynamics_spatial::se3::PySE3;
+use dynamics_spatial::py_se3::PySE3;
 use pyo3::prelude::*;
 
 use crate::frame::{Frame, FrameType};

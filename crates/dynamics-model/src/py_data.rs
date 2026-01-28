@@ -4,7 +4,7 @@ use crate::{
     py_model::PyModel,
 };
 use dynamics_joint::py_joint_data::PyJointDataWrapper;
-use dynamics_spatial::se3::PySE3;
+use dynamics_spatial::py_se3::PySE3;
 use pyo3::prelude::*;
 
 /// A Python wrapper for the `Data` struct.

@@ -9,7 +9,7 @@ repository.workspace = true
 license-file.workspace = true
 
 [features]
-python = ["pyo3"]
+python = ["pyo3", "dynamics-spatial/python"]
 default = []
 
 [dependencies]

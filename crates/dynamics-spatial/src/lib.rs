@@ -15,3 +15,14 @@ pub mod symmetric3;
 pub mod transform;
 pub mod vector3d;
 pub mod vector6d;
+
+#[cfg(feature = "python")]
+pub mod py_configuration;
+#[cfg(feature = "python")]
+pub mod py_se3;
+#[cfg(feature = "python")]
+pub mod py_symmetric3;
+#[cfg(feature = "python")]
+pub mod py_vector3d;
+#[cfg(feature = "python")]
+pub mod py_vector6d;

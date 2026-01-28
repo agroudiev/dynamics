@@ -2,17 +2,21 @@
 
 use approx::{AbsDiffEq, RelativeEq};
 use nalgebra::DVector;
-use numpy::{PyReadonlyArrayDyn, ToPyArray, ndarray::Array1};
-use pyo3::prelude::*;
+
 use rand::{Rng, rngs::ThreadRng};
 use std::{
     f64::consts::PI,
     ops::{Add, Index, IndexMut, Mul},
 };
 
+#[cfg(feature = "python")]
+use numpy::PyReadonlyArrayDyn;
+#[cfg(feature = "python")]
+use pyo3::prelude::*;
+
 #[derive(Clone, Debug, PartialEq)]
 /// Configuration of a multi-body system, represented as a vector of joint positions.
-pub struct Configuration(DVector<f64>);
+pub struct Configuration(pub(crate) DVector<f64>);
 
 impl Configuration {
     /// Creates a new [`Configuration`] with the given size, initialized to zeros.
@@ -116,6 +120,7 @@ impl Configuration {
     /// * `array` - A read-only `NumPy` array of scalar values.
     /// # Returns
     /// A new [`Configuration`] object containing the values from the `NumPy` array.
+    #[cfg(feature = "python")]
     pub fn from_pyarray(array: &PyReadonlyArrayDyn<f64>) -> Result<Configuration, PyErr> {
         let array = array.as_array();
         let flat: Vec<f64> = array.iter().copied().collect();
@@ -241,55 +246,6 @@ impl Mul<f64> for &Configuration {
 
     fn mul(self, rhs: f64) -> Self::Output {
         &self.0 * rhs
-    }
-}
-
-#[pyclass(name = "Configuration")]
-/// Python wrapper for the `Configuration` struct.
-pub struct PyConfiguration(Configuration);
-
-impl PyConfiguration {
-    #[must_use]
-    pub fn new(config: Configuration) -> Self {
-        PyConfiguration(config)
-    }
-
-    pub fn from_pyarray(array: &PyReadonlyArrayDyn<f64>) -> Result<Self, PyErr> {
-        let config = Configuration::from_pyarray(array)?;
-        Ok(PyConfiguration::new(config))
-    }
-
-    #[must_use]
-    pub fn to_configuration(&self) -> &Configuration {
-        &self.0
-    }
-}
-
-#[pymethods]
-impl PyConfiguration {
-    #[must_use]
-    pub fn __repr__(slf: PyRef<'_, Self>) -> String {
-        format!("{:#?}", slf.0)
-    }
-
-    #[must_use]
-    pub fn __mul__(&self, other: f64) -> PyConfiguration {
-        let result = &self.0 * other;
-        PyConfiguration(Configuration(result))
-    }
-
-    #[must_use]
-    pub fn __add__(&self, other: &PyConfiguration) -> PyConfiguration {
-        let result = &self.0 + &other.0;
-        PyConfiguration(result)
-    }
-
-    #[must_use]
-    pub fn to_numpy(&self, py: Python) -> Py<PyAny> {
-        Array1::from_iter(self.0.0.iter().copied())
-            .to_pyarray(py)
-            .into_any()
-            .unbind()
     }
 }
 

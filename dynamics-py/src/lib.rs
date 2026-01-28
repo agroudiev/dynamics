@@ -36,8 +36,8 @@ use collider_rs::shape::{
 };
 use dynamics_parse::py_urdf::py_build_models_from_urdf;
 use dynamics_spatial::{
-    configuration::PyConfiguration, se3::PySE3, symmetric3::PySymmetric3, vector3d::PyVector3D,
-    vector6d::PyVector6D,
+    py_configuration::PyConfiguration, py_se3::PySE3, py_symmetric3::PySymmetric3,
+    py_vector3d::PyVector3D, py_vector6d::PyVector6D,
 };
 use numpy::PyArray1;
 

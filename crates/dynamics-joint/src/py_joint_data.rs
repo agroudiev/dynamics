@@ -1,4 +1,4 @@
-use dynamics_spatial::{configuration::PyConfiguration, se3::PySE3};
+use dynamics_spatial::{py_configuration::PyConfiguration, py_se3::PySE3};
 use pyo3::{exceptions::PyValueError, prelude::*};
 
 use crate::{joint_data::JointDataWrapper, py_joint::PyJointWrapper};

@@ -1,5 +1,5 @@
 use dynamics_spatial::configuration::Configuration;
-use dynamics_spatial::configuration::PyConfiguration;
+use dynamics_spatial::py_configuration::PyConfiguration;
 use numpy::PyReadonlyArray1;
 use numpy::PyReadonlyArrayDyn;
 use pyo3::exceptions::PyValueError;
