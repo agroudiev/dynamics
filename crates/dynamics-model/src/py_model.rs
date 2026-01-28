@@ -6,9 +6,9 @@ use numpy::ndarray::Array1;
 use pyo3::{exceptions::PyValueError, prelude::*};
 
 use crate::{
-    frame::PyFrame,
     model::{Model, random_configuration},
     py_data::PyData,
+    py_frame::PyFrame,
 };
 
 #[pyfunction(name = "random_configuration")]

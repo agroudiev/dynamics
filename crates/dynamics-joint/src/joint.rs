@@ -2,7 +2,6 @@
 
 use crate::joint_data::JointDataWrapper;
 use dynamics_spatial::{configuration::Configuration, motion::SpatialMotion, se3::SE3};
-use pyo3::prelude::*;
 use rand::rngs::ThreadRng;
 
 /// A wrapper type for the Shape trait to allow dynamic dispatch.
@@ -41,7 +40,7 @@ pub trait JointModel {
 }
 
 /// Enum representing the type of joint.
-#[pyclass]
+#[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum JointType {
     Continuous,

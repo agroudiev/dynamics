@@ -15,13 +15,14 @@ use dynamics_joint::{
     py_joint_data::PyJointDataWrapper,
 };
 use dynamics_model::{
-    frame::{FrameType, PyFrame},
+    frame::FrameType,
     model::{STANDARD_GRAVITY, WORLD_ID},
     py_algorithms::{
         py_aba, py_forward_dynamics, py_forward_kinematics, py_inverse_dynamics, py_neutral,
         py_rnea, py_update_frame_placements,
     },
     py_data::{PyData, PyGeometryData},
+    py_frame::PyFrame,
     py_geometry_model::PyGeometryModel,
     py_geometry_object::PyGeometryObject,
     py_model::{PyModel, py_random_configuration},

@@ -29,6 +29,8 @@ pub mod py_algorithms;
 #[cfg(feature = "python")]
 pub mod py_data;
 #[cfg(feature = "python")]
+pub mod py_frame;
+#[cfg(feature = "python")]
 pub mod py_geometry_model;
 #[cfg(feature = "python")]
 pub mod py_geometry_object;
