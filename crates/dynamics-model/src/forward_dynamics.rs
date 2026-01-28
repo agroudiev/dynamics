@@ -3,12 +3,9 @@
 //! The ABA computes the joint accelerations required to achieve a given motion of the robot
 //! given its configuration, velocity, and torques.
 
-use crate::data::{Data, PyData};
-use crate::model::{Model, PyModel};
+use crate::data::Data;
+use crate::model::Model;
 use dynamics_spatial::configuration::{Configuration, ConfigurationError};
-use numpy::PyReadonlyArrayDyn;
-use pyo3::exceptions::PyValueError;
-use pyo3::prelude::*;
 
 /// WIP: Computes the forward dynamics of the robot model.
 ///
@@ -71,34 +68,4 @@ fn _aba_backward_pass() {
 
 fn _aba_forward_pass_2() {
     unimplemented!()
-}
-
-#[pyfunction(name = "forward_dynamics")]
-pub fn py_forward_dynamics(
-    model: &PyModel,
-    data: &mut PyData,
-    q: PyReadonlyArrayDyn<f64>,
-    v: PyReadonlyArrayDyn<f64>,
-    tau: PyReadonlyArrayDyn<f64>,
-) -> PyResult<()> {
-    let q = Configuration::from_pyarray(&q)?;
-    let v = Configuration::from_pyarray(&v)?;
-    let tau = Configuration::from_pyarray(&tau)?;
-
-    forward_dynamics(&model.inner, &mut data.inner, &q, &v, &tau)
-        .map_err(|e| PyValueError::new_err(format!("Forward dynamics failed: {e:?}")))?;
-
-    Ok(())
-}
-
-// Pinocchio alias (Articulated Body Algorithm)
-#[pyfunction(name = "aba")]
-pub fn py_aba(
-    model: &PyModel,
-    data: &mut PyData,
-    q: PyReadonlyArrayDyn<f64>,
-    v: PyReadonlyArrayDyn<f64>,
-    tau: PyReadonlyArrayDyn<f64>,
-) -> PyResult<()> {
-    py_forward_dynamics(model, data, q, v, tau)
 }

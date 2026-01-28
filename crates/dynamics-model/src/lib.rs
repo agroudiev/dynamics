@@ -23,3 +23,14 @@ pub mod geometry_object;
 pub mod inverse_dynamics;
 pub mod model;
 pub mod neutral;
+
+#[cfg(feature = "python")]
+pub mod py_algorithms;
+#[cfg(feature = "python")]
+pub mod py_data;
+#[cfg(feature = "python")]
+pub mod py_geometry_model;
+#[cfg(feature = "python")]
+pub mod py_geometry_object;
+#[cfg(feature = "python")]
+pub mod py_model;

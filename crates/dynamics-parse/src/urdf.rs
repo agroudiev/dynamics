@@ -32,10 +32,11 @@ use dynamics_joint::continuous::JointModelContinuous;
 use dynamics_joint::prismatic::JointModelPrismatic;
 use dynamics_joint::revolute::JointModelRevolute;
 use dynamics_model::frame::{Frame, FrameType};
+use dynamics_model::model::Model;
+use dynamics_model::py_geometry_model::PyGeometryModel;
+use dynamics_model::py_model::PyModel;
 use dynamics_model::{
-    geometry_model::{GeometryModel, PyGeometryModel},
-    geometry_object::GeometryObject,
-    model::{Model, PyModel, WORLD_ID},
+    geometry_model::GeometryModel, geometry_object::GeometryObject, model::WORLD_ID,
 };
 use dynamics_spatial::color::Color;
 use dynamics_spatial::motion::SpatialRotation;

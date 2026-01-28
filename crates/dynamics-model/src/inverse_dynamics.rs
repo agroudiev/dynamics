@@ -3,14 +3,12 @@
 //! The RNEA computes the joint torques required to achieve a given motion of the robot
 //! given its configuration, velocity, and acceleration.
 
-use crate::data::{Data, PyData};
-use crate::model::{Model, PyModel};
+use crate::data::Data;
+use crate::model::Model;
 use dynamics_joint::joint::JointWrapper;
-use dynamics_spatial::configuration::{Configuration, ConfigurationError, PyConfiguration};
+use dynamics_spatial::configuration::{Configuration, ConfigurationError};
 use dynamics_spatial::motion::SpatialMotion;
 use dynamics_spatial::vector3d::Vector3D;
-use numpy::PyReadonlyArrayDyn;
-use pyo3::prelude::*;
 use std::collections::HashMap;
 
 /// Computes the inverse dynamics using the Recursive Newton-Euler Algorithm (RNEA).
@@ -134,37 +132,4 @@ pub fn inverse_dynamics(
     // TODO: add things to the data?
 
     Ok(tau)
-}
-
-#[pyfunction(name = "forward_dynamics")]
-pub fn py_inverse_dynamics(
-    _py: Python,
-    model: &PyModel,
-    data: &mut PyData,
-    q: PyReadonlyArrayDyn<f64>,
-    v: PyReadonlyArrayDyn<f64>,
-    a: PyReadonlyArrayDyn<f64>,
-) -> PyResult<PyConfiguration> {
-    let q = Configuration::from_pyarray(&q)?;
-    let v = Configuration::from_pyarray(&v)?;
-    let a = Configuration::from_pyarray(&a)?;
-
-    let tau = inverse_dynamics(&model.inner, &mut data.inner, &q, &v, &a).map_err(|e| {
-        PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Error in inverse dynamics: {e}"))
-    })?;
-
-    Ok(PyConfiguration::new(tau))
-}
-
-// Pinocchio alias (Recursive Newton-Euler Algorithm)
-#[pyfunction(name = "rnea")]
-pub fn py_rnea(
-    py: Python,
-    model: &PyModel,
-    data: &mut PyData,
-    q: PyReadonlyArrayDyn<f64>,
-    v: PyReadonlyArrayDyn<f64>,
-    a: PyReadonlyArrayDyn<f64>,
-) -> PyResult<PyConfiguration> {
-    py_inverse_dynamics(py, model, data, q, v, a)
 }

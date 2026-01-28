@@ -15,15 +15,16 @@ use dynamics_joint::{
     py_joint_data::PyJointDataWrapper,
 };
 use dynamics_model::{
-    data::{PyData, PyGeometryData},
-    forward_dynamics::{py_aba, py_forward_dynamics},
-    forward_kinematics::{py_forward_kinematics, py_update_frame_placements},
     frame::{FrameType, PyFrame},
-    geometry_model::PyGeometryModel,
-    geometry_object::PyGeometryObject,
-    inverse_dynamics::{py_inverse_dynamics, py_rnea},
-    model::{PyModel, STANDARD_GRAVITY, WORLD_ID, py_random_configuration},
-    neutral::py_neutral,
+    model::{STANDARD_GRAVITY, WORLD_ID},
+    py_algorithms::{
+        py_aba, py_forward_dynamics, py_forward_kinematics, py_inverse_dynamics, py_neutral,
+        py_rnea, py_update_frame_placements,
+    },
+    py_data::{PyData, PyGeometryData},
+    py_geometry_model::PyGeometryModel,
+    py_geometry_object::PyGeometryObject,
+    py_model::{PyModel, py_random_configuration},
 };
 use pyo3::prelude::*;
 
