@@ -19,6 +19,8 @@ pub mod vector6d;
 #[cfg(feature = "python")]
 pub mod py_configuration;
 #[cfg(feature = "python")]
+pub mod py_motion;
+#[cfg(feature = "python")]
 pub mod py_se3;
 #[cfg(feature = "python")]
 pub mod py_symmetric3;

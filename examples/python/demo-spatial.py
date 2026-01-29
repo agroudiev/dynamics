@@ -64,3 +64,16 @@ s = dynamics.Symmetric3(1.0, 2.0, 3.0, 0.1, 0.2, 0.3)
 v = dynamics.Vector3D(1.0, 2.0, 3.0)
 sv = s * v
 assert (sv.vector() == s.matrix() @ v.vector()).all()
+
+# === Spatial Motion ===
+# create a new spatial motion from its angular and linear parts
+w = dynamics.Vector3D(1.0, 2.0, 3.0)
+v = dynamics.Vector3D(4.0, 5.0, 6.0)
+motion = dynamics.SpatialMotion(w, v)
+
+# or create it using two numpy arrays
+w_np = np.array([1.0, 2.0, 3.0])
+v_np = np.array([4.0, 5.0, 6.0])
+motion = dynamics.SpatialMotion.from_parts(w_np, v_np)
+assert (motion.rotation.vector() == w_np).all()
+assert (motion.translation.vector() == v_np).all()
