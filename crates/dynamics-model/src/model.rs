@@ -6,6 +6,7 @@ use dynamics_inertia::inertia::Inertia;
 use dynamics_joint::fixed::JointModelFixed;
 use dynamics_joint::joint::JointWrapper;
 use dynamics_spatial::configuration::Configuration;
+use dynamics_spatial::motion::SpatialMotion;
 use dynamics_spatial::se3::SE3;
 use dynamics_spatial::vector3d::Vector3D;
 
@@ -172,6 +173,8 @@ impl Model {
             joints_data,
             vec![SE3::identity(); self.njoints()],
             vec![SE3::identity(); self.nframes()],
+            vec![SpatialMotion::zero(); self.njoints()],
+            vec![SpatialMotion::zero(); self.njoints()],
         )
     }
 

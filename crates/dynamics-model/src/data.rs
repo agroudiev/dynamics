@@ -1,7 +1,7 @@
 //! `Data` structure containing the mutable properties of the robot.
 
 use dynamics_joint::joint_data::JointDataWrapper;
-use dynamics_spatial::se3::SE3;
+use dynamics_spatial::{motion::SpatialMotion, se3::SE3};
 
 use crate::geometry_model::GeometryModel;
 
@@ -14,6 +14,10 @@ pub struct Data {
     pub joint_placements: Vec<SE3>,
     /// Placements of the frames in the world frame (oMf)
     pub frame_placements: Vec<SE3>,
+    /// Velocities of the joints in the world frame (v)
+    pub joint_velocities: Vec<SpatialMotion>,
+    /// Accelerations of the joints in the world frame (a)
+    pub joint_accelerations: Vec<SpatialMotion>,
 }
 
 impl Data {
@@ -31,11 +35,15 @@ impl Data {
         joint_data: Vec<JointDataWrapper>,
         joint_placements: Vec<SE3>,
         frame_placements: Vec<SE3>,
+        joint_velocities: Vec<SpatialMotion>,
+        joint_accelerations: Vec<SpatialMotion>,
     ) -> Self {
         Self {
             joint_data,
             joint_placements,
             frame_placements,
+            joint_velocities,
+            joint_accelerations,
         }
     }
 }
