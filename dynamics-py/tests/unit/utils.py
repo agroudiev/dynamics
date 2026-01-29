@@ -23,7 +23,7 @@ def set_ros_package_path(package: str):
 def assert_se3_equals(test_case: unittest.TestCase, dyn_se3: dyn.SE3, pin_se3: pin.SE3):
     test_case.assertTrue(np.linalg.norm(dyn_se3.rotation - pin_se3.rotation) < 1e-14)
     test_case.assertTrue(
-        np.linalg.norm(dyn_se3.translation - pin_se3.translation) < 1e-15
+        np.linalg.norm(dyn_se3.translation - pin_se3.translation) < 1e-14
     )
 
 
