@@ -33,7 +33,8 @@ pub trait JointData {
     fn update(
         &mut self,
         joint_model: &JointWrapper,
-        q_joint: &Configuration,
+        joint_q: &Configuration,
+        joint_v: Option<&Configuration>,
     ) -> Result<(), JointError>;
 
     /// Clones the joint data as a boxed trait object.

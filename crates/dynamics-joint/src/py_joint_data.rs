@@ -31,16 +31,18 @@ impl PyJointDataWrapper {
         }
     }
 
-    #[pyo3(text_signature = "(joint_model, q_joint)")]
+    #[pyo3(text_signature = "(joint_model, joint_q, joint_v=None)")]
     pub fn update(
         &mut self,
         joint_model: &PyJointWrapper,
-        q_joint: &PyConfiguration,
+        joint_q: &PyConfiguration,
+        joint_v: Option<&PyConfiguration>,
     ) -> PyResult<()> {
-        match self
-            .inner
-            .update(&joint_model.inner, q_joint.to_configuration())
-        {
+        match self.inner.update(
+            &joint_model.inner,
+            joint_q.to_configuration(),
+            joint_v.map(|v| v.to_configuration()),
+        ) {
             Ok(()) => Ok(()),
             Err(e) => Err(PyValueError::new_err(format!(
                 "Failed to update joint data: {e:?}"

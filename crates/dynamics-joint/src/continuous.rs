@@ -165,25 +165,37 @@ impl JointDataContinuous {
         // safe since we just created a continuous joint model
         // and we know that a continuous joint has an axis
         let joint_model_box: JointWrapper = Box::new(joint_model.clone());
-        data.update(&joint_model_box, &Configuration::zeros(2))
+        data.update(&joint_model_box, &Configuration::zeros(2), None)
             .unwrap();
         data
     }
 }
 
 impl JointData for JointDataContinuous {
-    fn update(&mut self, joint_model: &JointWrapper, q: &Configuration) -> Result<(), JointError> {
+    fn update(
+        &mut self,
+        joint_model: &JointWrapper,
+        joint_q: &Configuration,
+        joint_v: Option<&Configuration>,
+    ) -> Result<(), JointError> {
         // TODO: optimize this method to avoid computing the angle
 
         assert_eq!(
-            q.len(),
+            joint_q.len(),
             2,
             "Continuous joint model expects two values (cosine and sine)."
         );
+        if let Some(joint_v) = joint_v {
+            assert_eq!(
+                joint_v.len(),
+                1,
+                "Continuous joint model expects a single velocity value."
+            );
+        }
 
         // compute angle from cosine and sine
-        self.cos = q[0];
-        self.sin = q[1];
+        self.cos = joint_q[0];
+        self.sin = joint_q[1];
         let angle = self.sin.atan2(self.cos);
 
         // get axis

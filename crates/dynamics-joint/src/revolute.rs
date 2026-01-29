@@ -121,7 +121,7 @@ impl JointModel for JointModelRevolute {
 #[derive(Default, Debug, Clone)]
 pub struct JointDataRevolute {
     /// The angle of rotation.
-    pub q: f64,
+    pub joint_q: f64,
     /// The placement of the joint in the local frame.
     pub placement: SE3,
 }
@@ -141,7 +141,7 @@ impl JointDataRevolute {
         // safe since we just created a revolute joint model
         // and we know that a revolute joint has an axis
         let joint_model_box: JointWrapper = Box::new(joint_model.clone());
-        data.update(&joint_model_box, &Configuration::zeros(1))
+        data.update(&joint_model_box, &Configuration::zeros(1), None)
             .unwrap();
         data
     }
@@ -152,10 +152,27 @@ impl JointData for JointDataRevolute {
         self.placement
     }
 
-    fn update(&mut self, joint_model: &JointWrapper, q: &Configuration) -> Result<(), JointError> {
-        assert_eq!(q.len(), 1, "Revolute joint model expects a single angle.");
-        let q = q[0];
-        self.q = q;
+    fn update(
+        &mut self,
+        joint_model: &JointWrapper,
+        joint_q: &Configuration,
+        joint_v: Option<&Configuration>,
+    ) -> Result<(), JointError> {
+        assert_eq!(
+            joint_q.len(),
+            1,
+            "Revolute joint model expects a single angle."
+        );
+        if let Some(joint_v) = joint_v {
+            assert_eq!(
+                joint_v.len(),
+                1,
+                "Revolute joint model expects a single velocity value."
+            );
+        }
+
+        let q = joint_q[0];
+        self.joint_q = q;
         let axis = match joint_model.get_axis().len() {
             1 => &joint_model.get_axis()[0],
             _ => return Err(JointError::MissingAttributeError("axis".to_string())),
@@ -195,7 +212,7 @@ mod tests {
         let mut joint_data = joint_model.create_joint_data();
         let q = Configuration::ones(1);
         let joint_model_box: JointWrapper = Box::new(joint_model.clone());
-        joint_data.update(&joint_model_box, &q).unwrap();
+        joint_data.update(&joint_model_box, &q, None).unwrap();
 
         assert_relative_eq!(joint_data.get_joint_placement().rotation().angle(), q[0]);
         assert_eq!(

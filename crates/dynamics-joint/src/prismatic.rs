@@ -117,7 +117,7 @@ impl JointModel for JointModelPrismatic {
 #[derive(Clone, Debug)]
 pub struct JointDataPrismatic {
     // The current position of the joint.
-    pub q: f64,
+    pub joint_q: f64,
     /// The placement of the joint in the local frame.
     pub placement: SE3,
 }
@@ -134,7 +134,7 @@ impl JointDataPrismatic {
     #[must_use]
     pub fn new(_model: &JointModelPrismatic) -> Self {
         JointDataPrismatic {
-            q: 0.0,
+            joint_q: 0.0,
             placement: SE3::identity(),
         }
     }
@@ -148,13 +148,21 @@ impl JointData for JointDataPrismatic {
     fn update(
         &mut self,
         joint_model: &JointWrapper,
-        q_joint: &Configuration,
+        joint_q: &Configuration,
+        joint_v: Option<&Configuration>,
     ) -> Result<(), JointError> {
         assert_eq!(
-            q_joint.len(),
+            joint_q.len(),
             1,
             "Prismatic joint data update expects a single position value."
         );
+        if let Some(joint_v) = joint_v {
+            assert_eq!(
+                joint_v.len(),
+                1,
+                "Prismatic joint model expects a single velocity value."
+            );
+        }
 
         let axis = match joint_model.get_axis().len() {
             1 => &joint_model.get_axis()[0],
@@ -162,7 +170,7 @@ impl JointData for JointDataPrismatic {
         };
 
         self.placement =
-            SE3::from_parts(axis.translation() * q_joint[0], SpatialRotation::identity());
+            SE3::from_parts(axis.translation() * joint_q[0], SpatialRotation::identity());
         Ok(())
     }
 

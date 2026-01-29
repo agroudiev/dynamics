@@ -46,18 +46,21 @@ pub fn forward_kinematics(
         .transpose()?;
 
     // update the joints data
-    let mut offset = 0;
+    let mut q_offset = 0;
+    let mut v_offset = 0;
     for id in 0..model.njoints() {
         let joint_data = &mut data.joint_data[id];
         let joint_model = &model.joint_models[id];
-        let q_joint = q.rows(offset, joint_model.nq());
-        match joint_data.update(joint_model, &q_joint) {
+        let q_joint = q.rows(q_offset, joint_model.nq());
+        let v_joint = v.as_ref().map(|v| v.rows(v_offset, joint_model.nv()));
+        match joint_data.update(joint_model, &q_joint, v_joint.as_ref()) {
             Ok(()) => {}
             Err(e) => {
                 return Err(AlgorithmError::JointError(model.joint_names[id].clone(), e));
             }
         }
-        offset += joint_model.nq();
+        q_offset += joint_model.nq();
+        v_offset += joint_model.nv();
     }
 
     // update the placements of the joints in the world frame

@@ -68,7 +68,7 @@ impl JointDataFixed {
         let joint_model_box: JointWrapper = Box::new(joint_model.clone());
         // safe since we just created a revolute joint model
         // and we know that a revolute joint has an axis
-        data.update(&joint_model_box, &Configuration::zeros(0))
+        data.update(&joint_model_box, &Configuration::zeros(0), None)
             .unwrap();
         data
     }
@@ -79,7 +79,12 @@ impl JointData for JointDataFixed {
         self.placement
     }
 
-    fn update(&mut self, _joint_model: &JointWrapper, _: &Configuration) -> Result<(), JointError> {
+    fn update(
+        &mut self,
+        _joint_model: &JointWrapper,
+        _joint_q: &Configuration,
+        _joint_v: Option<&Configuration>,
+    ) -> Result<(), JointError> {
         Ok(())
     }
 
