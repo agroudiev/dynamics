@@ -116,8 +116,10 @@ impl JointModel for JointModelPrismatic {
 /// Data associated to a prismatic joint.
 #[derive(Clone, Debug)]
 pub struct JointDataPrismatic {
-    // The current position of the joint.
-    pub joint_q: f64,
+    /// The joint configuration value (translation along the axis).
+    pub joint_q: Configuration,
+    /// The joint velocity value (velocity along the axis).
+    pub joint_v: Configuration,
     /// The placement of the joint in the local frame.
     pub placement: SE3,
 }
@@ -134,7 +136,8 @@ impl JointDataPrismatic {
     #[must_use]
     pub fn new(_model: &JointModelPrismatic) -> Self {
         JointDataPrismatic {
-            joint_q: 0.0,
+            joint_q: Configuration::zeros(1),
+            joint_v: Configuration::zeros(1),
             placement: SE3::identity(),
         }
     }
@@ -143,6 +146,14 @@ impl JointDataPrismatic {
 impl JointData for JointDataPrismatic {
     fn get_joint_placement(&self) -> SE3 {
         self.placement
+    }
+
+    fn get_joint_q(&self) -> &Configuration {
+        &self.joint_q
+    }
+
+    fn get_joint_v(&self) -> &Configuration {
+        &self.joint_v
     }
 
     fn update(
@@ -168,6 +179,12 @@ impl JointData for JointDataPrismatic {
             1 => &joint_model.get_axis()[0],
             _ => return Err(JointError::MissingAttributeError("axis".to_string())),
         };
+
+        // store q and v
+        self.joint_q = joint_q.clone();
+        if let Some(joint_v) = joint_v {
+            self.joint_v = joint_v.clone();
+        }
 
         self.placement =
             SE3::from_parts(axis.translation() * joint_q[0], SpatialRotation::identity());

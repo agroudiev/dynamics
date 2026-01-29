@@ -49,16 +49,22 @@ pub fn forward_kinematics(
     let mut q_offset = 0;
     let mut v_offset = 0;
     for id in 0..model.njoints() {
+        // retrieve joint data and model
         let joint_data = &mut data.joint_data[id];
         let joint_model = &model.joint_models[id];
+
+        // extract the joint configuration and velocity
         let q_joint = q.rows(q_offset, joint_model.nq());
         let v_joint = v.as_ref().map(|v| v.rows(v_offset, joint_model.nv()));
+
+        // update the joint data
         match joint_data.update(joint_model, &q_joint, v_joint.as_ref()) {
             Ok(()) => {}
             Err(e) => {
                 return Err(AlgorithmError::JointError(model.joint_names[id].clone(), e));
             }
         }
+
         q_offset += joint_model.nq();
         v_offset += joint_model.nv();
     }

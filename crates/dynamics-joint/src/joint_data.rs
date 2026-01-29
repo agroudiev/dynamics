@@ -26,13 +26,19 @@ impl Display for JointError {
 
 /// Trait for joint data, providing methods to access and update joint properties.
 pub trait JointData {
+    /// Returns the joint configuration vector.
+    fn get_joint_q(&self) -> &Configuration;
+
+    /// Returns the joint velocity vector.
+    fn get_joint_v(&self) -> &Configuration;
+
     /// Returns the placement of the joint in the world frame.
     fn get_joint_placement(&self) -> SE3;
 
     /// Updates the joint data with the given model and angle.
     fn update(
         &mut self,
-        joint_model: &JointWrapper,
+        joint_model: &JointWrapper, // TODO: remove this argument
         joint_q: &Configuration,
         joint_v: Option<&Configuration>,
     ) -> Result<(), JointError>;

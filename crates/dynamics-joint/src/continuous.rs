@@ -132,10 +132,10 @@ impl JointModel for JointModelContinuous {
 /// Data structure containing the mutable properties of a continuous joint.
 #[derive(Debug, Clone)]
 pub struct JointDataContinuous {
-    /// The cosine of the angle.
-    pub cos: f64,
-    /// The sine of the angle.
-    pub sin: f64,
+    /// The joint configuration vector (cosine and sine of the angle).
+    pub joint_q: Configuration,
+    /// The joint velocity vector (angular velocity).
+    pub joint_v: Configuration,
     /// The placement of the joint in the local frame.
     pub placement: SE3,
 }
@@ -143,8 +143,8 @@ pub struct JointDataContinuous {
 impl Default for JointDataContinuous {
     fn default() -> Self {
         JointDataContinuous {
-            cos: 1.0,
-            sin: 0.0,
+            joint_q: Configuration::from_row_slice(&[1.0, 0.0]),
+            joint_v: Configuration::from_row_slice(&[0.0]),
             placement: SE3::identity(),
         }
     }
@@ -160,18 +160,32 @@ impl JointDataContinuous {
     /// # Returns
     /// A new `JointDataContinuous` object.
     #[must_use]
-    pub fn new(joint_model: &JointModelContinuous) -> Self {
-        let mut data = JointDataContinuous::default();
-        // safe since we just created a continuous joint model
-        // and we know that a continuous joint has an axis
-        let joint_model_box: JointWrapper = Box::new(joint_model.clone());
-        data.update(&joint_model_box, &Configuration::zeros(2), None)
-            .unwrap();
-        data
+    pub fn new(_joint_model: &JointModelContinuous) -> Self {
+        JointDataContinuous::default()
+    }
+
+    /// Returns the cosine of the joint angle.
+    #[must_use]
+    pub fn cos(&self) -> f64 {
+        self.joint_q[0]
+    }
+
+    /// Returns the sine of the joint angle.
+    #[must_use]
+    pub fn sin(&self) -> f64 {
+        self.joint_q[1]
     }
 }
 
 impl JointData for JointDataContinuous {
+    fn get_joint_q(&self) -> &Configuration {
+        &self.joint_q
+    }
+
+    fn get_joint_v(&self) -> &Configuration {
+        &self.joint_v
+    }
+
     fn update(
         &mut self,
         joint_model: &JointWrapper,
@@ -193,10 +207,14 @@ impl JointData for JointDataContinuous {
             );
         }
 
+        // store q and v
+        self.joint_q = joint_q.clone();
+        if let Some(joint_v) = joint_v {
+            self.joint_v = joint_v.clone();
+        }
+
         // compute angle from cosine and sine
-        self.cos = joint_q[0];
-        self.sin = joint_q[1];
-        let angle = self.sin.atan2(self.cos);
+        let angle = self.sin().atan2(self.cos());
 
         // get axis
         let axis = match joint_model.get_axis().len() {

@@ -47,8 +47,12 @@ impl JointModel for JointModelFixed {
 }
 
 /// Data structure containing the mutable properties of a fixed joint.
-#[derive(Default, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub struct JointDataFixed {
+    /// The joint configuration vector (always empty).
+    pub joint_q: Configuration,
+    /// The joint velocity vector (always empty).
+    pub joint_v: Configuration,
     /// The placement of the joint in the local frame.
     pub placement: SE3,
 }
@@ -64,7 +68,11 @@ impl JointDataFixed {
     /// A new [`JointDataFixed`] object.
     #[must_use]
     pub fn new(joint_model: &JointModelFixed) -> Self {
-        let mut data = JointDataFixed::default();
+        let mut data = JointDataFixed {
+            joint_q: Configuration::zeros(0),
+            joint_v: Configuration::zeros(0),
+            placement: SE3::identity(),
+        };
         let joint_model_box: JointWrapper = Box::new(joint_model.clone());
         // safe since we just created a revolute joint model
         // and we know that a revolute joint has an axis
@@ -75,6 +83,14 @@ impl JointDataFixed {
 }
 
 impl JointData for JointDataFixed {
+    fn get_joint_q(&self) -> &Configuration {
+        &self.joint_q
+    }
+
+    fn get_joint_v(&self) -> &Configuration {
+        &self.joint_v
+    }
+
     fn get_joint_placement(&self) -> SE3 {
         self.placement
     }

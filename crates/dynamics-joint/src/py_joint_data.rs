@@ -21,6 +21,20 @@ impl PyJointDataWrapper {
     }
 
     #[getter]
+    #[must_use]
+    /// Returns the joint configuration vector.
+    pub fn joint_q(&self) -> PyConfiguration {
+        PyConfiguration::new(self.inner.get_joint_q().clone())
+    }
+
+    #[getter]
+    #[must_use]
+    /// Returns the joint velocity vector.
+    pub fn joint_v(&self) -> PyConfiguration {
+        PyConfiguration::new(self.inner.get_joint_v().clone())
+    }
+
+    #[getter]
     #[allow(non_snake_case)]
     /// Returns the joint placement in the world frame.
     ///

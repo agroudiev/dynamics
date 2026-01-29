@@ -118,10 +118,12 @@ impl JointModel for JointModelRevolute {
 }
 
 /// Data structure containing the mutable properties of a revolute joint.
-#[derive(Default, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub struct JointDataRevolute {
-    /// The angle of rotation.
-    pub joint_q: f64,
+    /// The joint configuration vector (angle of rotation).
+    pub joint_q: Configuration,
+    /// The joint velocity vector (angle velocity).
+    pub joint_v: Configuration,
     /// The placement of the joint in the local frame.
     pub placement: SE3,
 }
@@ -136,18 +138,24 @@ impl JointDataRevolute {
     /// # Returns
     /// A new `JointDataRevolute` object.
     #[must_use]
-    pub fn new(joint_model: &JointModelRevolute) -> Self {
-        let mut data = JointDataRevolute::default();
-        // safe since we just created a revolute joint model
-        // and we know that a revolute joint has an axis
-        let joint_model_box: JointWrapper = Box::new(joint_model.clone());
-        data.update(&joint_model_box, &Configuration::zeros(1), None)
-            .unwrap();
-        data
+    pub fn new(_joint_model: &JointModelRevolute) -> Self {
+        JointDataRevolute {
+            joint_q: Configuration::zeros(1),
+            joint_v: Configuration::zeros(1),
+            placement: SE3::identity(),
+        }
     }
 }
 
 impl JointData for JointDataRevolute {
+    fn get_joint_q(&self) -> &Configuration {
+        &self.joint_q
+    }
+
+    fn get_joint_v(&self) -> &Configuration {
+        &self.joint_v
+    }
+
     fn get_joint_placement(&self) -> SE3 {
         self.placement
     }
@@ -171,14 +179,18 @@ impl JointData for JointDataRevolute {
             );
         }
 
-        let q = joint_q[0];
-        self.joint_q = q;
+        // store q and v
+        self.joint_q = joint_q.clone();
+        if let Some(joint_v) = joint_v {
+            self.joint_v = joint_v.clone();
+        }
+
         let axis = match joint_model.get_axis().len() {
             1 => &joint_model.get_axis()[0],
             _ => return Err(JointError::MissingAttributeError("axis".to_string())),
         };
 
-        let rot = SpatialRotation::from_axis_angle(&axis.rotation(), q);
+        let rot = SpatialRotation::from_axis_angle(&axis.rotation(), self.joint_q[0]);
         self.placement = rot.to_se3(&Vector3D::zeros());
         Ok(())
     }

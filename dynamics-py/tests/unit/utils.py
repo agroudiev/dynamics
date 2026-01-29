@@ -220,6 +220,19 @@ def assert_joint_datas_equals(
     dyn_joint_data: dyn.JointData,
     pin_joint_data: pin.JointData,
 ):
+    # Check the joint configuration vector
+    test_case.assertTrue(
+        np.linalg.norm(dyn_joint_data.joint_q.to_numpy() - pin_joint_data.joint_q)
+        < 1e-15,
+    )
+
+    # Check the joint velocity vector
+    # test_case.assertTrue(
+    #     np.linalg.norm(dyn_joint_data.joint_v.to_numpy() - pin_joint_data.joint_v)
+    #     < 1e-15,
+    # )
+    # disabled since pinocchio is not consistent for unaligned joints
+
     # Check the joint placement
     assert_se3_equals(
         test_case,
@@ -253,11 +266,7 @@ def assert_datas_equals(
 
     # Check joint data
     for i in range(len(dyn_data.joint_placements)):
-        assert_joint_datas_equals(
-            test_case,
-            dyn_data.joints[i],
-            pin_data.joints[i],
-        )
+        assert_joint_datas_equals(test_case, dyn_data.joints[i], pin_data.joints[i])
 
     # Check velocities
     # TODO
