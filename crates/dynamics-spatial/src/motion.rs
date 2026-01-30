@@ -282,7 +282,7 @@ mod tests {
     fn test_cross() {
         let angular1 = Vector3D::new(1.0, 2.0, 3.0);
         let linear1 = Vector3D::new(4.0, 5.0, 6.0);
-        let motion1 = SpatialMotion::from_parts(angular1, linear1);
+        let motion1 = SpatialMotion::from_parts(linear1, angular1);
 
         let angular2 = Vector3D::new(7.0, 8.0, 9.0);
         let linear2 = Vector3D::new(10.0, 11.0, 12.0);
