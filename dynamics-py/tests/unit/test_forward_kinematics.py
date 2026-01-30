@@ -86,6 +86,9 @@ class TestForwardKinematics(unittest.TestCase):
         pin.forwardKinematics(pin_model, pin_data, q)
         assert_datas_equals(self, dyn_data, pin_data)
 
+    def test_fk_double_pendulum(self):
+        compare_urdf_fk(self, "examples/descriptions/double_pendulum_simple.urdf")
+
     @parameterized.parameterized.expand(EXAMPLE_ROBOT_DATA_URDFS)
     def test_fk_example_robot_data(self, path):
         robots_dir = "examples/descriptions/example-robot-data/robots/"

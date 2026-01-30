@@ -65,6 +65,11 @@ pub fn forward_kinematics(
             }
         }
 
+        // update the data velocity
+        if v.is_some() {
+            data.joint_velocities[id] = joint_data.get_joint_velocity().clone();
+        }
+
         q_offset += joint_model.nq();
         v_offset += joint_model.nv();
     }
@@ -90,6 +95,12 @@ pub fn forward_kinematics(
             joint_id,
             parent_placement * local_joint_placement * joint_placement,
         );
+        if v.is_some() {
+            // split borrow to update joint velocities
+            let (v_parent, v_child) = data.joint_velocities.split_at_mut(joint_id);
+            // update the joint velocity of the joint at joint_id
+            v_child[0] += data.joint_placements[joint_id].act_inv(&v_parent[parent_id]);
+        }
     }
 
     Ok(())

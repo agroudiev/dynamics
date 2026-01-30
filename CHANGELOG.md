@@ -6,9 +6,17 @@ This file is used to track changes made to the project over time.
 ### Added
 ### Algorithms
 - Added `update_frame_placements` algorithm to update frame placements based on joint placements.
+- Added optional velocity and acceleration parameters to `forward_kinematics` function.
 
-#### Joints
+### Model & Data
+- Data now stores joint velocities and accelerations.
+
+### Joints
 - Python bindings for continuous joints (`JointModelRUB*`) and prismatic joints (`JointModelP*`).
+- Joint data now stores joint configurations and velocities.
+
+### Spatial
+- Added Python bindings for `SpatialMotion` type.
 
 ### Misc
 - Fix docs.rs build for all crates
