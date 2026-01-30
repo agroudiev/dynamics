@@ -2,11 +2,17 @@
 
 use nalgebra::{Matrix6, Rotation3, Vector6};
 
-use crate::{se3::SE3, vector3d::Vector3D, vector6d::Vector6D};
-use std::ops::{Add, Mul};
+use crate::{
+    se3::{ActSE3, SE3},
+    vector3d::Vector3D,
+    vector6d::Vector6D,
+};
+use std::ops::{Add, AddAssign, Mul};
 
 #[derive(Clone, Debug, PartialEq, Default)]
-/// Spatial motion vector, combining angular and linear velocity components.
+/// Spatial motion vector, combining linear and angular velocity components.
+///
+/// The first three elements represent linear velocity, and the last three represent angular velocity.
 pub struct SpatialMotion(pub(crate) Vector6<f64>);
 // TODO: rewrite this with Vector6D to avoid double implementation
 
@@ -15,7 +21,7 @@ impl SpatialMotion {
     #[must_use]
     pub fn from_rotational_axis(axis: &Vector3D) -> Self {
         let mut v = Vector6::zeros();
-        v.fixed_rows_mut::<3>(0).copy_from(&axis.0);
+        v.fixed_rows_mut::<3>(3).copy_from(&axis.0);
         Self(v)
     }
 
@@ -23,20 +29,20 @@ impl SpatialMotion {
     #[must_use]
     pub fn from_translational_axis(axis: &Vector3D) -> Self {
         let mut v = Vector6::zeros();
-        v.fixed_rows_mut::<3>(3).copy_from(&axis.0);
+        v.fixed_rows_mut::<3>(0).copy_from(&axis.0);
         Self(v)
     }
 
     /// Extracts the rotation (angular velocity) component of the spatial motion.
     #[must_use]
     pub fn rotation(&self) -> Vector3D {
-        Vector3D(self.0.fixed_rows::<3>(0).into())
+        Vector3D(self.0.fixed_rows::<3>(3).into())
     }
 
     /// Extracts the translation (linear velocity) component of the spatial motion.
     #[must_use]
     pub fn translation(&self) -> Vector3D {
-        Vector3D(self.0.fixed_rows::<3>(3).into())
+        Vector3D(self.0.fixed_rows::<3>(0).into())
     }
 
     /// Zero spatial motion (no motion).
@@ -149,6 +155,12 @@ impl Add<&SpatialMotion> for SpatialMotion {
     }
 }
 
+impl AddAssign for SpatialMotion {
+    fn add_assign(&mut self, rhs: Self) {
+        self.0 += rhs.0;
+    }
+}
+
 impl Mul<f64> for SpatialMotion {
     type Output = SpatialMotion;
 
@@ -162,6 +174,29 @@ impl Mul<f64> for &SpatialMotion {
 
     fn mul(self, rhs: f64) -> Self::Output {
         SpatialMotion(self.0 * rhs)
+    }
+}
+
+impl Mul<SpatialMotion> for f64 {
+    type Output = SpatialMotion;
+
+    fn mul(self, rhs: SpatialMotion) -> Self::Output {
+        SpatialMotion(rhs.0 * self)
+    }
+}
+
+impl ActSE3 for SpatialMotion {
+    fn act(&self, se3: &SE3) -> Self {
+        let rotation = se3.rotation() * &self.rotation();
+        let translation = se3.rotation() * &self.translation() + se3.translation().cross(&rotation);
+        SpatialMotion::from_parts(rotation, translation)
+    }
+
+    fn act_inv(&self, se3: &SE3) -> Self {
+        let rotation = se3.rotation().transpose() * &self.rotation();
+        let translation = se3.rotation().transpose()
+            * &(self.translation() - se3.translation().cross(&self.rotation()));
+        SpatialMotion::from_parts(rotation, translation)
     }
 }
 
@@ -198,6 +233,11 @@ impl SpatialRotation {
     #[must_use]
     pub fn from_euler_angles(roll: f64, pitch: f64, yaw: f64) -> Self {
         Self(Rotation3::from_euler_angles(roll, pitch, yaw))
+    }
+
+    /// Returns the transpose of the rotation matrix.
+    pub fn transpose(&self) -> Self {
+        Self(self.0.transpose())
     }
 }
 

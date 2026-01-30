@@ -1,4 +1,4 @@
-use numpy::PyReadonlyArrayDyn;
+use numpy::{PyReadonlyArrayDyn, ToPyArray, ndarray::Array1};
 use pyo3::prelude::*;
 
 use crate::{motion::SpatialMotion, py_vector3d::PyVector3D, vector3d::Vector3D};
@@ -55,5 +55,12 @@ impl PySpatialMotion {
         PyVector3D {
             inner: self.inner.rotation(),
         }
+    }
+
+    pub fn to_numpy(&self, py: Python) -> Py<PyAny> {
+        Array1::from_iter(self.inner.0.iter().copied())
+            .to_pyarray(py)
+            .into_any()
+            .unbind()
     }
 }

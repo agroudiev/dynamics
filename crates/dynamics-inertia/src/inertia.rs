@@ -131,6 +131,15 @@ impl ActSE3 for Inertia {
             self.inertia.rotate(&t.rotation()),
         )
     }
+
+    fn act_inv(&self, se3: &SE3) -> Self {
+        let rotation_inv = se3.rotation().transpose();
+        Inertia::new(
+            self.mass,
+            rotation_inv * &(self.com - se3.translation()),
+            self.inertia.rotate(&rotation_inv),
+        )
+    }
 }
 
 /// An error type for the [`Inertia`] struct.
