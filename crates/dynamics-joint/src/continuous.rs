@@ -83,10 +83,6 @@ impl JointModel for JointModelContinuous {
         JointType::Continuous
     }
 
-    fn clone_box(&self) -> JointWrapper {
-        Box::new(self.clone())
-    }
-
     fn nq(&self) -> usize {
         2
     }

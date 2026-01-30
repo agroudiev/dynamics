@@ -75,10 +75,6 @@ impl JointModel for JointModelPrismatic {
         JointType::Prismatic
     }
 
-    fn clone_box(&self) -> JointWrapper {
-        Box::new(self.clone())
-    }
-
     fn nq(&self) -> usize {
         1
     }

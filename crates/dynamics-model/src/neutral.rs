@@ -1,6 +1,7 @@
 //! Algorithm to compute the neutral configuration of a model.
 
 use crate::model::Model;
+use dynamics_joint::joint::JointModel;
 use dynamics_spatial::configuration::Configuration;
 use dynamics_spatial::configuration::ConfigurationError;
 

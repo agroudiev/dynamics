@@ -3,7 +3,7 @@ use pyo3::prelude::*;
 use crate::{
     continuous::JointModelContinuous,
     fixed::JointModelFixed,
-    joint::{JointType, JointWrapper},
+    joint::{JointModel, JointType, JointWrapper},
     prismatic::JointModelPrismatic,
     revolute::JointModelRevolute,
 };
@@ -46,7 +46,7 @@ pub struct PyJointModelFixed {
 #[must_use]
 pub fn new_rubx() -> PyJointWrapper {
     PyJointWrapper {
-        inner: Box::new(JointModelContinuous::new_rux()),
+        inner: JointWrapper::continuous(JointModelContinuous::new_rux()),
     }
 }
 
@@ -55,7 +55,7 @@ pub fn new_rubx() -> PyJointWrapper {
 #[must_use]
 pub fn new_ruby() -> PyJointWrapper {
     PyJointWrapper {
-        inner: Box::new(JointModelContinuous::new_ruy()),
+        inner: JointWrapper::continuous(JointModelContinuous::new_ruy()),
     }
 }
 
@@ -64,7 +64,7 @@ pub fn new_ruby() -> PyJointWrapper {
 #[must_use]
 pub fn new_rubz() -> PyJointWrapper {
     PyJointWrapper {
-        inner: Box::new(JointModelContinuous::new_ruz()),
+        inner: JointWrapper::continuous(JointModelContinuous::new_ruz()),
     }
 }
 
@@ -73,7 +73,7 @@ pub fn new_rubz() -> PyJointWrapper {
 #[must_use]
 pub fn new_px() -> PyJointWrapper {
     PyJointWrapper {
-        inner: Box::new(JointModelPrismatic::new_px()),
+        inner: JointWrapper::prismatic(JointModelPrismatic::new_px()),
     }
 }
 
@@ -82,7 +82,7 @@ pub fn new_px() -> PyJointWrapper {
 #[must_use]
 pub fn new_py() -> PyJointWrapper {
     PyJointWrapper {
-        inner: Box::new(JointModelPrismatic::new_py()),
+        inner: JointWrapper::prismatic(JointModelPrismatic::new_py()),
     }
 }
 
@@ -91,7 +91,7 @@ pub fn new_py() -> PyJointWrapper {
 #[must_use]
 pub fn new_pz() -> PyJointWrapper {
     PyJointWrapper {
-        inner: Box::new(JointModelPrismatic::new_pz()),
+        inner: JointWrapper::prismatic(JointModelPrismatic::new_pz()),
     }
 }
 
@@ -100,7 +100,7 @@ pub fn new_pz() -> PyJointWrapper {
 #[must_use]
 pub fn new_rx() -> PyJointWrapper {
     PyJointWrapper {
-        inner: Box::new(JointModelRevolute::new_rx()),
+        inner: JointWrapper::revolute(JointModelRevolute::new_rx()),
     }
 }
 
@@ -109,7 +109,7 @@ pub fn new_rx() -> PyJointWrapper {
 #[must_use]
 pub fn new_ry() -> PyJointWrapper {
     PyJointWrapper {
-        inner: Box::new(JointModelRevolute::new_ry()),
+        inner: JointWrapper::revolute(JointModelRevolute::new_ry()),
     }
 }
 
@@ -118,6 +118,6 @@ pub fn new_ry() -> PyJointWrapper {
 #[must_use]
 pub fn new_rz() -> PyJointWrapper {
     PyJointWrapper {
-        inner: Box::new(JointModelRevolute::new_rz()),
+        inner: JointWrapper::revolute(JointModelRevolute::new_rz()),
     }
 }

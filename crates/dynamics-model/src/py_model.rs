@@ -80,12 +80,10 @@ impl PyModel {
         placement: &PySE3,
         name: String,
     ) -> PyResult<usize> {
-        match self.inner.add_joint(
-            parent_id,
-            joint_model.inner.clone_box(),
-            placement.inner,
-            name,
-        ) {
+        match self
+            .inner
+            .add_joint(parent_id, joint_model.inner.clone(), placement.inner, name)
+        {
             Ok(id) => Ok(id),
             Err(model_error) => Err(PyValueError::new_err(format!("{model_error:?}"))),
         }
@@ -154,7 +152,7 @@ impl PyModel {
             .joint_models
             .iter()
             .map(|joint_model| PyJointWrapper {
-                inner: joint_model.clone_box(),
+                inner: joint_model.clone(),
             })
             .collect()
     }

@@ -5,7 +5,7 @@
 
 use crate::data::Data;
 use crate::model::Model;
-use dynamics_joint::joint::JointWrapper;
+use dynamics_joint::joint::{JointModel, JointWrapper};
 use dynamics_spatial::configuration::{Configuration, ConfigurationError};
 use dynamics_spatial::motion::SpatialMotion;
 use dynamics_spatial::vector3d::Vector3D;

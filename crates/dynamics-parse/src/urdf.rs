@@ -29,6 +29,7 @@ use collider_rs::shape::Cuboid;
 use collider_rs::shape::{Cylinder, ShapeWrapper, Sphere};
 use dynamics_inertia::inertia::Inertia;
 use dynamics_joint::continuous::JointModelContinuous;
+use dynamics_joint::joint::JointWrapper;
 use dynamics_joint::prismatic::JointModelPrismatic;
 use dynamics_joint::revolute::JointModelRevolute;
 use dynamics_model::frame::{Frame, FrameType};
@@ -348,7 +349,7 @@ fn parse_joint(
 
             model.add_joint(
                 parent_joint_id,
-                Box::new(joint_model),
+                JointWrapper::continuous(joint_model),
                 placement,
                 joint_name.clone(),
             )
@@ -385,7 +386,7 @@ fn parse_joint(
 
             model.add_joint(
                 parent_joint_id,
-                Box::new(joint_model),
+                JointWrapper::revolute(joint_model),
                 placement,
                 joint_name.clone(),
             )
@@ -421,7 +422,7 @@ fn parse_joint(
 
             model.add_joint(
                 parent_joint_id,
-                Box::new(joint_model),
+                JointWrapper::prismatic(joint_model),
                 placement,
                 joint_name.clone(),
             )

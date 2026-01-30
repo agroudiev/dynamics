@@ -16,10 +16,6 @@ impl JointModel for JointModelFixed {
         JointType::Fixed
     }
 
-    fn clone_box(&self) -> JointWrapper {
-        Box::new(self.clone())
-    }
-
     fn nq(&self) -> usize {
         0
     }
@@ -43,6 +39,10 @@ impl JointModel for JointModelFixed {
     fn transform(&self, q: &Configuration) -> SE3 {
         assert_eq!(q.len(), 0, "Fixed joint model expects no configuration.");
         SE3::identity()
+    }
+
+    fn get_axis(&self) -> Vec<SpatialMotion> {
+        Vec::new()
     }
 }
 
@@ -69,19 +69,13 @@ impl JointDataFixed {
     /// # Returns
     /// A new [`JointDataFixed`] object.
     #[must_use]
-    pub fn new(joint_model: &JointModelFixed) -> Self {
-        let mut data = JointDataFixed {
+    pub fn new(_joint_model: &JointModelFixed) -> Self {
+        JointDataFixed {
             joint_q: Configuration::zeros(0),
             joint_v: Configuration::zeros(0),
             placement: SE3::identity(),
             joint_velocity: SpatialMotion::zero(),
-        };
-        let joint_model_box: JointWrapper = Box::new(joint_model.clone());
-        // safe since we just created a revolute joint model
-        // and we know that a revolute joint has an axis
-        data.update(&joint_model_box, &Configuration::zeros(0), None)
-            .unwrap();
-        data
+        }
     }
 }
 

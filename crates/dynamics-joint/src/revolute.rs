@@ -74,10 +74,6 @@ impl JointModel for JointModelRevolute {
         JointType::Revolute
     }
 
-    fn clone_box(&self) -> JointWrapper {
-        Box::new(self.clone())
-    }
-
     fn nq(&self) -> usize {
         1
     }
@@ -231,8 +227,9 @@ mod tests {
         let joint_model = JointModelRevolute::new(Vector3D::new(1.0, 0.0, 0.0));
         let mut joint_data = joint_model.create_joint_data();
         let q = Configuration::ones(1);
-        let joint_model_box: JointWrapper = Box::new(joint_model.clone());
-        joint_data.update(&joint_model_box, &q, None).unwrap();
+        joint_data
+            .update(&JointWrapper::revolute(joint_model), &q, None)
+            .unwrap();
 
         assert_relative_eq!(joint_data.get_joint_placement().rotation().angle(), q[0]);
         assert_eq!(

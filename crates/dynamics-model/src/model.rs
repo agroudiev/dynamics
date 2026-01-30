@@ -4,7 +4,7 @@ use crate::data::Data;
 use crate::frame::{Frame, FrameType};
 use dynamics_inertia::inertia::Inertia;
 use dynamics_joint::fixed::JointModelFixed;
-use dynamics_joint::joint::JointWrapper;
+use dynamics_joint::joint::{JointModel, JointWrapper};
 use dynamics_spatial::configuration::Configuration;
 use dynamics_spatial::motion::SpatialMotion;
 use dynamics_spatial::se3::SE3;
@@ -68,7 +68,7 @@ impl Model {
             joint_names: vec!["__WORLD__".to_string()],
             joint_parents: vec![WORLD_ID],
             joint_placements: vec![SE3::identity()],
-            joint_models: vec![Box::new(JointModelFixed::default())],
+            joint_models: vec![JointWrapper::fixed(JointModelFixed::default())],
             nq: 0,
             nv: 0,
             inertias: vec![Inertia::zeros()],
