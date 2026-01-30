@@ -1,7 +1,9 @@
 use numpy::{PyReadonlyArrayDyn, ToPyArray, ndarray::Array1};
 use pyo3::prelude::*;
 
-use crate::{motion::SpatialMotion, py_vector3d::PyVector3D, vector3d::Vector3D};
+use crate::{
+    motion::SpatialMotion, py_vector3d::PyVector3D, vector3d::Vector3D, vector6d::Vector6D,
+};
 
 #[pyclass(name = "SpatialMotion")]
 pub struct PySpatialMotion {
@@ -11,9 +13,24 @@ pub struct PySpatialMotion {
 #[pymethods]
 impl PySpatialMotion {
     #[new]
-    pub fn new(angular: PyVector3D, linear: PyVector3D) -> Self {
+    pub fn new(array: PyReadonlyArrayDyn<f64>) -> PyResult<Self> {
+        let array = array.as_array();
+        if array.ndim() != 1 || array.len() != 6 {
+            return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(
+                "Input array must be one-dimensional with length 6.",
+            ));
+        }
+        Ok(PySpatialMotion {
+            inner: SpatialMotion(
+                Vector6D::new(array[0], array[1], array[2], array[3], array[4], array[5]).0,
+            ),
+        })
+    }
+
+    #[staticmethod]
+    pub fn from_vectors(linear: PyVector3D, angular: PyVector3D) -> Self {
         PySpatialMotion {
-            inner: SpatialMotion::from_parts(angular.inner, linear.inner),
+            inner: SpatialMotion::from_parts(linear.inner, angular.inner),
         }
     }
 

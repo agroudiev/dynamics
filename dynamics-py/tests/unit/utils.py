@@ -241,7 +241,9 @@ def assert_joint_datas_equals(
     )
 
     # Check joint velocity
-    # TODO
+    test_case.assertTrue(
+        np.linalg.norm(dyn_joint_data.v.to_numpy() - pin_joint_data.v) < 1e-14,
+    )
 
     # Check joint acceleration
     # TODO
@@ -269,10 +271,19 @@ def assert_datas_equals(
         assert_joint_datas_equals(test_case, dyn_data.joints[i], pin_data.joints[i])
 
     # Check velocities
-    # TODO
+    test_case.assertEqual(len(dyn_data.v), len(pin_data.v))
+    for i in range(len(dyn_data.v)):
+        test_case.assertTrue(
+            np.linalg.norm(dyn_data.v[i].to_numpy() - pin_data.v[i]) < 1e-14,
+            f"{dyn_data.v[i].to_numpy()}\n{pin_data.v[i]}",
+        )
 
     # Check accelerations
-    # TODO
+    test_case.assertEqual(len(dyn_data.a), len(pin_data.a))
+    for i in range(len(dyn_data.a)):
+        test_case.assertTrue(
+            np.linalg.norm(dyn_data.a[i].to_numpy() - pin_data.a[i]) < 1e-14
+        )
 
 
 EXAMPLE_ROBOT_DATA_URDFS = [

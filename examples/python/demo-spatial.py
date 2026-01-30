@@ -66,14 +66,19 @@ sv = s * v
 assert (sv.vector() == s.matrix() @ v.vector()).all()
 
 # === Spatial Motion ===
-# create a new spatial motion from its angular and linear parts
+# create a spatial motion from a 6D vector
+motion_vec = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0])
+motion = dynamics.SpatialMotion(motion_vec)
+assert (motion.to_numpy() == motion_vec).all()
+
+# or create it from its angular and linear vector parts
 w = dynamics.Vector3D(1.0, 2.0, 3.0)
 v = dynamics.Vector3D(4.0, 5.0, 6.0)
-motion = dynamics.SpatialMotion(w, v)
+motion = dynamics.SpatialMotion.from_vectors(v, w)
 
 # or create it using two numpy arrays
 w_np = np.array([1.0, 2.0, 3.0])
 v_np = np.array([4.0, 5.0, 6.0])
-motion = dynamics.SpatialMotion.from_parts(w_np, v_np)
+motion = dynamics.SpatialMotion.from_parts(v_np, w_np)
 assert (motion.rotation.vector() == w_np).all()
 assert (motion.translation.vector() == v_np).all()

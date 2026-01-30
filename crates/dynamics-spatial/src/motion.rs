@@ -51,23 +51,23 @@ impl SpatialMotion {
         Self(Vector6::zeros())
     }
 
-    /// Creates a `SpatialMotion` from angular and linear components.
+    /// Creates a `SpatialMotion` from linear and angular components.
     ///
     /// # Arguments
-    /// * `angular` - The angular velocity component (3D vector).
     /// * `linear` - The linear velocity component (3D vector).
+    /// * `angular` - The angular velocity component (3D vector).
     #[must_use]
-    pub fn from_parts(angular: Vector3D, linear: Vector3D) -> Self {
+    pub fn from_parts(linear: Vector3D, angular: Vector3D) -> Self {
         let mut v = Vector6::zeros();
-        v.fixed_rows_mut::<3>(0).copy_from(&angular.0);
-        v.fixed_rows_mut::<3>(3).copy_from(&linear.0);
+        v.fixed_rows_mut::<3>(0).copy_from(&linear.0);
+        v.fixed_rows_mut::<3>(3).copy_from(&angular.0);
         Self(v)
     }
 
     /// Creates a `SpatialMotion` from a 6D vector.
     ///
     /// # Arguments
-    /// * `v` - The 6D vector representing spatial motion; the first three elements are angular, the last three are linear.
+    /// * `v` - The 6D vector representing spatial motion; the first three elements are linear, the last three are angular.
     #[must_use]
     pub fn from_vector6d(v: Vector6D) -> Self {
         Self(v.0)
@@ -82,6 +82,7 @@ impl SpatialMotion {
     /// # Returns
     /// A 6x6 matrix representing the cross product operation.
     fn cross_matrix(angular: Vector3D, linear: Vector3D) -> Matrix6<f64> {
+        // TODO: check argument order
         let mut cross_matrix = Matrix6::zeros();
         let angular_so3 = crate::so3::SO3::from_vector3d(&angular);
         let linear_so3 = crate::so3::SO3::from_vector3d(&linear);
@@ -187,16 +188,16 @@ impl Mul<SpatialMotion> for f64 {
 
 impl ActSE3 for SpatialMotion {
     fn act(&self, se3: &SE3) -> Self {
-        let rotation = se3.rotation() * &self.rotation();
-        let translation = se3.rotation() * &self.translation() + se3.translation().cross(&rotation);
-        SpatialMotion::from_parts(rotation, translation)
+        let angular = se3.rotation() * &self.rotation();
+        let linear = se3.rotation() * &self.translation() + se3.translation().cross(&angular);
+        SpatialMotion::from_parts(linear, angular)
     }
 
     fn act_inv(&self, se3: &SE3) -> Self {
-        let rotation = se3.rotation().transpose() * &self.rotation();
-        let translation = se3.rotation().transpose()
+        let angular = se3.rotation().transpose() * &self.rotation();
+        let linear = se3.rotation().transpose()
             * &(self.translation() - se3.translation().cross(&self.rotation()));
-        SpatialMotion::from_parts(rotation, translation)
+        SpatialMotion::from_parts(linear, angular)
     }
 }
 
