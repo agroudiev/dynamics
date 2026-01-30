@@ -90,16 +90,19 @@ pub fn forward_kinematics(
         let joint_data = &data.joint_data[joint_id];
         let joint_placement = joint_data.get_joint_placement();
 
+        // compute the local joint placement in the parent frame
+        data.local_joint_placements[joint_id] = local_joint_placement * joint_placement;
+
         // compute the placement of the joint in the world frame
         data.joint_placements.insert(
             joint_id,
-            parent_placement * local_joint_placement * joint_placement,
+            parent_placement * data.local_joint_placements[joint_id],
         );
         if v.is_some() {
             // split borrow to update joint velocities
             let (v_parent, v_child) = data.joint_velocities.split_at_mut(joint_id);
             // update the joint velocity of the joint at joint_id
-            v_child[0] += data.joint_placements[joint_id].act_inv(&v_parent[parent_id]);
+            v_child[0] += data.local_joint_placements[joint_id].act_inv(&v_parent[parent_id]);
         }
     }
 
