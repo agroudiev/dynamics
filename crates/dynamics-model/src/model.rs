@@ -173,6 +173,7 @@ impl Model {
             joints_data,
             vec![SE3::identity(); self.njoints()],
             vec![SE3::identity(); self.nframes()],
+            vec![SE3::identity(); self.njoints()],
             vec![SpatialMotion::zero(); self.njoints()],
             vec![SpatialMotion::zero(); self.njoints()],
         )

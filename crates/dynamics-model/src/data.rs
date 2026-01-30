@@ -14,6 +14,8 @@ pub struct Data {
     pub joint_placements: Vec<SE3>,
     /// Placements of the frames in the world frame (oMf)
     pub frame_placements: Vec<SE3>,
+    /// The local joint placements in the parent frame (liMi)
+    pub local_joint_placements: Vec<SE3>,
     /// Velocities of the joints in the world frame (v)
     pub joint_velocities: Vec<SpatialMotion>,
     /// Accelerations of the joints in the world frame (a)
@@ -35,6 +37,7 @@ impl Data {
         joint_data: Vec<JointDataWrapper>,
         joint_placements: Vec<SE3>,
         frame_placements: Vec<SE3>,
+        local_joint_placements: Vec<SE3>,
         joint_velocities: Vec<SpatialMotion>,
         joint_accelerations: Vec<SpatialMotion>,
     ) -> Self {
@@ -42,6 +45,7 @@ impl Data {
             joint_data,
             joint_placements,
             frame_placements,
+            local_joint_placements,
             joint_velocities,
             joint_accelerations,
         }
