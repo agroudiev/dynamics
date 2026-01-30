@@ -5,7 +5,7 @@ use numpy::{
 };
 use pyo3::{exceptions::PyValueError, prelude::*};
 
-use crate::{motion::SpatialRotation, se3::SE3, vector3d::Vector3D};
+use crate::{motion::SpatialRotation, py_motion::PySpatialMotion, se3::SE3, vector3d::Vector3D};
 
 // Python wrapper for the SE(3) group.
 #[pyclass(name = "SE3")]
@@ -166,5 +166,18 @@ impl PySE3 {
 
     fn __repr__(slf: PyRef<'_, Self>) -> String {
         format!("{:?}", slf.inner)
+    }
+
+    // TODO: make this work with any ActSE3 type
+    pub fn act(&self, other: &PySpatialMotion) -> PySpatialMotion {
+        PySpatialMotion {
+            inner: self.inner.act(&other.inner),
+        }
+    }
+
+    pub fn act_inv(&self, other: &PySpatialMotion) -> PySpatialMotion {
+        PySpatialMotion {
+            inner: self.inner.act_inv(&other.inner),
+        }
     }
 }

@@ -100,3 +100,44 @@ class TestSpatial(unittest.TestCase):
         dyn_inertia_sum = dyn_inertia1 + dyn_inertia2
 
         assert_inertias_equals(self, dyn_inertia_sum, pin_inertia_sum)
+
+    def test_act_se3_motion(self):
+        np.random.seed(0)
+        rotation = np.random.uniform(-1.0, 1.0, (3, 3))
+        rotation, _ = np.linalg.qr(rotation)
+        translation = np.random.uniform(-1.0, 1.0, 3)
+
+        M_dyn = dyn.SE3(rotation, translation)
+        M_pin = pin.SE3(rotation, translation)
+
+        self.assertTrue(np.linalg.norm(M_dyn.homogeneous - M_pin.homogeneous) < 1e-15)
+
+        motion_vec = np.random.uniform(-1.0, 1.0, 6)
+
+        motion_dyn = dyn.SpatialMotion(motion_vec)
+        motion_pin = pin.Motion(motion_vec)
+
+        self.assertTrue(
+            np.linalg.norm(motion_dyn.to_numpy() - motion_pin.vector) < 1e-15
+        )
+
+        motion_dyn_transformed = M_dyn.act(motion_dyn)
+        motion_pin_transformed = M_pin.act(motion_pin)
+
+        self.assertTrue(
+            np.linalg.norm(
+                motion_dyn_transformed.to_numpy() - motion_pin_transformed.vector
+            )
+            < 1e-15
+        )
+
+        motion_dyn_transformed_inv = M_dyn.act_inv(motion_dyn)
+        motion_pin_transformed_inv = M_pin.actInv(motion_pin)
+
+        self.assertTrue(
+            np.linalg.norm(
+                motion_dyn_transformed_inv.to_numpy()
+                - motion_pin_transformed_inv.vector
+            )
+            < 1e-15
+        )
