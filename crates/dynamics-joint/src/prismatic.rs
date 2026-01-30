@@ -122,6 +122,8 @@ pub struct JointDataPrismatic {
     pub joint_v: Configuration,
     /// The placement of the joint in the local frame.
     pub placement: SE3,
+    /// The joint velocity as a spatial motion.
+    pub joint_velocity: SpatialMotion,
 }
 
 impl JointDataPrismatic {
@@ -139,6 +141,7 @@ impl JointDataPrismatic {
             joint_q: Configuration::zeros(1),
             joint_v: Configuration::zeros(1),
             placement: SE3::identity(),
+            joint_velocity: SpatialMotion::zero(),
         }
     }
 }
@@ -184,6 +187,7 @@ impl JointData for JointDataPrismatic {
         self.joint_q = joint_q.clone();
         if let Some(joint_v) = joint_v {
             self.joint_v = joint_v.clone();
+            self.joint_velocity = self.joint_v[0] * joint_model.get_axis()[0].clone();
         }
 
         self.placement =
@@ -193,5 +197,9 @@ impl JointData for JointDataPrismatic {
 
     fn clone_box(&self) -> JointDataWrapper {
         Box::new(self.clone())
+    }
+
+    fn get_joint_velocity(&self) -> &SpatialMotion {
+        &self.joint_velocity
     }
 }

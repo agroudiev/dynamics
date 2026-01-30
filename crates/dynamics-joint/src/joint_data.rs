@@ -3,7 +3,7 @@
 use std::fmt::Display;
 
 use crate::joint::JointWrapper;
-use dynamics_spatial::{configuration::Configuration, se3::SE3};
+use dynamics_spatial::{configuration::Configuration, motion::SpatialMotion, se3::SE3};
 
 /// Dynamic type for a joint.
 pub type JointDataWrapper = Box<dyn JointData + Send + Sync>;
@@ -45,4 +45,7 @@ pub trait JointData {
 
     /// Clones the joint data as a boxed trait object.
     fn clone_box(&self) -> JointDataWrapper;
+
+    /// Returns the joint velocity as a spatial motion.
+    fn get_joint_velocity(&self) -> &SpatialMotion;
 }

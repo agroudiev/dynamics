@@ -4,7 +4,7 @@ use crate::{
     joint::{JointModel, JointType, JointWrapper},
     joint_data::{JointData, JointDataWrapper, JointError},
 };
-use dynamics_spatial::{configuration::Configuration, se3::SE3};
+use dynamics_spatial::{configuration::Configuration, motion::SpatialMotion, se3::SE3};
 use rand::rngs::ThreadRng;
 
 /// Model of a fixed joint.
@@ -55,6 +55,8 @@ pub struct JointDataFixed {
     pub joint_v: Configuration,
     /// The placement of the joint in the local frame.
     pub placement: SE3,
+    /// The joint velocity as a spatial motion.
+    pub joint_velocity: SpatialMotion,
 }
 
 impl JointDataFixed {
@@ -72,6 +74,7 @@ impl JointDataFixed {
             joint_q: Configuration::zeros(0),
             joint_v: Configuration::zeros(0),
             placement: SE3::identity(),
+            joint_velocity: SpatialMotion::zero(),
         };
         let joint_model_box: JointWrapper = Box::new(joint_model.clone());
         // safe since we just created a revolute joint model
@@ -106,5 +109,9 @@ impl JointData for JointDataFixed {
 
     fn clone_box(&self) -> JointDataWrapper {
         Box::new(self.clone())
+    }
+
+    fn get_joint_velocity(&self) -> &SpatialMotion {
+        &self.joint_velocity
     }
 }

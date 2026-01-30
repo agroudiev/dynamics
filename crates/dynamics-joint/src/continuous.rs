@@ -138,6 +138,8 @@ pub struct JointDataContinuous {
     pub joint_v: Configuration,
     /// The placement of the joint in the local frame.
     pub placement: SE3,
+    /// The joint velocity as a spatial motion.
+    pub joint_velocity: SpatialMotion,
 }
 
 impl Default for JointDataContinuous {
@@ -146,6 +148,7 @@ impl Default for JointDataContinuous {
             joint_q: Configuration::from_row_slice(&[1.0, 0.0]),
             joint_v: Configuration::from_row_slice(&[0.0]),
             placement: SE3::identity(),
+            joint_velocity: SpatialMotion::zero(),
         }
     }
 }
@@ -211,6 +214,7 @@ impl JointData for JointDataContinuous {
         self.joint_q = joint_q.clone();
         if let Some(joint_v) = joint_v {
             self.joint_v = joint_v.clone();
+            self.joint_velocity = self.joint_v[0] * joint_model.get_axis()[0].clone();
         }
 
         // compute angle from cosine and sine
@@ -235,5 +239,9 @@ impl JointData for JointDataContinuous {
 
     fn clone_box(&self) -> JointDataWrapper {
         Box::new(self.clone())
+    }
+
+    fn get_joint_velocity(&self) -> &SpatialMotion {
+        &self.joint_velocity
     }
 }

@@ -4,7 +4,7 @@ use crate::{
     py_model::PyModel,
 };
 use dynamics_joint::py_joint_data::PyJointDataWrapper;
-use dynamics_spatial::py_se3::PySE3;
+use dynamics_spatial::{py_motion::PySpatialMotion, py_se3::PySE3};
 use pyo3::prelude::*;
 
 /// A Python wrapper for the `Data` struct.
@@ -82,6 +82,42 @@ impl PyData {
                 inner: jd.clone_box(),
             })
             .collect()
+    }
+
+    #[getter]
+    /// Returns the joint velocities.
+    pub fn get_joint_velocities(&self) -> Vec<PySpatialMotion> {
+        self.inner
+            .joint_velocities
+            .iter()
+            .map(|m| PySpatialMotion { inner: m.clone() })
+            .collect()
+    }
+
+    #[getter]
+    /// Returns the joint velocities.
+    ///
+    /// This is an alias for `get_joint_velocities` to match the Pinocchio API.
+    pub fn v(&self) -> Vec<PySpatialMotion> {
+        self.get_joint_velocities()
+    }
+
+    #[getter]
+    /// Returns the joint accelerations.
+    pub fn get_joint_accelerations(&self) -> Vec<PySpatialMotion> {
+        self.inner
+            .joint_accelerations
+            .iter()
+            .map(|m| PySpatialMotion { inner: m.clone() })
+            .collect()
+    }
+
+    #[getter]
+    /// Returns the joint accelerations.
+    ///
+    /// This is an alias for `get_joint_accelerations` to match the Pinocchio API.
+    pub fn a(&self) -> Vec<PySpatialMotion> {
+        self.get_joint_accelerations()
     }
 }
 

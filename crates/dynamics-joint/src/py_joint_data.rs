@@ -1,4 +1,6 @@
-use dynamics_spatial::{py_configuration::PyConfiguration, py_se3::PySE3};
+use dynamics_spatial::{
+    py_configuration::PyConfiguration, py_motion::PySpatialMotion, py_se3::PySE3,
+};
 use pyo3::{exceptions::PyValueError, prelude::*};
 
 use crate::{joint_data::JointDataWrapper, py_joint::PyJointWrapper};
@@ -62,5 +64,18 @@ impl PyJointDataWrapper {
                 "Failed to update joint data: {e:?}"
             ))),
         }
+    }
+
+    #[getter]
+    pub fn get_joint_velocity(&self) -> PySpatialMotion {
+        PySpatialMotion {
+            inner: self.inner.get_joint_velocity().clone(),
+        }
+    }
+
+    #[getter]
+    /// Alias for `get_joint_velocity` method.
+    pub fn get_v(&self) -> PySpatialMotion {
+        self.get_joint_velocity()
     }
 }
