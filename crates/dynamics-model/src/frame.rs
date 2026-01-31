@@ -18,6 +18,14 @@ pub enum FrameType {
     Sensor,
 }
 
+/// A coordinate frame attached to a specific location of the robot.
+///
+/// Frames can be attached to joints, bodies, or arbitrary points on the robot.
+/// They contain information about their placement relative to their parent joint or frame,
+/// as well as any associated inertia.
+///
+/// Each frame is uniquely identified by its name and type.
+/// Two frames of different types can share the same name.
 #[derive(Clone, Debug)]
 pub struct Frame {
     /// Name of the frame.

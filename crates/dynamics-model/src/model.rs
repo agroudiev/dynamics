@@ -13,7 +13,9 @@ use dynamics_spatial::vector3d::Vector3D;
 use std::fmt::{Debug, Display};
 use std::sync::LazyLock;
 
+/// Identifier of the world joint.
 pub const WORLD_ID: usize = 0;
+/// Standard gravity vector (0, 0, -9.81).
 pub static STANDARD_GRAVITY: LazyLock<Vector3D> = LazyLock::new(|| Vector3D::new(0.0, 0.0, -9.81));
 
 /// Data structure that contains the immutable properties of the robot model.
@@ -38,13 +40,13 @@ pub struct Model {
     /// Operational frames at each joint
     pub frames: Vec<Frame>,
     /// The spatial gravity of the model.
-    pub gravity: Vector3D, // TODO: replace this by a SpartialMotion
+    pub gravity: Vector3D, // TODO: replace this by a SpatialMotion
 }
 
 impl Model {
     /// Creates a new [`Model`] with given name.
     ///
-    /// Same as `Model::new_empty()`.
+    /// Same as [`Model::new_empty()`].
     ///
     /// # Arguments
     ///

@@ -1,4 +1,21 @@
-use std::vec;
+//! Forward kinematics algorithms for robot models.
+//!
+//! ## Overview
+//! The forward kinematics algorithm computes the position, orientation,
+//! velocity, and acceleration of each joint and frame in the robot model.
+//!
+//! In particular, the following quantities are computed and stored in the `Data` structure:
+//! - `data.joint_placements`: The placement of each joint in the world frame.
+//! - `data.local_joint_placements`: The placement of each joint in its parent joint frame.
+//! - `data.joint_velocities`: The velocity of each joint in the world frame.
+//! - `data.joint_accelerations`: The acceleration of each joint in the world frame.
+//!
+//! Each joint's data (accessible via `data.joint_data`) is also updated.
+//!
+//! ## Frames
+//! By default, only joint placements are computed. To compute frame placements,
+//! the `update_frame_placements` function must be called after `forward_kinematics`.
+//! This function updates the `data.frame_placements` based on the current joint placements.
 
 use crate::data::Data;
 use crate::errors::AlgorithmError;
