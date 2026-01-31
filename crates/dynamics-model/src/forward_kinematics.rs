@@ -4,6 +4,7 @@ use crate::data::Data;
 use crate::errors::AlgorithmError;
 use crate::model::Model;
 use dynamics_joint::joint::JointModel;
+use dynamics_joint::joint_data::JointData;
 use dynamics_spatial::configuration::Configuration;
 use dynamics_spatial::se3::SE3;
 

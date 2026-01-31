@@ -100,7 +100,7 @@ impl JointModel for JointModelContinuous {
     }
 
     fn create_joint_data(&self) -> crate::joint_data::JointDataWrapper {
-        Box::new(JointDataContinuous::new(self))
+        JointDataWrapper::continuous(JointDataContinuous::new(self))
     }
 
     fn random_configuration(&self, rng: &mut rand::rngs::ThreadRng) -> Configuration {
@@ -231,10 +231,6 @@ impl JointData for JointDataContinuous {
 
     fn get_joint_placement(&self) -> SE3 {
         self.placement
-    }
-
-    fn clone_box(&self) -> JointDataWrapper {
-        Box::new(self.clone())
     }
 
     fn get_joint_velocity(&self) -> &SpatialMotion {

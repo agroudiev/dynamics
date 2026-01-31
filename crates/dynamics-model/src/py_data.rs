@@ -78,9 +78,7 @@ impl PyData {
         self.inner
             .joint_data
             .iter()
-            .map(|jd| PyJointDataWrapper {
-                inner: jd.clone_box(),
-            })
+            .map(|jd| PyJointDataWrapper { inner: jd.clone() })
             .collect()
     }
 

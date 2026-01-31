@@ -87,7 +87,7 @@ impl JointModel for JointModelRevolute {
     }
 
     fn create_joint_data(&self) -> JointDataWrapper {
-        Box::new(JointDataRevolute::new(self))
+        JointDataWrapper::revolute(JointDataRevolute::new(self))
     }
 
     fn get_axis(&self) -> Vec<SpatialMotion> {
@@ -193,10 +193,6 @@ impl JointData for JointDataRevolute {
         let rot = SpatialRotation::from_axis_angle(&axis.rotation(), self.joint_q[0]);
         self.placement = rot.to_se3(&Vector3D::zeros());
         Ok(())
-    }
-
-    fn clone_box(&self) -> JointDataWrapper {
-        Box::new(self.clone())
     }
 
     fn get_joint_velocity(&self) -> &SpatialMotion {

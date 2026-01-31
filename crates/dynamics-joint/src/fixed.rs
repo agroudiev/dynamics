@@ -29,7 +29,7 @@ impl JointModel for JointModelFixed {
     }
 
     fn create_joint_data(&self) -> JointDataWrapper {
-        Box::new(JointDataFixed::new(self))
+        JointDataWrapper::fixed(JointDataFixed::new(self))
     }
 
     fn random_configuration(&self, _rng: &mut ThreadRng) -> Configuration {
@@ -99,10 +99,6 @@ impl JointData for JointDataFixed {
         _joint_v: Option<&Configuration>,
     ) -> Result<(), JointError> {
         Ok(())
-    }
-
-    fn clone_box(&self) -> JointDataWrapper {
-        Box::new(self.clone())
     }
 
     fn get_joint_velocity(&self) -> &SpatialMotion {

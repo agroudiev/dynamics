@@ -88,7 +88,7 @@ impl JointModel for JointModelPrismatic {
     }
 
     fn create_joint_data(&self) -> JointDataWrapper {
-        Box::new(JointDataPrismatic::new(self))
+        JointDataWrapper::prismatic(JointDataPrismatic::new(self))
     }
 
     fn get_axis(&self) -> Vec<SpatialMotion> {
@@ -189,10 +189,6 @@ impl JointData for JointDataPrismatic {
         self.placement =
             SE3::from_parts(axis.translation() * joint_q[0], SpatialRotation::identity());
         Ok(())
-    }
-
-    fn clone_box(&self) -> JointDataWrapper {
-        Box::new(self.clone())
     }
 
     fn get_joint_velocity(&self) -> &SpatialMotion {

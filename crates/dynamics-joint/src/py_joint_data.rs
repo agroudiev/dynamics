@@ -3,7 +3,10 @@ use dynamics_spatial::{
 };
 use pyo3::{exceptions::PyValueError, prelude::*};
 
-use crate::{joint_data::JointDataWrapper, py_joint::PyJointWrapper};
+use crate::{
+    joint_data::{JointData, JointDataWrapper},
+    py_joint::PyJointWrapper,
+};
 
 /// A Python wrapper for the `JointDataWrapper` type.
 #[pyclass(name = "JointData")]
