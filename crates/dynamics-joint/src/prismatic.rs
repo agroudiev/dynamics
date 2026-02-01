@@ -107,6 +107,15 @@ impl JointModel for JointModelPrismatic {
     fn transform(&self, q: &Configuration) -> SE3 {
         SE3::from_parts(self.axis * q[0], SpatialRotation::identity())
     }
+
+    fn subspace(&self, v: &Configuration) -> SpatialMotion {
+        assert_eq!(
+            v.len(),
+            1,
+            "Prismatic joint model expects a single velocity value."
+        );
+        v[0] * SpatialMotion::from_translational_axis(&self.axis)
+    }
 }
 
 /// Data associated to a prismatic joint.

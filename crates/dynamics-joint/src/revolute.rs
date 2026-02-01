@@ -111,6 +111,15 @@ impl JointModel for JointModelRevolute {
             SpatialRotation::from_axis_angle(&self.axis, angle),
         )
     }
+
+    fn subspace(&self, v: &Configuration) -> SpatialMotion {
+        assert_eq!(
+            v.len(),
+            1,
+            "Revolute joint model expects a single velocity value."
+        );
+        v[0] * SpatialMotion::from_rotational_axis(&self.axis)
+    }
 }
 
 /// Data structure containing the mutable properties of a revolute joint.

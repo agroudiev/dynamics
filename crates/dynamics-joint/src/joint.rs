@@ -138,6 +138,15 @@ impl JointModel for JointWrapper {
             JointModelImpl::Fixed(joint) => joint.get_axis(),
         }
     }
+
+    fn subspace(&self, v: &Configuration) -> SpatialMotion {
+        match &self.inner {
+            JointModelImpl::Continuous(joint) => joint.subspace(v),
+            JointModelImpl::Prismatic(joint) => joint.subspace(v),
+            JointModelImpl::Revolute(joint) => joint.subspace(v),
+            JointModelImpl::Fixed(joint) => joint.subspace(v),
+        }
+    }
 }
 
 /// Joint trait for defining joints in a robotic system.
@@ -168,6 +177,9 @@ pub trait JointModel {
 
     /// Computes the transformation matrix of the joint given its configuration. Featherstone calls it `jcalc`.
     fn transform(&self, q: &Configuration) -> SE3;
+
+    /// Applies the joint subspace constraint to obtain the motion associated with a given velocity configuration.
+    fn subspace(&self, v: &Configuration) -> SpatialMotion;
 }
 
 /// Enum representing the type of joint.

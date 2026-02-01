@@ -44,6 +44,11 @@ impl JointModel for JointModelFixed {
     fn get_axis(&self) -> Vec<SpatialMotion> {
         Vec::new()
     }
+
+    fn subspace(&self, v: &Configuration) -> SpatialMotion {
+        assert_eq!(v.len(), 0, "Fixed joint model expects no velocity.");
+        SpatialMotion::zero() // TODO: check
+    }
 }
 
 /// Data structure containing the mutable properties of a fixed joint.
