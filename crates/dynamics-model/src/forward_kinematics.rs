@@ -75,6 +75,7 @@ pub fn forward_kinematics(
         // extract the joint configuration and velocity
         let q_joint = q.rows(q_offset, joint_model.nq());
         let v_joint = v.as_ref().map(|v| v.rows(v_offset, joint_model.nv()));
+        let a_joint = a.as_ref().map(|a| a.rows(v_offset, joint_model.nv()));
 
         // update the joint data
         match joint_data.update(joint_model, &q_joint, v_joint.as_ref()) {
@@ -87,6 +88,11 @@ pub fn forward_kinematics(
         // update the data velocity
         if v.is_some() {
             data.joint_velocities[id] = joint_data.get_joint_velocity().clone();
+        }
+
+        // update the data acceleration
+        if let Some(a_joint) = a_joint {
+            data.joint_accelerations[id] = joint_model.subspace(&a_joint) + joint_model.bias();
         }
 
         q_offset += joint_model.nq();
@@ -117,11 +123,22 @@ pub fn forward_kinematics(
             joint_id,
             parent_placement * data.local_joint_placements[joint_id],
         );
+
+        // update the joint velocity if v is provided
         if v.is_some() {
             // split borrow to update joint velocities
             let (v_parent, v_child) = data.joint_velocities.split_at_mut(joint_id);
             // update the joint velocity of the joint at joint_id
             v_child[0] += data.local_joint_placements[joint_id].act_inv(&v_parent[parent_id]);
+        }
+
+        // update the joint acceleration if a is provided
+        if a.is_some() {
+            // split borrow to update joint velocities
+            let (a_parent, a_child) = data.joint_accelerations.split_at_mut(joint_id);
+            // update the joint velocity of the joint at joint_id
+            a_child[0] += data.local_joint_placements[joint_id].act_inv(&a_parent[parent_id])
+                + (data.joint_velocities[joint_id].cross(joint_data.get_joint_velocity()));
         }
     }
 

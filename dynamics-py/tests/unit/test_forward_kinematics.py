@@ -21,8 +21,9 @@ def compare_urdf_fk(test_case, file_path, mesh_dir=None):
     np.random.seed(0)
     q = pin.randomConfiguration(pin_model)  # do not use np.random.rand
     v = np.random.rand(dyn_model.nv)
-    dyn.forward_kinematics(dyn_model, dyn_data, q, v)
-    pin.forwardKinematics(pin_model, pin_data, q, v)
+    a = np.random.rand(dyn_model.nv)
+    dyn.forward_kinematics(dyn_model, dyn_data, q, v, a)
+    pin.forwardKinematics(pin_model, pin_data, q, v, a)
     assert_datas_equals(test_case, dyn_data, pin_data)
 
     dyn.update_frame_placements(dyn_model, dyn_data)
@@ -82,8 +83,9 @@ class TestForwardKinematics(unittest.TestCase):
         # Check forward kinematics
         np.random.seed(0)
         q = np.random.rand(dyn_model.nq)
-        dyn.forward_kinematics(dyn_model, dyn_data, q)
-        pin.forwardKinematics(pin_model, pin_data, q)
+        a = np.random.rand(dyn_model.nv)
+        dyn.forward_kinematics(dyn_model, dyn_data, q, a)
+        pin.forwardKinematics(pin_model, pin_data, q, a)
         assert_datas_equals(self, dyn_data, pin_data)
 
     def test_fk_double_pendulum(self):
