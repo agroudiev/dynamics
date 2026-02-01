@@ -120,6 +120,10 @@ impl JointModel for JointModelRevolute {
         );
         v[0] * SpatialMotion::from_rotational_axis(&self.axis)
     }
+
+    fn bias(&self) -> SpatialMotion {
+        SpatialMotion::zero()
+    }
 }
 
 /// Data structure containing the mutable properties of a revolute joint.

@@ -15,6 +15,7 @@ This file is used to track changes made to the project over time.
 - Python bindings for continuous joints (`JointModelRUB*`) and prismatic joints (`JointModelP*`).
 - Joint data now stores the joint configurations and velocity vector, as well as the joint velocities and accelerations.
 - Compute joint subspace constraint.
+- Compute joint bias (Coriolis and centrifugal effects).
 
 ### Spatial
 - Added Python bindings for `SpatialMotion` type.

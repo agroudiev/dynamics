@@ -147,6 +147,15 @@ impl JointModel for JointWrapper {
             JointModelImpl::Fixed(joint) => joint.subspace(v),
         }
     }
+
+    fn bias(&self) -> SpatialMotion {
+        match &self.inner {
+            JointModelImpl::Continuous(joint) => joint.bias(),
+            JointModelImpl::Prismatic(joint) => joint.bias(),
+            JointModelImpl::Revolute(joint) => joint.bias(),
+            JointModelImpl::Fixed(joint) => joint.bias(),
+        }
+    }
 }
 
 /// Joint trait for defining joints in a robotic system.
@@ -180,6 +189,9 @@ pub trait JointModel {
 
     /// Applies the joint subspace constraint to obtain the motion associated with a given velocity configuration.
     fn subspace(&self, v: &Configuration) -> SpatialMotion;
+
+    /// Returns the joint bias (Coriolis and centrifugal effects).
+    fn bias(&self) -> SpatialMotion;
 }
 
 /// Enum representing the type of joint.
@@ -191,3 +203,9 @@ pub enum JointType {
     Prismatic,
     Revolute,
 }
+
+/// Type alias for joint bias, represented as a spatial motion.
+///
+/// A joint bias typically represents the Coriolis and centrifugal effects
+/// and are computed during the joint kinematics.
+pub type JointBias = SpatialMotion;

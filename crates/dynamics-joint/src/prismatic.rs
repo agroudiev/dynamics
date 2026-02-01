@@ -116,6 +116,10 @@ impl JointModel for JointModelPrismatic {
         );
         v[0] * SpatialMotion::from_translational_axis(&self.axis)
     }
+
+    fn bias(&self) -> SpatialMotion {
+        SpatialMotion::zero()
+    }
 }
 
 /// Data associated to a prismatic joint.

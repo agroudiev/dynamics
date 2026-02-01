@@ -49,6 +49,10 @@ impl JointModel for JointModelFixed {
         assert_eq!(v.len(), 0, "Fixed joint model expects no velocity.");
         SpatialMotion::zero() // TODO: check
     }
+
+    fn bias(&self) -> SpatialMotion {
+        SpatialMotion::zero()
+    }
 }
 
 /// Data structure containing the mutable properties of a fixed joint.
