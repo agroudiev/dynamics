@@ -141,3 +141,19 @@ class TestSpatial(unittest.TestCase):
             )
             < 1e-15
         )
+
+    def test_cross_motion(self):
+        np.random.seed(0)
+        motion_vec1 = np.random.uniform(-1.0, 1.0, 6)
+        motion_vec2 = np.random.uniform(-1.0, 1.0, 6)
+
+        motion_dyn1 = dyn.SpatialMotion(motion_vec1)
+        motion_pin1 = pin.Motion(motion_vec1)
+
+        motion_dyn2 = dyn.SpatialMotion(motion_vec2)
+        motion_pin2 = pin.Motion(motion_vec2)
+
+        cross_dyn = motion_dyn1.cross(motion_dyn2)
+        cross_pin = motion_pin1.cross(motion_pin2)
+
+        self.assertTrue(np.linalg.norm(cross_dyn.to_numpy() - cross_pin.vector) < 1e-14)

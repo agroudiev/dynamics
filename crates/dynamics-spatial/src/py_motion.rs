@@ -80,4 +80,16 @@ impl PySpatialMotion {
             .into_any()
             .unbind()
     }
+
+    pub fn cross(&self, other: &PySpatialMotion) -> PySpatialMotion {
+        PySpatialMotion {
+            inner: SpatialMotion(self.inner.cross(&other.inner).0),
+        }
+    }
+
+    pub fn cross_star(&self, other: &PySpatialMotion) -> PySpatialMotion {
+        PySpatialMotion {
+            inner: SpatialMotion(self.inner.cross_star(&other.inner).0),
+        }
+    }
 }
