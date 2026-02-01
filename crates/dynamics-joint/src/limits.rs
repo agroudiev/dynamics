@@ -35,7 +35,7 @@ impl JointLimits {
     /// * `friction_loss` - Dry friction loss.
     ///
     /// # Returns
-    /// A new [`JointLimit`] object.
+    /// A new [`JointLimits`] object.
     #[must_use]
     pub fn new(
         effort: Configuration,

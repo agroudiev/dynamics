@@ -11,11 +11,11 @@ pub enum ParseError {
     IoError(io::Error, String),
     /// Error occurred while parsing XML.
     XmlError(roxmltree::Error),
-    /// The URDF file does not contain a <robot> tag.
+    /// The URDF file does not contain a \<robot\> tag.
     NoRobotTag,
-    /// A <visual> tag is present without a corresponding <geometry> tag.
+    /// A \<visual\> tag is present without a corresponding \<geometry\> tag.
     VisualWithoutGeometry(String),
-    /// A <geometry> tag is present without a corresponding shape tag.
+    /// A \<geometry\> tag is present without a corresponding shape tag.
     GeometryWithoutShape(String),
     /// The given required parameter is missing in the URDF.
     MissingParameter(String),
