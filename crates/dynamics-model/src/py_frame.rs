@@ -36,8 +36,8 @@ impl PyFrame {
 
     #[getter]
     #[must_use]
-    pub fn name(&self) -> String {
-        self.inner.name.clone()
+    pub fn name(&self) -> &String {
+        &self.inner.name
     }
 
     #[getter]

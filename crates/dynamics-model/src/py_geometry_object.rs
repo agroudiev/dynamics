@@ -116,8 +116,8 @@ impl PyGeometryObject {
     }
 
     #[getter]
-    fn get_name(&self) -> String {
-        self.inner.name.clone()
+    fn get_name(&self) -> &String {
+        &self.inner.name
     }
 
     #[getter]
