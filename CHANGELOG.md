@@ -7,6 +7,7 @@ This file is used to track changes made to the project over time.
 ### Algorithms
 - Added `update_frame_placements` algorithm to update frame placements based on joint placements.
 - Added optional velocity and acceleration parameters to `forward_kinematics` function.
+- Added `frames_forward_kinematics` function to compute forward kinematics for all frames in the model.
 
 ### Model & Data
 - Data now stores joint velocities and accelerations.

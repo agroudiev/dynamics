@@ -163,3 +163,21 @@ pub fn update_frame_placements(model: &Model, data: &mut Data) {
         data.frame_placements[frame_id] = parent_joint_placement * frame.placement;
     }
 }
+
+/// Computes the forward kinematics and updates the frame placements in one call.
+///
+/// This is a convenience function that calls `forward_kinematics` followed by `update_frame_placements`.
+///
+/// # Arguments
+/// * `model` - The robot model.
+/// * `data` - The data structure that contains the joint data.
+/// * `q` - The configuration of the robot of size `nq`.
+pub fn frames_forward_kinematics(
+    model: &Model,
+    data: &mut Data,
+    q: &Configuration,
+) -> Result<(), AlgorithmError> {
+    forward_kinematics(model, data, q, &None, &None)?;
+    update_frame_placements(model, data);
+    Ok(())
+}

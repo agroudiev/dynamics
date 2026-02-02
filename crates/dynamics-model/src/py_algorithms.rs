@@ -5,6 +5,7 @@ use numpy::PyReadonlyArrayDyn;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
+use crate::forward_kinematics::frames_forward_kinematics;
 use crate::inverse_dynamics::inverse_dynamics;
 use crate::neutral::neutral;
 use crate::{
@@ -120,6 +121,31 @@ pub fn py_forward_kinematics(
 #[pyfunction(name = "update_frame_placements", signature=(model, data))]
 pub fn py_update_frame_placements(model: &PyModel, data: &mut PyData) {
     update_frame_placements(&model.inner, &mut data.inner);
+}
+
+#[pyfunction(name = "frames_forward_kinematics", signature=(model, data, q))]
+pub fn py_frames_forward_kinematics(
+    model: &PyModel,
+    data: &mut PyData,
+    q: PyReadonlyArray1<f64>,
+) -> PyResult<()> {
+    let q = q.as_array();
+    if q.shape() != [model.inner.nq] {
+        return Err(PyValueError::new_err(format!(
+            "Invalid input size. Expected a configuration of size {}, got {:?}",
+            model.inner.nq,
+            q.shape()
+        )));
+    }
+    let q = match q.as_slice() {
+        Some(slice) => slice,
+        None => return Err(PyValueError::new_err("Failed to convert 'q' to slice")),
+    };
+    let q = Configuration::from_row_slice(q);
+
+    frames_forward_kinematics(&model.inner, &mut data.inner, &q)
+        .map_err(|e| PyValueError::new_err(format!("Frames forward kinematics failed: {e:?}")))?;
+    Ok(())
 }
 
 #[pyfunction(name = "forward_dynamics")]
