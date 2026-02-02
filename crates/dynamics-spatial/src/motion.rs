@@ -7,7 +7,10 @@ use crate::{
     vector3d::Vector3D,
     vector6d::Vector6D,
 };
-use std::ops::{Add, AddAssign, Mul};
+use std::{
+    fmt::Display,
+    ops::{Add, AddAssign, Mul},
+};
 
 #[derive(Clone, Debug, PartialEq, Default)]
 /// Spatial motion vector, combining linear and angular velocity components.
@@ -198,6 +201,21 @@ impl ActSE3 for SpatialMotion {
         let linear = se3.rotation().transpose()
             * &(self.translation() - se3.translation().cross(&self.rotation()));
         SpatialMotion::from_parts(linear, angular)
+    }
+}
+
+impl Display for SpatialMotion {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "SpatialMotion(linear: [{:.4}, {:.4}, {:.4}], angular: [{:.4}, {:.4}, {:.4}])",
+            self.translation().0[0],
+            self.translation().0[1],
+            self.translation().0[2],
+            self.rotation().0[0],
+            self.rotation().0[1],
+            self.rotation().0[2],
+        )
     }
 }
 

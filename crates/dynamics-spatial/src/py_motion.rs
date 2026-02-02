@@ -92,4 +92,8 @@ impl PySpatialMotion {
             inner: SpatialMotion(self.inner.cross_star(&other.inner).0),
         }
     }
+
+    pub fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("{}", self.inner))
+    }
 }
