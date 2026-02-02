@@ -53,7 +53,7 @@
 //!     let mut data = model.create_data();
 //!
 //!     // Compute forward kinematics
-//!     forward_kinematics(&model, &mut data, &q, &None, &None)
+//!     forward_kinematics(&model, &mut data, &q, None, None)
 //!         .expect("Failed to compute forward kinematics");
 //!
 //!     // Print the placement of the joint 'wrist_3_joint'

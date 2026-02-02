@@ -24,6 +24,7 @@ This file is used to track changes made to the project over time.
 ### Misc
 - Fix docs.rs build for all crates
 - Add `python` feature to workspace and all crates for building Python bindings
+- Improved display for `Configuration`, `SE3` types
 
 ## [0.0.1] - 2026-01-25
 ### Added
