@@ -60,9 +60,9 @@ pub enum PyConfigurationInput<'py> {
 }
 
 impl PyConfigurationInput<'_> {
-    pub fn to_configuration(&self, nq: usize) -> Result<Configuration, PyErr> {
+    pub fn to_configuration(self, nq: usize) -> Result<Configuration, PyErr> {
         match self {
-            PyConfigurationInput::Configuration(py_config) => Ok(py_config.0.clone()), // TODO: avoid clone
+            PyConfigurationInput::Configuration(py_config) => Ok(py_config.0),
             PyConfigurationInput::Array(array) => {
                 let q = array.as_array();
                 if q.shape() != [nq] {
