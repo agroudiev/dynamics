@@ -4,6 +4,8 @@
 //! An SE(3) transformation consists of a rotation matrix and a translation vector.
 //! Operations such as composition, inversion, and action on points are provided.
 
+use std::fmt::Display;
+
 use crate::{motion::SpatialRotation, transform::SpatialTransform, vector3d::Vector3D};
 use nalgebra::{IsometryMatrix3, Translation3};
 
@@ -94,6 +96,26 @@ impl std::ops::Mul<&SE3> for SE3 {
 
     fn mul(self, rhs: &SE3) -> Self::Output {
         SE3(self.0 * rhs.0)
+    }
+}
+
+impl Display for SE3 {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let r = self.0.rotation.matrix();
+
+        writeln!(f, "SE3: R=┌                            ┐  t=┌          ┐")?;
+        for i in 0..3 {
+            writeln!(
+                f,
+                "       │ {:>+8.5} {:>+8.5} {:>+8.5} │    │ {:>+8.5} │",
+                r[(i, 0)],
+                r[(i, 1)],
+                r[(i, 2)],
+                self.0.translation.vector[i]
+            )?;
+        }
+        writeln!(f, "       └                            ┘    └          ┘")?;
+        Ok(())
     }
 }
 

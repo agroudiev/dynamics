@@ -59,7 +59,7 @@
 //!     // Print the placement of the joint 'wrist_3_joint'
 //!     let id = model.get_joint_id("wrist_3_joint").unwrap();
 //!     let placement = &data.joint_placements[id];
-//!     println!("Placement of 'wrist_3_joint':\n{:?}", placement);
+//!     println!("Placement of 'wrist_3_joint':\n{}", placement);
 //!
 //!     // Compute the frame placements
 //!     update_frame_placements(&model, &mut data);
@@ -68,7 +68,7 @@
 //!     let frame_id = model.get_frame_id("tool0", None).unwrap();
 //!     // we don't specify a frame type (None) as there is only one frame with this name
 //!     let frame_placement = &data.frame_placements[frame_id];
-//!     println!("Placement of frame 'tool0':\n{:?}", frame_placement);
+//!     println!("Placement of frame 'tool0':\n{}", frame_placement);
 //! }
 //! ```
 //!

@@ -18,5 +18,5 @@ dyn.forward_kinematics(model, data, q)
 joint_id = model.get_joint_id("wrist_3_joint")
 frame_id = model.get_frame_id("tool0")  # don't specify the type
 
-print(f"Joint {joint_id} placement:\n{data.joint_placements[joint_id]}")
-print(f"Frame {frame_id} placement:\n{data.frame_placements[frame_id]}")
+print(f"Joint 'wrist_3_joint' placement:\n{data.joint_placements[joint_id]}")
+print(f"Frame 'tool0' placement:\n{data.frame_placements[frame_id]}")

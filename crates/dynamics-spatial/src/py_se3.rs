@@ -165,7 +165,7 @@ impl PySE3 {
     }
 
     fn __repr__(slf: PyRef<'_, Self>) -> String {
-        format!("{:?}", slf.inner)
+        format!("{}", slf.inner)
     }
 
     // TODO: make this work with any ActSE3 type
