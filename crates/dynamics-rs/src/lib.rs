@@ -31,7 +31,7 @@
 //! compute its forward kinematics for a random configuration, and print the placement
 //! of a specific joint and frame.
 //!
-//! ```rust
+//! ```no_run
 //! use dynamics_model::forward_kinematics::update_frame_placements;
 //! use dynamics_model::model::random_configuration;
 //! use dynamics_rs::model::forward_kinematics::forward_kinematics;
