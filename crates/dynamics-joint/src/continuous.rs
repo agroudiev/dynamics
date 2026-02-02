@@ -3,7 +3,7 @@
 //! This can be seen as a revolute joint without limits.
 //! On top of that, the parametrization of the configuration is different:
 //! instead of using an angle $\theta \in [-\pi, \pi]$, continuous joints use
-//! unit circle parametrization $(cos(\theta), sin(\theta))$.
+//! unit circle parametrization $(\cos(\theta), \sin(\theta))$.
 
 use dynamics_spatial::{
     configuration::Configuration,
