@@ -45,8 +45,8 @@ pub fn forward_kinematics(
     model: &Model,
     data: &mut Data,
     q: &Configuration,
-    v: &Option<Configuration>,
-    a: &Option<Configuration>,
+    v: Option<&Configuration>,
+    a: Option<&Configuration>,
 ) -> Result<(), AlgorithmError> {
     // check if configurations are of the right size
     q.check_size("q", model.nq)
@@ -177,7 +177,7 @@ pub fn frames_forward_kinematics(
     data: &mut Data,
     q: &Configuration,
 ) -> Result<(), AlgorithmError> {
-    forward_kinematics(model, data, q, &None, &None)?;
+    forward_kinematics(model, data, q, None, None)?;
     update_frame_placements(model, data);
     Ok(())
 }

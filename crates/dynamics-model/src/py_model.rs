@@ -6,6 +6,7 @@ use numpy::ndarray::Array1;
 use pyo3::{exceptions::PyValueError, prelude::*};
 
 use crate::{
+    frame::FrameType,
     model::{Model, random_configuration},
     py_data::PyData,
     py_frame::PyFrame,
@@ -188,5 +189,10 @@ impl PyModel {
 
     fn __repr__(slf: PyRef<'_, Self>) -> String {
         format!("{:#?}", slf.inner)
+    }
+
+    #[pyo3(signature = (name, frame_type=None))]
+    pub fn get_frame_id(&self, name: &str, frame_type: Option<FrameType>) -> Option<usize> {
+        self.inner.get_frame_id(name, frame_type)
     }
 }

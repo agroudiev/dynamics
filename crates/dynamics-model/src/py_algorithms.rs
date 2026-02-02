@@ -1,6 +1,6 @@
 use dynamics_spatial::configuration::Configuration;
 use dynamics_spatial::py_configuration::PyConfiguration;
-use numpy::PyReadonlyArray1;
+use dynamics_spatial::py_configuration::PyConfigurationInput;
 use numpy::PyReadonlyArrayDyn;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
@@ -57,64 +57,26 @@ pub fn py_aba(
 pub fn py_forward_kinematics(
     model: &PyModel,
     data: &mut PyData,
-    q: PyReadonlyArray1<f64>,
-    v: Option<PyReadonlyArray1<f64>>,
-    a: Option<PyReadonlyArray1<f64>>,
+    q: PyConfigurationInput,
+    v: Option<PyConfigurationInput>,
+    a: Option<PyConfigurationInput>,
 ) -> PyResult<()> {
-    let q = q.as_array();
-    if q.shape() != [model.inner.nq] {
-        return Err(PyValueError::new_err(format!(
-            "Invalid input size. Expected a configuration of size {}, got {:?}",
-            model.inner.nq,
-            q.shape()
-        )));
-    }
-    let q = match q.as_slice() {
-        Some(slice) => slice,
-        None => return Err(PyValueError::new_err("Failed to convert 'q' to slice")),
-    };
-    let q = Configuration::from_row_slice(q);
-
     let v = match v {
-        Some(v_array) => {
-            let v_array = v_array.as_array();
-            if v_array.shape() != [model.inner.nv] {
-                return Err(PyValueError::new_err(format!(
-                    "Invalid input size. Expected a configuration of size {}, got {:?}",
-                    model.inner.nv,
-                    v_array.shape()
-                )));
-            }
-            let v_slice = match v_array.as_slice() {
-                Some(slice) => slice,
-                None => return Err(PyValueError::new_err("Failed to convert 'v' to slice")),
-            };
-            Some(Configuration::from_row_slice(v_slice))
-        }
+        Some(v) => Some(v.to_configuration(model.inner.nv)?),
         None => None,
     };
-
     let a = match a {
-        Some(a_array) => {
-            let a_array = a_array.as_array();
-            if a_array.shape() != [model.inner.nv] {
-                return Err(PyValueError::new_err(format!(
-                    "Invalid input size. Expected a configuration of size {}, got {:?}",
-                    model.inner.nv,
-                    a_array.shape()
-                )));
-            }
-            let a_slice = match a_array.as_slice() {
-                Some(slice) => slice,
-                None => return Err(PyValueError::new_err("Failed to convert 'a' to slice")),
-            };
-            Some(Configuration::from_row_slice(a_slice))
-        }
+        Some(a) => Some(a.to_configuration(model.inner.nv)?),
         None => None,
     };
-
-    forward_kinematics(&model.inner, &mut data.inner, &q, &v, &a)
-        .map_err(|e| PyValueError::new_err(format!("Forward kinematics failed: {e:?}")))?;
+    forward_kinematics(
+        &model.inner,
+        &mut data.inner,
+        &q.to_configuration(model.inner.nq)?,
+        v.as_ref(),
+        a.as_ref(),
+    )
+    .map_err(|e| PyValueError::new_err(format!("Forward kinematics failed: {e:?}")))?;
     Ok(())
 }
 
@@ -127,21 +89,9 @@ pub fn py_update_frame_placements(model: &PyModel, data: &mut PyData) {
 pub fn py_frames_forward_kinematics(
     model: &PyModel,
     data: &mut PyData,
-    q: PyReadonlyArray1<f64>,
+    q: PyConfigurationInput,
 ) -> PyResult<()> {
-    let q = q.as_array();
-    if q.shape() != [model.inner.nq] {
-        return Err(PyValueError::new_err(format!(
-            "Invalid input size. Expected a configuration of size {}, got {:?}",
-            model.inner.nq,
-            q.shape()
-        )));
-    }
-    let q = match q.as_slice() {
-        Some(slice) => slice,
-        None => return Err(PyValueError::new_err("Failed to convert 'q' to slice")),
-    };
-    let q = Configuration::from_row_slice(q);
+    let q = q.to_configuration(model.inner.nq)?;
 
     frames_forward_kinematics(&model.inner, &mut data.inner, &q)
         .map_err(|e| PyValueError::new_err(format!("Frames forward kinematics failed: {e:?}")))?;
@@ -153,13 +103,13 @@ pub fn py_inverse_dynamics(
     _py: Python,
     model: &PyModel,
     data: &mut PyData,
-    q: PyReadonlyArrayDyn<f64>,
-    v: PyReadonlyArrayDyn<f64>,
-    a: PyReadonlyArrayDyn<f64>,
+    q: PyConfigurationInput,
+    v: PyConfigurationInput,
+    a: PyConfigurationInput,
 ) -> PyResult<PyConfiguration> {
-    let q = Configuration::from_pyarray(&q)?;
-    let v = Configuration::from_pyarray(&v)?;
-    let a = Configuration::from_pyarray(&a)?;
+    let q = q.to_configuration(model.inner.nq)?;
+    let v = v.to_configuration(model.inner.nv)?;
+    let a = a.to_configuration(model.inner.nv)?;
 
     let tau = inverse_dynamics(&model.inner, &mut data.inner, &q, &v, &a).map_err(|e| {
         PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Error in inverse dynamics: {e}"))
@@ -174,9 +124,9 @@ pub fn py_rnea(
     py: Python,
     model: &PyModel,
     data: &mut PyData,
-    q: PyReadonlyArrayDyn<f64>,
-    v: PyReadonlyArrayDyn<f64>,
-    a: PyReadonlyArrayDyn<f64>,
+    q: PyConfigurationInput,
+    v: PyConfigurationInput,
+    a: PyConfigurationInput,
 ) -> PyResult<PyConfiguration> {
     py_inverse_dynamics(py, model, data, q, v, a)
 }
