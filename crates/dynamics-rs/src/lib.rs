@@ -47,7 +47,7 @@
 //!
 //!     // Generate a random configuration
 //!     let q = random_configuration(&model);
-//!     println!("Random configuration q: {:?}", q);
+//!     println!("Random configuration q: {}", q);
 //!
 //!     // Create data structure for the model
 //!     let mut data = model.create_data();

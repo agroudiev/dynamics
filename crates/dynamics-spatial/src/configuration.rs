@@ -6,6 +6,7 @@ use nalgebra::DVector;
 use rand::{Rng, rngs::ThreadRng};
 use std::{
     f64::consts::PI,
+    fmt::Display,
     ops::{Add, Index, IndexMut, Mul},
 };
 
@@ -246,6 +247,20 @@ impl Mul<f64> for &Configuration {
 
     fn mul(self, rhs: f64) -> Self::Output {
         &self.0 * rhs
+    }
+}
+
+impl Display for Configuration {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Configuration(")?;
+        for i in 0..self.len() {
+            write!(f, "{:.5}", self[i])?;
+            if i < self.len() - 1 {
+                write!(f, ", ")?;
+            }
+        }
+        write!(f, ")")?;
+        Ok(())
     }
 }
 
