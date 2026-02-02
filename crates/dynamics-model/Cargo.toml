@@ -23,6 +23,7 @@ default = []
 pyo3 = { workspace = true, optional = true }
 numpy = { workspace = true, optional = true }
 rand.workspace = true
+ptree = "0.5.2"
 
 collider-rs.workspace = true
 

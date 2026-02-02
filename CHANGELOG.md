@@ -11,6 +11,7 @@ This file is used to track changes made to the project over time.
 
 ### Model & Data
 - Data now stores joint velocities and accelerations.
+- Added a `print_joint_tree` method to visualize the joint hierarchy.
 
 ### Joints
 - Python bindings for continuous joints (`JointModelRUB*`) and prismatic joints (`JointModelP*`).

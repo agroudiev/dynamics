@@ -195,4 +195,11 @@ impl PyModel {
     pub fn get_frame_id(&self, name: &str, frame_type: Option<FrameType>) -> Option<usize> {
         self.inner.get_frame_id(name, frame_type)
     }
+
+    pub fn print_joint_tree(&self) -> PyResult<()> {
+        match self.inner.print_joint_tree() {
+            Ok(_) => Ok(()),
+            Err(io_error) => Err(PyValueError::new_err(format!("{io_error:?}"))),
+        }
+    }
 }

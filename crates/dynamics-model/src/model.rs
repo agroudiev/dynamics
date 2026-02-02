@@ -9,6 +9,7 @@ use dynamics_spatial::configuration::Configuration;
 use dynamics_spatial::motion::SpatialMotion;
 use dynamics_spatial::se3::SE3;
 use dynamics_spatial::vector3d::Vector3D;
+use ptree::{TreeBuilder, print_tree};
 
 use std::fmt::{Debug, Display};
 use std::sync::LazyLock;
@@ -252,6 +253,39 @@ impl Model {
     #[must_use]
     pub fn nframes(&self) -> usize {
         self.frames.len()
+    }
+
+    pub fn print_joint_tree(&self) -> std::io::Result<()> {
+        let mut tree = TreeBuilder::new(format!("Model {}", self.name));
+        let mut children = vec![vec![]; self.njoints()];
+        for (joint_id, &parent_id) in self.joint_parents.iter().enumerate() {
+            if joint_id != parent_id {
+                children[parent_id].push(joint_id);
+            }
+        }
+
+        fn process_joint(
+            model: &Model,
+            children: &Vec<Vec<usize>>,
+            tree: &mut TreeBuilder,
+            joint_id: usize,
+        ) {
+            if children[joint_id].is_empty() {
+                tree.add_empty_child(format!("{} ({})", model.joint_names[joint_id], joint_id));
+                return;
+            }
+
+            tree.begin_child(format!("{} ({})", model.joint_names[joint_id], joint_id));
+            for &child_id in &children[joint_id] {
+                process_joint(model, children, tree, child_id);
+            }
+            tree.end_child();
+        }
+
+        // process the root joint
+        process_joint(self, &children, &mut tree, 0);
+
+        print_tree(&tree.build())
     }
 }
 

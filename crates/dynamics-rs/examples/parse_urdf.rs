@@ -19,4 +19,8 @@ fn main() {
     for frame in &model.frames {
         println!("- {}", frame.name);
     }
+    println!();
+
+    // Print the joint tree
+    model.print_joint_tree().unwrap();
 }

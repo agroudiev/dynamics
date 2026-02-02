@@ -20,3 +20,4 @@ frame_id = model.get_frame_id("tool0")  # don't specify the type
 
 print(f"Joint 'wrist_3_joint' placement:\n{data.joint_placements[joint_id]}")
 print(f"Frame 'tool0' placement:\n{data.frame_placements[frame_id]}")
+model.print_joint_tree()
