@@ -85,7 +85,6 @@ impl SpatialMotion {
     /// # Returns
     /// A 6x6 matrix representing the cross product operation.
     fn cross_matrix(angular: Vector3D, linear: Vector3D) -> Matrix6<f64> {
-        // TODO: check argument order
         let mut cross_matrix = Matrix6::zeros();
         let angular_so3 = crate::so3::SO3::from_vector3d(&angular);
         let linear_so3 = crate::so3::SO3::from_vector3d(&linear);
