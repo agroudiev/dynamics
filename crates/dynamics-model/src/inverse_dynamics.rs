@@ -30,7 +30,7 @@ pub fn inverse_dynamics(
     v: &Configuration,
     a: &Configuration,
 ) -> Result<(), ConfigurationError> {
-    let mut offset = 0;
+    let mut q_offset = 0;
 
     data.joint_velocities[0] = SpatialMotion::zero();
     data.joint_accelerations[0] = SpatialMotion::from_parts(Vector3D::zeros(), model.gravity);
@@ -42,9 +42,9 @@ pub fn inverse_dynamics(
         let joint_data = &mut data.joint_data[joint_id];
         let parent_id = model.joint_parents[joint_id];
         // extract the joint configuration, velocity and acceleration from configuration vectors
-        let q_joint = q.rows(offset, joint_model.nq());
-        let v_joint = v.rows(offset, joint_model.nq());
-        let a_joint = a.rows(offset, joint_model.nq());
+        let q_joint = q.rows(q_offset, joint_model.nq());
+        let v_joint = v.rows(q_offset, joint_model.nq());
+        let a_joint = a.rows(q_offset, joint_model.nq());
 
         // compute the transformation matrix of the joint (X_J) and axis (S_i)
         // let transform = joint_model.transform(&q_joint);
@@ -86,19 +86,21 @@ pub fn inverse_dynamics(
         data.joint_forces[joint_id] +=
             data.joint_velocities[joint_id].cross(&data.joint_momenta[joint_id]);
 
-        offset += joint_model.nq();
+        q_offset += joint_model.nq();
     }
 
     // TODO: add external forces
+
+    let mut v_offset = model.nv;
 
     // Backward pass: compute the joint torques
     for joint_id in (0..model.joint_models.len()).rev() {
         let joint_model = &model.joint_models[joint_id];
         let parent_id = model.joint_parents[joint_id];
-        offset -= joint_model.nq();
+        v_offset -= joint_model.nv();
 
         data.tau.update_rows(
-            offset,
+            v_offset,
             &joint_model.subspace_dual(&data.joint_forces[joint_id]),
         )?;
 

@@ -246,9 +246,6 @@ def assert_joint_datas_equals(
         or np.linalg.norm(dyn_joint_data.v.to_numpy() - pin_joint_data.v) < 1e-6,
     )
 
-    # Check joint acceleration
-    # TODO
-
 
 def assert_datas_equals(
     test_case: unittest.TestCase, dyn_data: dyn.Data, pin_data: pin.Data
@@ -284,6 +281,25 @@ def assert_datas_equals(
         test_case.assertTrue(
             np.linalg.norm(dyn_data.a[i].to_numpy() - pin_data.a[i]) < 1e-6,
         )
+
+    # Check momenta
+    test_case.assertEqual(len(dyn_data.h), len(pin_data.h))
+    for i in range(len(dyn_data.h)):
+        test_case.assertTrue(
+            np.linalg.norm(dyn_data.h[i].to_numpy() - pin_data.h[i]) < 1e-6,
+        )
+
+    # Check forces
+    test_case.assertEqual(len(dyn_data.f), len(pin_data.f))
+    for i in range(len(dyn_data.f)):
+        test_case.assertTrue(
+            np.linalg.norm(dyn_data.f[i].to_numpy() - pin_data.f[i]) < 1e-6,
+        )
+
+    # Check tau
+    test_case.assertTrue(
+        np.linalg.norm(dyn_data.tau.to_numpy() - pin_data.tau) < 1e-6,
+    )
 
 
 EXAMPLE_ROBOT_DATA_URDFS = [

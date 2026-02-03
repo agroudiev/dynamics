@@ -35,12 +35,13 @@ impl Data {
     /// # Arguments
     ///
     /// * `joint_data` - A vector of joint data wrappers.
+    /// * `nv` - The model's `nv` (velocity configuration size).
     /// * `nframes` - The number of frames in the model.
     ///
     /// # Returns
     /// A new `Data` object.
     #[must_use]
-    pub fn from_joints_data(joint_data: Vec<JointDataWrapper>, nframes: usize) -> Self {
+    pub fn from_joints_data(joint_data: Vec<JointDataWrapper>, nv: usize, nframes: usize) -> Self {
         let njoints = joint_data.len();
         Data {
             joint_data,
@@ -51,7 +52,7 @@ impl Data {
             joint_accelerations: vec![SpatialMotion::zero(); njoints],
             joint_momenta: vec![SpatialForce::zero(); njoints],
             joint_forces: vec![SpatialForce::zero(); njoints],
-            tau: Configuration::zeros(njoints),
+            tau: Configuration::zeros(nv),
         }
     }
 }

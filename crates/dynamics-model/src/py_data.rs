@@ -4,7 +4,9 @@ use crate::{
     py_model::PyModel,
 };
 use dynamics_joint::py_joint_data::PyJointDataWrapper;
-use dynamics_spatial::{py_motion::PySpatialMotion, py_se3::PySE3};
+use dynamics_spatial::{
+    py_configuration::PyConfiguration, py_motion::PySpatialMotion, py_se3::PySE3,
+};
 use pyo3::prelude::*;
 
 /// A Python wrapper for the `Data` struct.
@@ -116,6 +118,43 @@ impl PyData {
     /// This is an alias for `get_joint_accelerations` to match the Pinocchio API.
     pub fn a(&self) -> Vec<PySpatialMotion> {
         self.get_joint_accelerations()
+    }
+
+    #[getter]
+    pub fn joint_momenta(&self) -> Vec<PySpatialMotion> {
+        // FIXME: replace by PySpatialForce
+        self.inner
+            .joint_momenta
+            .iter()
+            .map(|f| PySpatialMotion { inner: f.clone() })
+            .collect()
+    }
+
+    #[getter]
+    pub fn h(&self) -> Vec<PySpatialMotion> {
+        // FIXME: replace by PySpatialForce
+        self.joint_momenta()
+    }
+
+    #[getter]
+    pub fn joint_forces(&self) -> Vec<PySpatialMotion> {
+        // FIXME: replace by PySpatialForce
+        self.inner
+            .joint_forces
+            .iter()
+            .map(|f| PySpatialMotion { inner: f.clone() })
+            .collect()
+    }
+
+    #[getter]
+    pub fn f(&self) -> Vec<PySpatialMotion> {
+        // FIXME: replace by PySpatialForce
+        self.joint_forces()
+    }
+
+    #[getter]
+    pub fn tau(&self) -> PyConfiguration {
+        PyConfiguration(self.inner.tau.clone())
     }
 }
 
