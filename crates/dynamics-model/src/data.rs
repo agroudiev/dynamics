@@ -34,18 +34,18 @@ impl Data {
     ///
     /// # Arguments
     ///
-    /// * `joints_data` - A `HashMap` of joint indices to their data.
-    /// * `joints_placements` - A `HashMap` of joint indices to their placements.
+    /// * `joint_data` - A vector of joint data wrappers.
+    /// * `nframes` - The number of frames in the model.
     ///
     /// # Returns
     /// A new `Data` object.
     #[must_use]
-    pub fn from_joints_data(joint_data: Vec<JointDataWrapper>) -> Self {
+    pub fn from_joints_data(joint_data: Vec<JointDataWrapper>, nframes: usize) -> Self {
         let njoints = joint_data.len();
         Data {
             joint_data,
             joint_placements: vec![SE3::identity(); njoints],
-            frame_placements: Vec::new(),
+            frame_placements: vec![SE3::identity(); nframes],
             local_joint_placements: vec![SE3::identity(); njoints],
             joint_velocities: vec![SpatialMotion::zero(); njoints],
             joint_accelerations: vec![SpatialMotion::zero(); njoints],

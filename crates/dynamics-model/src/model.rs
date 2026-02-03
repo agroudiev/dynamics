@@ -171,7 +171,7 @@ impl Model {
             .map(|joint_model| joint_model.create_joint_data())
             .collect();
 
-        Data::from_joints_data(joints_data)
+        Data::from_joints_data(joints_data, self.nframes())
     }
 
     // /// Appends a body of given inertia to the joint with given id.
