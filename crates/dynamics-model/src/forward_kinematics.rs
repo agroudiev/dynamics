@@ -67,10 +67,10 @@ pub fn forward_kinematics(
     // update the joints data
     let mut q_offset = 0;
     let mut v_offset = 0;
-    for id in 0..model.njoints() {
+    for joint_id in 0..model.njoints() {
         // retrieve joint data and model
-        let joint_data = &mut data.joint_data[id];
-        let joint_model = &model.joint_models[id];
+        let joint_data = &mut data.joint_data[joint_id];
+        let joint_model = &model.joint_models[joint_id];
 
         // extract the joint configuration and velocity
         let q_joint = q.rows(q_offset, joint_model.nq());
@@ -81,18 +81,22 @@ pub fn forward_kinematics(
         match joint_data.update(joint_model, &q_joint, v_joint.as_ref()) {
             Ok(()) => {}
             Err(e) => {
-                return Err(AlgorithmError::JointError(model.joint_names[id].clone(), e));
+                return Err(AlgorithmError::JointError(
+                    model.joint_names[joint_id].clone(),
+                    e,
+                ));
             }
         }
 
         // update the data velocity
         if v.is_some() {
-            data.joint_velocities[id] = joint_data.get_joint_velocity().clone();
+            data.joint_velocities[joint_id] = joint_data.get_joint_velocity().clone();
         }
 
         // update the data acceleration
         if let Some(a_joint) = a_joint {
-            data.joint_accelerations[id] = joint_model.subspace(&a_joint) + joint_model.bias();
+            data.joint_accelerations[joint_id] =
+                joint_model.subspace(&a_joint) + joint_model.bias();
         }
 
         q_offset += joint_model.nq();
@@ -136,7 +140,7 @@ pub fn forward_kinematics(
         if a.is_some() {
             // split borrow to update joint velocities
             let (a_parent, a_child) = data.joint_accelerations.split_at_mut(joint_id);
-            // update the joint velocity of the joint at joint_id
+            // update the joint acceleration of the joint at joint_id
             a_child[0] += data.local_joint_placements[joint_id].act_inv(&a_parent[parent_id])
                 + (data.joint_velocities[joint_id].cross(joint_data.get_joint_velocity()));
         }
