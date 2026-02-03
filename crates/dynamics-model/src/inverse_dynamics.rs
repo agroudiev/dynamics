@@ -33,7 +33,8 @@ pub fn inverse_dynamics(
     let mut q_offset = 0;
 
     data.joint_velocities[0] = SpatialMotion::zero();
-    data.joint_accelerations[0] = SpatialMotion::from_parts(Vector3D::zeros(), model.gravity);
+    data.joint_accelerations_gravity_free[0] =
+        SpatialMotion::from_parts(-model.gravity, Vector3D::zeros());
 
     // Forward pass: compute velocities and accelerations
     for joint_id in 0..model.joint_models.len() {
@@ -66,7 +67,7 @@ pub fn inverse_dynamics(
         }
 
         // update the joint acceleration
-        let (a_parent, a_child) = data.joint_accelerations.split_at_mut(joint_id);
+        let (a_parent, a_child) = data.joint_accelerations_gravity_free.split_at_mut(joint_id);
         let a_parent = if joint_id == 0 {
             &a_child[0].clone() // we have to clone here to avoid double borrow
         } else {
@@ -82,7 +83,7 @@ pub fn inverse_dynamics(
 
         // update the joint force
         data.joint_forces[joint_id] =
-            &model.inertias[joint_id] * &data.joint_accelerations[joint_id];
+            &model.inertias[joint_id] * &data.joint_accelerations_gravity_free[joint_id];
         data.joint_forces[joint_id] +=
             data.joint_velocities[joint_id].cross(&data.joint_momenta[joint_id]);
 

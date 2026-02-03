@@ -121,6 +121,24 @@ impl PyData {
     }
 
     #[getter]
+    /// Returns the joint accelerations without gravity.
+    pub fn get_joint_accelerations_gravity_free(&self) -> Vec<PySpatialMotion> {
+        self.inner
+            .joint_accelerations_gravity_free
+            .iter()
+            .map(|m| PySpatialMotion { inner: m.clone() })
+            .collect()
+    }
+
+    #[getter]
+    /// Returns the joint accelerations without gravity.
+    ///
+    /// This is an alias for `get_joint_accelerations_gravity_free` to match the Pinocchio API.
+    pub fn a_gf(&self) -> Vec<PySpatialMotion> {
+        self.get_joint_accelerations_gravity_free()
+    }
+
+    #[getter]
     pub fn joint_momenta(&self) -> Vec<PySpatialMotion> {
         // FIXME: replace by PySpatialForce
         self.inner

@@ -18,8 +18,8 @@ use crate::{
 /// Python wrapper for the `neutral` function.
 #[pyfunction(name = "neutral")]
 pub fn py_neutral(model: &mut PyModel) -> PyResult<PyConfiguration> {
-    let q = neutral(&mut model.inner)
-        .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("{:?}", e)))?;
+    let q =
+        neutral(&mut model.inner).map_err(|e| PyErr::new::<PyValueError, _>(format!("{:?}", e)))?;
     Ok(PyConfiguration::new(q))
 }
 
@@ -29,13 +29,13 @@ pub fn py_forward_dynamics(
     data: &mut PyData,
     q: PyReadonlyArrayDyn<f64>,
     v: PyReadonlyArrayDyn<f64>,
-    tau: PyReadonlyArrayDyn<f64>,
+    a: PyReadonlyArrayDyn<f64>,
 ) -> PyResult<()> {
     let q = Configuration::from_pyarray(&q)?;
     let v = Configuration::from_pyarray(&v)?;
-    let tau = Configuration::from_pyarray(&tau)?;
+    let a = Configuration::from_pyarray(&a)?;
 
-    forward_dynamics(&model.inner, &mut data.inner, &q, &v, &tau)
+    forward_dynamics(&model.inner, &mut data.inner, &q, &v, &a)
         .map_err(|e| PyValueError::new_err(format!("Forward dynamics failed: {e:?}")))?;
 
     Ok(())
@@ -98,9 +98,8 @@ pub fn py_frames_forward_kinematics(
     Ok(())
 }
 
-#[pyfunction(name = "forward_dynamics")]
+#[pyfunction(name = "inverse_dynamics")]
 pub fn py_inverse_dynamics(
-    _py: Python,
     model: &PyModel,
     data: &mut PyData,
     q: PyConfigurationInput,
@@ -111,9 +110,8 @@ pub fn py_inverse_dynamics(
     let v = v.to_configuration(model.inner.nv)?;
     let a = a.to_configuration(model.inner.nv)?;
 
-    inverse_dynamics(&model.inner, &mut data.inner, &q, &v, &a).map_err(|e| {
-        PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Error in inverse dynamics: {e}"))
-    })?;
+    inverse_dynamics(&model.inner, &mut data.inner, &q, &v, &a)
+        .map_err(|e| PyErr::new::<PyValueError, _>(format!("Error in inverse dynamics: {e}")))?;
 
     Ok(())
 }
@@ -121,12 +119,11 @@ pub fn py_inverse_dynamics(
 // Pinocchio alias (Recursive Newton-Euler Algorithm)
 #[pyfunction(name = "rnea")]
 pub fn py_rnea(
-    py: Python,
     model: &PyModel,
     data: &mut PyData,
     q: PyConfigurationInput,
     v: PyConfigurationInput,
     a: PyConfigurationInput,
 ) -> PyResult<()> {
-    py_inverse_dynamics(py, model, data, q, v, a)
+    py_inverse_dynamics(model, data, q, v, a)
 }

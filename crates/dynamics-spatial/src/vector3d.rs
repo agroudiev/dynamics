@@ -1,7 +1,7 @@
 //! Defines **3D vectors** and related operations.
 
 use nalgebra::Vector3;
-use std::ops::{Add, Mul, Sub};
+use std::ops::{Add, Mul, Neg, Sub};
 
 #[cfg(feature = "python")]
 use numpy::{PyReadonlyArrayDyn, ToPyArray, ndarray::Array1};
@@ -143,5 +143,13 @@ impl Mul<Vector3D> for f64 {
 
     fn mul(self, rhs: Vector3D) -> Self::Output {
         Vector3D(rhs.0 * self)
+    }
+}
+
+impl Neg for Vector3D {
+    type Output = Vector3D;
+
+    fn neg(self) -> Self::Output {
+        Vector3D(-self.0)
     }
 }
