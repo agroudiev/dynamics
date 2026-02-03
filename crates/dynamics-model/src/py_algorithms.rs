@@ -106,16 +106,16 @@ pub fn py_inverse_dynamics(
     q: PyConfigurationInput,
     v: PyConfigurationInput,
     a: PyConfigurationInput,
-) -> PyResult<PyConfiguration> {
+) -> PyResult<()> {
     let q = q.to_configuration(model.inner.nq)?;
     let v = v.to_configuration(model.inner.nv)?;
     let a = a.to_configuration(model.inner.nv)?;
 
-    let tau = inverse_dynamics(&model.inner, &mut data.inner, &q, &v, &a).map_err(|e| {
+    inverse_dynamics(&model.inner, &mut data.inner, &q, &v, &a).map_err(|e| {
         PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Error in inverse dynamics: {e}"))
     })?;
 
-    Ok(PyConfiguration::new(tau))
+    Ok(())
 }
 
 // Pinocchio alias (Recursive Newton-Euler Algorithm)
@@ -127,6 +127,6 @@ pub fn py_rnea(
     q: PyConfigurationInput,
     v: PyConfigurationInput,
     a: PyConfigurationInput,
-) -> PyResult<PyConfiguration> {
+) -> PyResult<()> {
     py_inverse_dynamics(py, model, data, q, v, a)
 }

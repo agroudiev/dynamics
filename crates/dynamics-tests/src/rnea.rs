@@ -25,7 +25,7 @@ fn test_rnea_ur5() {
         0.58728518, 0.63471225, 0.94532479, 0.63963593, 0.82708475, 0.13476001,
     ]);
 
-    let tau = inverse_dynamics(&model, &mut data, &q, &v, &a).unwrap();
+    inverse_dynamics(&model, &mut data, &q, &v, &a).unwrap();
     let expected_tau = Configuration::from_row_slice(&[
         2.19845646e+00,
         -4.03839257e+01,
@@ -34,5 +34,5 @@ fn test_rnea_ur5() {
         -5.31880719e-03,
         4.12162545e-02,
     ]);
-    assert_relative_eq!(tau, expected_tau);
+    assert_relative_eq!(data.tau, expected_tau);
 }
