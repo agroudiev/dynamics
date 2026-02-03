@@ -97,7 +97,7 @@ impl Mul<&SpatialMotion> for &Inertia {
     fn mul(self, rhs: &SpatialMotion) -> Self::Output {
         let linear = self.mass * (rhs.translation() - self.com.cross(&rhs.rotation()));
         let angular = &self.inertia * &rhs.rotation() + self.com.cross(&linear);
-        SpatialForce::from_components(angular, linear)
+        SpatialForce::from_parts(linear, angular)
     }
 }
 

@@ -84,6 +84,10 @@ impl Vector3D {
         }
         Ok(Vector3D(Vector3::new(array[0], array[1], array[2])))
     }
+
+    pub fn dot(&self, other: &Vector3D) -> f64 {
+        self.0.dot(&other.0)
+    }
 }
 
 impl Add for Vector3D {
