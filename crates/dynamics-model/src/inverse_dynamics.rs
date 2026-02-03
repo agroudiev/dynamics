@@ -67,9 +67,14 @@ pub fn inverse_dynamics(
 
         // update the joint acceleration
         let (a_parent, a_child) = data.joint_accelerations.split_at_mut(joint_id);
+        let a_parent = if joint_id == 0 {
+            &a_child[0].clone() // we have to clone here to avoid double borrow
+        } else {
+            &a_parent[parent_id]
+        };
 
         a_child[0] = joint_model.subspace(&a_joint) + joint_model.bias();
-        a_child[0] += data.local_joint_placements[joint_id].act_inv(&a_parent[parent_id]);
+        a_child[0] += data.local_joint_placements[joint_id].act_inv(a_parent);
         a_child[0] += data.joint_velocities[joint_id].cross(joint_data.get_joint_velocity());
 
         // update the joint momentum
