@@ -4,7 +4,9 @@ use crate::{
     joint::{JointModel, JointType, JointWrapper},
     joint_data::{JointData, JointDataWrapper, JointError},
 };
-use dynamics_spatial::{configuration::Configuration, motion::SpatialMotion, se3::SE3};
+use dynamics_spatial::{
+    configuration::Configuration, force::SpatialForce, motion::SpatialMotion, se3::SE3,
+};
 use rand::rngs::ThreadRng;
 
 /// Model of a fixed joint.
@@ -48,6 +50,15 @@ impl JointModel for JointModelFixed {
     fn subspace(&self, v: &Configuration) -> SpatialMotion {
         assert_eq!(v.len(), 0, "Fixed joint model expects no velocity.");
         SpatialMotion::zero() // TODO: check
+    }
+
+    fn subspace_dual(&self, f: &SpatialForce) -> Configuration {
+        debug_assert_eq!(
+            f,
+            &SpatialForce::zero(),
+            "Fixed joint model expects zero force."
+        );
+        Configuration::zeros(0)
     }
 
     fn bias(&self) -> SpatialMotion {

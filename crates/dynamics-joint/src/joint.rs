@@ -9,7 +9,9 @@ use crate::{
     continuous::JointModelContinuous, fixed::JointModelFixed, joint_data::JointDataWrapper,
     prismatic::JointModelPrismatic, revolute::JointModelRevolute,
 };
-use dynamics_spatial::{configuration::Configuration, motion::SpatialMotion, se3::SE3};
+use dynamics_spatial::{
+    configuration::Configuration, force::SpatialForce, motion::SpatialMotion, se3::SE3,
+};
 use rand::rngs::ThreadRng;
 
 #[derive(Clone, Debug)]
@@ -148,6 +150,15 @@ impl JointModel for JointWrapper {
         }
     }
 
+    fn subspace_dual(&self, f: &SpatialForce) -> Configuration {
+        match &self.inner {
+            JointModelImpl::Continuous(joint) => joint.subspace_dual(f),
+            JointModelImpl::Prismatic(joint) => joint.subspace_dual(f),
+            JointModelImpl::Revolute(joint) => joint.subspace_dual(f),
+            JointModelImpl::Fixed(joint) => joint.subspace_dual(f),
+        }
+    }
+
     fn bias(&self) -> SpatialMotion {
         match &self.inner {
             JointModelImpl::Continuous(joint) => joint.bias(),
@@ -189,6 +200,9 @@ pub trait JointModel {
 
     /// Applies the joint subspace constraint to obtain the motion associated with a given velocity configuration.
     fn subspace(&self, v: &Configuration) -> SpatialMotion;
+
+    /// Applies the dual of the joint subspace constraint to obtain the force/torque associated with a given spatial force.
+    fn subspace_dual(&self, f: &SpatialForce) -> Configuration;
 
     /// Returns the joint bias (Coriolis and centrifugal effects).
     fn bias(&self) -> SpatialMotion;

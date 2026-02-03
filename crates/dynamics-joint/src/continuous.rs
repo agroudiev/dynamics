@@ -7,6 +7,7 @@
 
 use dynamics_spatial::{
     configuration::Configuration,
+    force::SpatialForce,
     motion::{SpatialMotion, SpatialRotation},
     se3::SE3,
     vector3d::Vector3D,
@@ -131,6 +132,10 @@ impl JointModel for JointModelContinuous {
             "Continuous joint model expects a single velocity value."
         );
         v[0] * SpatialMotion::from_rotational_axis(&self.axis)
+    }
+
+    fn subspace_dual(&self, f: &SpatialForce) -> Configuration {
+        Configuration::from_row_slice(&[f.rotation().dot(&self.axis)])
     }
 
     fn bias(&self) -> SpatialMotion {
