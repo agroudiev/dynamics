@@ -1,12 +1,13 @@
 //! `Data` structure containing the mutable properties of the robot.
 
 use dynamics_joint::joint_data::JointDataWrapper;
-use dynamics_spatial::{motion::SpatialMotion, se3::SE3};
+use dynamics_spatial::{
+    configuration::Configuration, force::SpatialForce, motion::SpatialMotion, se3::SE3,
+};
 
 use crate::geometry_model::GeometryModel;
 
 /// Structure containing the mutable properties of the robot.
-#[derive(Default)]
 pub struct Data {
     /// The data of the joints
     pub joint_data: Vec<JointDataWrapper>,
@@ -20,6 +21,12 @@ pub struct Data {
     pub joint_velocities: Vec<SpatialMotion>,
     /// Accelerations of the joints in the world frame (a)
     pub joint_accelerations: Vec<SpatialMotion>,
+    /// The spatial momenta of the joint in the local frame (h), inertia times velocity
+    pub joint_momenta: Vec<SpatialForce>,
+    /// The spatial forces of the joint in the local frame (f), inertia times acceleration plus the Coriolis term
+    pub joint_forces: Vec<SpatialForce>,
+    /// The configuration of torques/forces applied to the joints (tau)
+    pub tau: Configuration,
 }
 
 impl Data {
@@ -33,21 +40,18 @@ impl Data {
     /// # Returns
     /// A new `Data` object.
     #[must_use]
-    pub fn new(
-        joint_data: Vec<JointDataWrapper>,
-        joint_placements: Vec<SE3>,
-        frame_placements: Vec<SE3>,
-        local_joint_placements: Vec<SE3>,
-        joint_velocities: Vec<SpatialMotion>,
-        joint_accelerations: Vec<SpatialMotion>,
-    ) -> Self {
-        Self {
+    pub fn from_joints_data(joint_data: Vec<JointDataWrapper>) -> Self {
+        let njoints = joint_data.len();
+        Data {
             joint_data,
-            joint_placements,
-            frame_placements,
-            local_joint_placements,
-            joint_velocities,
-            joint_accelerations,
+            joint_placements: vec![SE3::identity(); njoints],
+            frame_placements: Vec::new(),
+            local_joint_placements: vec![SE3::identity(); njoints],
+            joint_velocities: vec![SpatialMotion::zero(); njoints],
+            joint_accelerations: vec![SpatialMotion::zero(); njoints],
+            joint_momenta: vec![SpatialForce::zero(); njoints],
+            joint_forces: vec![SpatialForce::zero(); njoints],
+            tau: Configuration::zeros(njoints),
         }
     }
 }

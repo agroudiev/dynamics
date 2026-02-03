@@ -6,7 +6,6 @@ use dynamics_inertia::inertia::Inertia;
 use dynamics_joint::fixed::JointModelFixed;
 use dynamics_joint::joint::{JointModel, JointWrapper};
 use dynamics_spatial::configuration::Configuration;
-use dynamics_spatial::motion::SpatialMotion;
 use dynamics_spatial::se3::SE3;
 use dynamics_spatial::vector3d::Vector3D;
 use ptree::{TreeBuilder, print_tree};
@@ -172,14 +171,7 @@ impl Model {
             .map(|joint_model| joint_model.create_joint_data())
             .collect();
 
-        Data::new(
-            joints_data,
-            vec![SE3::identity(); self.njoints()],
-            vec![SE3::identity(); self.nframes()],
-            vec![SE3::identity(); self.njoints()],
-            vec![SpatialMotion::zero(); self.njoints()],
-            vec![SpatialMotion::zero(); self.njoints()],
-        )
+        Data::from_joints_data(joints_data)
     }
 
     // /// Appends a body of given inertia to the joint with given id.
