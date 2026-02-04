@@ -31,28 +31,25 @@ pub fn inverse_dynamics(
     a: &Configuration,
 ) -> Result<(), ConfigurationError> {
     let mut q_offset = 0;
+    let mut v_offset = 0;
 
     data.joint_velocities[0] = SpatialMotion::zero();
     data.joint_accelerations_gravity_free[0] =
         SpatialMotion::from_parts(-model.gravity, Vector3D::zeros());
 
     // Forward pass: compute velocities and accelerations
-    for joint_id in 0..model.joint_models.len() {
+    for joint_id in 1..model.joint_models.len() {
         // retrieve the joint model and the corresponding configuration
         let joint_model = &model.joint_models[joint_id];
         let joint_data = &mut data.joint_data[joint_id];
         let parent_id = model.joint_parents[joint_id];
         // extract the joint configuration, velocity and acceleration from configuration vectors
-        let q_joint = q.rows(q_offset, joint_model.nq());
-        let v_joint = v.rows(q_offset, joint_model.nq());
-        let a_joint = a.rows(q_offset, joint_model.nq());
-
-        // compute the transformation matrix of the joint (X_J) and axis (S_i)
-        // let transform = joint_model.transform(&q_joint);
-        // let axis = joint_model.get_axis();
+        let joint_q = q.rows(q_offset, joint_model.nq());
+        let joint_v = v.rows(v_offset, joint_model.nv());
+        let joint_a = a.rows(v_offset, joint_model.nv());
 
         joint_data
-            .update(joint_model, &q_joint, Some(&v_joint))
+            .update(joint_model, &joint_q, Some(&joint_v))
             .unwrap();
 
         // update the joint placement in the world frame
@@ -68,14 +65,9 @@ pub fn inverse_dynamics(
 
         // update the joint acceleration
         let (a_parent, a_child) = data.joint_accelerations_gravity_free.split_at_mut(joint_id);
-        let a_parent = if joint_id == 0 {
-            &a_child[0].clone() // we have to clone here to avoid double borrow
-        } else {
-            &a_parent[parent_id]
-        };
 
-        a_child[0] = joint_model.subspace(&a_joint) + joint_model.bias();
-        a_child[0] += data.local_joint_placements[joint_id].act_inv(a_parent);
+        a_child[0] = joint_model.subspace(&joint_a) + joint_model.bias();
+        a_child[0] += data.local_joint_placements[joint_id].act_inv(&a_parent[parent_id]);
         a_child[0] += data.joint_velocities[joint_id].cross(joint_data.get_joint_velocity());
 
         // update the joint momentum
@@ -88,14 +80,13 @@ pub fn inverse_dynamics(
             data.joint_velocities[joint_id].cross(&data.joint_momenta[joint_id]);
 
         q_offset += joint_model.nq();
+        v_offset += joint_model.nv();
     }
 
     // TODO: add external forces
 
-    let mut v_offset = model.nv;
-
     // Backward pass: compute the joint torques
-    for joint_id in (0..model.joint_models.len()).rev() {
+    for joint_id in (1..model.joint_models.len()).rev() {
         let joint_model = &model.joint_models[joint_id];
         let parent_id = model.joint_parents[joint_id];
         v_offset -= joint_model.nv();
