@@ -5,7 +5,8 @@ use crate::{
 };
 use dynamics_joint::py_joint_data::PyJointDataWrapper;
 use dynamics_spatial::{
-    py_configuration::PyConfiguration, py_motion::PySpatialMotion, py_se3::PySE3,
+    py_configuration::PyConfiguration, py_force::PySpatialForce, py_motion::PySpatialMotion,
+    py_se3::PySE3,
 };
 use pyo3::prelude::*;
 
@@ -154,33 +155,33 @@ impl PyData {
     }
 
     #[getter]
-    pub fn joint_momenta(&self) -> Vec<PySpatialMotion> {
+    pub fn joint_momenta(&self) -> Vec<PySpatialForce> {
         // FIXME: replace by PySpatialForce
         self.inner
             .joint_momenta
             .iter()
-            .map(|f| PySpatialMotion { inner: f.clone() })
+            .map(|f| PySpatialForce { inner: f.clone() })
             .collect()
     }
 
     #[getter]
-    pub fn h(&self) -> Vec<PySpatialMotion> {
+    pub fn h(&self) -> Vec<PySpatialForce> {
         // FIXME: replace by PySpatialForce
         self.joint_momenta()
     }
 
     #[getter]
-    pub fn joint_forces(&self) -> Vec<PySpatialMotion> {
+    pub fn joint_forces(&self) -> Vec<PySpatialForce> {
         // FIXME: replace by PySpatialForce
         self.inner
             .joint_forces
             .iter()
-            .map(|f| PySpatialMotion { inner: f.clone() })
+            .map(|f| PySpatialForce { inner: f.clone() })
             .collect()
     }
 
     #[getter]
-    pub fn f(&self) -> Vec<PySpatialMotion> {
+    pub fn f(&self) -> Vec<PySpatialForce> {
         // FIXME: replace by PySpatialForce
         self.joint_forces()
     }

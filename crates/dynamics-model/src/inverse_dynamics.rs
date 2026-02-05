@@ -77,7 +77,7 @@ pub fn inverse_dynamics(
         data.joint_forces[joint_id] =
             &model.inertias[joint_id] * &data.joint_accelerations_gravity_free[joint_id];
         data.joint_forces[joint_id] +=
-            data.joint_velocities[joint_id].cross(&data.joint_momenta[joint_id]);
+            data.joint_velocities[joint_id].cross_force(&data.joint_momenta[joint_id]);
 
         q_offset += joint_model.nq();
         v_offset += joint_model.nv();

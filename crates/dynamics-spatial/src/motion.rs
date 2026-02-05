@@ -3,6 +3,7 @@
 use nalgebra::{Matrix6, Rotation3, Vector6};
 
 use crate::{
+    force::SpatialForce,
     se3::{ActSE3, SE3},
     vector3d::Vector3D,
     vector6d::Vector6D,
@@ -115,6 +116,23 @@ impl SpatialMotion {
         let cross_matrix = SpatialMotion::cross_matrix(angular, linear);
 
         SpatialMotion(cross_matrix * other.0)
+    }
+
+    /// Computes the cross product of two spatial motion vectors.
+    ///
+    /// # Arguments
+    /// * `other` - The other spatial motion vector to compute the cross product with.
+    ///
+    /// # Returns
+    /// A new `SpatialMotion` representing the cross product.
+    #[must_use]
+    pub fn cross_force(&self, other: &SpatialForce) -> SpatialForce {
+        let angular = self.rotation();
+        let linear = self.translation();
+
+        let cross_matrix = SpatialMotion::cross_matrix(angular, linear);
+
+        SpatialForce(cross_matrix * other.0)
     }
 
     /// Computes the dual cross product of two spatial motion vectors.

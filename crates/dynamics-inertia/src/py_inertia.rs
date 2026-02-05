@@ -1,4 +1,4 @@
-use dynamics_spatial::{py_motion::PySpatialMotion, symmetric3::Symmetric3, vector3d::Vector3D};
+use dynamics_spatial::{symmetric3::Symmetric3, vector3d::Vector3D};
 use numpy::PyReadonlyArrayDyn;
 use pyo3::{exceptions::PyValueError, prelude::*};
 
@@ -89,12 +89,6 @@ impl PyInertia {
     pub fn __add__(&self, other: &PyInertia) -> PyInertia {
         PyInertia {
             inner: self.inner.clone() + other.inner.clone(),
-        }
-    }
-
-    pub fn __mul__(&self, other: &PySpatialMotion) -> PySpatialMotion {
-        PySpatialMotion {
-            inner: &self.inner * &other.inner,
         }
     }
 }
