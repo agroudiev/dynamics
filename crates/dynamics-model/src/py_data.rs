@@ -66,6 +66,21 @@ impl PyData {
     }
 
     #[getter]
+    pub fn local_joint_placements(&self) -> Vec<PySE3> {
+        self.inner
+            .local_joint_placements
+            .iter()
+            .map(|p| PySE3 { inner: *p })
+            .collect()
+    }
+
+    #[getter]
+    #[allow(non_snake_case)]
+    pub fn liMi(&self) -> Vec<PySE3> {
+        self.local_joint_placements()
+    }
+
+    #[getter]
     #[allow(non_snake_case)]
     /// Returns the placements of the frames in the world frame.
     ///
