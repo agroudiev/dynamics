@@ -96,4 +96,10 @@ impl PySpatialMotion {
     pub fn __repr__(&self) -> PyResult<String> {
         Ok(format!("{}", self.inner))
     }
+
+    pub fn __add__(&self, other: &PySpatialMotion) -> PySpatialMotion {
+        PySpatialMotion {
+            inner: SpatialMotion(self.inner.0 + other.inner.0),
+        }
+    }
 }
