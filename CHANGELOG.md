@@ -8,6 +8,7 @@ This file is used to track changes made to the project over time.
 - Added `update_frame_placements` algorithm to update frame placements based on joint placements.
 - Added optional velocity and acceleration parameters to `forward_kinematics` function.
 - Added `frames_forward_kinematics` function to compute forward kinematics for all frames in the model.
+- Added `inverse_dynamics` function implementing the RNEA algorithm for inverse dynamics computation.
 
 ### Model & Data
 - Data now stores joint velocities and accelerations.
@@ -21,6 +22,8 @@ This file is used to track changes made to the project over time.
 
 ### Spatial
 - Added Python bindings for `SpatialMotion` type.
+- More efficient implementation of the `cross` method for `SpatialMotion`.
+- Diverse improvements to the bindings and display of spatial types.
 
 ### Misc
 - Fix docs.rs build for all crates

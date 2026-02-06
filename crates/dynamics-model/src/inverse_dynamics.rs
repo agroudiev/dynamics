@@ -1,13 +1,20 @@
 //! This module contains the implementation of the inverse dynamics algorithms.
-//! The main algorithm implemented here is the Recursive Newton-Euler Algorithm (RNEA).
-//! The RNEA computes the joint torques required to achieve a given motion of the robot
-//! given its configuration, velocity, and acceleration.
+//!
+//! Inverse dynamics is the problem of computing the joint torques required to achieve a given motion of the robot: $$\tau = \text{ID}(q, \dot{q}, \ddot{q})$$
+//! where $q$ is the configuration of the robot, $\dot{q}$ is the velocity of the robot, and $\ddot{q}$ is the acceleration of the robot.
+//!
+//! The main algorithm implemented here is the Recursive Newton-Euler Algorithm (RNEA), having a complexity of $O(n)$ in the number of joints.
+//! It uses two passes over the robot model:
+//! a forward pass to compute the velocities and accelerations of each joint,
+//! and a backward pass to compute the joint torques.
+//! Both passes are implemented in the `inverse_dynamics` function.
 
 use crate::data::Data;
+use crate::errors::AlgorithmError;
 use crate::model::{Model, WORLD_ID};
 use dynamics_joint::joint::JointModel;
 use dynamics_joint::joint_data::JointData;
-use dynamics_spatial::configuration::{Configuration, ConfigurationError};
+use dynamics_spatial::configuration::Configuration;
 use dynamics_spatial::motion::SpatialMotion;
 use dynamics_spatial::vector3d::Vector3D;
 
@@ -21,7 +28,7 @@ use dynamics_spatial::vector3d::Vector3D;
 /// * `a` - The acceleration of the robot.
 ///
 /// # Returns
-/// * `Ok(())` if the inverse dynamics was successful.
+/// * `Ok(())` if the inverse dynamics was successful. In this case, the fields `tau`, `local_joint_placements`, `joint_velocities`, `joint_accelerations_gravity_free`, `joint_momenta` and `joint_forces` of the `data` structure are updated with the results of the algorithm.
 /// * `Err(ConfigurationError)` if there was an error.
 pub fn inverse_dynamics(
     model: &Model,
@@ -29,7 +36,7 @@ pub fn inverse_dynamics(
     q: &Configuration,
     v: &Configuration,
     a: &Configuration,
-) -> Result<(), ConfigurationError> {
+) -> Result<(), AlgorithmError> {
     let mut q_offset = 0;
     let mut v_offset = 0;
 
@@ -43,6 +50,7 @@ pub fn inverse_dynamics(
         let joint_model = &model.joint_models[joint_id];
         let joint_data = &mut data.joint_data[joint_id];
         let parent_id = model.joint_parents[joint_id];
+
         // extract the joint configuration, velocity and acceleration from configuration vectors
         let joint_q = q.rows(q_offset, joint_model.nq());
         let joint_v = v.rows(v_offset, joint_model.nv());
@@ -91,10 +99,12 @@ pub fn inverse_dynamics(
         let parent_id = model.joint_parents[joint_id];
         v_offset -= joint_model.nv();
 
-        data.tau.update_rows(
-            v_offset,
-            &joint_model.subspace_dual(&data.joint_forces[joint_id]),
-        )?;
+        data.tau
+            .update_rows(
+                v_offset,
+                &joint_model.subspace_dual(&data.joint_forces[joint_id]),
+            )
+            .map_err(AlgorithmError::ConfigurationError)?;
 
         if parent_id != WORLD_ID {
             let (f_parent, f_child) = data.joint_forces.split_at_mut(joint_id);
