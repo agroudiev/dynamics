@@ -2,7 +2,8 @@ use numpy::{PyReadonlyArrayDyn, ToPyArray, ndarray::Array1};
 use pyo3::prelude::*;
 
 use crate::{
-    motion::SpatialMotion, py_vector3d::PyVector3D, vector3d::Vector3D, vector6d::Vector6D,
+    force::SpatialForce, motion::SpatialMotion, py_force::PySpatialForce, py_vector3d::PyVector3D,
+    vector3d::Vector3D, vector6d::Vector6D,
 };
 
 #[pyclass(name = "SpatialMotion")]
@@ -84,6 +85,12 @@ impl PySpatialMotion {
     pub fn cross(&self, other: &PySpatialMotion) -> PySpatialMotion {
         PySpatialMotion {
             inner: SpatialMotion(self.inner.cross(&other.inner).0),
+        }
+    }
+
+    pub fn cross_force(&self, other: &PySpatialForce) -> PySpatialForce {
+        PySpatialForce {
+            inner: SpatialForce(self.inner.cross_force(&other.inner).0),
         }
     }
 
