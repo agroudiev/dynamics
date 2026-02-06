@@ -1,4 +1,4 @@
-use pyo3::prelude::*;
+use pyo3::{exceptions::PyValueError, prelude::*};
 
 use crate::vector3d::Vector3D;
 
@@ -66,5 +66,17 @@ impl PyVector3D {
             "Vector3D({}, {}, {})",
             self.inner.0.x, self.inner.0.y, self.inner.0.z
         )
+    }
+
+    pub fn __getitem__(&self, index: usize) -> PyResult<f64> {
+        match index {
+            0 => Ok(self.inner.0.x),
+            1 => Ok(self.inner.0.y),
+            2 => Ok(self.inner.0.z),
+            _ => Err(PyValueError::new_err(format!(
+                "Index out of bounds: {}. Valid indices are 0, 1, and 2.",
+                index
+            ))),
+        }
     }
 }

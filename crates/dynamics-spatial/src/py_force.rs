@@ -95,4 +95,18 @@ impl PySpatialForce {
             inner: SpatialForce(self.inner.0 + other.inner.0),
         }
     }
+
+    #[getter]
+    pub fn get_linear(&self) -> PyVector3D {
+        PyVector3D {
+            inner: self.inner.translation(),
+        }
+    }
+
+    #[getter]
+    pub fn get_angular(&self) -> PyVector3D {
+        PyVector3D {
+            inner: self.inner.rotation(),
+        }
+    }
 }
