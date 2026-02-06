@@ -22,8 +22,8 @@
 //!   * *SDF (Simulation Description Format)* (WIP)
 //! - The following algorithms:
 //!   * Forward kinematics
+//!   * Inverse dynamics (RNEA)
 //!   * *Jacobians computation* (WIP)
-//!   * *Inverse dynamics (RNEA)* (WIP)
 //!   * *Forward dynamics (ABA)* (WIP)
 //!
 //! ## Example
