@@ -3,15 +3,25 @@ use numpy::{
     PyArrayMethods, PyReadonlyArray1, PyReadonlyArray2, ToPyArray,
     ndarray::{Array1, Array2},
 };
-use pyo3::{exceptions::PyValueError, prelude::*};
+use pyo3::{IntoPyObjectExt, exceptions::PyValueError, prelude::*};
 
-use crate::{motion::SpatialRotation, py_motion::PySpatialMotion, se3::SE3, vector3d::Vector3D};
+use crate::{
+    motion::SpatialRotation, py_force::PySpatialForce, py_motion::PySpatialMotion, se3::SE3,
+    vector3d::Vector3D,
+};
 
 // Python wrapper for the SE(3) group.
 #[pyclass(name = "SE3")]
 #[derive(Clone, Debug, Default)]
 pub struct PySE3 {
     pub inner: SE3,
+}
+
+#[derive(FromPyObject)]
+/// Enum representing the possible input types for the `act` and `act_inv` methods of `PySE3`.
+pub enum PyActSE3Input {
+    PySpatialMotion(PySpatialMotion),
+    PySpatialForce(PySpatialForce),
 }
 
 #[pymethods]
@@ -168,16 +178,29 @@ impl PySE3 {
         format!("{}", slf.inner)
     }
 
-    // TODO: make this work with any ActSE3 type
-    pub fn act(&self, other: &PySpatialMotion) -> PySpatialMotion {
-        PySpatialMotion {
-            inner: self.inner.act(&other.inner),
+    pub fn act(&self, py: Python, other: PyActSE3Input) -> PyResult<Py<PyAny>> {
+        match other {
+            PyActSE3Input::PySpatialMotion(py_motion) => {
+                let result = self.inner.act(&py_motion.inner);
+                PySpatialMotion { inner: result }.into_py_any(py)
+            }
+            PyActSE3Input::PySpatialForce(py_force) => {
+                let result = self.inner.act(&py_force.inner);
+                PySpatialForce { inner: result }.into_py_any(py)
+            }
         }
     }
 
-    pub fn act_inv(&self, other: &PySpatialMotion) -> PySpatialMotion {
-        PySpatialMotion {
-            inner: self.inner.act_inv(&other.inner),
+    pub fn act_inv(&self, py: Python, other: PyActSE3Input) -> PyResult<Py<PyAny>> {
+        match other {
+            PyActSE3Input::PySpatialMotion(py_motion) => {
+                let result = self.inner.act_inv(&py_motion.inner);
+                PySpatialMotion { inner: result }.into_py_any(py)
+            }
+            PyActSE3Input::PySpatialForce(py_force) => {
+                let result = self.inner.act_inv(&py_force.inner);
+                PySpatialForce { inner: result }.into_py_any(py)
+            }
         }
     }
 }

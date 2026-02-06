@@ -4,6 +4,7 @@ use pyo3::prelude::*;
 use crate::{force::SpatialForce, py_vector3d::PyVector3D, vector3d::Vector3D, vector6d::Vector6D};
 
 #[pyclass(name = "SpatialForce")]
+#[derive(Clone, Debug)]
 pub struct PySpatialForce {
     pub inner: SpatialForce,
 }

@@ -7,6 +7,7 @@ use crate::{
 };
 
 #[pyclass(name = "SpatialMotion")]
+#[derive(Clone, Debug)]
 pub struct PySpatialMotion {
     pub inner: SpatialMotion,
 }
