@@ -109,22 +109,6 @@ impl JointModel for JointModelContinuous {
         Configuration::from_row_slice(&[angle.cos(), angle.sin()])
     }
 
-    fn transform(&self, q: &Configuration) -> SE3 {
-        assert_eq!(
-            q.len(),
-            2,
-            "Continuous joint model expects two values (cosine and sine)."
-        );
-        let cos = q[0];
-        let sin = q[1];
-        let angle = sin.atan2(cos);
-
-        SE3::from_parts(
-            Vector3D::zeros(),
-            SpatialRotation::from_axis_angle(&self.axis, angle),
-        )
-    }
-
     fn subspace(&self, v: &Configuration) -> SpatialMotion {
         assert_eq!(
             v.len(),

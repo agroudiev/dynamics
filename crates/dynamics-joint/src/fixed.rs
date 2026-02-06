@@ -38,11 +38,6 @@ impl JointModel for JointModelFixed {
         Configuration::zeros(0)
     }
 
-    fn transform(&self, q: &Configuration) -> SE3 {
-        assert_eq!(q.len(), 0, "Fixed joint model expects no configuration.");
-        SE3::identity()
-    }
-
     fn get_axis(&self) -> Vec<SpatialMotion> {
         Vec::new()
     }

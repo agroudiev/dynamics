@@ -103,15 +103,6 @@ impl JointModel for JointModelRevolute {
         )
     }
 
-    fn transform(&self, q: &Configuration) -> SE3 {
-        assert_eq!(q.len(), 1, "Revolute joint model expects a single angle.");
-        let angle = q[0];
-        SE3::from_parts(
-            Vector3D::zeros(),
-            SpatialRotation::from_axis_angle(&self.axis, angle),
-        )
-    }
-
     fn subspace(&self, v: &Configuration) -> SpatialMotion {
         assert_eq!(
             v.len(),

@@ -30,7 +30,7 @@ pub mod motion;
 pub mod se3;
 pub mod so3;
 pub mod symmetric3;
-pub mod transform;
+// pub mod transform;
 pub mod vector3d;
 pub mod vector6d;
 

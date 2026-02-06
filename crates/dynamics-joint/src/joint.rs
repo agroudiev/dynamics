@@ -9,9 +9,7 @@ use crate::{
     continuous::JointModelContinuous, fixed::JointModelFixed, joint_data::JointDataWrapper,
     prismatic::JointModelPrismatic, revolute::JointModelRevolute,
 };
-use dynamics_spatial::{
-    configuration::Configuration, force::SpatialForce, motion::SpatialMotion, se3::SE3,
-};
+use dynamics_spatial::{configuration::Configuration, force::SpatialForce, motion::SpatialMotion};
 use rand::rngs::ThreadRng;
 
 #[derive(Clone, Debug)]
@@ -123,15 +121,6 @@ impl JointModel for JointWrapper {
         }
     }
 
-    fn transform(&self, q: &Configuration) -> SE3 {
-        match &self.inner {
-            JointModelImpl::Continuous(joint) => joint.transform(q),
-            JointModelImpl::Prismatic(joint) => joint.transform(q),
-            JointModelImpl::Revolute(joint) => joint.transform(q),
-            JointModelImpl::Fixed(joint) => joint.transform(q),
-        }
-    }
-
     fn get_axis(&self) -> Vec<SpatialMotion> {
         match &self.inner {
             JointModelImpl::Continuous(joint) => joint.get_axis(),
@@ -194,9 +183,6 @@ pub trait JointModel {
 
     /// Returns a random configuration for the joint.
     fn random_configuration(&self, rng: &mut ThreadRng) -> Configuration;
-
-    /// Computes the transformation matrix of the joint given its configuration. Featherstone calls it `jcalc`.
-    fn transform(&self, q: &Configuration) -> SE3;
 
     /// Applies the joint subspace constraint to obtain the motion associated with a given velocity configuration.
     fn subspace(&self, v: &Configuration) -> SpatialMotion;

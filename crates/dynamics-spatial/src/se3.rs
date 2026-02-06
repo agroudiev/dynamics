@@ -6,7 +6,7 @@
 
 use std::fmt::Display;
 
-use crate::{motion::SpatialRotation, transform::SpatialTransform, vector3d::Vector3D};
+use crate::{motion::SpatialRotation, vector3d::Vector3D};
 use nalgebra::{IsometryMatrix3, Translation3};
 
 /// SE(3) transformation represented as an isometry matrix.
@@ -58,12 +58,6 @@ impl SE3 {
     #[must_use]
     pub fn rotation(&self) -> SpatialRotation {
         SpatialRotation(self.0.rotation)
-    }
-
-    /// Computes the action of the SE(3) transformation on a 3D point.
-    #[must_use]
-    pub fn action(&self) -> SpatialTransform {
-        SpatialTransform::from_se3(self)
     }
 }
 
