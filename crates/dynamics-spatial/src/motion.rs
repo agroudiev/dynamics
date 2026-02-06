@@ -110,12 +110,16 @@ impl SpatialMotion {
     /// A new `SpatialMotion` representing the cross product.
     #[must_use]
     pub fn cross(&self, other: &SpatialMotion) -> SpatialMotion {
-        let angular = self.rotation();
-        let linear = self.translation();
+        let angular_1 = self.rotation();
+        let linear_1 = self.translation();
 
-        let cross_matrix = SpatialMotion::cross_matrix(angular, linear);
+        let angular_2 = other.rotation();
+        let linear_2 = other.translation();
 
-        SpatialMotion(cross_matrix * other.0)
+        let cross_linear = angular_1.cross(&linear_2) + linear_1.cross(&angular_2);
+        let cross_angular = angular_1.cross(&angular_2);
+
+        SpatialMotion::from_parts(cross_linear, cross_angular)
     }
 
     /// Computes the cross product of two spatial motion vectors.
@@ -127,12 +131,16 @@ impl SpatialMotion {
     /// A new `SpatialMotion` representing the cross product.
     #[must_use]
     pub fn cross_force(&self, other: &SpatialForce) -> SpatialForce {
-        let angular = self.rotation();
-        let linear = self.translation();
+        let m_linear = self.translation();
+        let m_angular = self.rotation();
 
-        let cross_matrix = SpatialMotion::cross_matrix(angular, linear);
+        let f_linear = other.translation();
+        let f_angular = other.rotation();
 
-        SpatialForce(cross_matrix * other.0)
+        let cross_linear = m_angular.cross(&f_linear);
+        let cross_angular = m_angular.cross(&f_angular) + m_linear.cross(&f_linear);
+
+        SpatialForce::from_parts(cross_linear, cross_angular)
     }
 
     /// Computes the dual cross product of two spatial motion vectors.
