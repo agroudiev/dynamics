@@ -20,8 +20,8 @@ def compare_urdf_id(test_case, file_path, mesh_dir=None):
 
     np.random.seed(0)
     q = pin.randomConfiguration(pin_model)  # do not use np.random.rand
-    v = np.random.rand(dyn_model.nv)
-    a = np.random.rand(dyn_model.nv)
+    v = np.random.rand(dyn_model.nv) * 1000
+    a = np.random.rand(dyn_model.nv) * 1000
     dyn.inverse_dynamics(dyn_model, dyn_data, q, v, a)
     pin.rnea(pin_model, pin_data, q, v, a)
     assert_datas_equals(test_case, dyn_data, pin_data)
@@ -39,21 +39,14 @@ class TestInverseDynamics(unittest.TestCase):
         pin_data = pin.Data(pin_model)
         assert_datas_equals(self, dyn_data, pin_data)
 
+        np.random.seed(0)
+        q = pin.randomConfiguration(pin_model)
+        v = np.random.rand(dyn_model.nv) * 100
+        a = np.random.rand(dyn_model.nv) * 100
+
         # Check inverse dynamics
-        dyn.inverse_dynamics(
-            dyn_model,
-            dyn_data,
-            np.zeros(dyn_model.nq),
-            np.zeros(dyn_model.nv),
-            np.zeros(dyn_model.nv),
-        )
-        pin.rnea(
-            pin_model,
-            pin_data,
-            np.zeros(pin_model.nq),
-            np.zeros(pin_model.nv),
-            np.zeros(pin_model.nv),
-        )
+        dyn.inverse_dynamics(dyn_model, dyn_data, q, v, a)
+        pin.rnea(pin_model, pin_data, q, v, a)
         assert_datas_equals(self, dyn_data, pin_data)
 
     def test_id_one_joint(self):
@@ -90,14 +83,13 @@ class TestInverseDynamics(unittest.TestCase):
 
         # Check inverse dynamics
         np.random.seed(0)
-        q = np.random.rand(dyn_model.nq)
-        v = np.random.rand(dyn_model.nv)
-        a = np.random.rand(dyn_model.nv)
+        q = pin.randomConfiguration(pin_model)
+        v = np.random.rand(dyn_model.nv) * 100
+        a = np.random.rand(dyn_model.nv) * 100
         dyn.inverse_dynamics(dyn_model, dyn_data, q, v, a)
         pin.rnea(pin_model, pin_data, q, v, a)
         assert_datas_equals(self, dyn_data, pin_data)
 
-    @unittest.skip("")
     def test_id_double_pendulum(self):
         compare_urdf_id(self, "examples/descriptions/double_pendulum_simple.urdf")
 

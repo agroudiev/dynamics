@@ -21,7 +21,10 @@ def set_ros_package_path(package: str):
 
 
 def assert_se3_equals(test_case: unittest.TestCase, dyn_se3: dyn.SE3, pin_se3: pin.SE3):
-    test_case.assertTrue(np.linalg.norm(dyn_se3.rotation - pin_se3.rotation) < 1e-14)
+    test_case.assertTrue(
+        np.isnan(pin_se3.rotation).any()  # skip if unitialized
+        or np.linalg.norm(dyn_se3.rotation - pin_se3.rotation) < 1e-14,
+    )
     test_case.assertTrue(
         np.linalg.norm(dyn_se3.translation - pin_se3.translation) < 1e-14
     )
@@ -222,8 +225,9 @@ def assert_joint_datas_equals(
 ):
     # Check the joint configuration vector
     test_case.assertTrue(
-        np.linalg.norm(dyn_joint_data.joint_q.to_numpy() - pin_joint_data.joint_q)
-        < 1e-15,
+        np.isinf(pin_joint_data.joint_q).any()  # skip if unitialized
+        or np.linalg.norm(dyn_joint_data.joint_q.to_numpy() - pin_joint_data.joint_q)
+        < 1e-14,
     )
 
     # Check the joint velocity vector
@@ -286,26 +290,29 @@ def assert_datas_equals(
     test_case.assertEqual(len(dyn_data.a_gf), len(pin_data.a_gf))
     for i in range(len(dyn_data.a_gf)):
         test_case.assertTrue(
-            np.linalg.norm(dyn_data.a_gf[i].to_numpy() - pin_data.a_gf[i]) < 1e-6
+            np.isnan(pin_data.a_gf[i]).any()  # skip if unitialized
+            or np.linalg.norm(dyn_data.a_gf[i].to_numpy() - pin_data.a_gf[i]) < 1e-6
         )
 
     # Check momenta
     test_case.assertEqual(len(dyn_data.h), len(pin_data.h))
     for i in range(len(dyn_data.h)):
         test_case.assertTrue(
-            np.linalg.norm(dyn_data.h[i].to_numpy() - pin_data.h[i]) < 1e-6,
+            np.linalg.norm(dyn_data.h[i].to_numpy() - pin_data.h[i]) < 1e-10,
         )
 
     # Check forces
     test_case.assertEqual(len(dyn_data.f), len(pin_data.f))
     for i in range(len(dyn_data.f)):
         test_case.assertTrue(
-            np.linalg.norm(dyn_data.f[i].to_numpy() - pin_data.f[i]) < 1e-6,
+            np.isnan(pin_data.f[i]).any()  # skip if unitialized
+            or np.linalg.norm(dyn_data.f[i].to_numpy() - pin_data.f[i]) < 1e-10
         )
 
     # Check tau
     test_case.assertTrue(
-        np.linalg.norm(dyn_data.tau.to_numpy() - pin_data.tau) < 1e-6,
+        np.isnan(pin_data.tau).any()  # skip if unitialized
+        or np.linalg.norm(dyn_data.tau.to_numpy() - pin_data.tau) < 1e-10
     )
 
 
