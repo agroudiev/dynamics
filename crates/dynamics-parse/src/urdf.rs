@@ -2,6 +2,8 @@
 //!
 //! ## Overview
 //! This module provides functionality to parse URDF files and build corresponding [`Model`] and [`GeometryModel`] objects.
+//! The parser is implemented from scratch, and does not rely on any existing URDF parsing library.
+//! Is uses `roxmltree` for XML parsing, the extraction of parameters being done manually.
 //!
 //! ## Joints
 //! The following joint types are supported:
@@ -19,7 +21,7 @@
 //!
 //! ## Tested models
 //! The parser has been tested at least on all models from [example-robot-data](https://github.com/Gepetto/example-robot-data/).
-//! However, some URDF features are still missing, so some models might not be parsed correctly yet.
+//! However, some URDF features are still missing, hence some other models might not be parsed correctly yet.
 
 #![allow(clippy::too_many_arguments)] // TODO: refactor functions
 

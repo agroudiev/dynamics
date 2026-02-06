@@ -74,7 +74,7 @@
 //! of rigid body dynamics:
 //! - [`dynamics-rs`](https://docs.rs/crate/dynamics-rs/latest): the main crate that provides high-level functionalities and interfaces.
 //! - [`dynamics-spatial`](https://docs.rs/crate/dynamics-spatial/latest): implements spatial algebra used in rigid body dynamics, such as spatial vectors and transformations.
-//! - [`dynamics-model`](https://docs.rs/crate/dynamics-model/latest): contains model and data structures for rigid body systems.
+//! - [`dynamics-model`](https://docs.rs/crate/dynamics-model/latest): contains model and data structures for rigid body systems, as well as the main algorithms for kinematics and dynamics computations.
 //! - [`dynamics-joint`](https://docs.rs/crate/dynamics-joint/latest): implements various joint types and their properties.
 //! - [`dynamics-inertia`](https://docs.rs/crate/dynamics-inertia/latest): provides inertia-related computations and data structures.
 //! - [`dynamics-parse`](https://docs.rs/crate/dynamics-parse/latest): utilities for parsing model files and configurations.
