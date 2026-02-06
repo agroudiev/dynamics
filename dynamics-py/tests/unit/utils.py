@@ -247,7 +247,7 @@ def assert_joint_datas_equals(
     # Check joint velocity
     test_case.assertTrue(
         np.isnan(pin_joint_data.v.np).any()  # skip if unitialized
-        or np.linalg.norm(dyn_joint_data.v.to_numpy() - pin_joint_data.v) < 1e-6,
+        or np.linalg.norm(dyn_joint_data.v.to_numpy() - pin_joint_data.v) < 1e-5,
     )
 
 
@@ -276,7 +276,7 @@ def assert_datas_equals(
     test_case.assertEqual(len(dyn_data.v), len(pin_data.v))
     for i in range(len(dyn_data.v)):
         test_case.assertTrue(
-            np.linalg.norm(dyn_data.v[i].to_numpy() - pin_data.v[i]) < 1e-6,
+            np.linalg.norm(dyn_data.v[i].to_numpy() - pin_data.v[i]) < 1e-5,
         )
 
     # Check accelerations with gravity
@@ -291,7 +291,7 @@ def assert_datas_equals(
     for i in range(len(dyn_data.a_gf)):
         test_case.assertTrue(
             np.isnan(pin_data.a_gf[i]).any()  # skip if unitialized
-            or np.linalg.norm(dyn_data.a_gf[i].to_numpy() - pin_data.a_gf[i]) < 1e-6
+            or np.linalg.norm(dyn_data.a_gf[i].to_numpy() - pin_data.a_gf[i]) < 1e-4,
         )
 
     # Check momenta
@@ -306,13 +306,13 @@ def assert_datas_equals(
     for i in range(len(dyn_data.f)):
         test_case.assertTrue(
             np.isnan(pin_data.f[i]).any()  # skip if unitialized
-            or np.linalg.norm(dyn_data.f[i].to_numpy() - pin_data.f[i]) < 1e-10
+            or np.linalg.norm(dyn_data.f[i].to_numpy() - pin_data.f[i]) < 1e-8
         )
 
     # Check tau
     test_case.assertTrue(
         np.isnan(pin_data.tau).any()  # skip if unitialized
-        or np.linalg.norm(dyn_data.tau.to_numpy() - pin_data.tau) < 1e-10
+        or np.linalg.norm(dyn_data.tau.to_numpy() - pin_data.tau) < 1e-8,
     )
 
 

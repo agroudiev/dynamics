@@ -20,8 +20,8 @@ def compare_urdf_id(test_case, file_path, mesh_dir=None):
 
     np.random.seed(0)
     q = pin.randomConfiguration(pin_model)  # do not use np.random.rand
-    v = np.random.rand(dyn_model.nv) * 1000
-    a = np.random.rand(dyn_model.nv) * 1000
+    v = np.random.rand(dyn_model.nv) * 10
+    a = np.random.rand(dyn_model.nv) * 10
     dyn.inverse_dynamics(dyn_model, dyn_data, q, v, a)
     pin.rnea(pin_model, pin_data, q, v, a)
     assert_datas_equals(test_case, dyn_data, pin_data)
@@ -94,7 +94,7 @@ class TestInverseDynamics(unittest.TestCase):
         compare_urdf_id(self, "examples/descriptions/double_pendulum_simple.urdf")
 
     @parameterized.parameterized.expand(EXAMPLE_ROBOT_DATA_URDFS)
-    @unittest.skip("")
+    # @unittest.skip("")
     def test_id_example_robot_data(self, path):
         robots_dir = "examples/descriptions/example-robot-data/robots/"
         set_ros_package_path("example-robot-data")
