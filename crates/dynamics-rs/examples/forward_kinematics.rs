@@ -1,7 +1,4 @@
-use dynamics_model::forward_kinematics::update_frame_placements;
-use dynamics_model::model::random_configuration;
-use dynamics_rs::model::forward_kinematics::forward_kinematics;
-use dynamics_rs::parse::urdf::build_models_from_urdf;
+use dynamics_rs::prelude::*;
 
 fn main() {
     let urdf_path = "./examples/descriptions/ur5/ur5_robot.urdf"; // Path to the URDF file

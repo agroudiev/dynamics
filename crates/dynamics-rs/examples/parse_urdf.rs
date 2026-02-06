@@ -1,4 +1,4 @@
-use dynamics_rs::parse::urdf::build_models_from_urdf;
+use dynamics_rs::prelude::*;
 
 fn main() {
     let urdf_path = "./examples/descriptions/ur5/ur5_robot.urdf"; // Path to the URDF file
