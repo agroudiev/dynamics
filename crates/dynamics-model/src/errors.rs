@@ -25,9 +25,9 @@ pub enum AlgorithmError {
 impl Display for AlgorithmError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            AlgorithmError::ConfigurationError(e) => write!(f, "Configuration error: {}", e),
+            AlgorithmError::ConfigurationError(e) => write!(f, "Configuration error: {e}"),
             AlgorithmError::JointError(joint_name, e) => {
-                write!(f, "Joint '{}' error: {}", joint_name, e)
+                write!(f, "Joint '{joint_name}' error: {e}")
             }
             AlgorithmError::IncorrectSize {
                 name,
@@ -36,8 +36,7 @@ impl Display for AlgorithmError {
             } => {
                 write!(
                     f,
-                    "Incorrect size for argument '{}': expected {}, got {}",
-                    name, expected, got
+                    "Incorrect size for argument '{name}': expected {expected}, got {got}"
                 )
             }
         }

@@ -19,9 +19,7 @@ pub fn main() {
                 .arg("import sysconfig; print(sysconfig.get_config_var('LIBDIR'))")
                 .output()
                 .expect("Failed to get LIBDIR");
-            if !output.status.success() {
-                panic!("Failed to get LIBDIR");
-            }
+            assert!(output.status.success(), "Failed to get LIBDIR");
             String::from_utf8_lossy(&output.stdout).trim().to_string()
         };
 
@@ -32,9 +30,7 @@ pub fn main() {
                 .arg("import sysconfig; print(sysconfig.get_config_var('LDLIBRARY'))")
                 .output()
                 .expect("Failed to get LDLIBRARY");
-            if !output.status.success() {
-                panic!("Failed to get LDLIBRARY");
-            }
+            assert!(output.status.success(), "Failed to get LDLIBRARY");
             String::from_utf8_lossy(&output.stdout).trim().to_string()
         };
 

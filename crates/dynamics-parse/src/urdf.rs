@@ -552,7 +552,7 @@ fn parse_link(
 
     // add a frame for the link
     let frame = Frame::new(
-        link_name.to_string(),
+        link_name.clone(),
         parent_joint_id,
         parent_frame_id,
         link_placement,
@@ -632,7 +632,7 @@ fn get_parent_frame(
             _ => FrameType::Body,
         };
         model
-            .get_frame_id(parent_name, Some(frame_type))
+            .get_frame_id(parent_name, Some(&frame_type))
             .ok_or(ParseError::UnknownParent(parent_name.to_string()))
     }
 }
@@ -787,8 +787,7 @@ fn parse_geometry(
             let path_parts: Vec<&str> = filename.splitn(2, '/').collect();
             if path_parts.len() != 2 {
                 return Err(ParseError::InvalidFilePath(format!(
-                    "Invalid package path: {}",
-                    filename
+                    "Invalid package path: {filename}"
                 )));
             }
             let package_name = path_parts[0];

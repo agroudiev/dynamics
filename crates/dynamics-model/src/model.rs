@@ -20,6 +20,7 @@ pub static STANDARD_GRAVITY: LazyLock<Vector3D> = LazyLock::new(|| Vector3D::new
 
 /// Data structure that contains the immutable properties of the robot model.
 /// It contains information about the joints, frames, and their local placements.
+#[derive(Debug, Clone)]
 pub struct Model {
     /// Name of the model.
     pub name: String,
@@ -168,7 +169,7 @@ impl Model {
         let joints_data = self
             .joint_models
             .iter()
-            .map(|joint_model| joint_model.create_joint_data())
+            .map(dynamics_joint::joint::JointModel::create_joint_data)
             .collect();
 
         Data::from_joints_data(joints_data, self)
@@ -221,11 +222,11 @@ impl Model {
     /// # Returns
     /// The index of the frame with the given name and type, or `None` if not found.
     #[must_use]
-    pub fn get_frame_id(&self, name: &str, frame_type: Option<FrameType>) -> Option<usize> {
+    pub fn get_frame_id(&self, name: &str, frame_type: Option<&FrameType>) -> Option<usize> {
         for (id, frame) in self.frames.iter().enumerate() {
             if frame.name == name {
-                if let Some(ft) = &frame_type
-                    && &frame.frame_type != ft
+                if let Some(ft) = frame_type
+                    && frame.frame_type != *ft
                 {
                     continue;
                 }
@@ -248,14 +249,6 @@ impl Model {
     }
 
     pub fn print_joint_tree(&self) -> std::io::Result<()> {
-        let mut tree = TreeBuilder::new(format!("Model {}", self.name));
-        let mut children = vec![vec![]; self.njoints()];
-        for (joint_id, &parent_id) in self.joint_parents.iter().enumerate() {
-            if joint_id != parent_id {
-                children[parent_id].push(joint_id);
-            }
-        }
-
         fn process_joint(
             model: &Model,
             children: &Vec<Vec<usize>>,
@@ -274,22 +267,18 @@ impl Model {
             tree.end_child();
         }
 
+        let mut tree = TreeBuilder::new(format!("Model {}", self.name));
+        let mut children = vec![vec![]; self.njoints()];
+        for (joint_id, &parent_id) in self.joint_parents.iter().enumerate() {
+            if joint_id != parent_id {
+                children[parent_id].push(joint_id);
+            }
+        }
+
         // process the root joint
         process_joint(self, &children, &mut tree, 0);
 
         print_tree(&tree.build())
-    }
-}
-
-impl Debug for Model {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Model")
-            .field("name", &self.name)
-            .field("joint_names", &self.joint_names)
-            .field("joint_parents", &self.joint_parents)
-            .field("joint_placements", &self.joint_placements)
-            // .field("joint_models", &self.joint_models)
-            .finish()
     }
 }
 
@@ -306,13 +295,12 @@ impl Display for ModelError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ModelError::ParentJointDoesNotExist(id) => {
-                write!(f, "Parent joint with id {} does not exist.", id)
+                write!(f, "Parent joint with id {id} does not exist.")
             }
             ModelError::JointNameAlreadyUsed(name, id) => {
                 write!(
                     f,
-                    "Joint name '{}' is already used by joint with id {}.",
-                    name, id
+                    "Joint name '{name}' is already used by joint with id {id}."
                 )
             }
         }
