@@ -9,7 +9,7 @@
 //! The Python package [`rdynamics-py`](https://pypi.org/project/rdynamics-py/) can be installed via `pip`.
 //!
 //! This library has two inspiration sources:
-//! - Roy Featherstone's book ["Rigid Body Dynamics Algorithms"](https://link.springer.com/book/10.1007/978-1-4899-7560-7), which provides the theoretical
+//! - Roy Featherstone's book [``Rigid Body Dynamics Algorithms''](https://link.springer.com/book/10.1007/978-1-4899-7560-7), which provides the theoretical
 //!   foundation for many of the algorithms implemented in this library.
 //! - The C++ library [Pinocchio](https://github.com/stack-of-tasks/pinocchio/), a widely-used
 //!   library for rigid body dynamics in robotics, which served as a reference for the API design

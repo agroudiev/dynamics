@@ -19,8 +19,7 @@ use crate::{
 /// Python wrapper for the `neutral` function.
 #[pyfunction(name = "neutral")]
 pub fn py_neutral(model: &mut PyModel) -> PyResult<PyConfiguration> {
-    let q =
-        neutral(&mut model.inner).map_err(|e| PyErr::new::<PyValueError, _>(format!("{:?}", e)))?;
+    let q = neutral(&model.inner).map_err(|e| PyErr::new::<PyValueError, _>(format!("{:?}", e)))?;
     Ok(PyConfiguration::new(q))
 }
 

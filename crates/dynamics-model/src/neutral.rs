@@ -7,12 +7,14 @@ use dynamics_spatial::configuration::ConfigurationError;
 
 /// Computes the neutral configuration of a model.
 ///
+/// This function iterates through each joint model in the given model, retrieves its neutral configuration, and assembles these into a single `Configuration` object that represents the neutral configuration of the entire model.
+///
 /// # Arguments
-/// * `model` - A mutable reference to the model.
+/// * `model` - A reference to the model.
 ///
 /// # Returns
 /// A `Configuration` object representing the neutral configuration of the model.
-pub fn neutral(model: &mut Model) -> Result<Configuration, ConfigurationError> {
+pub fn neutral(model: &Model) -> Result<Configuration, ConfigurationError> {
     let mut q = Configuration::zeros(model.nq);
 
     let mut offset = 0;

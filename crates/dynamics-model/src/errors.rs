@@ -1,12 +1,20 @@
+//! Errors for dynamics algorithms.
+//!
+//! This module defines the `AlgorithmError` enum, which represents various errors that can occur during dynamics computations.
+
 use std::fmt::Display;
 
 use dynamics_joint::joint_data::JointError;
 use dynamics_spatial::configuration::ConfigurationError;
 
 #[derive(Debug)]
+/// Errors that can occur during dynamics computations.
 pub enum AlgorithmError {
+    /// An error related to the configuration of the system.
     ConfigurationError(ConfigurationError),
+    /// An error related to a specific joint, identified by its name.
     JointError(String, JointError),
+    /// An error indicating that an argument has an incorrect size.
     IncorrectSize {
         name: String,
         expected: usize,

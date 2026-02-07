@@ -36,7 +36,7 @@ impl SE3 {
         ))
     }
 
-    /// Creates a new identity SE(3) transformation.
+    /// Creates a new identity SE(3) transformation, with $R = I_3$ and $t = 0_3$.
     #[must_use]
     pub fn identity() -> Self {
         SE3(IsometryMatrix3::identity())
@@ -123,12 +123,12 @@ pub trait ActSE3 {
 }
 
 impl SE3 {
-    /// Applies the SE(3) transformation to an object implementing the `ActSE3` trait.
+    /// Applies the SE(3) transformation to an object implementing the [`ActSE3`] trait.
     pub fn act<T: ActSE3>(&self, obj: &T) -> T {
         obj.act(self)
     }
 
-    /// Applies the inverse SE(3) transformation to an object implementing the `ActSE3` trait.
+    /// Applies the inverse SE(3) transformation to an object implementing the [`ActSE3`] trait.
     pub fn act_inv<T: ActSE3>(&self, obj: &T) -> T {
         obj.act_inv(self)
     }

@@ -5,10 +5,10 @@
 //! All these structures represent the robot model and its properties.
 //!
 //! ## Model vs Data
-//! The `Model` object represents the properties of the robot model which are immutable and are not changed or computed by the algorithms.
+//! The [`model::Model`] object represents the properties of the robot model which are immutable and are not changed or computed by the algorithms.
 //! Such properties are only altered by the user.
 //!
-//! The `Data` object represents the properties of the robot model which are obtained by the algorithms.
+//! The [`data::Data`] object represents the properties of the robot model which are obtained by the algorithms.
 //! They are not directly provided by the user and might change during the execution of the algorithms.
 //!
 //! For instance, the `Model` object contains the joint placements with respect to the parent frame,
@@ -18,7 +18,8 @@
 //! ## Algorithms
 //! The algorithms in this crate operate on both the `Model` and `Data` objects.
 //! The following algorithms are implemented:
-//! - Forward kinematics
+//! - Forward kinematics ([`forward_kinematics`]): computes the world placement of all objects in the robot model given the joint configuration.
+//! - Inverse dynamics ([`inverse_dynamics`]): computes the joint forces required to achieve a desired joint acceleration given the current state.
 
 pub mod data;
 pub mod errors;
