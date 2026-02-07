@@ -16,9 +16,9 @@ dynamics-rs.workspace = true
 approx.workspace = true
 criterion = "0.8.2"
 
-# [[bench]]
-# name = "forward_kinematics"
-# harness = false
+[[bench]]
+name = "forward_kinematics"
+harness = false
 
 [[bench]]
 name = "parse_urdf"
