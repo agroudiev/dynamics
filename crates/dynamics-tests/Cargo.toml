@@ -10,13 +10,19 @@ license-file.workspace = true
 publish = false
 
 [dependencies]
-dynamics-model.workspace = true
-dynamics-joint.workspace = true
-dynamics-spatial.workspace = true
-dynamics-parse.workspace = true
+dynamics-rs.workspace = true
 
 [dev-dependencies]
 approx.workspace = true
+criterion = "0.8.2"
+
+# [[bench]]
+# name = "forward_kinematics"
+# harness = false
+
+[[bench]]
+name = "parse_urdf"
+harness = false
 
 [package.metadata.docs.rs]
 all-features = true
