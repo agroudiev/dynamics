@@ -1,6 +1,6 @@
 //! Defines spatial **forces** and related operations.
 
-use std::ops::{Add, AddAssign};
+use std::ops::{Add, AddAssign, Sub, SubAssign};
 
 use nalgebra::{Matrix6, Vector6};
 
@@ -117,6 +117,34 @@ impl Add<&SpatialForce> for SpatialForce {
 impl AddAssign for SpatialForce {
     fn add_assign(&mut self, rhs: Self) {
         self.0 += rhs.0;
+    }
+}
+
+impl Sub for SpatialForce {
+    type Output = SpatialForce;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        SpatialForce(self.0 - rhs.0)
+    }
+}
+
+impl Sub<&SpatialForce> for SpatialForce {
+    type Output = SpatialForce;
+
+    fn sub(self, rhs: &Self) -> Self::Output {
+        SpatialForce(self.0 - rhs.0)
+    }
+}
+
+impl SubAssign for SpatialForce {
+    fn sub_assign(&mut self, rhs: Self) {
+        self.0 -= rhs.0;
+    }
+}
+
+impl SubAssign<&SpatialForce> for SpatialForce {
+    fn sub_assign(&mut self, rhs: &Self) {
+        self.0 -= rhs.0;
     }
 }
 

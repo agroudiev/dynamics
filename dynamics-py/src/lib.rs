@@ -38,8 +38,8 @@ use collider_rs::{
 };
 use dynamics_parse::py_urdf::py_build_models_from_urdf;
 use dynamics_spatial::{
-    py_configuration::PyConfiguration, py_motion::PySpatialMotion, py_se3::PySE3,
-    py_symmetric3::PySymmetric3, py_vector3d::PyVector3D, py_vector6d::PyVector6D,
+    py_configuration::PyConfiguration, py_force::PySpatialForce, py_motion::PySpatialMotion,
+    py_se3::PySE3, py_symmetric3::PySymmetric3, py_vector3d::PyVector3D, py_vector6d::PyVector6D,
 };
 use numpy::PyArray1;
 
@@ -105,6 +105,7 @@ fn add_spatial_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult<
     dynamics.add_class::<PyVector6D>()?;
     dynamics.add_class::<PySymmetric3>()?;
     dynamics.add_class::<PySpatialMotion>()?;
+    dynamics.add_class::<PySpatialForce>()?;
 
     py.import("sys")?
         .getattr("modules")?
