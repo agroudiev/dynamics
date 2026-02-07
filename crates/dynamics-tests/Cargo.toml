@@ -17,11 +17,15 @@ approx.workspace = true
 criterion = "0.8.2"
 
 [[bench]]
+name = "parse_urdf"
+harness = false
+
+[[bench]]
 name = "forward_kinematics"
 harness = false
 
 [[bench]]
-name = "parse_urdf"
+name = "inverse_dynamics"
 harness = false
 
 [package.metadata.docs.rs]
