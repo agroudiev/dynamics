@@ -171,7 +171,7 @@ impl Configuration {
             } else {
                 max[i]
             };
-            values.push(rng.random_range(min_i..max_i));
+            values.push(rng.random_range(min_i..=max_i));
         }
         Configuration::from_row_slice(&values)
     }
