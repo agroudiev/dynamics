@@ -1,6 +1,7 @@
 use dynamics_spatial::configuration::Configuration;
 use dynamics_spatial::py_configuration::PyConfiguration;
 use dynamics_spatial::py_configuration::PyConfigurationInput;
+use dynamics_spatial::py_force::PySpatialForce;
 use numpy::PyReadonlyArrayDyn;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
@@ -98,32 +99,36 @@ pub fn py_frames_forward_kinematics(
     Ok(())
 }
 
-#[pyfunction(name = "inverse_dynamics")]
+#[pyfunction(name = "inverse_dynamics", signature=(model, data, q, v, a, f_ext=None))]
 pub fn py_inverse_dynamics(
     model: &PyModel,
     data: &mut PyData,
     q: PyConfigurationInput,
     v: PyConfigurationInput,
     a: PyConfigurationInput,
+    f_ext: Option<Vec<PySpatialForce>>,
 ) -> PyResult<()> {
     let q = q.to_configuration(model.inner.nq)?;
     let v = v.to_configuration(model.inner.nv)?;
     let a = a.to_configuration(model.inner.nv)?;
 
-    inverse_dynamics(&model.inner, &mut data.inner, &q, &v, &a)
+    let f_ext = f_ext.map(|f| f.into_iter().map(|f| f.inner).collect::<Vec<_>>());
+
+    inverse_dynamics(&model.inner, &mut data.inner, &q, &v, &a, f_ext.as_deref())
         .map_err(|e| PyErr::new::<PyValueError, _>(format!("Error in inverse dynamics: {e}")))?;
 
     Ok(())
 }
 
 // Pinocchio alias (Recursive Newton-Euler Algorithm)
-#[pyfunction(name = "rnea")]
+#[pyfunction(name = "rnea", signature=(model, data, q, v, a, f_ext=None))]
 pub fn py_rnea(
     model: &PyModel,
     data: &mut PyData,
     q: PyConfigurationInput,
     v: PyConfigurationInput,
     a: PyConfigurationInput,
+    f_ext: Option<Vec<PySpatialForce>>,
 ) -> PyResult<()> {
-    py_inverse_dynamics(model, data, q, v, a)
+    py_inverse_dynamics(model, data, q, v, a, f_ext)
 }

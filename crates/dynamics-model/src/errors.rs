@@ -7,6 +7,11 @@ use dynamics_spatial::configuration::ConfigurationError;
 pub enum AlgorithmError {
     ConfigurationError(ConfigurationError),
     JointError(String, JointError),
+    IncorrectSize {
+        name: String,
+        expected: usize,
+        got: usize,
+    },
 }
 
 impl Display for AlgorithmError {
@@ -15,6 +20,17 @@ impl Display for AlgorithmError {
             AlgorithmError::ConfigurationError(e) => write!(f, "Configuration error: {}", e),
             AlgorithmError::JointError(joint_name, e) => {
                 write!(f, "Joint '{}' error: {}", joint_name, e)
+            }
+            AlgorithmError::IncorrectSize {
+                name,
+                expected,
+                got,
+            } => {
+                write!(
+                    f,
+                    "Incorrect size for argument '{}': expected {}, got {}",
+                    name, expected, got
+                )
             }
         }
     }

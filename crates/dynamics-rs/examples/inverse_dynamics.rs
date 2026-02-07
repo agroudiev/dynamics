@@ -17,7 +17,8 @@ fn main() {
     let mut data = model.create_data();
 
     // Compute inverse dynamics
-    inverse_dynamics(&model, &mut data, &q, &v, &a).expect("Failed to compute inverse dynamics");
+    inverse_dynamics(&model, &mut data, &q, &v, &a, None)
+        .expect("Failed to compute inverse dynamics");
 
     // Print the computed torques
     println!("Computed torques: {}", data.tau);

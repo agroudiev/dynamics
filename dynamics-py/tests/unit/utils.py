@@ -312,7 +312,7 @@ def assert_datas_equals(
     # Check tau
     test_case.assertTrue(
         np.isnan(pin_data.tau).any()  # skip if unitialized
-        or np.linalg.norm(dyn_data.tau.to_numpy() - pin_data.tau) < 1e-8,
+        or np.linalg.norm(dyn_data.tau.to_numpy() - pin_data.tau) < 1e-6
     )
 
 

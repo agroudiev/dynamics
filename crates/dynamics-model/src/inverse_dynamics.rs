@@ -15,6 +15,7 @@ use crate::model::{Model, WORLD_ID};
 use dynamics_joint::joint::JointModel;
 use dynamics_joint::joint_data::JointData;
 use dynamics_spatial::configuration::Configuration;
+use dynamics_spatial::force::SpatialForce;
 use dynamics_spatial::motion::SpatialMotion;
 use dynamics_spatial::vector3d::Vector3D;
 
@@ -26,6 +27,7 @@ use dynamics_spatial::vector3d::Vector3D;
 /// * `q` - The configuration of the robot.
 /// * `v` - The velocity of the robot.
 /// * `a` - The acceleration of the robot.
+/// * `f_ext` - The external forces applied to the robot (optional).
 ///
 /// # Returns
 /// * `Ok(())` if the inverse dynamics was successful. In this case, the fields `tau`, `local_joint_placements`, `joint_velocities`, `joint_accelerations_gravity_free`, `joint_momenta` and `joint_forces` of the `data` structure are updated with the results of the algorithm.
@@ -36,7 +38,25 @@ pub fn inverse_dynamics(
     q: &Configuration,
     v: &Configuration,
     a: &Configuration,
+    f_ext: Option<&[SpatialForce]>,
 ) -> Result<(), AlgorithmError> {
+    // check the dimensions of the input
+    q.check_size("q", model.nq)
+        .map_err(AlgorithmError::ConfigurationError)?;
+    v.check_size("v", model.nv)
+        .map_err(AlgorithmError::ConfigurationError)?;
+    a.check_size("a", model.nv)
+        .map_err(AlgorithmError::ConfigurationError)?;
+    if let Some(f_ext) = f_ext
+        && f_ext.len() != model.joint_models.len()
+    {
+        return Err(AlgorithmError::IncorrectSize {
+            name: "f_ext".to_string(),
+            expected: model.joint_models.len(),
+            got: f_ext.len(),
+        });
+    }
+
     let mut q_offset = 0;
     let mut v_offset = 0;
 
@@ -87,11 +107,13 @@ pub fn inverse_dynamics(
         data.joint_forces[joint_id] +=
             data.joint_velocities[joint_id].cross_force(&data.joint_momenta[joint_id]);
 
+        if let Some(f_ext) = f_ext {
+            data.joint_forces[joint_id] -= &f_ext[joint_id];
+        }
+
         q_offset += joint_model.nq();
         v_offset += joint_model.nv();
     }
-
-    // TODO: add external forces
 
     // Backward pass: compute the joint torques
     for joint_id in (1..model.joint_models.len()).rev() {

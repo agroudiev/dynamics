@@ -22,8 +22,10 @@ def compare_urdf_id(test_case, file_path, mesh_dir=None):
     q = pin.randomConfiguration(pin_model)  # do not use np.random.rand
     v = np.random.rand(dyn_model.nv) * 10
     a = np.random.rand(dyn_model.nv) * 10
-    dyn.inverse_dynamics(dyn_model, dyn_data, q, v, a)
-    pin.rnea(pin_model, pin_data, q, v, a)
+    pin_f_ext = [pin.Force.Random() for _ in range(pin_model.njoints)]
+    dyn_f_ext = [dyn.SpatialForce.from_parts(f.linear, f.angular) for f in pin_f_ext]
+    dyn.inverse_dynamics(dyn_model, dyn_data, q, v, a, dyn_f_ext)
+    pin.rnea(pin_model, pin_data, q, v, a, pin_f_ext)
     assert_datas_equals(test_case, dyn_data, pin_data)
 
 
