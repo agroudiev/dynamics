@@ -2,7 +2,7 @@
 
 This file is used to track changes made to the project over time.
 
-## [Unreleased]
+## [0.0.2] - 2026-02-08
 ### Added
 ### Algorithms
 - Added `update_frame_placements` algorithm to update frame placements based on joint placements.
