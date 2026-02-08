@@ -24,15 +24,18 @@ fn bench_inverse_dynamics(c: &mut Criterion) {
     }
 
     c.bench_function("bench_inverse_dynamics", |b| {
+        let mut models = Vec::new();
+        for path in EXAMPLE_ROBOT_DATA_URDFS {
+            let (model, _, _) = build_models_from_urdf(
+                &("../../examples/descriptions/example-robot-data/robots/".to_string() + path),
+                None,
+            )
+            .unwrap();
+            models.push(model);
+        }
         b.iter(|| {
-            for path in EXAMPLE_ROBOT_DATA_URDFS {
-                let (model, _, _) = build_models_from_urdf(
-                    &("../../examples/descriptions/example-robot-data/robots/".to_string() + path),
-                    None,
-                )
-                .unwrap();
-
-                black_box(test_inverse_dynamics)(&model)
+            for model in &models {
+                black_box(test_inverse_dynamics)(model);
             }
         });
     });
