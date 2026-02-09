@@ -80,7 +80,7 @@ pub fn inverse_dynamics<'a>(
             .update(joint_model, &joint_q, Some(&joint_v))
             .unwrap();
 
-        // update the joint placement in the world frame
+        // update the local joint placement
         data.local_joint_placements[joint_id] =
             model.joint_placements[joint_id] * joint_data.get_joint_placement();
 

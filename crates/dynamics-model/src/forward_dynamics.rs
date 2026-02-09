@@ -14,6 +14,8 @@
 
 use crate::model::Model;
 use crate::{data::Data, errors::AlgorithmError};
+use dynamics_joint::joint::JointModel;
+use dynamics_joint::joint_data::JointData;
 use dynamics_spatial::configuration::Configuration;
 use dynamics_spatial::force::SpatialForce;
 use dynamics_spatial::motion::SpatialMotion;
@@ -56,9 +58,34 @@ pub fn forward_dynamics<'a>(
     // initialize the apparent torque (a.k.a. u) with the input torque
     // let mut apparent_torque = tau.clone();
 
+    let mut q_offset = 0;
+    let mut v_offset = 0;
+
     // forward pass 1
-    for _joint_id in 1..model.njoints() {
-        // TODO
+    for joint_id in 1..model.njoints() {
+        // retrieve the joint model and the corresponding configuration
+        let joint_model = &model.joint_models[joint_id];
+        let joint_data = &mut data.joint_data[joint_id];
+        let parent_id = model.joint_parents[joint_id];
+
+        // extract the joint configuration, velocity and acceleration from configuration vectors
+        let joint_q = q.rows(q_offset, joint_model.nq());
+        let joint_v = v.rows(v_offset, joint_model.nv());
+
+        joint_data
+            .update(joint_model, &joint_q, Some(&joint_v))
+            .unwrap();
+
+        // update the local joint placement
+        data.local_joint_placements[joint_id] =
+            model.joint_placements[joint_id] * joint_data.get_joint_placement();
+
+        // update the joint placement in the world frame
+        data.joint_placements[joint_id] =
+            data.joint_placements[parent_id] * data.local_joint_placements[joint_id];
+
+        q_offset += joint_model.nq();
+        v_offset += joint_model.nv();
     }
 
     // backward pass
