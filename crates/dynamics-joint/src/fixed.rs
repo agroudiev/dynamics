@@ -56,6 +56,12 @@ impl JointModel for JointModelFixed {
         Configuration::zeros(0)
     }
 
+    fn subspace_se3(&self, _se3: &SE3) -> SpatialMotion {
+        // For a fixed joint, the subspace constraint is always satisfied, so we can return zero motion.
+        // Alternatively, we could return the spatial motion corresponding to the SE3 transformation, but it would not affect the dynamics.
+        SpatialMotion::zero()
+    }
+
     fn bias(&self) -> SpatialMotion {
         SpatialMotion::zero()
     }

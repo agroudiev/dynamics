@@ -117,6 +117,12 @@ impl JointModel for JointModelPrismatic {
         Configuration::from_row_slice(&[f.translation().dot(&self.axis)])
     }
 
+    fn subspace_se3(&self, se3: &SE3) -> SpatialMotion {
+        let trans = se3.translation();
+        let v = trans.dot(&self.axis) * self.axis;
+        SpatialMotion::from_translational_axis(&v)
+    }
+
     fn bias(&self) -> SpatialMotion {
         SpatialMotion::zero()
     }

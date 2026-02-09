@@ -166,6 +166,14 @@ impl SpatialMotion {
     pub fn inner(&self, other: &SpatialMotion) -> f64 {
         self.0.dot(&other.0)
     }
+
+    /// Returns the spatial motion as a slice of 6 elements (linear followed by angular).
+    pub fn as_slice(&self) -> &[f64; 6] {
+        self.0
+            .as_slice()
+            .try_into()
+            .expect("Vector6 should have exactly 6 elements")
+    }
 }
 
 impl Add for SpatialMotion {
@@ -186,6 +194,12 @@ impl Add<&SpatialMotion> for SpatialMotion {
 
 impl AddAssign for SpatialMotion {
     fn add_assign(&mut self, rhs: Self) {
+        self.0 += rhs.0;
+    }
+}
+
+impl AddAssign<&SpatialMotion> for SpatialMotion {
+    fn add_assign(&mut self, rhs: &Self) {
         self.0 += rhs.0;
     }
 }

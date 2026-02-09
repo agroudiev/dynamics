@@ -20,6 +20,8 @@ pub struct Data {
     pub local_joint_placements: Vec<SE3>,
     /// Velocities of the joints in the local frame (v)
     pub joint_velocities: Vec<SpatialMotion>,
+    /// Velocities of the joints in the world frame (ov)
+    pub world_joint_velocities: Vec<SpatialMotion>,
     /// Accelerations of the joints in the local frame (a)
     pub joint_accelerations: Vec<SpatialMotion>,
     /// Accelerations of the joints due to the gravity field (a_gf)
@@ -65,6 +67,7 @@ impl Data {
             frame_placements: vec![SE3::identity(); model.nframes()],
             local_joint_placements: vec![SE3::identity(); njoints],
             joint_velocities: vec![SpatialMotion::zero(); njoints],
+            world_joint_velocities: vec![SpatialMotion::zero(); njoints],
             joint_accelerations: vec![SpatialMotion::zero(); njoints],
             joint_accelerations_gravity_field,
             world_accelerations_gravity_field: vec![SpatialMotion::zero(); njoints],

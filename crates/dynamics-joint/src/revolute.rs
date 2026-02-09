@@ -116,6 +116,12 @@ impl JointModel for JointModelRevolute {
         Configuration::from_row_slice(&[f.rotation().dot(&self.axis)])
     }
 
+    fn subspace_se3(&self, se3: &SE3) -> SpatialMotion {
+        let rot = se3.rotation();
+        let v = rot * &self.axis;
+        SpatialMotion::from_rotational_axis(&v)
+    }
+
     fn bias(&self) -> SpatialMotion {
         SpatialMotion::zero()
     }

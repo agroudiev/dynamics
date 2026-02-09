@@ -76,6 +76,7 @@ impl Vector3D {
     /// # Errors
     /// Returns a `PyValueError` if the input array does not have the correct shape
     pub fn from_pyarray(array: &PyReadonlyArrayDyn<f64>) -> Result<Self, PyErr> {
+        // FIXME: replace this by a trait implementation
         let array = array.as_array();
         if array.ndim() != 1 || array.len() != 3 {
             return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(
@@ -87,6 +88,12 @@ impl Vector3D {
 
     pub fn dot(&self, other: &Vector3D) -> f64 {
         self.0.dot(&other.0)
+    }
+}
+
+impl From<&[f64; 3]> for Vector3D {
+    fn from(array: &[f64; 3]) -> Self {
+        Vector3D(Vector3::new(array[0], array[1], array[2]))
     }
 }
 

@@ -12,7 +12,7 @@
 //!
 //! All three passes are implemented in the `forward_dynamics` function.
 
-use crate::model::Model;
+use crate::model::{Model, WORLD_ID};
 use crate::{data::Data, errors::AlgorithmError};
 use dynamics_joint::joint::JointModel;
 use dynamics_joint::joint_data::JointData;
@@ -83,6 +83,29 @@ pub fn forward_dynamics<'a>(
         // update the joint placement in the world frame
         data.joint_placements[joint_id] =
             data.joint_placements[parent_id] * data.local_joint_placements[joint_id];
+
+        // update the Jacobian for the joint
+        let column_data = joint_model.subspace_se3(&data.joint_placements[joint_id]);
+        data.jacobian
+            .update_column(v_offset, column_data.as_slice());
+
+        // update the global joint velocity
+        data.world_joint_velocities[joint_id] =
+            data.joint_placements[joint_id].act(joint_data.get_joint_velocity());
+        if parent_id != WORLD_ID {
+            let (v_parent, v_child) = data.world_joint_velocities.split_at_mut(joint_id);
+            v_child[0] += &v_parent[parent_id];
+        }
+
+        // update the global joint acceleration
+        data.world_accelerations_gravity_field[joint_id] =
+            data.joint_placements[joint_id].act(&joint_model.bias());
+        if parent_id != WORLD_ID {
+            data.world_accelerations_gravity_field[joint_id] +=
+                data.world_joint_velocities[joint_id].cross(&data.world_joint_velocities[joint_id]);
+        }
+
+        // TODO: update the global forces and momenta
 
         q_offset += joint_model.nq();
         v_offset += joint_model.nv();
