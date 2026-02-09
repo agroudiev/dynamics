@@ -30,7 +30,7 @@ use dynamics_spatial::vector3d::Vector3D;
 /// * `f_ext` - The external forces applied to the robot (optional).
 ///
 /// # Returns
-/// * `Ok(())` if the inverse dynamics was successful. In this case, the fields `tau`, `local_joint_placements`, `joint_velocities`, `joint_accelerations_gravity_free`, `joint_momenta` and `joint_forces` of the `data` structure are updated with the results of the algorithm.
+/// * `Ok(())` if the inverse dynamics was successful. In this case, the fields `tau`, `local_joint_placements`, `joint_velocities`, `joint_accelerations_gravity_field`, `joint_momenta` and `joint_forces` of the `data` structure are updated with the results of the algorithm.
 /// * `Err(ConfigurationError)` if there was an error.
 pub fn inverse_dynamics(
     model: &Model,
@@ -61,7 +61,7 @@ pub fn inverse_dynamics(
     let mut v_offset = 0;
 
     data.joint_velocities[0] = SpatialMotion::zero();
-    data.joint_accelerations_gravity_free[0] =
+    data.joint_accelerations_gravity_field[0] =
         SpatialMotion::from_parts(-model.gravity, Vector3D::zeros());
 
     // Forward pass: compute velocities and accelerations
@@ -92,7 +92,9 @@ pub fn inverse_dynamics(
         }
 
         // update the joint acceleration
-        let (a_parent, a_child) = data.joint_accelerations_gravity_free.split_at_mut(joint_id);
+        let (a_parent, a_child) = data
+            .joint_accelerations_gravity_field
+            .split_at_mut(joint_id);
 
         a_child[0] = joint_model.subspace(&joint_a) + joint_model.bias();
         a_child[0] += data.local_joint_placements[joint_id].act_inv(&a_parent[parent_id]);
@@ -103,7 +105,7 @@ pub fn inverse_dynamics(
 
         // update the joint force
         data.joint_forces[joint_id] =
-            &model.inertias[joint_id] * &data.joint_accelerations_gravity_free[joint_id];
+            &model.inertias[joint_id] * &data.joint_accelerations_gravity_field[joint_id];
         data.joint_forces[joint_id] +=
             data.joint_velocities[joint_id].cross_force(&data.joint_momenta[joint_id]);
 

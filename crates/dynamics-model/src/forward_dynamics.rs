@@ -3,11 +3,11 @@
 //! The ABA computes the joint accelerations required to achieve a given motion of the robot
 //! given its configuration, velocity, and torques.
 
-use crate::data::Data;
 use crate::model::Model;
-use dynamics_spatial::configuration::{Configuration, ConfigurationError};
+use crate::{data::Data, errors::AlgorithmError};
+use dynamics_spatial::configuration::Configuration;
 
-/// WIP: Computes the forward dynamics of the robot model.
+/// Computes the forward dynamics of the robot model using the Articulated Body Algorithm (ABA).
 ///
 /// # Arguments
 ///
@@ -27,45 +27,13 @@ pub fn forward_dynamics(
     q: &Configuration,
     v: &Configuration,
     tau: &Configuration,
-) -> Result<(), ConfigurationError> {
-    // check if q is of the right size
-    if q.len() != model.nq {
-        return Err(ConfigurationError::InvalidParameterSize(
-            "q".to_string(),
-            model.nq,
-            q.len(),
-        ));
-    }
+) -> Result<(), AlgorithmError> {
+    q.check_size("q", model.nq)
+        .map_err(AlgorithmError::ConfigurationError)?;
+    v.check_size("v", model.nv)
+        .map_err(AlgorithmError::ConfigurationError)?;
+    tau.check_size("tau", model.nv)
+        .map_err(AlgorithmError::ConfigurationError)?;
 
-    // check if v is of the right size
-    if v.len() != model.nv {
-        return Err(ConfigurationError::InvalidParameterSize(
-            "v".to_string(),
-            model.nv,
-            v.len(),
-        ));
-    }
-
-    // check if tau is of the right size
-    if tau.len() != model.nv {
-        return Err(ConfigurationError::InvalidParameterSize(
-            "tau".to_string(),
-            model.nv,
-            tau.len(),
-        ));
-    }
-
-    unimplemented!()
-}
-
-fn _aba_forward_pass_1() {
-    unimplemented!()
-}
-
-fn _aba_backward_pass() {
-    unimplemented!()
-}
-
-fn _aba_forward_pass_2() {
     unimplemented!()
 }

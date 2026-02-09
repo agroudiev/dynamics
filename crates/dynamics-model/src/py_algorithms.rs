@@ -1,8 +1,6 @@
-use dynamics_spatial::configuration::Configuration;
 use dynamics_spatial::py_configuration::PyConfiguration;
 use dynamics_spatial::py_configuration::PyConfigurationInput;
 use dynamics_spatial::py_force::PySpatialForce;
-use numpy::PyReadonlyArrayDyn;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
@@ -21,36 +19,6 @@ use crate::{
 pub fn py_neutral(model: &mut PyModel) -> PyResult<PyConfiguration> {
     let q = neutral(&model.inner).map_err(|e| PyErr::new::<PyValueError, _>(format!("{:?}", e)))?;
     Ok(PyConfiguration::new(q))
-}
-
-#[pyfunction(name = "forward_dynamics")]
-pub fn py_forward_dynamics(
-    model: &PyModel,
-    data: &mut PyData,
-    q: PyReadonlyArrayDyn<f64>,
-    v: PyReadonlyArrayDyn<f64>,
-    a: PyReadonlyArrayDyn<f64>,
-) -> PyResult<()> {
-    let q = Configuration::from_pyarray(&q)?;
-    let v = Configuration::from_pyarray(&v)?;
-    let a = Configuration::from_pyarray(&a)?;
-
-    forward_dynamics(&model.inner, &mut data.inner, &q, &v, &a)
-        .map_err(|e| PyValueError::new_err(format!("Forward dynamics failed: {e:?}")))?;
-
-    Ok(())
-}
-
-// Pinocchio alias (Articulated Body Algorithm)
-#[pyfunction(name = "aba")]
-pub fn py_aba(
-    model: &PyModel,
-    data: &mut PyData,
-    q: PyReadonlyArrayDyn<f64>,
-    v: PyReadonlyArrayDyn<f64>,
-    tau: PyReadonlyArrayDyn<f64>,
-) -> PyResult<()> {
-    py_forward_dynamics(model, data, q, v, tau)
 }
 
 #[pyfunction(name = "forward_kinematics", signature=(model, data, q, v=None, a=None))]
@@ -130,4 +98,33 @@ pub fn py_rnea(
     f_ext: Option<Vec<PySpatialForce>>,
 ) -> PyResult<()> {
     py_inverse_dynamics(model, data, q, v, a, f_ext)
+}
+
+#[pyfunction(name = "forward_dynamics", signature=(model, data, q, v, tau))]
+pub fn py_forward_dynamics(
+    model: &PyModel,
+    data: &mut PyData,
+    q: PyConfigurationInput,
+    v: PyConfigurationInput,
+    tau: PyConfigurationInput,
+) -> PyResult<()> {
+    let q = q.to_configuration(model.inner.nq)?;
+    let v = v.to_configuration(model.inner.nv)?;
+    let tau = tau.to_configuration(model.inner.nv)?;
+
+    forward_dynamics(&model.inner, &mut data.inner, &q, &v, &tau)
+        .map_err(|e| PyValueError::new_err(format!("Forward dynamics failed: {e:?}")))?;
+
+    Ok(())
+}
+
+#[pyfunction(name = "aba", signature=(model, data, q, v, tau))]
+pub fn py_aba(
+    model: &PyModel,
+    data: &mut PyData,
+    q: PyConfigurationInput,
+    v: PyConfigurationInput,
+    tau: PyConfigurationInput,
+) -> PyResult<()> {
+    py_forward_dynamics(model, data, q, v, tau)
 }

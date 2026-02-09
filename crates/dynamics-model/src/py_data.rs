@@ -102,7 +102,7 @@ impl PyData {
 
     #[getter]
     /// Returns the joint velocities.
-    pub fn get_joint_velocities(&self) -> Vec<PySpatialMotion> {
+    pub fn joint_velocities(&self) -> Vec<PySpatialMotion> {
         self.inner
             .joint_velocities
             .iter()
@@ -113,14 +113,14 @@ impl PyData {
     #[getter]
     /// Returns the joint velocities.
     ///
-    /// This is an alias for `get_joint_velocities` to match the Pinocchio API.
+    /// This is an alias for `joint_velocities` to match the Pinocchio API.
     pub fn v(&self) -> Vec<PySpatialMotion> {
-        self.get_joint_velocities()
+        self.joint_velocities()
     }
 
     #[getter]
     /// Returns the joint accelerations.
-    pub fn get_joint_accelerations(&self) -> Vec<PySpatialMotion> {
+    pub fn joint_accelerations(&self) -> Vec<PySpatialMotion> {
         self.inner
             .joint_accelerations
             .iter()
@@ -131,16 +131,16 @@ impl PyData {
     #[getter]
     /// Returns the joint accelerations.
     ///
-    /// This is an alias for `get_joint_accelerations` to match the Pinocchio API.
+    /// This is an alias for `joint_accelerations` to match the Pinocchio API.
     pub fn a(&self) -> Vec<PySpatialMotion> {
-        self.get_joint_accelerations()
+        self.joint_accelerations()
     }
 
     #[getter]
     /// Returns the joint accelerations without gravity.
-    pub fn get_joint_accelerations_gravity_free(&self) -> Vec<PySpatialMotion> {
+    pub fn joint_accelerations_gravity_field(&self) -> Vec<PySpatialMotion> {
         self.inner
-            .joint_accelerations_gravity_free
+            .joint_accelerations_gravity_field
             .iter()
             .map(|m| PySpatialMotion { inner: m.clone() })
             .collect()
@@ -149,14 +149,27 @@ impl PyData {
     #[getter]
     /// Returns the joint accelerations without gravity.
     ///
-    /// This is an alias for `get_joint_accelerations_gravity_free` to match the Pinocchio API.
+    /// This is an alias for `joint_accelerations_gravity_field` to match the Pinocchio API.
     pub fn a_gf(&self) -> Vec<PySpatialMotion> {
-        self.get_joint_accelerations_gravity_free()
+        self.joint_accelerations_gravity_field()
+    }
+
+    #[getter]
+    pub fn world_accelerations_gravity_field(&self) -> Vec<PySpatialMotion> {
+        self.inner
+            .world_accelerations_gravity_field
+            .iter()
+            .map(|m| PySpatialMotion { inner: m.clone() })
+            .collect()
+    }
+
+    #[getter]
+    pub fn oa_gf(&self) -> Vec<PySpatialMotion> {
+        self.world_accelerations_gravity_field()
     }
 
     #[getter]
     pub fn joint_momenta(&self) -> Vec<PySpatialForce> {
-        // FIXME: replace by PySpatialForce
         self.inner
             .joint_momenta
             .iter()
@@ -166,13 +179,11 @@ impl PyData {
 
     #[getter]
     pub fn h(&self) -> Vec<PySpatialForce> {
-        // FIXME: replace by PySpatialForce
         self.joint_momenta()
     }
 
     #[getter]
     pub fn joint_forces(&self) -> Vec<PySpatialForce> {
-        // FIXME: replace by PySpatialForce
         self.inner
             .joint_forces
             .iter()
@@ -182,8 +193,21 @@ impl PyData {
 
     #[getter]
     pub fn f(&self) -> Vec<PySpatialForce> {
-        // FIXME: replace by PySpatialForce
         self.joint_forces()
+    }
+
+    #[getter]
+    pub fn world_joint_forces(&self) -> Vec<PySpatialForce> {
+        self.inner
+            .world_joint_forces
+            .iter()
+            .map(|f| PySpatialForce { inner: f.clone() })
+            .collect()
+    }
+
+    #[getter]
+    pub fn of(&self) -> Vec<PySpatialForce> {
+        self.world_joint_forces()
     }
 
     #[getter]

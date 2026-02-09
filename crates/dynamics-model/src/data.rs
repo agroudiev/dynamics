@@ -18,16 +18,20 @@ pub struct Data {
     pub frame_placements: Vec<SE3>,
     /// The local joint placements in the parent frame (liMi)
     pub local_joint_placements: Vec<SE3>,
-    /// Velocities of the joints in the world frame (v)
+    /// Velocities of the joints in the local frame (v)
     pub joint_velocities: Vec<SpatialMotion>,
-    /// Accelerations of the joints in the world frame (a)
+    /// Accelerations of the joints in the local frame (a)
     pub joint_accelerations: Vec<SpatialMotion>,
-    /// Accelerations of the joints in the world frame without gravity (a_gf)
-    pub joint_accelerations_gravity_free: Vec<SpatialMotion>,
+    /// Accelerations of the joints due to the gravity field (a_gf)
+    pub joint_accelerations_gravity_field: Vec<SpatialMotion>,
+    /// Accelerations of the joints in the world frame including the gravity field (oa_gf)
+    pub world_accelerations_gravity_field: Vec<SpatialMotion>,
     /// The spatial momenta of the joint in the local frame (h), inertia times velocity
     pub joint_momenta: Vec<SpatialForce>,
     /// The spatial forces of the joint in the local frame (f), inertia times acceleration plus the Coriolis term
     pub joint_forces: Vec<SpatialForce>,
+    /// The spatial forces of the joint in the world frame (of), inertia times acceleration plus the Coriolis term
+    pub world_joint_forces: Vec<SpatialForce>,
     /// The configuration of torques/forces applied to the joints (tau)
     pub tau: Configuration,
 }
@@ -45,10 +49,10 @@ impl Data {
     #[must_use]
     pub fn from_joints_data(joint_data: Vec<JointDataWrapper>, model: &Model) -> Self {
         let njoints = joint_data.len();
-        let mut joint_accelerations_gravity_free = vec![SpatialMotion::zero(); njoints];
+        let mut joint_accelerations_gravity_field = vec![SpatialMotion::zero(); njoints];
 
         // set the base acceleration to compensate gravity
-        joint_accelerations_gravity_free[0] =
+        joint_accelerations_gravity_field[0] =
             SpatialMotion::from_parts(-model.gravity, Vector3D::zeros());
 
         Data {
@@ -58,9 +62,11 @@ impl Data {
             local_joint_placements: vec![SE3::identity(); njoints],
             joint_velocities: vec![SpatialMotion::zero(); njoints],
             joint_accelerations: vec![SpatialMotion::zero(); njoints],
-            joint_accelerations_gravity_free,
+            joint_accelerations_gravity_field,
+            world_accelerations_gravity_field: vec![SpatialMotion::zero(); njoints],
             joint_momenta: vec![SpatialForce::zero(); njoints],
             joint_forces: vec![SpatialForce::zero(); njoints],
+            world_joint_forces: vec![SpatialForce::zero(); njoints],
             tau: Configuration::zeros(model.nv),
         }
     }

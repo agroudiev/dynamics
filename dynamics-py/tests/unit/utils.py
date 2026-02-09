@@ -279,19 +279,27 @@ def assert_datas_equals(
             np.linalg.norm(dyn_data.v[i].to_numpy() - pin_data.v[i]) < 1e-5,
         )
 
-    # Check accelerations with gravity
+    # Check local accelerations without gravity
     test_case.assertEqual(len(dyn_data.a), len(pin_data.a))
     for i in range(len(dyn_data.a)):
         test_case.assertTrue(
             np.linalg.norm(dyn_data.a[i].to_numpy() - pin_data.a[i]) < 1e-6
         )
 
-    # Check accelerations without gravity
+    # Check local accelerations with gravity
     test_case.assertEqual(len(dyn_data.a_gf), len(pin_data.a_gf))
     for i in range(len(dyn_data.a_gf)):
         test_case.assertTrue(
             np.isnan(pin_data.a_gf[i]).any()  # skip if unitialized
             or np.linalg.norm(dyn_data.a_gf[i].to_numpy() - pin_data.a_gf[i]) < 1e-4,
+        )
+
+    # Check world accelerations with gravity
+    test_case.assertEqual(len(dyn_data.oa_gf), len(pin_data.oa_gf))
+    for i in range(len(dyn_data.oa_gf)):
+        test_case.assertTrue(
+            np.isnan(pin_data.oa_gf[i]).any()  # skip if unitialized
+            or np.linalg.norm(dyn_data.oa_gf[i].to_numpy() - pin_data.oa_gf[i]) < 1e-4,
         )
 
     # Check momenta
@@ -301,12 +309,20 @@ def assert_datas_equals(
             np.linalg.norm(dyn_data.h[i].to_numpy() - pin_data.h[i]) < 1e-10,
         )
 
-    # Check forces
+    # Check local forces
     test_case.assertEqual(len(dyn_data.f), len(pin_data.f))
     for i in range(len(dyn_data.f)):
         test_case.assertTrue(
             np.isnan(pin_data.f[i]).any()  # skip if unitialized
             or np.linalg.norm(dyn_data.f[i].to_numpy() - pin_data.f[i]) < 1e-8
+        )
+
+    # Check world forces
+    test_case.assertEqual(len(dyn_data.of), len(pin_data.of))
+    for i in range(len(dyn_data.of)):
+        test_case.assertTrue(
+            np.isnan(pin_data.of[i]).any()  # skip if unitialized
+            or np.linalg.norm(dyn_data.of[i].to_numpy() - pin_data.of[i]) < 1e-8
         )
 
     # Check tau
