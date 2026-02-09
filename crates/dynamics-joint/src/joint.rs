@@ -9,7 +9,9 @@ use crate::{
     continuous::JointModelContinuous, fixed::JointModelFixed, joint_data::JointDataWrapper,
     prismatic::JointModelPrismatic, revolute::JointModelRevolute,
 };
-use dynamics_spatial::{configuration::Configuration, force::SpatialForce, motion::SpatialMotion};
+use dynamics_spatial::{
+    configuration::Configuration, force::SpatialForce, motion::SpatialMotion, se3::SE3,
+};
 use rand::rngs::ThreadRng;
 
 #[derive(Clone, Debug)]
@@ -148,6 +150,15 @@ impl JointModel for JointWrapper {
         }
     }
 
+    fn subspace_se3(&self, se3: &SE3) -> SpatialMotion {
+        match &self.inner {
+            JointModelImpl::Continuous(joint) => joint.subspace_se3(se3),
+            JointModelImpl::Prismatic(joint) => joint.subspace_se3(se3),
+            JointModelImpl::Revolute(joint) => joint.subspace_se3(se3),
+            JointModelImpl::Fixed(joint) => joint.subspace_se3(se3),
+        }
+    }
+
     fn bias(&self) -> SpatialMotion {
         match &self.inner {
             JointModelImpl::Continuous(joint) => joint.bias(),
@@ -192,6 +203,9 @@ pub trait JointModel {
 
     /// Returns the joint bias (Coriolis and centrifugal effects).
     fn bias(&self) -> SpatialMotion;
+
+    /// Applies the joint subspace constraint to a given SE3 transformation, returning the resulting spatial motion.
+    fn subspace_se3(&self, se3: &SE3) -> SpatialMotion;
 }
 
 /// Enum representing the type of joint.

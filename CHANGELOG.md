@@ -5,6 +5,7 @@ This file is used to track changes made to the project over time.
 ## [Unreleased]
 ### Added
 - Added `append_body_to_joint` method to the model to append add inertias to joints with respect to its placement.
+- Python binding for revolute unaligned joints (`JointModelRevoluteUnaligned`).
 
 ## [0.0.2] - 2026-02-08
 ### Added

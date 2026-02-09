@@ -1,3 +1,4 @@
+use dynamics_spatial::vector3d::Vector3D;
 use pyo3::prelude::*;
 
 use crate::{
@@ -119,5 +120,14 @@ pub fn new_ry() -> PyJointWrapper {
 pub fn new_rz() -> PyJointWrapper {
     PyJointWrapper {
         inner: JointWrapper::revolute(JointModelRevolute::new_rz()),
+    }
+}
+
+/// Creates a new revolute joint model with `z` as axis of rotation.
+#[pyfunction(name = "JointModelRevoluteUnaligned")]
+#[must_use]
+pub fn new_revolute_unaligned(axis: [f64; 3]) -> PyJointWrapper {
+    PyJointWrapper {
+        inner: JointWrapper::revolute(JointModelRevolute::new(Vector3D::from(&axis))),
     }
 }

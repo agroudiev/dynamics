@@ -8,10 +8,10 @@
 use dynamics_inertia::py_inertia::PyInertia;
 use dynamics_joint::{
     joint::JointType,
-    py_joint::PyJointWrapper,
-    py_joint::{new_px, new_py, new_pz},
-    py_joint::{new_rubx, new_ruby, new_rubz},
-    py_joint::{new_rx, new_ry, new_rz},
+    py_joint::{
+        PyJointWrapper, new_px, new_py, new_pz, new_revolute_unaligned, new_rubx, new_ruby,
+        new_rubz, new_rx, new_ry, new_rz,
+    },
     py_joint_data::PyJointDataWrapper,
 };
 use dynamics_model::{
@@ -122,6 +122,7 @@ fn add_joint_bindings(dynamics: &Bound<'_, PyModule>) -> PyResult<()> {
     dynamics.add_function(wrap_pyfunction!(new_rx, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(new_ry, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(new_rz, dynamics)?)?;
+    dynamics.add_function(wrap_pyfunction!(new_revolute_unaligned, dynamics)?)?;
 
     dynamics.add_function(wrap_pyfunction!(new_rubx, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(new_ruby, dynamics)?)?;
