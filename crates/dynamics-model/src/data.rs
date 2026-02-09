@@ -34,6 +34,8 @@ pub struct Data {
     pub world_joint_forces: Vec<SpatialForce>,
     /// The configuration of torques/forces applied to the joints (tau)
     pub tau: Configuration,
+    /// The joint accelerations of the joints computed by the forward dynamics (ddq)
+    pub ddq: Configuration,
 }
 
 impl Data {
@@ -68,6 +70,7 @@ impl Data {
             joint_forces: vec![SpatialForce::zero(); njoints],
             world_joint_forces: vec![SpatialForce::zero(); njoints],
             tau: Configuration::zeros(model.nv),
+            ddq: Configuration::zeros(model.nv),
         }
     }
 }
