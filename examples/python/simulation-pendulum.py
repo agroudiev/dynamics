@@ -27,7 +27,7 @@ body_inertia = dyn.Inertia.FromSphere(body_mass, body_radius)
 body_placement = joint_placement.copy()
 # body_placement.translation[2] = 1.0
 body_placement.translation = np.array([0.0, 0.0, 1.0])
-# model.append_body_to_joint(joint_id, body_inertia, body_placement)
+model.append_body_to_joint(joint_id, body_inertia, body_placement)
 
 geom1_name = "ball"
 shape1 = col.Sphere(body_radius)

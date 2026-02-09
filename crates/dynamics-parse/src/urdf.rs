@@ -41,7 +41,7 @@ use dynamics_model::{
 };
 use dynamics_spatial::color::Color;
 use dynamics_spatial::motion::SpatialRotation;
-use dynamics_spatial::se3::{ActSE3, SE3};
+use dynamics_spatial::se3::SE3;
 use dynamics_spatial::symmetric3::Symmetric3;
 use dynamics_spatial::vector3d::Vector3D;
 use nalgebra::Vector3;
@@ -533,16 +533,19 @@ fn parse_link(
         link_inertia
     }
     // if the parent joint type is fixed, we put the inertia in the parent's frame
-    else if let Some(parent_joint_type) = parent_node.attribute("type")
-        && parent_joint_type == "fixed"
-    {
-        model.frames[parent_frame_id].inertia += link_inertia.clone(); // TODO: check if this clone can be avoided
-        model.inertias[parent_joint_id] +=
-            link_inertia.act(&model.frames[parent_frame_id].placement);
-        Inertia::zeros()
-    } else {
-        model.inertias[parent_joint_id] +=
-            link_inertia.act(&model.frames[parent_frame_id].placement);
+    else {
+        if let Some(parent_joint_type) = parent_node.attribute("type")
+            && parent_joint_type == "fixed"
+        {
+            model.frames[parent_frame_id].inertia += &link_inertia;
+        }
+        model
+            .append_body_to_joint(
+                parent_joint_id,
+                &link_inertia,
+                model.frames[parent_frame_id].placement,
+            )
+            .map_err(ParseError::ModelError)?;
         Inertia::zeros()
     };
 

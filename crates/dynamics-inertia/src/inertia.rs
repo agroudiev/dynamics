@@ -101,10 +101,10 @@ impl Mul<&SpatialMotion> for &Inertia {
     }
 }
 
-impl Add for Inertia {
+impl Add<&Inertia> for Inertia {
     type Output = Inertia;
 
-    fn add(self, rhs: Inertia) -> Self::Output {
+    fn add(self, rhs: &Inertia) -> Self::Output {
         let total_mass = self.mass + rhs.mass;
         let total_mass_inv = 1.0 / total_mass.max(f64::EPSILON);
         let ab = self.com - rhs.com;
@@ -117,9 +117,31 @@ impl Add for Inertia {
     }
 }
 
-impl AddAssign for Inertia {
-    fn add_assign(&mut self, rhs: Inertia) {
+impl Add for &Inertia {
+    type Output = Inertia;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        self.clone() + rhs
+    }
+}
+
+impl AddAssign<&Inertia> for Inertia {
+    fn add_assign(&mut self, rhs: &Inertia) {
         *self = self.clone() + rhs;
+    }
+}
+
+impl Add for Inertia {
+    type Output = Inertia;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        self + &rhs
+    }
+}
+
+impl AddAssign for Inertia {
+    fn add_assign(&mut self, rhs: Self) {
+        *self = &*self + &rhs;
     }
 }
 

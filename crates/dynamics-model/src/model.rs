@@ -175,32 +175,31 @@ impl Model {
         Data::from_joints_data(joints_data, self)
     }
 
-    // /// Appends a body of given inertia to the joint with given id.
-    // ///
-    // /// # Arguments
-    // ///
-    // /// * `joint_id` - The identifier of the joint to append the body to.
-    // /// * [`Inertia`] - The inertia of the body to append.
-    // /// * `placement` - The placement of the body in the joint frame.
-    // ///
-    // /// # Returns
-    // ///
-    // /// A result indicating success or failure.
-    // pub fn append_body_to_joint(
-    //     &mut self,
-    //     joint_id: usize,
-    //     inertia: Inertia,
-    //     placement: SE3,
-    // ) -> Result<(), ModelError> {
-    //     if !self.joint_names.contains_key(&joint_id) {
-    //         return Err(ModelError::ParentJointDoesNotExist(joint_id));
-    //     }
+    /// Appends a body of given inertia to the joint with given id.
+    ///
+    /// # Arguments
+    ///
+    /// * `joint_id` - The identifier of the joint to append the body to.
+    /// * `inertia` - The inertia of the body to append.
+    /// * `placement` - The placement of the body in the joint frame.
+    ///
+    /// # Returns
+    ///
+    /// A result indicating success or failure.
+    pub fn append_body_to_joint(
+        &mut self,
+        joint_id: usize,
+        inertia: &Inertia,
+        placement: SE3,
+    ) -> Result<(), ModelError> {
+        if joint_id >= self.joint_names.len() {
+            return Err(ModelError::JointDoesNotExist(joint_id));
+        }
 
-    //     self.inertias.insert(joint_id, inertia);
-    //     self.body_placements.insert(joint_id, placement);
+        self.inertias[joint_id] += placement.act(inertia);
 
-    //     Ok(())
-    // }
+        Ok(())
+    }
 
     /// Returns the index of the joint with the given name.
     #[must_use]
@@ -285,6 +284,8 @@ impl Model {
 #[derive(Debug)]
 /// An error that can occur when adding a joint to the model.
 pub enum ModelError {
+    /// The joint does not exist.
+    JointDoesNotExist(usize),
     /// The parent joint does not exist.
     ParentJointDoesNotExist(usize),
     /// The name of the joint is already used.
@@ -294,6 +295,9 @@ pub enum ModelError {
 impl Display for ModelError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            ModelError::JointDoesNotExist(id) => {
+                write!(f, "Joint with id {id} does not exist.")
+            }
             ModelError::ParentJointDoesNotExist(id) => {
                 write!(f, "Parent joint with id {id} does not exist.")
             }

@@ -90,20 +90,20 @@ impl PyModel {
         }
     }
 
-    // fn append_body_to_joint(
-    //     &mut self,
-    //     joint_id: usize,
-    //     inertia: &PyInertia,
-    //     placement: &PySE3,
-    // ) -> PyResult<()> {
-    //     match self
-    //         .inner
-    //         .append_body_to_joint(joint_id, inertia.inner.clone(), placement.inner)
-    //     {
-    //         Ok(_) => Ok(()),
-    //         Err(model_error) => Err(PyValueError::new_err(format!("{:?}", model_error))),
-    //     }
-    // }
+    fn append_body_to_joint(
+        &mut self,
+        joint_id: usize,
+        inertia: &PyInertia,
+        placement: &PySE3,
+    ) -> PyResult<()> {
+        match self
+            .inner
+            .append_body_to_joint(joint_id, &inertia.inner, placement.inner)
+        {
+            Ok(_) => Ok(()),
+            Err(model_error) => Err(PyValueError::new_err(format!("{model_error:?}"))),
+        }
+    }
 
     #[getter]
     fn njoints(&self) -> usize {
