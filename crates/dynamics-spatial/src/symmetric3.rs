@@ -102,6 +102,7 @@ impl Symmetric3 {
     #[must_use]
     /// Converts the symmetric matrix to a NumPy array.
     pub fn to_numpy(&self, py: Python) -> Py<PyAny> {
+        // FIXME: move this function to py_symmetric3.rs
         let mat = self.matrix();
         Array2::from_shape_fn((3, 3), |(i, j)| mat[(i, j)])
             .to_pyarray(py)

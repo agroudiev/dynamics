@@ -5,8 +5,8 @@ use crate::{
 };
 use dynamics_joint::py_joint_data::PyJointDataWrapper;
 use dynamics_spatial::{
-    py_configuration::PyConfiguration, py_force::PySpatialForce, py_motion::PySpatialMotion,
-    py_se3::PySE3,
+    py_configuration::PyConfiguration, py_force::PySpatialForce, py_jacobian::PyJacobian,
+    py_motion::PySpatialMotion, py_se3::PySE3,
 };
 use pyo3::prelude::*;
 
@@ -218,6 +218,19 @@ impl PyData {
     #[getter]
     pub fn ddq(&self) -> PyConfiguration {
         PyConfiguration(self.inner.ddq.clone())
+    }
+
+    #[getter]
+    pub fn jacobian(&self) -> PyJacobian {
+        PyJacobian {
+            inner: self.inner.jacobian.clone(),
+        }
+    }
+
+    #[allow(non_snake_case)]
+    #[getter]
+    pub fn J(&self) -> PyJacobian {
+        self.jacobian()
     }
 }
 

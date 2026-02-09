@@ -337,6 +337,12 @@ def assert_datas_equals(
         or np.linalg.norm(dyn_data.ddq.to_numpy() - pin_data.ddq) < 1e-6
     )
 
+    # Check Jacobian
+    test_case.assertTrue(
+        np.isnan(pin_data.J).any()  # skip if unitialized
+        or np.linalg.norm(dyn_data.J.to_numpy() - pin_data.J) < 1e-6
+    )
+
 
 EXAMPLE_ROBOT_DATA_URDFS = [
     "a1_description/urdf/a1.urdf",

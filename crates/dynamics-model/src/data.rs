@@ -2,8 +2,8 @@
 
 use dynamics_joint::joint_data::JointDataWrapper;
 use dynamics_spatial::{
-    configuration::Configuration, force::SpatialForce, motion::SpatialMotion, se3::SE3,
-    vector3d::Vector3D,
+    configuration::Configuration, force::SpatialForce, jacobian::Jacobian, motion::SpatialMotion,
+    se3::SE3, vector3d::Vector3D,
 };
 
 use crate::{geometry_model::GeometryModel, model::Model};
@@ -36,6 +36,8 @@ pub struct Data {
     pub tau: Configuration,
     /// The joint accelerations of the joints computed by the forward dynamics (ddq)
     pub ddq: Configuration,
+    /// The Jacobian matrix of the joint placements (J)
+    pub jacobian: Jacobian,
 }
 
 impl Data {
@@ -71,6 +73,7 @@ impl Data {
             world_joint_forces: vec![SpatialForce::zero(); njoints],
             tau: Configuration::zeros(model.nv),
             ddq: Configuration::zeros(model.nv),
+            jacobian: Jacobian::zero(model.nv),
         }
     }
 }
