@@ -74,17 +74,17 @@ pub fn py_inverse_dynamics(
     v: PyConfigurationInput,
     a: PyConfigurationInput,
     f_ext: Option<Vec<PySpatialForce>>,
-) -> PyResult<()> {
+) -> PyResult<PyConfiguration> {
     let q = q.to_configuration(model.inner.nq)?;
     let v = v.to_configuration(model.inner.nv)?;
     let a = a.to_configuration(model.inner.nv)?;
 
     let f_ext = f_ext.map(|f| f.into_iter().map(|f| f.inner).collect::<Vec<_>>());
 
-    inverse_dynamics(&model.inner, &mut data.inner, &q, &v, &a, f_ext.as_deref())
+    let tau = inverse_dynamics(&model.inner, &mut data.inner, &q, &v, &a, f_ext.as_deref())
         .map_err(|e| PyErr::new::<PyValueError, _>(format!("Error in inverse dynamics: {e}")))?;
 
-    Ok(())
+    Ok(PyConfiguration::new(tau.clone()))
 }
 
 // Pinocchio alias (Recursive Newton-Euler Algorithm)
@@ -96,7 +96,7 @@ pub fn py_rnea(
     v: PyConfigurationInput,
     a: PyConfigurationInput,
     f_ext: Option<Vec<PySpatialForce>>,
-) -> PyResult<()> {
+) -> PyResult<PyConfiguration> {
     py_inverse_dynamics(model, data, q, v, a, f_ext)
 }
 
@@ -107,15 +107,15 @@ pub fn py_forward_dynamics(
     q: PyConfigurationInput,
     v: PyConfigurationInput,
     tau: PyConfigurationInput,
-) -> PyResult<()> {
+) -> PyResult<PyConfiguration> {
     let q = q.to_configuration(model.inner.nq)?;
     let v = v.to_configuration(model.inner.nv)?;
     let tau = tau.to_configuration(model.inner.nv)?;
 
-    forward_dynamics(&model.inner, &mut data.inner, &q, &v, &tau)
+    let ddq = forward_dynamics(&model.inner, &mut data.inner, &q, &v, &tau)
         .map_err(|e| PyValueError::new_err(format!("Forward dynamics failed: {e:?}")))?;
 
-    Ok(())
+    Ok(PyConfiguration::new(ddq.clone()))
 }
 
 #[pyfunction(name = "aba", signature=(model, data, q, v, tau))]
@@ -125,6 +125,6 @@ pub fn py_aba(
     q: PyConfigurationInput,
     v: PyConfigurationInput,
     tau: PyConfigurationInput,
-) -> PyResult<()> {
+) -> PyResult<PyConfiguration> {
     py_forward_dynamics(model, data, q, v, tau)
 }

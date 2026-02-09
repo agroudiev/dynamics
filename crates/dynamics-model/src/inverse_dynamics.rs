@@ -30,16 +30,16 @@ use dynamics_spatial::vector3d::Vector3D;
 /// * `f_ext` - The external forces applied to the robot (optional).
 ///
 /// # Returns
-/// * `Ok(())` if the inverse dynamics was successful. In this case, the fields `tau`, `local_joint_placements`, `joint_velocities`, `joint_accelerations_gravity_field`, `joint_momenta` and `joint_forces` of the `data` structure are updated with the results of the algorithm.
+/// * `Ok(tau)` if the inverse dynamics was successful. In this case, the fields `tau`, `local_joint_placements`, `joint_velocities`, `joint_accelerations_gravity_field`, `joint_momenta` and `joint_forces` of the `data` structure are updated with the results of the algorithm.
 /// * `Err(ConfigurationError)` if there was an error.
-pub fn inverse_dynamics(
+pub fn inverse_dynamics<'a>(
     model: &Model,
-    data: &mut Data,
+    data: &'a mut Data,
     q: &Configuration,
     v: &Configuration,
     a: &Configuration,
     f_ext: Option<&[SpatialForce]>,
-) -> Result<(), AlgorithmError> {
+) -> Result<&'a Configuration, AlgorithmError> {
     // check the dimensions of the input
     q.check_size("q", model.nq)
         .map_err(AlgorithmError::ConfigurationError)?;
@@ -136,5 +136,5 @@ pub fn inverse_dynamics(
         }
     }
 
-    Ok(())
+    Ok(&data.tau)
 }
