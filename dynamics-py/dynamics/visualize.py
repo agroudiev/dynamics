@@ -1,5 +1,5 @@
 from . import dynamics
-import dynamics.collider as collider
+import dynamics.collider as collider  # type: ignore
 import meshcat
 import meshcat.geometry as mg
 import numpy as np
@@ -411,8 +411,6 @@ class MeshcatVisualizer:
         """Display the robot in the given configuration."""
 
         if q is not None:
-            if isinstance(q, dynamics.Configuration):
-                q = q.to_numpy()
             dynamics.forward_kinematics(self.model, self.data, q)
 
         self.update_placements(GeometryType.VISUAL)
