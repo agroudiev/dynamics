@@ -214,6 +214,11 @@ impl PyData {
     pub fn tau(&self) -> PyConfiguration {
         PyConfiguration(self.inner.tau.clone())
     }
+
+    #[getter]
+    pub fn ddq(&self) -> PyConfiguration {
+        PyConfiguration(self.inner.ddq.clone())
+    }
 }
 
 /// A Python wrapper for the `GeometryData` struct.
