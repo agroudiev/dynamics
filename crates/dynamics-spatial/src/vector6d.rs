@@ -1,5 +1,7 @@
 //! Defines **spatial (6D) vectors** and related operations.
 
+use std::ops::Mul;
+
 use nalgebra::{Matrix6, Vector6};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -8,7 +10,7 @@ use nalgebra::{Matrix6, Vector6};
 /// A spatial vector is represented as a 6-dimensional vector,
 /// which can be decomposed into $\begin{bmatrix} \omega & v \end{bmatrix}$,
 /// where $\omega$ is the angular component and $v$ is the linear component.
-pub struct Vector6D(pub(crate) Vector6<f64>);
+pub struct Vector6D(pub Vector6<f64>);
 
 impl Vector6D {
     #[must_use]
@@ -35,5 +37,21 @@ impl Vector6D {
     #[must_use]
     pub fn as_diagonal(&self) -> Matrix6<f64> {
         Matrix6::from_diagonal(&self.0)
+    }
+}
+
+impl Mul<f64> for &Vector6D {
+    type Output = Vector6D;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Vector6D(self.0 * rhs)
+    }
+}
+
+impl Mul<&Vector6D> for f64 {
+    type Output = Vector6D;
+
+    fn mul(self, rhs: &Vector6D) -> Self::Output {
+        Vector6D(self * rhs.0)
     }
 }

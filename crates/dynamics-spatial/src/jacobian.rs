@@ -4,7 +4,7 @@ use std::ops::Mul;
 
 use nalgebra::{DMatrix, Matrix6x1};
 
-use crate::force::SpatialForce;
+use crate::{force::SpatialForce, vector6d::Vector6D};
 
 /// Jacobian matrix, relating joint velocities to end-effector velocities.
 ///
@@ -57,6 +57,14 @@ impl Mul<&SpatialForce> for &JacobianColumn {
     type Output = f64;
 
     fn mul(self, rhs: &SpatialForce) -> Self::Output {
+        self.0.dot(&rhs.0)
+    }
+}
+
+impl Mul<&Vector6D> for &JacobianColumn {
+    type Output = f64;
+
+    fn mul(self, rhs: &Vector6D) -> Self::Output {
         self.0.dot(&rhs.0)
     }
 }

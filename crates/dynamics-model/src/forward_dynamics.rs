@@ -14,6 +14,7 @@
 
 use crate::model::{Model, WORLD_ID};
 use crate::{data::Data, errors::AlgorithmError};
+use dynamics_inertia::inertia::InertiaMatrix;
 use dynamics_joint::joint::JointModel;
 use dynamics_joint::joint_data::JointData;
 use dynamics_spatial::configuration::Configuration;
@@ -61,6 +62,9 @@ pub fn forward_dynamics<'a>(
     // articulated body inertia matrix of the subtree in the local frame of the joint
     let mut aba_inertias = Vec::with_capacity(model.njoints() - 1); // skipping the world joint
     let mut joint_u = Vec::with_capacity(model.njoints() - 1); // skipping the world joint
+    let mut joint_stu = Vec::with_capacity(model.njoints() - 1); // skipping the world joint
+    let mut joint_dinv = Vec::with_capacity(model.njoints() - 1); // skipping the world joint
+    let mut joint_udinv = Vec::with_capacity(model.njoints() - 1); // skipping the world joint
 
     let mut q_offset = 0;
     let mut v_offset = 0;
@@ -114,7 +118,7 @@ pub fn forward_dynamics<'a>(
         data.world_inertias[joint_id] =
             data.joint_placements[joint_id].act(&model.inertias[joint_id]);
         data.composite_inertias[joint_id] = data.world_inertias[joint_id].clone();
-        aba_inertias.push(data.composite_inertias[joint_id].clone());
+        aba_inertias.push(data.composite_inertias[joint_id].matrix());
 
         // update forces
         data.world_joint_momenta[joint_id] =
@@ -129,7 +133,7 @@ pub fn forward_dynamics<'a>(
     // backward pass
     for joint_id in (1..model.njoints()).rev() {
         let joint_model = &model.joint_models[joint_id];
-        // let parent_id = model.joint_parents[joint_id];
+        let parent_id = model.joint_parents[joint_id];
 
         // check that nv = 1, otherwise u -= J^T * f is not well defined
         assert_eq!(
@@ -147,7 +151,27 @@ pub fn forward_dynamics<'a>(
             .update_rows(v_offset, &u)
             .map_err(AlgorithmError::ConfigurationError)?;
 
-        joint_u.push(&aba_inertias[joint_id - 1].matrix() * &data.jacobian.column(v_offset));
+        // update intermediate quantities
+        joint_u.push(&aba_inertias[joint_id - 1] * &data.jacobian.column(v_offset));
+        joint_stu.push(&data.jacobian.column(v_offset) * &joint_u[joint_id - 1]);
+
+        // TODO: add armature term
+
+        joint_dinv.push(1.0 / (joint_stu[joint_id - 1]));
+        joint_udinv.push(&joint_u[joint_id - 1] * joint_dinv[joint_id - 1]);
+
+        if parent_id != WORLD_ID {
+            aba_inertias[parent_id - 1] -=
+                InertiaMatrix::from_vectors(&joint_udinv[joint_id - 1], &joint_u[joint_id - 1]);
+
+            // data.world_joint_forces[parent_id] += TODO:
+
+            let (i_parent, i_child) = aba_inertias.split_at_mut(joint_id - 1);
+            i_parent[parent_id - 1] += i_child[0].clone();
+
+            let (f_parent, f_child) = data.world_joint_forces.split_at_mut(joint_id);
+            f_parent[parent_id] += &f_child[0];
+        }
 
         v_offset -= joint_model.nv();
     }

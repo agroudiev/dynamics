@@ -7,9 +7,10 @@ use dynamics_spatial::{
     se3::{ActSE3, SE3},
     symmetric3::Symmetric3,
     vector3d::Vector3D,
+    vector6d::Vector6D,
 };
 use nalgebra::Matrix6;
-use std::ops::{Add, AddAssign, Mul};
+use std::ops::{Add, AddAssign, Mul, Sub, SubAssign};
 
 /// A data structure that contains the information about the inertia of a rigid body (mass, center of mass, and inertia matrix).
 #[derive(Clone, Debug, Default)]
@@ -191,6 +192,13 @@ impl std::fmt::Debug for InertiaError {
 #[derive(Clone, Debug)]
 pub struct InertiaMatrix(pub Matrix6<f64>);
 
+impl InertiaMatrix {
+    pub fn from_vectors(v1: &Vector6D, v2: &Vector6D) -> Self {
+        let m = v1.0 * v2.0.transpose();
+        InertiaMatrix(m)
+    }
+}
+
 impl Inertia {
     pub fn matrix(&self) -> InertiaMatrix {
         let mut matrix = Matrix6::zeros();
@@ -211,10 +219,40 @@ impl Inertia {
 }
 
 impl Mul<&JacobianColumn> for &InertiaMatrix {
-    type Output = Vector3D;
+    type Output = Vector6D;
 
     fn mul(self, rhs: &JacobianColumn) -> Self::Output {
         let result = self.0 * rhs.0;
-        Vector3D::new(result[0], result[1], result[2])
+        Vector6D::new(
+            result[0], result[1], result[2], result[3], result[4], result[5],
+        )
+    }
+}
+
+impl Add for &InertiaMatrix {
+    type Output = InertiaMatrix;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        InertiaMatrix(self.0 + rhs.0)
+    }
+}
+
+impl AddAssign for InertiaMatrix {
+    fn add_assign(&mut self, rhs: Self) {
+        self.0 += rhs.0;
+    }
+}
+
+impl Sub for &InertiaMatrix {
+    type Output = InertiaMatrix;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        InertiaMatrix(self.0 - rhs.0)
+    }
+}
+
+impl SubAssign for InertiaMatrix {
+    fn sub_assign(&mut self, rhs: Self) {
+        self.0 -= rhs.0;
     }
 }
