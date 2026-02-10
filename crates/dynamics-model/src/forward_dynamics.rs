@@ -55,8 +55,9 @@ pub fn forward_dynamics<'a>(
     data.world_accelerations_gravity_field[0] =
         SpatialMotion::from_parts(-model.gravity, Vector3D::zeros());
     data.world_joint_forces[0] = SpatialForce::zero();
+
     // initialize the apparent torque (a.k.a. u) with the input torque
-    // let mut apparent_torque = tau.clone();
+    let mut apparent_torque = tau.clone();
 
     let mut q_offset = 0;
     let mut v_offset = 0;
@@ -112,8 +113,27 @@ pub fn forward_dynamics<'a>(
     }
 
     // backward pass
-    for _joint_id in (1..model.njoints()).rev() {
-        // TODO
+    for joint_id in (1..model.njoints()).rev() {
+        let joint_model = &model.joint_models[joint_id];
+        // let parent_id = model.joint_parents[joint_id];
+
+        // check that nv = 1, otherwise u -= J^T * f is not well defined
+        assert_eq!(
+            joint_model.nv(),
+            1,
+            "The ABA implementation only supports joints with nv = 1 for now."
+        );
+
+        // update the apparent torque by subtracting the contribution of the spatial forces
+        let mut u = apparent_torque.rows(v_offset, joint_model.nv());
+        u -= &Configuration::from_row_slice(&[data
+            .jacobian
+            .column_mul(v_offset, &data.world_joint_forces[joint_id])]);
+        apparent_torque
+            .update_rows(v_offset, &u)
+            .map_err(AlgorithmError::ConfigurationError)?;
+
+        v_offset -= joint_model.nv();
     }
 
     // forward pass 2

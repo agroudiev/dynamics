@@ -7,7 +7,7 @@ use rand::{Rng, rngs::ThreadRng};
 use std::{
     f64::consts::PI,
     fmt::Display,
-    ops::{Add, Index, IndexMut, Mul},
+    ops::{Add, Index, IndexMut, Mul, Sub, SubAssign},
 };
 
 #[cfg(feature = "python")]
@@ -247,6 +247,20 @@ impl Mul<f64> for &Configuration {
 
     fn mul(self, rhs: f64) -> Self::Output {
         &self.0 * rhs
+    }
+}
+
+impl Sub for &Configuration {
+    type Output = Configuration;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Configuration(&self.0 - &rhs.0)
+    }
+}
+
+impl SubAssign<&Configuration> for Configuration {
+    fn sub_assign(&mut self, rhs: &Configuration) {
+        self.0 -= &rhs.0;
     }
 }
 
