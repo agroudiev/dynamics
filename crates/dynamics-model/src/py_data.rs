@@ -3,6 +3,7 @@ use crate::{
     py_geometry_model::PyGeometryModel,
     py_model::PyModel,
 };
+use dynamics_inertia::py_inertia::PyInertia;
 use dynamics_joint::py_joint_data::PyJointDataWrapper;
 use dynamics_spatial::{
     py_configuration::PyConfiguration, py_force::PySpatialForce, py_jacobian::PyJacobian,
@@ -183,6 +184,20 @@ impl PyData {
     }
 
     #[getter]
+    pub fn world_joint_momenta(&self) -> Vec<PySpatialForce> {
+        self.inner
+            .world_joint_momenta
+            .iter()
+            .map(|f| PySpatialForce { inner: f.clone() })
+            .collect()
+    }
+
+    #[getter]
+    pub fn oh(&self) -> Vec<PySpatialForce> {
+        self.world_joint_momenta()
+    }
+
+    #[getter]
     pub fn joint_forces(&self) -> Vec<PySpatialForce> {
         self.inner
             .joint_forces
@@ -231,6 +246,35 @@ impl PyData {
     #[getter]
     pub fn J(&self) -> PyJacobian {
         self.jacobian()
+    }
+
+    #[getter]
+    pub fn world_inertias(&self) -> Vec<PyInertia> {
+        self.inner
+            .world_inertias
+            .iter()
+            .map(|i| PyInertia { inner: i.clone() })
+            .collect()
+    }
+
+    #[getter]
+    pub fn oinertias(&self) -> Vec<PyInertia> {
+        self.world_inertias()
+    }
+
+    #[getter]
+    pub fn composite_inertias(&self) -> Vec<PyInertia> {
+        self.inner
+            .composite_inertias
+            .iter()
+            .map(|i| PyInertia { inner: i.clone() })
+            .collect()
+    }
+
+    #[getter]
+    #[allow(non_snake_case)]
+    pub fn oYcrb(&self) -> Vec<PyInertia> {
+        self.composite_inertias()
     }
 }
 

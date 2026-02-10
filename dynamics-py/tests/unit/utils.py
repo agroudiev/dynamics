@@ -302,11 +302,19 @@ def assert_datas_equals(
             or np.linalg.norm(dyn_data.oa_gf[i].to_numpy() - pin_data.oa_gf[i]) < 1e-4,
         )
 
-    # Check momenta
+    # Check local momenta
     test_case.assertEqual(len(dyn_data.h), len(pin_data.h))
     for i in range(len(dyn_data.h)):
         test_case.assertTrue(
             np.linalg.norm(dyn_data.h[i].to_numpy() - pin_data.h[i]) < 1e-10,
+        )
+
+    # Check world momenta
+    test_case.assertEqual(len(dyn_data.oh), len(pin_data.oh))
+    for i in range(len(dyn_data.oh)):
+        test_case.assertTrue(
+            np.isnan(pin_data.oh[i]).any()  # skip if unitialized
+            or np.linalg.norm(dyn_data.oh[i].to_numpy() - pin_data.oh[i]) < 1e-10,
         )
 
     # Check local forces
@@ -342,6 +350,24 @@ def assert_datas_equals(
         np.isnan(pin_data.J).any()  # skip if unitialized
         or np.linalg.norm(dyn_data.J.to_numpy() - pin_data.J) < 1e-6
     )
+
+    # Check world inertias
+    # test_case.assertEqual(len(dyn_data.oinertias), len(pin_data.oinertias))
+    # for i in range(len(dyn_data.oinertias)):
+    #     assert_inertias_equals(
+    #         test_case,
+    #         dyn_data.oinertias[i],
+    #         pin_data.oinertias[i],
+    #     )
+
+    # Check composite inertias
+    test_case.assertEqual(len(dyn_data.oYcrb), len(pin_data.oYcrb))
+    for i in range(len(dyn_data.oYcrb)):
+        assert_inertias_equals(
+            test_case,
+            dyn_data.oYcrb[i],
+            pin_data.oYcrb[i],
+        )
 
 
 EXAMPLE_ROBOT_DATA_URDFS = [

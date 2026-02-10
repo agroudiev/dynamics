@@ -58,6 +58,8 @@ pub fn forward_dynamics<'a>(
 
     // initialize the apparent torque (a.k.a. u) with the input torque
     let mut apparent_torque = tau.clone();
+    // articulated body inertia matrix of the subtree in the local frame of the joint
+    // let mut aba_inertias = vec![Jacobian::zero(0); model.njoints()];
 
     let mut q_offset = 0;
     let mut v_offset = 0;
@@ -106,7 +108,17 @@ pub fn forward_dynamics<'a>(
                 data.world_joint_velocities[joint_id].cross(&data.world_joint_velocities[joint_id]);
         }
 
-        // TODO: update the global forces and momenta
+        // update inertias
+        data.world_inertias[joint_id] =
+            data.joint_placements[joint_id].act(&model.inertias[joint_id]);
+        data.composite_inertias[joint_id] = data.world_inertias[joint_id].clone();
+        // aba_inertias[joint_id] = data.composite_inertias[joint_id].matrix();
+
+        // update forces
+        data.world_joint_momenta[joint_id] =
+            &data.world_inertias[joint_id] * &data.world_joint_velocities[joint_id];
+        data.world_joint_forces[joint_id] =
+            data.world_joint_velocities[joint_id].cross_force(&data.world_joint_momenta[joint_id]);
 
         q_offset += joint_model.nq();
         v_offset += joint_model.nv();

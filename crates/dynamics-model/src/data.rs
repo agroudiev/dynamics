@@ -1,5 +1,6 @@
 //! `Data` structure containing the mutable properties of the robot.
 
+use dynamics_inertia::inertia::Inertia;
 use dynamics_joint::joint_data::JointDataWrapper;
 use dynamics_spatial::{
     configuration::Configuration, force::SpatialForce, jacobian::Jacobian, motion::SpatialMotion,
@@ -30,6 +31,8 @@ pub struct Data {
     pub world_accelerations_gravity_field: Vec<SpatialMotion>,
     /// The spatial momenta of the joint in the local frame (h), inertia times velocity
     pub joint_momenta: Vec<SpatialForce>,
+    /// The spatial momenta of the joint in the world frame (oh), inertia times velocity
+    pub world_joint_momenta: Vec<SpatialForce>,
     /// The spatial forces of the joint in the local frame (f), inertia times acceleration plus the Coriolis term
     pub joint_forces: Vec<SpatialForce>,
     /// The spatial forces of the joint in the world frame (of), inertia times acceleration plus the Coriolis term
@@ -40,6 +43,10 @@ pub struct Data {
     pub ddq: Configuration,
     /// The Jacobian matrix of the joint placements (J)
     pub jacobian: Jacobian,
+    /// The rigid body inertia of the joints in the world frame (oinertias)
+    pub world_inertias: Vec<Inertia>,
+    /// The composite rigid body inertia of the joints in the world frame (oYcrb)
+    pub composite_inertias: Vec<Inertia>,
 }
 
 impl Data {
@@ -72,11 +79,14 @@ impl Data {
             joint_accelerations_gravity_field,
             world_accelerations_gravity_field: vec![SpatialMotion::zero(); njoints],
             joint_momenta: vec![SpatialForce::zero(); njoints],
+            world_joint_momenta: vec![SpatialForce::zero(); njoints],
             joint_forces: vec![SpatialForce::zero(); njoints],
             world_joint_forces: vec![SpatialForce::zero(); njoints],
             tau: Configuration::zeros(model.nv),
             ddq: Configuration::zeros(model.nv),
             jacobian: Jacobian::zero(model.nv),
+            world_inertias: vec![Inertia::zeros(); njoints],
+            composite_inertias: vec![Inertia::zeros(); njoints],
         }
     }
 }
