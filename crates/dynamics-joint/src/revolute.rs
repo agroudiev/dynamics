@@ -1,5 +1,7 @@
 //! Revolute joint, constraining two objects to rotate around a given axis.
 
+use std::fmt::Display;
+
 use crate::{
     joint::{JointModel, JointType, JointWrapper},
     joint_data::{JointData, JointDataWrapper, JointError},
@@ -124,6 +126,12 @@ impl JointModel for JointModelRevolute {
 
     fn bias(&self) -> SpatialMotion {
         SpatialMotion::zero()
+    }
+}
+
+impl Display for JointModelRevolute {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "JointModelRevolute(axis: {:?})", self.axis.as_slice())
     }
 }
 

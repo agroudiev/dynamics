@@ -5,6 +5,8 @@
 //! instead of using an angle $\theta \in [-\pi, \pi]$, continuous joints use
 //! unit circle parametrization $(\cos(\theta), \sin(\theta))$.
 
+use std::fmt::Display;
+
 use dynamics_spatial::{
     configuration::Configuration,
     force::SpatialForce,
@@ -130,6 +132,12 @@ impl JointModel for JointModelContinuous {
 
     fn bias(&self) -> SpatialMotion {
         SpatialMotion::zero()
+    }
+}
+
+impl Display for JointModelContinuous {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "JointModelContinuous(axis: {:?})", self.axis.as_slice())
     }
 }
 

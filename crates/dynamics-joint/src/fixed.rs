@@ -1,5 +1,7 @@
 //! Fixed joint, without any degree of freedom.
 
+use std::fmt::Display;
+
 use crate::{
     joint::{JointModel, JointType, JointWrapper},
     joint_data::{JointData, JointDataWrapper, JointError},
@@ -64,6 +66,12 @@ impl JointModel for JointModelFixed {
 
     fn bias(&self) -> SpatialMotion {
         SpatialMotion::zero()
+    }
+}
+
+impl Display for JointModelFixed {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "JointModelFixed")
     }
 }
 

@@ -34,6 +34,10 @@ impl PyJointWrapper {
     pub fn nv(&self) -> usize {
         self.inner.nv()
     }
+
+    pub fn __repr__(&self) -> String {
+        format!("{}", self.inner)
+    }
 }
 
 /// A Python wrapper for the `JointModelFixed` struct.

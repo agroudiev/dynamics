@@ -1,5 +1,7 @@
 //! Prismatic joint, constraining two objects to translate along a given axis.
 
+use std::fmt::Display;
+
 use dynamics_spatial::{
     configuration::Configuration,
     motion::{SpatialMotion, SpatialRotation},
@@ -125,6 +127,12 @@ impl JointModel for JointModelPrismatic {
 
     fn bias(&self) -> SpatialMotion {
         SpatialMotion::zero()
+    }
+}
+
+impl Display for JointModelPrismatic {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "JointModelPrismatic(axis: {:?})", self.axis.as_slice())
     }
 }
 

@@ -5,6 +5,8 @@
 //! * The `JointWrapper` struct, which encapsulates different joint model implementations and provides a
 //!   unified interface to interact with them.
 
+use std::fmt::Display;
+
 use crate::{
     continuous::JointModelContinuous, fixed::JointModelFixed, joint_data::JointDataWrapper,
     prismatic::JointModelPrismatic, revolute::JointModelRevolute,
@@ -165,6 +167,17 @@ impl JointModel for JointWrapper {
             JointModelImpl::Prismatic(joint) => joint.bias(),
             JointModelImpl::Revolute(joint) => joint.bias(),
             JointModelImpl::Fixed(joint) => joint.bias(),
+        }
+    }
+}
+
+impl Display for JointWrapper {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match &self.inner {
+            JointModelImpl::Continuous(joint) => write!(f, "{joint}"),
+            JointModelImpl::Prismatic(joint) => write!(f, "{joint}"),
+            JointModelImpl::Revolute(joint) => write!(f, "{joint}"),
+            JointModelImpl::Fixed(joint) => write!(f, "{joint}"),
         }
     }
 }
