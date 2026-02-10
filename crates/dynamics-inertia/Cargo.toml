@@ -15,6 +15,7 @@ default = []
 [dependencies]
 pyo3 = { workspace = true, optional = true }
 numpy = { workspace = true, optional = true }
+nalgebra = { workspace = true }
 
 dynamics-spatial.workspace = true
 

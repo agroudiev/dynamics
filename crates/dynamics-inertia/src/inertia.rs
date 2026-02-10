@@ -2,11 +2,13 @@
 
 use dynamics_spatial::{
     force::SpatialForce,
+    jacobian::JacobianColumn,
     motion::SpatialMotion,
     se3::{ActSE3, SE3},
     symmetric3::Symmetric3,
     vector3d::Vector3D,
 };
+use nalgebra::Matrix6;
 use std::ops::{Add, AddAssign, Mul};
 
 /// A data structure that contains the information about the inertia of a rigid body (mass, center of mass, and inertia matrix).
@@ -112,7 +114,7 @@ impl Add<&Inertia> for Inertia {
             total_mass,
             (self.mass * self.com + rhs.mass * rhs.com) * total_mass_inv,
             self.inertia + rhs.inertia
-                - (self.mass * rhs.mass * total_mass_inv) * Symmetric3::skew_square(ab),
+                - (self.mass * rhs.mass * total_mass_inv) * Symmetric3::skew_square(&ab),
         )
     }
 }
@@ -182,5 +184,37 @@ impl std::fmt::Display for InertiaError {
 impl std::fmt::Debug for InertiaError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "InertiaError: {self}")
+    }
+}
+
+/// A wrapper around a 6x6 matrix representing the inertia of a rigid body in spatial coordinates.
+#[derive(Clone, Debug)]
+pub struct InertiaMatrix(pub Matrix6<f64>);
+
+impl Inertia {
+    pub fn matrix(&self) -> InertiaMatrix {
+        let mut matrix = Matrix6::zeros();
+        matrix
+            .fixed_view_mut::<3, 3>(0, 0)
+            .copy_from(&self.inertia.matrix());
+        matrix
+            .fixed_view_mut::<3, 3>(0, 3)
+            .copy_from(&(-self.mass * Symmetric3::skew(&self.com)).matrix());
+        matrix
+            .fixed_view_mut::<3, 3>(3, 0)
+            .copy_from(&(self.mass * Symmetric3::skew(&self.com)).matrix());
+        matrix
+            .fixed_view_mut::<3, 3>(3, 3)
+            .copy_from(&(self.mass * Matrix6::identity().fixed_view::<3, 3>(0, 0)));
+        InertiaMatrix(matrix)
+    }
+}
+
+impl Mul<&JacobianColumn> for &InertiaMatrix {
+    type Output = Vector3D;
+
+    fn mul(self, rhs: &JacobianColumn) -> Self::Output {
+        let result = self.0 * rhs.0;
+        Vector3D::new(result[0], result[1], result[2])
     }
 }

@@ -1,6 +1,8 @@
 //! Defines a **Jacobian** structure and related operations.
 
-use nalgebra::DMatrix;
+use std::ops::Mul;
+
+use nalgebra::{DMatrix, Matrix6x1};
 
 use crate::force::SpatialForce;
 
@@ -24,24 +26,37 @@ impl Jacobian {
         Self(DMatrix::zeros(6, cols))
     }
 
-    /// Multiplies the transposed of a specified column of the Jacobian matrix with a spatial force.
-    ///
-    /// This operation is used to compute the contribution of a spatial force to the joint torques.
+    /// Updates the specified column of the Jacobian matrix with the given data.
     ///
     /// # Arguments
-    /// * `v_offset` - The index of the column of the Jacobian matrix to be multiplied. This corresponds to the index of the joint in the robot model.
-    /// * `force` - The spatial force to be multiplied with the transposed of the specified column of the Jacobian matrix.
-    ///
-    /// # Returns
-    /// * The result of the multiplication, which is a scalar value representing the contribution of the spatial force to the joint torque.
-    pub fn column_mul(&self, v_offset: usize, force: &SpatialForce) -> f64 {
-        let col = self.0.column(v_offset);
-        col.dot(&force.0)
-    }
-
+    /// * `v_offset` - The index of the column to update, which corresponds to the joint index in the robot model.
+    /// * `column_data` - The data to update the column with, which should be a 6-dimensional vector representing the spatial velocity basis of the joint.
     pub fn update_column(&mut self, v_offset: usize, column_data: &[f64; 6]) {
         self.0
             .fixed_columns_mut::<1>(v_offset)
             .copy_from(&DMatrix::from_column_slice(6, 1, column_data))
+    }
+
+    /// Returns a specified column of the Jacobian matrix as a `JacobianColumn` structure.
+    ///
+    /// # Arguments
+    /// * `v_offset` - The index of the column to retrieve, which corresponds to the joint index in the robot model.
+    /// # Returns
+    /// * A `JacobianColumn` structure containing the specified column of the Jacobian matrix, which represents the spatial velocity basis of the joint.
+    pub fn column(&self, v_offset: usize) -> JacobianColumn {
+        JacobianColumn(Matrix6x1::from_column_slice(
+            self.0.column(v_offset).as_slice(),
+        ))
+    }
+}
+
+/// A column of the Jacobian matrix, representing the spatial velocity basis of a joint.
+pub struct JacobianColumn(pub Matrix6x1<f64>);
+
+impl Mul<&SpatialForce> for &JacobianColumn {
+    type Output = f64;
+
+    fn mul(self, rhs: &SpatialForce) -> Self::Output {
+        self.0.dot(&rhs.0)
     }
 }

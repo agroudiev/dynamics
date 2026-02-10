@@ -59,12 +59,14 @@ pub fn forward_dynamics<'a>(
     // initialize the apparent torque (a.k.a. u) with the input torque
     let mut apparent_torque = tau.clone();
     // articulated body inertia matrix of the subtree in the local frame of the joint
-    // let mut aba_inertias = vec![Jacobian::zero(0); model.njoints()];
+    let mut aba_inertias = Vec::with_capacity(model.njoints() - 1); // skipping the world joint
+    let mut joint_u = Vec::with_capacity(model.njoints() - 1); // skipping the world joint
 
     let mut q_offset = 0;
     let mut v_offset = 0;
 
     // forward pass 1
+    #[allow(clippy::needless_range_loop)]
     for joint_id in 1..model.njoints() {
         // retrieve the joint model and the corresponding configuration
         let joint_model = &model.joint_models[joint_id];
@@ -112,7 +114,7 @@ pub fn forward_dynamics<'a>(
         data.world_inertias[joint_id] =
             data.joint_placements[joint_id].act(&model.inertias[joint_id]);
         data.composite_inertias[joint_id] = data.world_inertias[joint_id].clone();
-        // aba_inertias[joint_id] = data.composite_inertias[joint_id].matrix();
+        aba_inertias.push(data.composite_inertias[joint_id].clone());
 
         // update forces
         data.world_joint_momenta[joint_id] =
@@ -138,12 +140,14 @@ pub fn forward_dynamics<'a>(
 
         // update the apparent torque by subtracting the contribution of the spatial forces
         let mut u = apparent_torque.rows(v_offset, joint_model.nv());
-        u -= &Configuration::from_row_slice(&[data
-            .jacobian
-            .column_mul(v_offset, &data.world_joint_forces[joint_id])]);
+        u -= &Configuration::from_row_slice(&[
+            &data.jacobian.column(v_offset) * &data.world_joint_forces[joint_id]
+        ]);
         apparent_torque
             .update_rows(v_offset, &u)
             .map_err(AlgorithmError::ConfigurationError)?;
+
+        joint_u.push(&aba_inertias[joint_id - 1].matrix() * &data.jacobian.column(v_offset));
 
         v_offset -= joint_model.nv();
     }
