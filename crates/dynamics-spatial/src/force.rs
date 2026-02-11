@@ -7,6 +7,7 @@ use nalgebra::{Matrix6, Vector6};
 use crate::{
     se3::{ActSE3, SE3},
     vector3d::Vector3D,
+    vector6d::Vector6D,
 };
 
 /// Spatial force vector, combining torque and force components.
@@ -40,6 +41,10 @@ impl SpatialForce {
 
     pub fn from_vector6(vector: Vector6<f64>) -> Self {
         Self(vector)
+    }
+
+    pub fn from_vector6d(vector: Vector6D) -> Self {
+        Self(vector.0)
     }
 
     pub fn rotation(&self) -> Vector3D {

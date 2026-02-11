@@ -229,6 +229,14 @@ impl Mul<&JacobianColumn> for &InertiaMatrix {
     }
 }
 
+impl Mul<&SpatialMotion> for &InertiaMatrix {
+    type Output = SpatialForce;
+
+    fn mul(self, rhs: &SpatialMotion) -> Self::Output {
+        SpatialForce::from_vector6(self.0 * rhs.0)
+    }
+}
+
 impl Add for &InertiaMatrix {
     type Output = InertiaMatrix;
 

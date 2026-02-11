@@ -17,7 +17,7 @@ use std::{
 /// Spatial motion vector, combining linear and angular velocity components.
 ///
 /// The first three elements represent linear velocity, and the last three represent angular velocity.
-pub struct SpatialMotion(pub(crate) Vector6<f64>);
+pub struct SpatialMotion(pub Vector6<f64>);
 // TODO: rewrite this with Vector6D to avoid double implementation
 
 impl SpatialMotion {

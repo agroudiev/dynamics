@@ -94,6 +94,7 @@ pub fn forward_dynamics<'a>(
             data.joint_placements[parent_id] * data.local_joint_placements[joint_id];
 
         // update the Jacobian for the joint
+        // TODO: handle the case where nv = 0 by having columns of size 0 in the Jacobian
         let column_data = joint_model.subspace_se3(&data.joint_placements[joint_id]);
         data.jacobian
             .update_column(v_offset, column_data.as_slice());
@@ -164,11 +165,18 @@ pub fn forward_dynamics<'a>(
             aba_inertias[parent_id - 1] -=
                 InertiaMatrix::from_vectors(&joint_udinv[joint_id - 1], &joint_u[joint_id - 1]);
 
-            // data.world_joint_forces[parent_id] += TODO:
+            // update the joint force
+            data.world_joint_forces[joint_id] +=
+                &aba_inertias[joint_id - 1] * &data.world_accelerations_gravity_field[joint_id];
+            let u = apparent_torque.rows(v_offset, joint_model.nv())[0];
+            data.world_joint_forces[joint_id] +=
+                SpatialForce::from_vector6d(&joint_udinv[joint_id - 1] * u);
 
+            // update aba_inertias
             let (i_parent, i_child) = aba_inertias.split_at_mut(joint_id - 1);
             i_parent[parent_id - 1] += i_child[0].clone();
 
+            // update the parent joint force
             let (f_parent, f_child) = data.world_joint_forces.split_at_mut(joint_id);
             f_parent[parent_id] += &f_child[0];
         }
