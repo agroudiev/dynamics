@@ -197,6 +197,10 @@ impl InertiaMatrix {
         let m = v1.0 * v2.0.transpose();
         InertiaMatrix(m)
     }
+
+    pub fn zeros() -> Self {
+        InertiaMatrix(Matrix6::zeros())
+    }
 }
 
 impl Inertia {

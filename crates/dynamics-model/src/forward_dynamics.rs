@@ -21,6 +21,7 @@ use dynamics_spatial::configuration::Configuration;
 use dynamics_spatial::force::SpatialForce;
 use dynamics_spatial::motion::SpatialMotion;
 use dynamics_spatial::vector3d::Vector3D;
+use dynamics_spatial::vector6d::Vector6D;
 
 /// Computes the forward dynamics of the robot model using the Articulated Body Algorithm (ABA).
 ///
@@ -60,11 +61,12 @@ pub fn forward_dynamics<'a>(
     // initialize the apparent torque (a.k.a. u) with the input torque
     let mut apparent_torque = tau.clone();
     // articulated body inertia matrix of the subtree in the local frame of the joint
-    let mut aba_inertias = Vec::with_capacity(model.njoints() - 1); // skipping the world joint
-    let mut joint_u = Vec::with_capacity(model.njoints() - 1); // skipping the world joint
-    let mut joint_stu = Vec::with_capacity(model.njoints() - 1); // skipping the world joint
-    let mut joint_dinv = Vec::with_capacity(model.njoints() - 1); // skipping the world joint
-    let mut joint_udinv = Vec::with_capacity(model.njoints() - 1); // skipping the world joint
+    let mut aba_inertias = vec![InertiaMatrix::zeros(); model.njoints()];
+    let mut joint_u = vec![Vector6D::zeros(); model.nv];
+    let mut joint_stu = vec![0.0; model.nv];
+    let mut joint_dinv = vec![0.0; model.nv];
+    let mut joint_udinv = vec![Vector6D::zeros(); model.nv];
+    // TODO: make these vectors of size nv instead of njoints and handle the indexing properly
 
     let mut q_offset = 0;
     let mut v_offset = 0;
@@ -76,6 +78,12 @@ pub fn forward_dynamics<'a>(
         let joint_model = &model.joint_models[joint_id];
         let joint_data = &mut data.joint_data[joint_id];
         let parent_id = model.joint_parents[joint_id];
+
+        // check that nv <= 1, otherwise the algorithm needs to be modified
+        assert!(
+            joint_model.nv() <= 1,
+            "The ABA implementation only supports joints with nv = 1 for now."
+        );
 
         // extract the joint configuration, velocity and acceleration from configuration vectors
         let joint_q = q.rows(q_offset, joint_model.nq());
@@ -94,10 +102,11 @@ pub fn forward_dynamics<'a>(
             data.joint_placements[parent_id] * data.local_joint_placements[joint_id];
 
         // update the Jacobian for the joint
-        // TODO: handle the case where nv = 0 by having columns of size 0 in the Jacobian
-        let column_data = joint_model.subspace_se3(&data.joint_placements[joint_id]);
-        data.jacobian
-            .update_column(v_offset, column_data.as_slice());
+        if joint_model.nv() > 0 {
+            let column_data = joint_model.subspace_se3(&data.joint_placements[joint_id]);
+            data.jacobian
+                .update_column(v_offset, column_data.as_slice());
+        }
 
         // update the global joint velocity
         data.world_joint_velocities[joint_id] =
@@ -119,7 +128,7 @@ pub fn forward_dynamics<'a>(
         data.world_inertias[joint_id] =
             data.joint_placements[joint_id].act(&model.inertias[joint_id]);
         data.composite_inertias[joint_id] = data.world_inertias[joint_id].clone();
-        aba_inertias.push(data.composite_inertias[joint_id].matrix());
+        aba_inertias[joint_id] = data.composite_inertias[joint_id].matrix();
 
         // update forces
         data.world_joint_momenta[joint_id] =
@@ -136,13 +145,6 @@ pub fn forward_dynamics<'a>(
         let joint_model = &model.joint_models[joint_id];
         let parent_id = model.joint_parents[joint_id];
 
-        // check that nv = 1, otherwise u -= J^T * f is not well defined
-        assert_eq!(
-            joint_model.nv(),
-            1,
-            "The ABA implementation only supports joints with nv = 1 for now."
-        );
-
         // update the apparent torque by subtracting the contribution of the spatial forces
         let mut u = apparent_torque.rows(v_offset, joint_model.nv());
         u -= &Configuration::from_row_slice(&[
@@ -151,30 +153,35 @@ pub fn forward_dynamics<'a>(
         apparent_torque
             .update_rows(v_offset, &u)
             .map_err(AlgorithmError::ConfigurationError)?;
+        // FIXME: I wonder if the code above will work, but it might
 
         // update intermediate quantities
-        joint_u.push(&aba_inertias[joint_id - 1] * &data.jacobian.column(v_offset));
-        joint_stu.push(&data.jacobian.column(v_offset) * &joint_u[joint_id - 1]);
+        if joint_model.nv() > 0 {
+            joint_u[joint_id] = &aba_inertias[joint_id] * &data.jacobian.column(v_offset);
+            joint_stu[joint_id] = &data.jacobian.column(v_offset) * &joint_u[joint_id];
 
-        // TODO: add armature term
+            // TODO: add armature term
 
-        joint_dinv.push(1.0 / (joint_stu[joint_id - 1]));
-        joint_udinv.push(&joint_u[joint_id - 1] * joint_dinv[joint_id - 1]);
+            joint_dinv[joint_id] = 1.0 / (joint_stu[joint_id]);
+            joint_udinv[joint_id] = &joint_u[joint_id] * joint_dinv[joint_id];
+        }
 
         if parent_id != WORLD_ID {
-            aba_inertias[parent_id - 1] -=
-                InertiaMatrix::from_vectors(&joint_udinv[joint_id - 1], &joint_u[joint_id - 1]);
+            if joint_model.nv() > 0 {
+                aba_inertias[joint_id] -=
+                    InertiaMatrix::from_vectors(&joint_udinv[joint_id], &joint_u[joint_id]);
 
-            // update the joint force
-            data.world_joint_forces[joint_id] +=
-                &aba_inertias[joint_id - 1] * &data.world_accelerations_gravity_field[joint_id];
-            let u = apparent_torque.rows(v_offset, joint_model.nv())[0];
-            data.world_joint_forces[joint_id] +=
-                SpatialForce::from_vector6d(&joint_udinv[joint_id - 1] * u);
+                // update the joint force
+                data.world_joint_forces[joint_id] +=
+                    &aba_inertias[joint_id] * &data.world_accelerations_gravity_field[joint_id];
+                let u = apparent_torque.rows(v_offset, joint_model.nv())[0];
+                data.world_joint_forces[joint_id] +=
+                    SpatialForce::from_vector6d(&joint_udinv[joint_id] * u);
 
-            // update aba_inertias
-            let (i_parent, i_child) = aba_inertias.split_at_mut(joint_id - 1);
-            i_parent[parent_id - 1] += i_child[0].clone();
+                // update aba_inertias
+                let (i_parent, i_child) = aba_inertias.split_at_mut(joint_id);
+                i_parent[parent_id] += i_child[0].clone();
+            }
 
             // update the parent joint force
             let (f_parent, f_child) = data.world_joint_forces.split_at_mut(joint_id);
