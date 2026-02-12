@@ -62,10 +62,10 @@ pub fn forward_dynamics<'a>(
     let mut apparent_torque = tau.clone();
     // articulated body inertia matrix of the subtree in the local frame of the joint
     let mut aba_inertias = vec![InertiaMatrix::zeros(); model.njoints()];
-    let mut joint_u = vec![Vector6D::zeros(); model.nv];
-    let mut joint_stu = vec![0.0; model.nv];
-    let mut joint_dinv = vec![0.0; model.nv];
-    let mut joint_udinv = vec![Vector6D::zeros(); model.nv];
+    let mut joint_u = vec![Vector6D::zeros(); model.njoints()];
+    let mut joint_stu = vec![0.0; model.njoints()];
+    let mut joint_dinv = vec![0.0; model.njoints()];
+    let mut joint_udinv = vec![Vector6D::zeros(); model.njoints()];
     // TODO: make these vectors of size nv instead of njoints and handle the indexing properly
 
     let mut q_offset = 0;
@@ -144,6 +144,7 @@ pub fn forward_dynamics<'a>(
     for joint_id in (1..model.njoints()).rev() {
         let joint_model = &model.joint_models[joint_id];
         let parent_id = model.joint_parents[joint_id];
+        v_offset -= joint_model.nv();
 
         // update the apparent torque by subtracting the contribution of the spatial forces
         let mut u = apparent_torque.rows(v_offset, joint_model.nv());
@@ -187,8 +188,6 @@ pub fn forward_dynamics<'a>(
             let (f_parent, f_child) = data.world_joint_forces.split_at_mut(joint_id);
             f_parent[parent_id] += &f_child[0];
         }
-
-        v_offset -= joint_model.nv();
     }
 
     // forward pass 2
@@ -236,4 +235,28 @@ pub fn forward_dynamics<'a>(
     }
 
     Ok(&data.ddq)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use dynamics_joint::{joint::JointWrapper, revolute::JointModelRevolute};
+    use dynamics_spatial::se3::SE3;
+
+    #[test]
+    fn test_fd_one_joint() {
+        let mut model = Model::new_empty();
+        let joint_model = JointWrapper::revolute(JointModelRevolute::new_rx());
+        model
+            .add_joint(0, joint_model, SE3::identity(), "joint1".to_string())
+            .unwrap();
+
+        let mut data = model.create_data();
+
+        let q = Configuration::from_row_slice(&[0.5]);
+        let v = Configuration::from_row_slice(&[0.2]);
+        let tau = Configuration::from_row_slice(&[1.0]);
+
+        let _ddq = forward_dynamics(&model, &mut data, &q, &v, &tau).unwrap();
+    }
 }
