@@ -300,6 +300,7 @@ def assert_datas_equals(
         test_case.assertTrue(
             np.isnan(pin_data.oa_gf[i]).any()  # skip if unitialized
             or np.linalg.norm(dyn_data.oa_gf[i].to_numpy() - pin_data.oa_gf[i]) < 1e-4,
+            f"Joint {i}: {dyn_data.oa_gf[i].to_numpy()} vs {pin_data.oa_gf[i]}",
         )
 
     # Check local momenta

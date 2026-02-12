@@ -54,7 +54,7 @@ pub fn forward_dynamics<'a>(
         .map_err(AlgorithmError::ConfigurationError)?;
 
     // initialize the world acceleration and force
-    data.world_accelerations_gravity_field[0] =
+    data.joint_accelerations_gravity_field[0] =
         SpatialMotion::from_parts(-model.gravity, Vector3D::zeros());
     data.world_joint_forces[0] = SpatialForce::zero();
 

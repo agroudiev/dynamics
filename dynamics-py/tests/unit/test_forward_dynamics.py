@@ -29,7 +29,6 @@ def compare_urdf_fd(test_case, file_path, mesh_dir=None):
 
 
 class TestForwardDynamics(unittest.TestCase):
-    @unittest.skip("")
     def test_fd_empty(self):
         # Create two empty models
         dyn_model = dyn.Model()
