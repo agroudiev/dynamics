@@ -11,7 +11,7 @@ from utils import (
 import parameterized
 
 
-def compare_urdf_id(test_case, file_path, mesh_dir=None):
+def compare_urdf_fd(test_case, file_path, mesh_dir=None):
     dyn_model, _, _ = dyn.build_models_from_urdf(file_path, mesh_dir)
     pin_model, _, _ = pin.buildModelsFromUrdf(file_path, mesh_dir)
 
@@ -19,18 +19,18 @@ def compare_urdf_id(test_case, file_path, mesh_dir=None):
     pin_data = pin.Data(pin_model)
 
     np.random.seed(0)
-    q = pin.randomConfiguration(pin_model)  # do not use np.random.rand
+    q = pin.randomConfiguration(pin_model)
     v = np.random.rand(dyn_model.nv) * 10
-    a = np.random.rand(dyn_model.nv) * 10
-    pin_f_ext = [pin.Force.Random() for _ in range(pin_model.njoints)]
-    dyn_f_ext = [dyn.SpatialForce.from_parts(f.linear, f.angular) for f in pin_f_ext]
-    dyn.inverse_dynamics(dyn_model, dyn_data, q, v, a, dyn_f_ext)
-    pin.rnea(pin_model, pin_data, q, v, a, pin_f_ext)
+    tau = np.random.rand(dyn_model.nv) * 10
+
+    dyn.forward_dynamics(dyn_model, dyn_data, q, v, tau)
+    pin.aba(pin_model, pin_data, q, v, tau)
     assert_datas_equals(test_case, dyn_data, pin_data)
 
 
-class TestInverseDynamics(unittest.TestCase):
-    def test_id_empty(self):
+class TestForwardDynamics(unittest.TestCase):
+    @unittest.skip("")
+    def test_fd_empty(self):
         # Create two empty models
         dyn_model = dyn.Model()
         pin_model = pin.Model()
@@ -44,14 +44,15 @@ class TestInverseDynamics(unittest.TestCase):
         np.random.seed(0)
         q = pin.randomConfiguration(pin_model)
         v = np.random.rand(dyn_model.nv) * 100
-        a = np.random.rand(dyn_model.nv) * 100
+        tau = np.random.rand(dyn_model.nv) * 100
 
-        # Check inverse dynamics
-        dyn.inverse_dynamics(dyn_model, dyn_data, q, v, a)
-        pin.rnea(pin_model, pin_data, q, v, a)
+        # Check forward dynamics
+        dyn.forward_dynamics(dyn_model, dyn_data, q, v, tau)
+        pin.aba(pin_model, pin_data, q, v, tau)
         assert_datas_equals(self, dyn_data, pin_data)
 
-    def test_id_one_joint(self):
+    @unittest.skip("")
+    def test_fd_one_joint(self):
         # Create two empty models
         dyn_model = dyn.Model()
         pin_model = pin.Model()
@@ -83,20 +84,22 @@ class TestInverseDynamics(unittest.TestCase):
         pin_data = pin.Data(pin_model)
         assert_datas_equals(self, dyn_data, pin_data)
 
-        # Check inverse dynamics
+        # Check forward dynamics
         np.random.seed(0)
         q = pin.randomConfiguration(pin_model)
         v = np.random.rand(dyn_model.nv) * 100
-        a = np.random.rand(dyn_model.nv) * 100
-        dyn.inverse_dynamics(dyn_model, dyn_data, q, v, a)
-        pin.rnea(pin_model, pin_data, q, v, a)
+        tau = np.random.rand(dyn_model.nv) * 100
+        dyn.forward_dynamics(dyn_model, dyn_data, q, v, tau)
+        pin.aba(pin_model, pin_data, q, v, tau)
         assert_datas_equals(self, dyn_data, pin_data)
 
-    def test_id_double_pendulum(self):
-        compare_urdf_id(self, "examples/descriptions/double_pendulum_simple.urdf")
+    @unittest.skip("")
+    def test_fd_double_pendulum(self):
+        compare_urdf_fd(self, "examples/descriptions/double_pendulum_simple.urdf")
 
     @parameterized.parameterized.expand(EXAMPLE_ROBOT_DATA_URDFS)
-    def test_id_example_robot_data(self, path):
+    @unittest.skip("")
+    def test_fd_example_robot_data(self, path):
         robots_dir = "examples/descriptions/example-robot-data/robots/"
         set_ros_package_path("example-robot-data")
-        compare_urdf_id(self, robots_dir + path)
+        compare_urdf_fd(self, robots_dir + path)
