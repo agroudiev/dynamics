@@ -201,6 +201,13 @@ impl InertiaMatrix {
     pub fn zeros() -> Self {
         InertiaMatrix(Matrix6::zeros())
     }
+
+    /// Transforms the inertia matrix to a new frame defined by the given `SE(3)` transformation.
+    pub fn transform_frame(&self, se3: &SE3) -> Self {
+        let dual_matrix = se3.dual_matrix();
+        let inv_matrix = se3.inv_matrix();
+        &dual_matrix * self * &inv_matrix
+    }
 }
 
 impl Inertia {
@@ -219,6 +226,30 @@ impl Inertia {
             .fixed_view_mut::<3, 3>(3, 3)
             .copy_from(&(self.mass * Matrix6::identity().fixed_view::<3, 3>(0, 0)));
         InertiaMatrix(matrix)
+    }
+}
+
+impl Mul<&Matrix6<f64>> for &InertiaMatrix {
+    type Output = InertiaMatrix;
+
+    fn mul(self, rhs: &Matrix6<f64>) -> Self::Output {
+        InertiaMatrix(self.0 * rhs)
+    }
+}
+
+impl Mul<&Matrix6<f64>> for InertiaMatrix {
+    type Output = InertiaMatrix;
+
+    fn mul(self, rhs: &Matrix6<f64>) -> Self::Output {
+        InertiaMatrix(self.0 * rhs)
+    }
+}
+
+impl Mul<&InertiaMatrix> for &Matrix6<f64> {
+    type Output = InertiaMatrix;
+
+    fn mul(self, rhs: &InertiaMatrix) -> Self::Output {
+        InertiaMatrix(self * rhs.0)
     }
 }
 

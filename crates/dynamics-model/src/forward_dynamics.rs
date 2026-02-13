@@ -97,44 +97,26 @@ pub fn forward_dynamics<'a>(
         data.local_joint_placements[joint_id] =
             model.joint_placements[joint_id] * joint_data.get_joint_placement();
 
-        // update the joint placement in the world frame
-        data.joint_placements[joint_id] =
-            data.joint_placements[parent_id] * data.local_joint_placements[joint_id];
-
-        // update the Jacobian for the joint
-        if joint_model.nv() > 0 {
-            let column_data = joint_model.subspace_se3(&data.joint_placements[joint_id]);
-            data.jacobian
-                .update_column(v_offset, column_data.as_slice());
-        }
-
-        // update the global joint velocity
-        data.world_joint_velocities[joint_id] =
-            data.joint_placements[joint_id].act(joint_data.get_joint_velocity());
+        // update the joint velocity
+        let (v_parent, v_child) = data.world_joint_velocities.split_at_mut(joint_id);
+        v_child[0] = joint_data.get_joint_velocity().clone();
         if parent_id != WORLD_ID {
-            let (v_parent, v_child) = data.world_joint_velocities.split_at_mut(joint_id);
-            v_child[0] += &v_parent[parent_id];
+            v_child[0] += data.local_joint_placements[joint_id].act(&v_parent[parent_id]);
         }
 
-        // update the global joint acceleration
-        data.world_accelerations_gravity_field[joint_id] =
-            data.joint_placements[joint_id].act(&joint_model.bias());
-        if parent_id != WORLD_ID {
-            data.world_accelerations_gravity_field[joint_id] +=
-                data.world_joint_velocities[joint_id].cross(&data.world_joint_velocities[joint_id]);
-        }
+        // update the joint acceleration
+        data.joint_accelerations_gravity_field[joint_id] = joint_model.bias()
+            + data.joint_velocities[joint_id].cross(&data.joint_velocities[joint_id]);
 
         // update inertias
-        data.world_inertias[joint_id] =
-            data.joint_placements[joint_id].act(&model.inertias[joint_id]);
-        data.composite_inertias[joint_id] = data.world_inertias[joint_id].clone();
-        aba_inertias[joint_id] = data.composite_inertias[joint_id].matrix();
+        aba_inertias[joint_id] = model.inertias[joint_id].matrix();
 
-        // update forces
-        data.world_joint_momenta[joint_id] =
-            &data.world_inertias[joint_id] * &data.world_joint_velocities[joint_id];
-        data.world_joint_forces[joint_id] =
-            data.world_joint_velocities[joint_id].cross_force(&data.world_joint_momenta[joint_id]);
+        // update momenta and forces
+        data.joint_momenta[joint_id] = &model.inertias[joint_id] * &data.joint_velocities[joint_id];
+        data.joint_forces[joint_id] =
+            data.joint_velocities[joint_id].cross_force(&data.joint_momenta[joint_id]);
+
+        // TODO: handle external forces
 
         q_offset += joint_model.nq();
         v_offset += joint_model.nv();
@@ -147,46 +129,32 @@ pub fn forward_dynamics<'a>(
         v_offset -= joint_model.nv();
 
         // update the apparent torque by subtracting the contribution of the spatial forces
-        let mut u = apparent_torque.rows(v_offset, joint_model.nv());
-        u -= &Configuration::from_row_slice(&[
-            &data.jacobian.column(v_offset) * &data.world_joint_forces[joint_id]
-        ]);
-        apparent_torque
-            .update_rows(v_offset, &u)
-            .map_err(AlgorithmError::ConfigurationError)?;
-        // FIXME: I wonder if the code above will work, but it might
-
-        // update intermediate quantities
         if joint_model.nv() > 0 {
-            joint_u[joint_id] = &aba_inertias[joint_id] * &data.jacobian.column(v_offset);
-            joint_stu[joint_id] = &data.jacobian.column(v_offset) * &joint_u[joint_id];
+            let mut u = apparent_torque.rows(v_offset, joint_model.nv());
+            u -= &joint_model.subspace_dual(&data.joint_forces[joint_id]);
+            apparent_torque
+                .update_rows(v_offset, &u)
+                .map_err(AlgorithmError::ConfigurationError)?;
 
-            // TODO: add armature term
-
-            joint_dinv[joint_id] = 1.0 / (joint_stu[joint_id]);
-            joint_udinv[joint_id] = &joint_u[joint_id] * joint_dinv[joint_id];
+            // FIXME: set U, StU, UDinv
+            // TODO: handle armature term
         }
 
-        if parent_id != WORLD_ID {
-            if joint_model.nv() > 0 {
-                aba_inertias[joint_id] -=
-                    InertiaMatrix::from_vectors(&joint_udinv[joint_id], &joint_u[joint_id]);
+        if parent_id != WORLD_ID && joint_model.nv() > 0 {
+            // update forces
+            data.joint_forces[joint_id] +=
+                &aba_inertias[joint_id] * &data.joint_accelerations_gravity_field[joint_id];
+            let u = apparent_torque.rows(v_offset, joint_model.nv())[0];
+            data.joint_forces[joint_id] += SpatialForce::from_vector6d(u * &joint_udinv[joint_id]);
 
-                // update the joint force
-                data.world_joint_forces[joint_id] +=
-                    &aba_inertias[joint_id] * &data.world_accelerations_gravity_field[joint_id];
-                let u = apparent_torque.rows(v_offset, joint_model.nv())[0];
-                data.world_joint_forces[joint_id] +=
-                    SpatialForce::from_vector6d(&joint_udinv[joint_id] * u);
+            // update aba_inertias
+            let (aba_parent, aba_child) = aba_inertias.split_at_mut(joint_id);
+            aba_parent[parent_id] +=
+                aba_child[0].transform_frame(&data.local_joint_placements[joint_id]);
 
-                // update aba_inertias
-                let (i_parent, i_child) = aba_inertias.split_at_mut(joint_id);
-                i_parent[parent_id] += i_child[0].clone();
-            }
-
-            // update the parent joint force
+            // update parent forces
             let (f_parent, f_child) = data.world_joint_forces.split_at_mut(joint_id);
-            f_parent[parent_id] += &f_child[0];
+            f_parent[parent_id] += data.local_joint_placements[joint_id].act(&f_child[0]);
         }
     }
 
