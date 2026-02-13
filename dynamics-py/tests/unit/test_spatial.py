@@ -157,3 +157,27 @@ class TestSpatial(unittest.TestCase):
         cross_pin = motion_pin1.cross(motion_pin2)
 
         self.assertTrue(np.linalg.norm(cross_dyn.to_numpy() - cross_pin.vector) < 1e-14)
+
+    def test_action_matrices(self):
+        np.random.seed(0)
+        rotation = np.random.uniform(-1.0, 1.0, (3, 3))
+        rotation, _ = np.linalg.qr(rotation)
+        translation = np.random.uniform(-1.0, 1.0, 3)
+
+        M_dyn = dyn.SE3(rotation, translation)
+        M_pin = pin.SE3(rotation, translation)
+
+        action_dyn = M_dyn.action_matrix()
+        action_pin = M_pin.toActionMatrix()
+
+        self.assertTrue(np.linalg.norm(action_dyn - action_pin) < 1e-14)
+
+        dual_action_dyn = M_dyn.dual_matrix()
+        dual_action_pin = M_pin.toDualActionMatrix()
+
+        self.assertTrue(np.linalg.norm(dual_action_dyn - dual_action_pin) < 1e-14)
+
+        inv_action_dyn = M_dyn.inv_matrix()
+        inv_action_pin = M_pin.toActionMatrixInverse()
+
+        self.assertTrue(np.linalg.norm(inv_action_dyn - inv_action_pin) < 1e-14)

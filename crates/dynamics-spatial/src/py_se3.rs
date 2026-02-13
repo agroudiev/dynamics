@@ -203,4 +203,37 @@ impl PySE3 {
             }
         }
     }
+
+    pub fn action_matrix(&self, py: Python) -> PyResult<Py<PyAny>> {
+        let action_matrix = self.inner.action_matrix();
+        Ok(
+            Array2::from_shape_vec((6, 6), action_matrix.as_slice().to_vec())
+                .unwrap()
+                .to_pyarray(py)
+                .into_any()
+                .unbind(),
+        )
+    }
+
+    pub fn dual_matrix(&self, py: Python) -> PyResult<Py<PyAny>> {
+        let dual_matrix = self.inner.dual_matrix();
+        Ok(
+            Array2::from_shape_vec((6, 6), dual_matrix.as_slice().to_vec())
+                .unwrap()
+                .to_pyarray(py)
+                .into_any()
+                .unbind(),
+        )
+    }
+
+    pub fn inv_matrix(&self, py: Python) -> PyResult<Py<PyAny>> {
+        let inv_matrix = self.inner.inv_matrix();
+        Ok(
+            Array2::from_shape_vec((6, 6), inv_matrix.as_slice().to_vec())
+                .unwrap()
+                .to_pyarray(py)
+                .into_any()
+                .unbind(),
+        )
+    }
 }

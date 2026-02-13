@@ -4,8 +4,14 @@ This file is used to track changes made to the project over time.
 
 ## [Unreleased]
 ### Added
+#### Model
 - Added `append_body_to_joint` method to the model to append add inertias to joints with respect to its placement.
+
+#### Joints
 - Python binding for revolute unaligned joints (`JointModelRevoluteUnaligned`).
+
+#### Spatial
+- Added `action_matrix`, `dual_matrix`, and `inv_matrix` methods to SE3 transforms to compute the action, dual action, and inverse action matrices.
 
 ## [0.0.2] - 2026-02-08
 ### Added

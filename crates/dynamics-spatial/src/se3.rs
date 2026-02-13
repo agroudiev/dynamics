@@ -7,7 +7,7 @@
 use std::fmt::Display;
 
 use crate::{motion::SpatialRotation, vector3d::Vector3D};
-use nalgebra::{IsometryMatrix3, Translation3};
+use nalgebra::{IsometryMatrix3, Matrix3, Matrix6, Translation3};
 
 /// SE(3) transformation represented as an isometry matrix.
 ///
@@ -58,6 +58,83 @@ impl SE3 {
     #[must_use]
     pub fn rotation(&self) -> SpatialRotation {
         SpatialRotation(self.0.rotation)
+    }
+
+    /// Computes the action matrix of the SE(3) transformation.
+    ///
+    /// Mathematically, the action matrix is:
+    /// $$\begin{bmatrix}R & [t]_X R \\\\ 0 & R\end{bmatrix}$$
+    /// where $R$ is the rotation matrix and $[t]_X$ is the skew-symmetric matrix of the translation vector $t$.
+    pub fn action_matrix(&self) -> Matrix6<f64> {
+        // FIXME: output a custom type
+
+        let r = self.rotation();
+        let r = r.0.matrix();
+        let t = self.translation().0;
+        let mut action_matrix = Matrix6::zeros();
+        action_matrix
+            .fixed_view_mut::<3, 3>(0, 0)
+            .copy_from(&r.transpose());
+        action_matrix
+            .fixed_view_mut::<3, 3>(3, 3)
+            .copy_from(&r.transpose());
+
+        // Create skew-symmetric matrix [t]_x from translation vector
+        let skew_t = Matrix3::new(0.0, -t[2], t[1], t[2], 0.0, -t[0], -t[1], t[0], 0.0);
+
+        action_matrix
+            .fixed_view_mut::<3, 3>(3, 0)
+            .copy_from(&(skew_t * r).transpose());
+        action_matrix
+    }
+
+    /// Computes the dual action matrix of the SE(3) transformation.
+    ///
+    /// Mathematically, the action matrix is:
+    /// $$\begin{bmatrix}R & 0 \\\\ [t]_X R & R\end{bmatrix}$$
+    /// where $R$ is the rotation matrix and $[t]_X$ is the skew-symmetric matrix of the translation vector $t$.
+    pub fn dual_matrix(&self) -> Matrix6<f64> {
+        // FIXME: output a custom type
+
+        let r = self.rotation();
+        let r = r.0.matrix();
+        let t = self.translation().0;
+        let mut action_matrix = Matrix6::zeros();
+        action_matrix
+            .fixed_view_mut::<3, 3>(0, 0)
+            .copy_from(&r.transpose());
+        action_matrix
+            .fixed_view_mut::<3, 3>(3, 3)
+            .copy_from(&r.transpose());
+
+        // Create skew-symmetric matrix [t]_x from translation vector
+        let skew_t = Matrix3::new(0.0, -t[2], t[1], t[2], 0.0, -t[0], -t[1], t[0], 0.0);
+
+        action_matrix
+            .fixed_view_mut::<3, 3>(0, 3)
+            .copy_from(&(skew_t * r).transpose());
+        action_matrix
+    }
+
+    /// Computes the inverse of the action matrix of the SE(3) transformation.
+    pub fn inv_matrix(&self) -> Matrix6<f64> {
+        // FIXME: output a custom type
+
+        let r = self.rotation().0;
+        let r_inv = r.matrix();
+        let t = self.translation().0;
+
+        let mut inv_matrix = nalgebra::Matrix6::zeros();
+        inv_matrix.fixed_view_mut::<3, 3>(0, 0).copy_from(r_inv);
+        inv_matrix.fixed_view_mut::<3, 3>(3, 3).copy_from(r_inv);
+
+        // Create skew-symmetric matrix [t]_x from translation vector
+        let skew_t = Matrix3::new(0.0, -t[2], t[1], t[2], 0.0, -t[0], -t[1], t[0], 0.0);
+
+        inv_matrix
+            .fixed_view_mut::<3, 3>(3, 0)
+            .copy_from(&(-skew_t.transpose() * r_inv));
+        inv_matrix
     }
 }
 
