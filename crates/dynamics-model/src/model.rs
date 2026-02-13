@@ -169,7 +169,7 @@ impl Model {
         let joints_data = self
             .joint_models
             .iter()
-            .map(dynamics_joint::joint::JointModel::create_joint_data)
+            .map(JointModel::create_joint_data)
             .collect();
 
         Data::from_joints_data(joints_data, self)
