@@ -16,7 +16,7 @@ use crate::{
 /// which can be decomposed into $\begin{bmatrix} f & \tau \end{bmatrix}$,
 /// where $f$ is the force (translational component) and $\tau$ is the torque (rotational component).
 #[derive(Debug, Clone, PartialEq)]
-pub struct SpatialForce(pub(crate) Vector6<f64>);
+pub struct SpatialForce(pub Vector6<f64>);
 
 impl SpatialForce {
     /// Creates a new [`SpatialForce`] from the given force and torque components.

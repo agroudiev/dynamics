@@ -63,7 +63,7 @@ pub fn forward_dynamics<'a>(
     // articulated body inertia matrix of the subtree in the local frame of the joint
     let mut aba_inertias = vec![InertiaMatrix::zeros(); model.njoints()];
     let mut joint_u = vec![Vector6D::zeros(); model.njoints()];
-    let mut joint_stu = vec![0.0; model.njoints()];
+    // let mut joint_stu = vec![0.0; model.njoints()];
     let mut joint_dinv = vec![0.0; model.njoints()];
     let mut joint_udinv = vec![Vector6D::zeros(); model.njoints()];
     // TODO: make these vectors of size nv instead of njoints and handle the indexing properly
@@ -136,7 +136,20 @@ pub fn forward_dynamics<'a>(
                 .update_rows(v_offset, &u)
                 .map_err(AlgorithmError::ConfigurationError)?;
 
-            // FIXME: set U, StU, UDinv
+            // set intermediate quantities
+            let axis = &joint_model.get_axis()[0];
+            let u = &aba_inertias[joint_id] * axis;
+            joint_u[joint_id] = Vector6D::from_slice(u.0.as_slice().try_into().unwrap());
+            joint_dinv[joint_id] = 1.0 / axis.0.dot(&joint_u[joint_id].0);
+            joint_udinv[joint_id] = &joint_u[joint_id] * joint_dinv[joint_id];
+            // TODO: this is ugly, cleanup code
+
+            // update aba_inertias
+            if parent_id != WORLD_ID {
+                aba_inertias[joint_id] -=
+                    InertiaMatrix::from_vectors(&joint_udinv[joint_id], &joint_u[joint_id]);
+            }
+
             // TODO: handle armature term
         }
 
@@ -159,41 +172,41 @@ pub fn forward_dynamics<'a>(
     }
 
     // forward pass 2
-    for joint_id in 1..model.njoints() {
-        let joint_model = &model.joint_models[joint_id];
-        let parent_id = model.joint_parents[joint_id];
+    for _joint_id in 1..model.njoints() {
+        // let joint_model = &model.joint_models[joint_id];
+        // let parent_id = model.joint_parents[joint_id];
 
-        // update acceleration
-        let (a_parent, a_child) = data
-            .world_accelerations_gravity_field
-            .split_at_mut(joint_id);
-        a_child[0] += data.local_joint_placements[joint_id].act_inv(&a_parent[parent_id]);
+        // // update acceleration
+        // let (a_parent, a_child) = data
+        //     .world_accelerations_gravity_field
+        //     .split_at_mut(joint_id);
+        // a_child[0] += data.local_joint_placements[joint_id].act_inv(&a_parent[parent_id]);
 
-        if joint_model.nv() > 0 {
-            // update ddq
-            let joint_ddq = joint_dinv[joint_id]
-                * apparent_torque.rows(v_offset, joint_model.nv())[0]
-                - joint_udinv[joint_id].0.dot(&a_child[0].0);
-            // TODO: do not use .0 here
-            let joint_ddq = Configuration::from_row_slice(&[joint_ddq]);
-            data.ddq
-                .update_rows(v_offset, &joint_ddq)
-                .map_err(AlgorithmError::ConfigurationError)?;
+        // if joint_model.nv() > 0 {
+        //     // update ddq
+        //     let joint_ddq = joint_dinv[joint_id]
+        //         * apparent_torque.rows(v_offset, joint_model.nv())[0]
+        //         - joint_udinv[joint_id].0.dot(&a_child[0].0);
+        //     // TODO: do not use .0 here
+        //     let joint_ddq = Configuration::from_row_slice(&[joint_ddq]);
+        //     data.ddq
+        //         .update_rows(v_offset, &joint_ddq)
+        //         .map_err(AlgorithmError::ConfigurationError)?;
 
-            // add ddq term to the acceleration
-            a_child[0] += joint_model.subspace(&joint_ddq);
-        }
+        //     // add ddq term to the acceleration
+        //     a_child[0] += joint_model.subspace(&joint_ddq);
+        // }
 
-        // add gravity compensation term
-        let linear = data.joint_placements[joint_id].rotation().transpose() * &model.gravity;
-        a_child[0] += SpatialMotion::from_parts(linear, Vector3D::zeros());
+        // // add gravity compensation term
+        // let linear = data.joint_placements[joint_id].rotation().transpose() * &model.gravity;
+        // a_child[0] += SpatialMotion::from_parts(linear, Vector3D::zeros());
 
-        // update the force
-        data.joint_forces[joint_id] = &model.inertias[joint_id]
-            * &data.joint_accelerations_gravity_field[joint_id]
-            + data.joint_velocities[joint_id].cross_force(&data.joint_momenta[joint_id]);
+        // // update the force
+        // data.joint_forces[joint_id] = &model.inertias[joint_id]
+        //     * &data.joint_accelerations_gravity_field[joint_id]
+        //     + data.joint_velocities[joint_id].cross_force(&data.joint_momenta[joint_id]);
 
-        v_offset += joint_model.nv();
+        // v_offset += joint_model.nv();
     }
 
     // update the forces
