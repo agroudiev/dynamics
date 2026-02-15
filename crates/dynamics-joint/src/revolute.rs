@@ -111,7 +111,7 @@ impl JointModel for JointModelRevolute {
             1,
             "Revolute joint model expects a single velocity value."
         );
-        v[0] * SpatialMotion::from_rotational_axis(&self.axis)
+        SpatialMotion::from_rotational_axis(&(v[0] * self.axis))
     }
 
     fn subspace_dual(&self, f: &dynamics_spatial::force::SpatialForce) -> Configuration {

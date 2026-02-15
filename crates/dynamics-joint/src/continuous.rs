@@ -117,7 +117,7 @@ impl JointModel for JointModelContinuous {
             1,
             "Continuous joint model expects a single velocity value."
         );
-        v[0] * SpatialMotion::from_rotational_axis(&self.axis)
+        SpatialMotion::from_rotational_axis(&(v[0] * self.axis))
     }
 
     fn subspace_dual(&self, f: &SpatialForce) -> Configuration {

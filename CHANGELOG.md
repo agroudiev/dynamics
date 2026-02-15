@@ -13,6 +13,9 @@ This file is used to track changes made to the project over time.
 #### Spatial
 - Added `action_matrix`, `dual_matrix`, and `inv_matrix` methods to SE3 transforms to compute the action, dual action, and inverse action matrices.
 
+### Fixed
+- Better handling of infinite configurations for joint subspaces.
+
 ## [0.0.2] - 2026-02-08
 ### Added
 ### Algorithms

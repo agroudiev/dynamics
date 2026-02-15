@@ -112,7 +112,7 @@ impl JointModel for JointModelPrismatic {
             1,
             "Prismatic joint model expects a single velocity value."
         );
-        v[0] * SpatialMotion::from_translational_axis(&self.axis)
+        SpatialMotion::from_translational_axis(&(v[0] * self.axis))
     }
 
     fn subspace_dual(&self, f: &dynamics_spatial::force::SpatialForce) -> Configuration {
