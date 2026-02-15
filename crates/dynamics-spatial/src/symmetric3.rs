@@ -110,14 +110,6 @@ impl Symmetric3 {
             .unbind()
     }
 
-    pub fn skew(v: &Vector3D) -> Symmetric3 {
-        let x = v.0[0];
-        let y = v.0[1];
-        let z = v.0[2];
-
-        Symmetric3::new(0.0, 0.0, 0.0, -z, y, -x)
-    }
-
     #[must_use]
     pub fn skew_square(v: &Vector3D) -> Symmetric3 {
         let x = v.0[0];

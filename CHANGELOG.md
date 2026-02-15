@@ -15,6 +15,7 @@ This file is used to track changes made to the project over time.
 
 ### Fixed
 - Better handling of infinite configurations for joint subspaces.
+- Fix the way that skew matrices are computed.
 
 ## [0.0.2] - 2026-02-08
 ### Added

@@ -1,6 +1,6 @@
 //! Defines **3D vectors** and related operations.
 
-use nalgebra::Vector3;
+use nalgebra::{Matrix3, Vector3};
 use std::ops::{Add, Mul, Neg, Sub};
 
 #[cfg(feature = "python")]
@@ -88,6 +88,13 @@ impl Vector3D {
 
     pub fn dot(&self, other: &Vector3D) -> f64 {
         self.0.dot(&other.0)
+    }
+
+    pub fn skew(&self) -> Matrix3<f64> {
+        let x = self.0[0];
+        let y = self.0[1];
+        let z = self.0[2];
+        Matrix3::new(0.0, -z, y, z, 0.0, -x, -y, x, 0.0)
     }
 }
 
