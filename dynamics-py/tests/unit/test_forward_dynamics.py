@@ -50,7 +50,6 @@ class TestForwardDynamics(unittest.TestCase):
         pin.aba(pin_model, pin_data, q, v, tau)
         assert_datas_equals(self, dyn_data, pin_data)
 
-    @unittest.skip("")
     def test_fd_one_joint(self):
         # Create two empty models
         dyn_model = dyn.Model()
@@ -63,15 +62,18 @@ class TestForwardDynamics(unittest.TestCase):
             rotation=pin_placement.rotation, translation=pin_placement.translation
         )
 
+        axis = np.random.rand(3)
+        axis /= np.linalg.norm(axis)
+
         dyn_model.add_joint(
             parent_id=0,
-            joint_model=dyn.JointModelRZ(),
+            joint_model=dyn.JointModelRevoluteUnaligned(axis),
             placement=dyn_placement,
             name="joint1",
         )
         pin_model.addJoint(
             0,
-            pin.JointModelRZ(),
+            pin.JointModelRevoluteUnaligned(axis),
             pin_placement,
             "joint1",
         )

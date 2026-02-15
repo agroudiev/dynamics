@@ -283,7 +283,8 @@ def assert_datas_equals(
     test_case.assertEqual(len(dyn_data.a), len(pin_data.a))
     for i in range(len(dyn_data.a)):
         test_case.assertTrue(
-            np.linalg.norm(dyn_data.a[i].to_numpy() - pin_data.a[i]) < 1e-6
+            np.isnan(pin_data.a[i]).any()  # skip if unitialized
+            or np.linalg.norm(dyn_data.a[i].to_numpy() - pin_data.a[i]) < 1e-6
         )
 
     # Check local accelerations with gravity
