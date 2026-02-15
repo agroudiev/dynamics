@@ -53,10 +53,11 @@ pub fn forward_dynamics<'a>(
     tau.check_size("tau", model.nv)
         .map_err(AlgorithmError::ConfigurationError)?;
 
-    // initialize the world acceleration and force
+    // initialize the acceleration, force, and velocity of the world joint
     data.joint_accelerations_gravity_field[0] =
         SpatialMotion::from_parts(-model.gravity, Vector3D::zeros());
-    data.world_joint_forces[0] = SpatialForce::zero();
+    data.joint_forces[0] = SpatialForce::zero();
+    data.joint_velocities[0] = SpatialMotion::zero();
 
     // initialize the apparent torque (a.k.a. u) with the input torque
     let mut apparent_torque = tau.clone();
@@ -98,7 +99,7 @@ pub fn forward_dynamics<'a>(
             model.joint_placements[joint_id] * joint_data.get_joint_placement();
 
         // update the joint velocity
-        let (v_parent, v_child) = data.world_joint_velocities.split_at_mut(joint_id);
+        let (v_parent, v_child) = data.joint_velocities.split_at_mut(joint_id);
         v_child[0] = joint_data.get_joint_velocity().clone();
         if parent_id != WORLD_ID {
             v_child[0] += data.local_joint_placements[joint_id].act(&v_parent[parent_id]);
@@ -166,7 +167,7 @@ pub fn forward_dynamics<'a>(
                 aba_child[0].transform_frame(&data.local_joint_placements[joint_id]);
 
             // update parent forces
-            let (f_parent, f_child) = data.world_joint_forces.split_at_mut(joint_id);
+            let (f_parent, f_child) = data.joint_forces.split_at_mut(joint_id);
             f_parent[parent_id] += data.local_joint_placements[joint_id].act(&f_child[0]);
         }
     }
@@ -215,8 +216,8 @@ pub fn forward_dynamics<'a>(
 
     // update the forces
     for (joint_id, parent_id) in model.joint_parents.iter().enumerate().skip(1).rev() {
-        let (parent, child) = data.world_joint_forces.split_at_mut(joint_id);
-        parent[*parent_id] += &child[0];
+        let (f_parent, f_child) = data.joint_forces.split_at_mut(joint_id);
+        f_parent[*parent_id] += data.local_joint_placements[joint_id].act(&f_child[0]);
     }
 
     Ok(&data.ddq)
