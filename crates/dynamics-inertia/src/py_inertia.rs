@@ -1,5 +1,5 @@
 use dynamics_spatial::{
-    py_force::PySpatialForce, py_motion::PySpatialMotion, symmetric3::Symmetric3,
+    py_force::PySpatialForce, py_motion::PySpatialMotion, py_se3::PySE3, symmetric3::Symmetric3,
     vector3d::Vector3D,
 };
 use numpy::PyReadonlyArrayDyn;
@@ -99,5 +99,15 @@ impl PyInertia {
         PySpatialForce {
             inner: &self.inner * &other.inner,
         }
+    }
+
+    pub fn transform_frame(&self, py: Python, other: &PySE3) -> Py<PyAny> {
+        let inertia_matrix = self.inner.matrix();
+        let transformed = inertia_matrix.transform_frame(&other.inner);
+        transformed.to_numpy(py)
+    }
+
+    pub fn matrix(&self, py: Python) -> Py<PyAny> {
+        self.inner.matrix().to_numpy(py)
     }
 }
