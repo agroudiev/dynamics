@@ -181,3 +181,40 @@ class TestSpatial(unittest.TestCase):
         inv_action_pin = M_pin.toActionMatrixInverse()
 
         self.assertTrue(np.linalg.norm(inv_action_dyn - inv_action_pin) < 1e-14)
+
+    def test_transform_frame(self):
+        np.random.seed(0)
+        rotation = np.random.uniform(-1.0, 1.0, (3, 3))
+        rotation, _ = np.linalg.qr(rotation)
+        translation = np.random.uniform(-1.0, 1.0, 3)
+
+        M_dyn = dyn.SE3(rotation, translation)
+        M_pin = pin.SE3(rotation, translation)
+
+        mass = 10.0
+        lever = np.random.uniform(-1.0, 1.0, 3) * 10
+        inertia = np.random.uniform(-1.0, 1.0, (3, 3))
+        inertia = (inertia + inertia.T) / 2 + 10 * np.eye(3)
+        pin_inertia = pin.Inertia(mass, lever, inertia)
+        dyn_inertia = dyn.Inertia(mass, lever, inertia)
+        assert_inertias_equals(self, dyn_inertia, pin_inertia)
+
+        dyn_dual_matrix = M_dyn.dual_matrix()
+        pin_dual_matrix = M_pin.toDualActionMatrix()
+        self.assertTrue(np.linalg.norm(dyn_dual_matrix - pin_dual_matrix) < 1e-14)
+
+        dyn_inverse_matrix = M_dyn.inv_matrix()
+        pin_inv_matrix = M_pin.toActionMatrixInverse()
+        self.assertTrue(np.linalg.norm(dyn_inverse_matrix - pin_inv_matrix) < 1e-14)
+
+        dyn_inertia_matrix = dyn_inertia.matrix()
+        pin_inertia_matrix = pin_inertia.matrix()
+        self.assertTrue(np.linalg.norm(dyn_inertia_matrix - pin_inertia_matrix) < 1e-14)
+
+        dyn_trans = dyn_inertia.transform_frame(M_dyn)
+        pin_trans = (
+            M_pin.toDualActionMatrix()
+            @ pin_inertia.matrix()
+            @ M_pin.toActionMatrixInverse()
+        )
+        self.assertTrue(np.linalg.norm(dyn_trans - pin_trans) < 1e-14)
