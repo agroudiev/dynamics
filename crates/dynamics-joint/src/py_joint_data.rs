@@ -1,5 +1,7 @@
 use dynamics_spatial::{
-    py_configuration::PyConfiguration, py_motion::PySpatialMotion, py_se3::PySE3,
+    py_configuration::{PyConfiguration, PyConfigurationInput},
+    py_motion::PySpatialMotion,
+    py_se3::PySE3,
 };
 use pyo3::{exceptions::PyValueError, prelude::*};
 
@@ -54,14 +56,18 @@ impl PyJointDataWrapper {
     pub fn update(
         &mut self,
         joint_model: &PyJointWrapper,
-        joint_q: &PyConfiguration,
-        joint_v: Option<&PyConfiguration>,
+        joint_q: PyConfigurationInput,
+        joint_v: Option<PyConfigurationInput>,
     ) -> PyResult<()> {
-        match self.inner.update(
-            &joint_model.inner,
-            joint_q.to_configuration(),
-            joint_v.map(|v| v.to_configuration()),
-        ) {
+        let joint_q = joint_q.to_configuration(joint_model.nq())?;
+        let joint_v = joint_v
+            .map(|v| v.to_configuration(joint_model.nv()))
+            .transpose()?;
+
+        match self
+            .inner
+            .update(&joint_model.inner, &joint_q, joint_v.as_ref())
+        {
             Ok(()) => Ok(()),
             Err(e) => Err(PyValueError::new_err(format!(
                 "Failed to update joint data: {e:?}"

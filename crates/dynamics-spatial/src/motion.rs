@@ -270,7 +270,7 @@ impl SpatialRotation {
         Self(rot)
     }
 
-    /// Converts the rotation to an [[[`SE3`]]] with the given translation.
+    /// Converts the rotation to an [`SE3`] with the given translation.
     #[must_use]
     pub fn to_se3(&self, translation: &Vector3D) -> SE3 {
         SE3::from_parts(*translation, *self)
