@@ -30,9 +30,11 @@ pub struct JointModelPrismatic {
 impl JointModelPrismatic {
     /// Creates a new `JointModelPrismatic` with the given axis of translation and unbounded limits.
     ///
+    /// The axis of translation should be normalized and expressed in the local frame of the joint.
+    ///
     /// # Arguments
     ///
-    /// * `axis` - The axis of translation expressed in the local frame of the joint.
+    /// * `axis` - The normalized axis of translation expressed in the local frame of the joint.
     ///
     /// # Returns
     /// A new `JointModelPrismatic` object.

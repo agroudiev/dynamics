@@ -36,9 +36,11 @@ pub struct JointModelContinuous {
 impl JointModelContinuous {
     /// Creates a new `JointModelContinuous` with the given axis of rotation and unbounded limits.
     ///
+    /// The axis of rotation should be normalized and expressed in the local frame of the joint.
+    ///
     /// # Arguments
     ///
-    /// * `axis` - The axis of rotation expressed in the local frame of the joint.
+    /// * `axis` - The normalized axis of rotation expressed in the local frame of the joint.
     ///
     /// # Returns
     /// A new `JointModelContinuous` object.
