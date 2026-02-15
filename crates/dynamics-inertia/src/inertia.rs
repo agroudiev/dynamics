@@ -9,7 +9,7 @@ use dynamics_spatial::{
     vector3d::Vector3D,
     vector6d::Vector6D,
 };
-use nalgebra::Matrix6;
+use nalgebra::{Matrix3, Matrix6};
 use std::ops::{Add, AddAssign, Mul, Sub, SubAssign};
 
 /// A data structure that contains the information about the inertia of a rigid body (mass, center of mass, and inertia matrix).
@@ -208,23 +208,34 @@ impl InertiaMatrix {
         let inv_matrix = se3.inv_matrix();
         &dual_matrix * self * &inv_matrix
     }
+
+    #[cfg(feature = "python")]
+    pub fn to_numpy(&self, py: pyo3::Python) -> pyo3::Py<pyo3::PyAny> {
+        use numpy::ToPyArray;
+
+        numpy::ndarray::Array2::from_shape_fn((6, 6), |(i, j)| self.0[(i, j)])
+            .to_pyarray(py)
+            .into_any()
+            .unbind()
+    }
 }
 
 impl Inertia {
     pub fn matrix(&self) -> InertiaMatrix {
+        let com_skew = self.com.skew();
         let mut matrix = Matrix6::zeros();
         matrix
             .fixed_view_mut::<3, 3>(0, 0)
-            .copy_from(&self.inertia.matrix());
+            .copy_from(&(self.mass * Matrix3::identity()));
         matrix
             .fixed_view_mut::<3, 3>(0, 3)
-            .copy_from(&(-self.mass * Symmetric3::skew(&self.com)).matrix());
+            .copy_from(&(-self.mass * com_skew));
         matrix
             .fixed_view_mut::<3, 3>(3, 0)
-            .copy_from(&(self.mass * Symmetric3::skew(&self.com)).matrix());
-        matrix
-            .fixed_view_mut::<3, 3>(3, 3)
-            .copy_from(&(self.mass * Matrix6::identity().fixed_view::<3, 3>(0, 0)));
+            .copy_from(&(self.mass * com_skew));
+        matrix.fixed_view_mut::<3, 3>(3, 3).copy_from(
+            &(self.inertia.matrix() - self.mass * Symmetric3::skew_square(&self.com).matrix()),
+        );
         InertiaMatrix(matrix)
     }
 }
