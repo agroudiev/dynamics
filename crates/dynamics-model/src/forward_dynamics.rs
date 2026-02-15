@@ -102,12 +102,12 @@ pub fn forward_dynamics<'a>(
         let (v_parent, v_child) = data.joint_velocities.split_at_mut(joint_id);
         v_child[0] = joint_data.get_joint_velocity().clone();
         if parent_id != WORLD_ID {
-            v_child[0] += data.local_joint_placements[joint_id].act(&v_parent[parent_id]);
+            v_child[0] += data.local_joint_placements[joint_id].act_inv(&v_parent[parent_id]);
         }
 
         // update the joint acceleration
         data.joint_accelerations_gravity_field[joint_id] = joint_model.bias()
-            + data.joint_velocities[joint_id].cross(&data.joint_velocities[joint_id]);
+            + data.joint_velocities[joint_id].cross(joint_data.get_joint_velocity());
 
         // update inertias
         aba_inertias[joint_id] = model.inertias[joint_id].matrix();
