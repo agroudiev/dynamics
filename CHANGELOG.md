@@ -4,6 +4,9 @@ This file is used to track changes made to the project over time.
 
 ## [Unreleased]
 ### Added
+#### Algorithms
+- Added `forward_dynamics` function implementing the ABA algorithm for forward dynamics computation.
+
 #### Model
 - Added `append_body_to_joint` method to the model to append add inertias to joints with respect to its placement.
 
@@ -12,11 +15,12 @@ This file is used to track changes made to the project over time.
 
 #### Spatial
 - Added `action_matrix`, `dual_matrix`, and `inv_matrix` methods to SE3 transforms to compute the action, dual action, and inverse action matrices.
+- Added `InertiaMatrix` type as an alternative representation of spatial inertias.
 - Add more bindings for inertias.
-- Better display for spatial types.
 
-### Fixed
+### Fixes and improvements
 - Better handling of infinite configurations for joint subspaces.
+- Better display for spatial types.
 - Fix the way that skew matrices are computed.
 - Fix the way that inertia matrices are computed.
 
