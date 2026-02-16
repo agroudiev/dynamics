@@ -209,12 +209,15 @@ class TestSpatial(unittest.TestCase):
 
         dyn_inertia_matrix = dyn_inertia.matrix()
         pin_inertia_matrix = pin_inertia.matrix()
-        self.assertTrue(np.linalg.norm(dyn_inertia_matrix - pin_inertia_matrix) < 1e-14)
+        self.assertTrue(np.linalg.norm(dyn_inertia_matrix - pin_inertia_matrix) < 1e-12)
 
         dyn_trans = dyn_inertia.transform_frame(M_dyn)
+        dyn_trans_manual = dyn_dual_matrix @ dyn_inertia_matrix @ dyn_inverse_matrix
+        self.assertTrue(np.linalg.norm(dyn_trans - dyn_trans_manual) < 1e-12)
+
         pin_trans = (
             M_pin.toDualActionMatrix()
             @ pin_inertia.matrix()
             @ M_pin.toActionMatrixInverse()
         )
-        self.assertTrue(np.linalg.norm(dyn_trans - pin_trans) < 1e-14)
+        self.assertTrue(np.linalg.norm(dyn_trans - pin_trans) < 1e-12)

@@ -204,9 +204,9 @@ impl InertiaMatrix {
 
     /// Transforms the inertia matrix to a new frame defined by the given `SE(3)` transformation.
     pub fn transform_frame(&self, se3: &SE3) -> Self {
-        let dual_matrix = se3.dual_matrix();
-        let inv_matrix = se3.inv_matrix();
-        &dual_matrix * self * &inv_matrix
+        let dual_matrix = se3.dual_matrix().transpose();
+        let inv_matrix = se3.inv_matrix().transpose();
+        InertiaMatrix(dual_matrix * self.0 * inv_matrix)
     }
 
     #[cfg(feature = "python")]
