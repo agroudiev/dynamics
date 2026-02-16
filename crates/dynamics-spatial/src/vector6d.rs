@@ -1,6 +1,6 @@
 //! Defines **spatial (6D) vectors** and related operations.
 
-use std::ops::Mul;
+use std::{fmt::Display, ops::Mul};
 
 use nalgebra::{Matrix6, Vector6};
 
@@ -53,5 +53,11 @@ impl Mul<&Vector6D> for f64 {
 
     fn mul(self, rhs: &Vector6D) -> Self::Output {
         Vector6D(self * rhs.0)
+    }
+}
+
+impl Display for Vector6D {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Vector6D({:?})", self.0.as_slice())
     }
 }

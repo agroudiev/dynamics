@@ -16,4 +16,8 @@ impl PyVector6D {
             inner: Vector6D::new(x, y, z, w, v, u),
         }
     }
+
+    pub fn __repr__(&self) -> String {
+        format!("{}", self.inner)
+    }
 }
