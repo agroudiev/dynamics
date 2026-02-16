@@ -99,7 +99,7 @@ class TestForwardDynamics(unittest.TestCase):
         compare_urdf_fd(self, "examples/descriptions/double_pendulum_simple.urdf")
 
     @parameterized.parameterized.expand(EXAMPLE_ROBOT_DATA_URDFS)
-    @unittest.skip("")
+    # @unittest.skip("")
     def test_fd_example_robot_data(self, path):
         robots_dir = "examples/descriptions/example-robot-data/robots/"
         set_ros_package_path("example-robot-data")

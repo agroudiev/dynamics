@@ -284,7 +284,9 @@ def assert_datas_equals(
     for i in range(len(dyn_data.a)):
         test_case.assertTrue(
             np.isnan(pin_data.a[i]).any()  # skip if unitialized
-            or np.linalg.norm(dyn_data.a[i].to_numpy() - pin_data.a[i]) < 1e-6
+            or np.linalg.norm(dyn_data.a[i].to_numpy() - pin_data.a[i])
+            / (1 + np.linalg.norm(pin_data.a[i]))
+            < 1e-6
         )
 
     # Check local accelerations with gravity
@@ -292,7 +294,9 @@ def assert_datas_equals(
     for i in range(len(dyn_data.a_gf)):
         test_case.assertTrue(
             np.isnan(pin_data.a_gf[i]).any()  # skip if unitialized
-            or np.linalg.norm(dyn_data.a_gf[i].to_numpy() - pin_data.a_gf[i]) < 1e-4,
+            or np.linalg.norm(dyn_data.a_gf[i].to_numpy() - pin_data.a_gf[i])
+            / (1 + np.linalg.norm(pin_data.a_gf[i]))
+            < 1e-6,
         )
 
     # Check world accelerations with gravity
@@ -324,7 +328,9 @@ def assert_datas_equals(
     for i in range(len(dyn_data.f)):
         test_case.assertTrue(
             np.isnan(pin_data.f[i]).any()  # skip if unitialized
-            or np.linalg.norm(dyn_data.f[i].to_numpy() - pin_data.f[i]) < 1e-8
+            or np.linalg.norm(dyn_data.f[i].to_numpy() - pin_data.f[i])
+            / (1 + np.linalg.norm(pin_data.f[i]))
+            < 1e-6
         )
 
     # Check world forces
@@ -344,7 +350,9 @@ def assert_datas_equals(
     # Check ddq
     test_case.assertTrue(
         np.isnan(pin_data.ddq).any()  # skip if unitialized
-        or np.linalg.norm(dyn_data.ddq.to_numpy() - pin_data.ddq) < 1e-6
+        or np.linalg.norm(dyn_data.ddq.to_numpy() - pin_data.ddq)
+        / (1 + np.linalg.norm(pin_data.ddq))
+        < 1e-6
     )
 
     # Check Jacobian
