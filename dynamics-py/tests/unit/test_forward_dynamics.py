@@ -95,7 +95,6 @@ class TestForwardDynamics(unittest.TestCase):
         pin.aba(pin_model, pin_data, q, v, tau)
         assert_datas_equals(self, dyn_data, pin_data)
 
-    @unittest.skip("")
     def test_fd_double_pendulum(self):
         compare_urdf_fd(self, "examples/descriptions/double_pendulum_simple.urdf")
 
