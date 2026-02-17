@@ -4,6 +4,7 @@ use dynamics_spatial::py_force::PySpatialForce;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
+use crate::forward_dynamics::ABAConvention;
 use crate::forward_kinematics::frames_forward_kinematics;
 use crate::inverse_dynamics::inverse_dynamics;
 use crate::neutral::neutral;
@@ -100,31 +101,34 @@ pub fn py_rnea(
     py_inverse_dynamics(model, data, q, v, a, f_ext)
 }
 
-#[pyfunction(name = "forward_dynamics", signature=(model, data, q, v, tau))]
+#[pyfunction(name = "forward_dynamics", signature=(model, data, q, v, tau, convention=None))]
 pub fn py_forward_dynamics(
     model: &PyModel,
     data: &mut PyData,
     q: PyConfigurationInput,
     v: PyConfigurationInput,
     tau: PyConfigurationInput,
+    convention: Option<ABAConvention>,
 ) -> PyResult<PyConfiguration> {
     let q = q.to_configuration(model.inner.nq)?;
     let v = v.to_configuration(model.inner.nv)?;
     let tau = tau.to_configuration(model.inner.nv)?;
+    let convention = convention.unwrap_or(ABAConvention::Local);
 
-    let ddq = forward_dynamics(&model.inner, &mut data.inner, &q, &v, &tau)
+    let ddq = forward_dynamics(&model.inner, &mut data.inner, &q, &v, &tau, convention)
         .map_err(|e| PyValueError::new_err(format!("Forward dynamics failed: {e:?}")))?;
 
     Ok(PyConfiguration::new(ddq.clone()))
 }
 
-#[pyfunction(name = "aba", signature=(model, data, q, v, tau))]
+#[pyfunction(name = "aba", signature=(model, data, q, v, tau, convention=None))]
 pub fn py_aba(
     model: &PyModel,
     data: &mut PyData,
     q: PyConfigurationInput,
     v: PyConfigurationInput,
     tau: PyConfigurationInput,
+    convention: Option<ABAConvention>,
 ) -> PyResult<PyConfiguration> {
-    py_forward_dynamics(model, data, q, v, tau)
+    py_forward_dynamics(model, data, q, v, tau, convention)
 }
