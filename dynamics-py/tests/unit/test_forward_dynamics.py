@@ -22,9 +22,11 @@ def compare_urdf_fd(test_case, file_path, mesh_dir=None):
     q = pin.randomConfiguration(pin_model)
     v = np.random.rand(dyn_model.nv) * 10
     tau = np.random.rand(dyn_model.nv) * 10
+    pin_f_ext = [pin.Force.Random() for _ in range(pin_model.njoints)]
+    dyn_f_ext = [dyn.SpatialForce.from_parts(f.linear, f.angular) for f in pin_f_ext]
 
-    dyn.forward_dynamics(dyn_model, dyn_data, q, v, tau)
-    pin.aba(pin_model, pin_data, q, v, tau)
+    dyn.forward_dynamics(dyn_model, dyn_data, q, v, tau, dyn_f_ext)
+    pin.aba(pin_model, pin_data, q, v, tau, pin_f_ext)
     assert_datas_equals(test_case, dyn_data, pin_data)
 
 
@@ -99,7 +101,6 @@ class TestForwardDynamics(unittest.TestCase):
         compare_urdf_fd(self, "examples/descriptions/double_pendulum_simple.urdf")
 
     @parameterized.parameterized.expand(EXAMPLE_ROBOT_DATA_URDFS)
-    # @unittest.skip("")
     def test_fd_example_robot_data(self, path):
         robots_dir = "examples/descriptions/example-robot-data/robots/"
         set_ros_package_path("example-robot-data")
