@@ -15,6 +15,7 @@ use dynamics_joint::{
     py_joint_data::PyJointDataWrapper,
 };
 use dynamics_model::{
+    forward_dynamics::ABAConvention,
     frame::FrameType,
     model::{STANDARD_GRAVITY, WORLD_ID},
     py_algorithms::{
@@ -164,6 +165,7 @@ fn add_algorithms_bindings(_py: Python, dynamics: &Bound<'_, PyModule>) -> PyRes
 
     dynamics.add_function(wrap_pyfunction!(py_inverse_dynamics, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(py_rnea, dynamics)?)?;
+    dynamics.add_class::<ABAConvention>()?;
 
     Ok(())
 }

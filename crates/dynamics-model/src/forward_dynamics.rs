@@ -54,11 +54,12 @@ pub fn forward_dynamics<'a>(
     q: &Configuration,
     v: &Configuration,
     tau: &Configuration,
+    f_ext: Option<&[SpatialForce]>,
     convention: ABAConvention,
 ) -> Result<&'a Configuration, AlgorithmError> {
     match convention {
-        ABAConvention::Local => forward_dynamics_local(model, data, q, v, tau),
-        ABAConvention::World => forward_dynamics_world(model, data, q, v, tau),
+        ABAConvention::Local => forward_dynamics_local(model, data, q, v, tau, f_ext),
+        ABAConvention::World => forward_dynamics_world(model, data, q, v, tau, f_ext),
     }
 }
 
@@ -83,6 +84,7 @@ pub fn forward_dynamics_local<'a>(
     q: &Configuration,
     v: &Configuration,
     tau: &Configuration,
+    f_ext: Option<&[SpatialForce]>,
 ) -> Result<&'a Configuration, AlgorithmError> {
     // check the dimensions of the input
     q.check_size("q", model.nq)
@@ -91,6 +93,15 @@ pub fn forward_dynamics_local<'a>(
         .map_err(AlgorithmError::ConfigurationError)?;
     tau.check_size("tau", model.nv)
         .map_err(AlgorithmError::ConfigurationError)?;
+    if let Some(f_ext) = f_ext
+        && f_ext.len() != model.joint_models.len()
+    {
+        return Err(AlgorithmError::IncorrectSize {
+            name: "f_ext".to_string(),
+            expected: model.joint_models.len(),
+            got: f_ext.len(),
+        });
+    }
 
     // initialize the acceleration, force, and velocity of the world joint
     data.joint_accelerations_gravity_field[0] =
@@ -111,7 +122,7 @@ pub fn forward_dynamics_local<'a>(
     let mut q_offset = 0;
     let mut v_offset = 0;
 
-    // forward pass 1
+    // Forward pass 1: compute joint velocities and forces
     #[allow(clippy::needless_range_loop)]
     for joint_id in 1..model.njoints() {
         // retrieve the joint model and the corresponding configuration
@@ -156,13 +167,16 @@ pub fn forward_dynamics_local<'a>(
         data.joint_forces[joint_id] =
             data.joint_velocities[joint_id].cross_force(&data.joint_momenta[joint_id]);
 
-        // TODO: handle external forces
+        // subtract external forces if any
+        if let Some(f_ext) = f_ext {
+            data.joint_forces[joint_id] -= &f_ext[joint_id];
+        }
 
         q_offset += joint_model.nq();
         v_offset += joint_model.nv();
     }
 
-    // backward pass
+    // Backward pass: compute inertias
     for joint_id in (1..model.njoints()).rev() {
         let joint_model = &model.joint_models[joint_id];
         let parent_id = model.joint_parents[joint_id];
@@ -211,7 +225,7 @@ pub fn forward_dynamics_local<'a>(
         }
     }
 
-    // forward pass 2
+    // Forward pass 2: compute accelerations
     for joint_id in 1..model.njoints() {
         let joint_model = &model.joint_models[joint_id];
         let parent_id = model.joint_parents[joint_id];
@@ -283,6 +297,7 @@ pub fn forward_dynamics_world<'a>(
     q: &Configuration,
     v: &Configuration,
     tau: &Configuration,
+    _f_ext: Option<&[SpatialForce]>,
 ) -> Result<&'a Configuration, AlgorithmError> {
     // check the dimensions of the input
     q.check_size("q", model.nq)
@@ -496,6 +511,7 @@ mod tests {
         let v = Configuration::from_row_slice(&[0.2]);
         let tau = Configuration::from_row_slice(&[1.0]);
 
-        let _ddq = forward_dynamics(&model, &mut data, &q, &v, &tau, ABAConvention::Local).unwrap();
+        let _ddq =
+            forward_dynamics(&model, &mut data, &q, &v, &tau, None, ABAConvention::Local).unwrap();
     }
 }
