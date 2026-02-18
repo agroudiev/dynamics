@@ -2,6 +2,7 @@ use pyo3::{exceptions::PyValueError, prelude::*};
 
 use crate::vector3d::Vector3D;
 
+/// A 3D vector, commonly used for positions.
 #[pyclass(name = "Vector3D")]
 #[derive(Debug, Clone, PartialEq)]
 pub struct PyVector3D {

@@ -5,7 +5,7 @@ use crate::configuration::Configuration;
 
 #[pyclass(name = "Configuration")]
 #[derive(Debug, Clone, PartialEq)]
-/// Python wrapper for the `Configuration` struct.
+/// Configuration of a multi-body system, represented as a vector of joint positions.
 pub struct PyConfiguration(pub Configuration);
 
 impl PyConfiguration {

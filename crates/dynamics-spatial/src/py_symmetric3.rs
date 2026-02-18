@@ -2,12 +2,14 @@ use pyo3::{IntoPyObjectExt, prelude::*};
 
 use crate::{py_vector3d::PyVector3D, symmetric3::Symmetric3};
 
+/// Enum representing the possible input types for the `__mul__` method of `PySymmetric3`.
 #[derive(FromPyObject)]
 pub enum PySymmetric3Mul {
     Scalar(f64),
     Vector3D(PyVector3D),
 }
 
+/// A symmetric 3x3 matrix.
 #[pyclass(name = "Symmetric3")]
 #[derive(Debug, Clone, PartialEq)]
 pub struct PySymmetric3 {
@@ -18,6 +20,7 @@ pub struct PySymmetric3 {
 impl PySymmetric3 {
     #[new]
     #[must_use]
+    /// Creates a new `Symmetric3` matrix from the given elements.
     pub fn from_elements(m11: f64, m22: f64, m33: f64, m12: f64, m13: f64, m23: f64) -> Self {
         PySymmetric3 {
             inner: Symmetric3::new(m11, m22, m33, m12, m13, m23),
@@ -26,6 +29,7 @@ impl PySymmetric3 {
 
     #[staticmethod]
     #[pyo3(name = "Zero")]
+    /// Returns the zero symmetric matrix.
     pub fn zeros() -> Self {
         PySymmetric3 {
             inner: Symmetric3::zeros(),
@@ -34,6 +38,7 @@ impl PySymmetric3 {
 
     #[staticmethod]
     #[pyo3(name = "Identity")]
+    /// Returns the identity symmetric matrix.
     pub fn identity() -> Self {
         PySymmetric3 {
             inner: Symmetric3::identity(),
@@ -71,10 +76,12 @@ impl PySymmetric3 {
         }
     }
 
+    /// Converts the symmetric matrix to a 3x3 NumPy array.
     pub fn to_numpy(&self, py: Python) -> Py<PyAny> {
         self.inner.to_numpy(py)
     }
 
+    /// Returns the symmetric matrix as a 3x3 NumPy array.
     pub fn matrix(&self, py: Python) -> Py<PyAny> {
         self.to_numpy(py)
     }

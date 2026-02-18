@@ -10,7 +10,9 @@ use crate::{
     vector3d::Vector3D,
 };
 
-// Python wrapper for the SE(3) group.
+/// SE(3) transformation represented as an isometry matrix.
+///
+/// An SE(3) transformation combines a rotation and a translation in 3D space.
 #[pyclass(name = "SE3")]
 #[derive(Clone, Debug, Default)]
 pub struct PySE3 {

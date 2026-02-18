@@ -6,6 +6,9 @@ use crate::{
     vector3d::Vector3D, vector6d::Vector6D,
 };
 
+/// Spatial motion vector, combining linear and angular velocity components.
+///
+/// The first three elements represent linear velocity, and the last three represent angular velocity.
 #[pyclass(name = "SpatialMotion")]
 #[derive(Clone, Debug)]
 pub struct PySpatialMotion {
@@ -15,6 +18,9 @@ pub struct PySpatialMotion {
 #[pymethods]
 impl PySpatialMotion {
     #[new]
+    /// Creates a new `SpatialMotion` object from a 6D array.
+    ///
+    /// The first three elements of the array represent the linear velocity, and the last three represent the angular velocity.
     pub fn new(array: PyReadonlyArrayDyn<f64>) -> PyResult<Self> {
         let array = array.as_array();
         if array.ndim() != 1 || array.len() != 6 {
@@ -30,6 +36,7 @@ impl PySpatialMotion {
     }
 
     #[staticmethod]
+    /// Creates a new `SpatialMotion` object from separate linear and angular components.
     pub fn from_vectors(linear: PyVector3D, angular: PyVector3D) -> Self {
         PySpatialMotion {
             inner: SpatialMotion::from_parts(linear.inner, angular.inner),
@@ -56,6 +63,7 @@ impl PySpatialMotion {
     }
 
     #[staticmethod]
+    /// Creates a new `SpatialMotion` object with all components set to zero.
     pub fn zero() -> Self {
         PySpatialMotion {
             inner: SpatialMotion::zero(),
@@ -63,6 +71,7 @@ impl PySpatialMotion {
     }
 
     #[getter]
+    /// Gets the translation (linear velocity) component of the `SpatialMotion`.
     pub fn translation(&self) -> PyVector3D {
         PyVector3D {
             inner: self.inner.translation(),
@@ -70,12 +79,14 @@ impl PySpatialMotion {
     }
 
     #[getter]
+    /// Gets the rotation (angular velocity) component of the `SpatialMotion`.
     pub fn rotation(&self) -> PyVector3D {
         PyVector3D {
             inner: self.inner.rotation(),
         }
     }
 
+    /// Converts the `SpatialMotion` to a NumPy array.
     pub fn to_numpy(&self, py: Python) -> Py<PyAny> {
         Array1::from_iter(self.inner.0.iter().copied())
             .to_pyarray(py)
@@ -83,12 +94,14 @@ impl PySpatialMotion {
             .unbind()
     }
 
+    /// Computes the cross product of this `SpatialMotion` with another `SpatialMotion`.
     pub fn cross(&self, other: &PySpatialMotion) -> PySpatialMotion {
         PySpatialMotion {
             inner: SpatialMotion(self.inner.cross(&other.inner).0),
         }
     }
 
+    /// Computes the cross product of this `SpatialMotion` with a `SpatialForce`.
     pub fn cross_force(&self, other: &PySpatialForce) -> PySpatialForce {
         PySpatialForce {
             inner: SpatialForce(self.inner.cross_force(&other.inner).0),
