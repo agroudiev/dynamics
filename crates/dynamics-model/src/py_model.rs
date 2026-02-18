@@ -15,7 +15,7 @@ use crate::{
 #[pyfunction(name = "random_configuration")]
 pub fn py_random_configuration(model: &mut PyModel) -> PyConfiguration {
     let q = random_configuration(&model.inner);
-    PyConfiguration::new(q)
+    PyConfiguration(q)
 }
 
 /// A [`Model`] is a data structure that contains the information about the robot model,

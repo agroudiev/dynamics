@@ -19,7 +19,7 @@ use crate::{
 #[pyfunction(name = "neutral")]
 pub fn py_neutral(model: &mut PyModel) -> PyResult<PyConfiguration> {
     let q = neutral(&model.inner).map_err(|e| PyErr::new::<PyValueError, _>(format!("{:?}", e)))?;
-    Ok(PyConfiguration::new(q))
+    Ok(PyConfiguration(q))
 }
 
 #[pyfunction(name = "forward_kinematics", signature=(model, data, q, v=None, a=None))]
@@ -85,7 +85,7 @@ pub fn py_inverse_dynamics(
     let tau = inverse_dynamics(&model.inner, &mut data.inner, &q, &v, &a, f_ext.as_deref())
         .map_err(|e| PyErr::new::<PyValueError, _>(format!("Error in inverse dynamics: {e}")))?;
 
-    Ok(PyConfiguration::new(tau.clone()))
+    Ok(PyConfiguration(tau.clone()))
 }
 
 // Pinocchio alias (Recursive Newton-Euler Algorithm)
@@ -128,7 +128,7 @@ pub fn py_forward_dynamics(
     )
     .map_err(|e| PyValueError::new_err(format!("Forward dynamics failed: {e:?}")))?;
 
-    Ok(PyConfiguration::new(ddq.clone()))
+    Ok(PyConfiguration(ddq.clone()))
 }
 
 #[pyfunction(name = "aba", signature=(model, data, q, v, tau, f_ext=None, convention=None))]
