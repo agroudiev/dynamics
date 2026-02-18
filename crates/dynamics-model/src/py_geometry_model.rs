@@ -6,7 +6,7 @@ use crate::{
     py_geometry_object::PyGeometryObject,
 };
 
-/// A Python wrapper for the [`GeometryModel`] struct.
+/// A model for a geometry structure, containing multiple geometry objects.
 #[pyclass(name = "GeometryModel")]
 pub struct PyGeometryModel {
     pub inner: GeometryModel,
@@ -20,7 +20,7 @@ impl Default for PyGeometryModel {
 
 #[pymethods]
 impl PyGeometryModel {
-    /// Creates a new [`GeometryModel`] with an empty list of objects.
+    /// Creates a new GeometryModel with an empty list of objects.
     #[new]
     #[must_use]
     pub fn new() -> Self {

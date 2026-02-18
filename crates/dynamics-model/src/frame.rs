@@ -3,6 +3,7 @@
 use dynamics_inertia::inertia::Inertia;
 use dynamics_spatial::se3::SE3;
 
+/// Types of frames that can be attached to a robot.
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 pub enum FrameType {
@@ -43,7 +44,15 @@ pub struct Frame {
 }
 
 impl Frame {
-    /// Creates a new Frame.
+    /// Creates a new [Frame].
+    ///
+    /// # Arguments
+    /// * `name` - Name of the frame.
+    /// * `parent_joint` - Index of the parent joint the frame is attached to.
+    /// * `parent_frame` - Index of the parent frame in the model's frames vector.
+    /// * `placement` - Placement of the frame with respect to the parent frame.
+    /// * `frame_type` - Type of the frame.
+    /// * `inertia` - Inertia associated to the frame.
     #[must_use]
     pub fn new(
         name: String,

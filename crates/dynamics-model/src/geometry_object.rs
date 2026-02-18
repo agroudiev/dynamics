@@ -5,7 +5,7 @@ use std::fmt::Debug;
 use collider_rs::shape::ShapeWrapper;
 use dynamics_spatial::{color::Color, se3::SE3};
 
-/// A `GeometryObject` is a data structure that contains the information about the geometry object,
+/// Data structure that contains the information about the geometry object,
 /// used for visualization, collision detection and distance computation.
 pub struct GeometryObject {
     /// The name of the geometry object.

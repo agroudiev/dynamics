@@ -8,7 +8,8 @@ use pyo3::{exceptions::PyValueError, prelude::*, types::PyTuple};
 
 use crate::geometry_object::GeometryObject;
 
-/// A Python wrapper for the `GeometryObject` struct.
+/// Data structure that contains the information about the geometry object,
+/// used for visualization, collision detection and distance computation.
 #[pyclass(name = "GeometryObject")]
 pub struct PyGeometryObject {
     pub inner: GeometryObject,

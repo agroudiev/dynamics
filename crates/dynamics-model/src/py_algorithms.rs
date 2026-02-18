@@ -15,7 +15,9 @@ use crate::{
     py_model::PyModel,
 };
 
-/// Python wrapper for the `neutral` function.
+/// Computes the neutral configuration of a model.
+///
+/// This function iterates through each joint model in the given model, retrieves its neutral configuration, and assembles these into a single `Configuration` object that represents the neutral configuration of the entire model.
 #[pyfunction(name = "neutral")]
 pub fn py_neutral(model: &mut PyModel) -> PyResult<PyConfiguration> {
     let q = neutral(&model.inner).map_err(|e| PyErr::new::<PyValueError, _>(format!("{:?}", e)))?;

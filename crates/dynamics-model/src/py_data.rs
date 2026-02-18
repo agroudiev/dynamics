@@ -278,7 +278,7 @@ impl PyData {
     }
 }
 
-/// A Python wrapper for the `GeometryData` struct.
+/// Structure containing the mutable geometric data of the models.
 #[pyclass(name = "GeometryData")]
 pub struct PyGeometryData {
     pub inner: GeometryData,

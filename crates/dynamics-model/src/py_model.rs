@@ -12,6 +12,7 @@ use crate::{
     py_frame::PyFrame,
 };
 
+/// Generates a random configuration for the given model.
 #[pyfunction(name = "random_configuration")]
 pub fn py_random_configuration(model: &mut PyModel) -> PyConfiguration {
     let q = random_configuration(&model.inner);
