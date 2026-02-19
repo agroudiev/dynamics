@@ -7,7 +7,7 @@ use pyo3::{exceptions::PyValueError, prelude::*};
 
 use crate::inertia::Inertia;
 
-/// A Python wrapper for the [`Inertia`] struct.
+/// A data structure that contains the information about the inertia of a rigid body (mass, center of mass, and inertia matrix).
 #[pyclass(name = "Inertia")]
 #[derive(Clone, Debug, Default)]
 pub struct PyInertia {
@@ -33,6 +33,12 @@ impl PyInertia {
             .map_err(|e| PyValueError::new_err(format!("Failed to create Inertia: {e:?}")))
     }
 
+    /// Creates a new inertia from given mass, center of mass, and inertia matrix.
+    ///
+    /// # Arguments
+    /// * `mass` - The mass of the object.
+    /// * `com` - The center of mass of the object, given as a 3D vector (numpy array).
+    /// * `inertia` - The rotational inertia matrix of the object at the center of mass, given as a 3x3 symmetric matrix (numpy array).
     #[new]
     pub fn new(
         mass: f64,
@@ -60,12 +66,14 @@ impl PyInertia {
 
     #[getter]
     #[must_use]
+    /// Returns the mass of the inertia.
     pub fn mass(&self) -> f64 {
         self.inner.mass
     }
 
     #[getter]
     #[must_use]
+    /// Returns the center of mass of the inertia as a numpy array.
     pub fn com(&self, py: Python) -> Py<PyAny> {
         self.inner.com.to_numpy(py)
     }
@@ -81,6 +89,7 @@ impl PyInertia {
 
     #[getter]
     #[must_use]
+    /// Returns the inertia matrix of the inertia as a numpy array.
     pub fn inertia(&self, py: Python) -> Py<PyAny> {
         self.inner.inertia.to_numpy(py)
     }
@@ -101,12 +110,14 @@ impl PyInertia {
         }
     }
 
+    /// Transforms the inertia to a different frame using the given SE3 transformation.
     pub fn transform_frame(&self, py: Python, other: &PySE3) -> Py<PyAny> {
         let inertia_matrix = self.inner.matrix();
         let transformed = inertia_matrix.transform_frame(&other.inner);
         transformed.to_numpy(py)
     }
 
+    /// Returns the inertia matrix of the inertia as a numpy array.
     pub fn matrix(&self, py: Python) -> Py<PyAny> {
         self.inner.matrix().to_numpy(py)
     }
