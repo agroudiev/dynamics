@@ -19,8 +19,8 @@ use dynamics_model::{
     frame::FrameType,
     model::{STANDARD_GRAVITY, WORLD_ID},
     py_algorithms::{
-        py_aba, py_forward_dynamics, py_forward_kinematics, py_inverse_dynamics, py_neutral,
-        py_rnea, py_update_frame_placements,
+        py_aba, py_forward_dynamics, py_forward_kinematics, py_frames_forward_kinematics,
+        py_integrate, py_inverse_dynamics, py_neutral, py_rnea, py_update_frame_placements,
     },
     py_data::{PyData, PyGeometryData},
     py_frame::PyFrame,
@@ -77,7 +77,6 @@ fn add_dynamics_bindings(py: Python, dynamics: &Bound<'_, PyModule>) -> PyResult
     dynamics.add_class::<PyGeometryModel>()?;
     dynamics.add_class::<PyGeometryData>()?;
     dynamics.add_class::<PyGeometryObject>()?;
-    dynamics.add_function(wrap_pyfunction!(py_neutral, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(py_random_configuration, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(py_build_models_from_urdf, dynamics)?)?;
 
@@ -157,15 +156,23 @@ fn add_shapes_bindings(collider: &Bound<'_, PyModule>) -> PyResult<()> {
 }
 
 fn add_algorithms_bindings(dynamics: &Bound<'_, PyModule>) -> PyResult<()> {
+    // FK
     dynamics.add_function(wrap_pyfunction!(py_forward_kinematics, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(py_update_frame_placements, dynamics)?)?;
+    dynamics.add_function(wrap_pyfunction!(py_frames_forward_kinematics, dynamics)?)?;
 
+    // ABA
     dynamics.add_function(wrap_pyfunction!(py_forward_dynamics, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(py_aba, dynamics)?)?;
+    dynamics.add_class::<ABAConvention>()?;
 
+    // RNEA
     dynamics.add_function(wrap_pyfunction!(py_inverse_dynamics, dynamics)?)?;
     dynamics.add_function(wrap_pyfunction!(py_rnea, dynamics)?)?;
-    dynamics.add_class::<ABAConvention>()?;
+
+    // others
+    dynamics.add_function(wrap_pyfunction!(py_neutral, dynamics)?)?;
+    dynamics.add_function(wrap_pyfunction!(py_integrate, dynamics)?)?;
 
     Ok(())
 }

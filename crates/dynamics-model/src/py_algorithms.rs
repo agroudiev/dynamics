@@ -6,6 +6,7 @@ use pyo3::prelude::*;
 
 use crate::forward_dynamics::ABAConvention;
 use crate::forward_kinematics::frames_forward_kinematics;
+use crate::integrate::integrate;
 use crate::inverse_dynamics::inverse_dynamics;
 use crate::neutral::neutral;
 use crate::{
@@ -237,4 +238,19 @@ pub fn py_aba(
     convention: Option<ABAConvention>,
 ) -> PyResult<PyConfiguration> {
     py_forward_dynamics(model, data, q, v, tau, f_ext, convention)
+}
+
+/// Integrates the joint configurations given their velocities.
+#[pyfunction(name = "integrate")]
+pub fn py_integrate(
+    model: &PyModel,
+    q: PyConfigurationInput,
+    v: PyConfigurationInput,
+) -> PyResult<PyConfiguration> {
+    let q = q.to_configuration(model.inner.nq)?;
+    let v = v.to_configuration(model.inner.nv)?;
+
+    integrate(&model.inner, &q, &v)
+        .map_err(|e| PyValueError::new_err(format!("Integration failed: {e:?}")))
+        .map(PyConfiguration)
 }

@@ -10,7 +10,9 @@ pub use crate::model::forward_dynamics::ABAConvention;
 pub use crate::model::forward_dynamics::forward_dynamics;
 pub use crate::model::forward_kinematics::forward_kinematics;
 pub use crate::model::forward_kinematics::update_frame_placements;
+pub use crate::model::integrate::integrate;
 pub use crate::model::inverse_dynamics::inverse_dynamics;
+pub use crate::model::neutral::neutral;
 
 // Configurations
 pub use crate::model::model::random_configuration;

@@ -65,6 +65,10 @@ impl JointModel for JointModelFixed {
     fn bias(&self) -> SpatialMotion {
         SpatialMotion::zero()
     }
+
+    fn integrate(&self, _q: &Configuration, _v: &Configuration) -> Configuration {
+        Configuration::zeros(0)
+    }
 }
 
 impl Display for JointModelFixed {

@@ -138,6 +138,17 @@ impl JointModel for JointModelContinuous {
     fn bias(&self) -> SpatialMotion {
         SpatialMotion::zero()
     }
+
+    fn integrate(&self, q: &Configuration, v: &Configuration) -> Configuration {
+        // compute angle from cosine and sine
+        let angle = q[1].atan2(q[0]);
+
+        // integrate angle
+        let new_angle = angle + v[0];
+
+        // return new configuration as cosine and sine of the new angle
+        Configuration::from_row_slice(&[new_angle.cos(), new_angle.sin()])
+    }
 }
 
 impl Display for JointModelContinuous {

@@ -169,6 +169,15 @@ impl JointModel for JointWrapper {
             JointModelImpl::Fixed(joint) => joint.bias(),
         }
     }
+
+    fn integrate(&self, q: &Configuration, v: &Configuration) -> Configuration {
+        match &self.inner {
+            JointModelImpl::Continuous(joint) => joint.integrate(q, v),
+            JointModelImpl::Prismatic(joint) => joint.integrate(q, v),
+            JointModelImpl::Revolute(joint) => joint.integrate(q, v),
+            JointModelImpl::Fixed(joint) => joint.integrate(q, v),
+        }
+    }
 }
 
 impl Display for JointWrapper {
@@ -219,6 +228,9 @@ pub trait JointModel {
 
     /// Applies the joint subspace constraint to a given SE3 transformation, returning the resulting spatial motion.
     fn subspace_se3(&self, se3: &SE3) -> SpatialMotion;
+
+    /// Integrates the joint configuration given the current configuration and velocity.
+    fn integrate(&self, q: &Configuration, v: &Configuration) -> Configuration;
 }
 
 /// Enum representing the type of joint.

@@ -28,6 +28,7 @@ pub mod forward_kinematics;
 pub mod frame;
 pub mod geometry_model;
 pub mod geometry_object;
+pub mod integrate;
 pub mod inverse_dynamics;
 pub mod model;
 pub mod neutral;

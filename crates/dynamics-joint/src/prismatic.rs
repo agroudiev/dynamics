@@ -130,6 +130,10 @@ impl JointModel for JointModelPrismatic {
     fn bias(&self) -> SpatialMotion {
         SpatialMotion::zero()
     }
+
+    fn integrate(&self, q: &Configuration, v: &Configuration) -> Configuration {
+        Configuration::from_row_slice(&[q[0] + v[0]])
+    }
 }
 
 impl Display for JointModelPrismatic {
