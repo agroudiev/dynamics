@@ -108,7 +108,7 @@ impl JointModel for JointModelContinuous {
     }
 
     fn create_joint_data(&self) -> crate::joint_data::JointDataWrapper {
-        JointDataWrapper::continuous(JointDataContinuous::new(self))
+        JointDataWrapper::continuous(JointDataContinuous::new())
     }
 
     fn random_configuration(&self, rng: &mut rand::rngs::ThreadRng) -> Configuration {
@@ -180,7 +180,7 @@ impl JointDataContinuous {
     /// # Returns
     /// A new `JointDataContinuous` object.
     #[must_use]
-    pub fn new(_joint_model: &JointModelContinuous) -> Self {
+    pub fn new() -> Self {
         JointDataContinuous::default()
     }
 

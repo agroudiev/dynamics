@@ -92,7 +92,7 @@ impl JointModel for JointModelPrismatic {
     }
 
     fn create_joint_data(&self) -> JointDataWrapper {
-        JointDataWrapper::prismatic(JointDataPrismatic::new(self))
+        JointDataWrapper::prismatic(JointDataPrismatic::new())
     }
 
     fn get_axis(&self) -> &SpatialMotion {
@@ -161,13 +161,19 @@ impl JointDataPrismatic {
     /// # Returns
     /// A new `JointDataPrismatic` object.
     #[must_use]
-    pub fn new(_model: &JointModelPrismatic) -> Self {
+    pub fn new() -> Self {
         JointDataPrismatic {
             joint_q: Configuration::zeros(1),
             joint_v: Configuration::zeros(1),
             placement: SE3::identity(),
             joint_velocity: SpatialMotion::zero(),
         }
+    }
+}
+
+impl Default for JointDataPrismatic {
+    fn default() -> Self {
+        JointDataPrismatic::new()
     }
 }
 

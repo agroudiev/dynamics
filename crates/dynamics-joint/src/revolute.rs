@@ -91,7 +91,7 @@ impl JointModel for JointModelRevolute {
     }
 
     fn create_joint_data(&self) -> JointDataWrapper {
-        JointDataWrapper::revolute(JointDataRevolute::new(self))
+        JointDataWrapper::revolute(JointDataRevolute::new())
     }
 
     fn get_axis(&self) -> &SpatialMotion {
@@ -160,13 +160,19 @@ impl JointDataRevolute {
     /// # Returns
     /// A new `JointDataRevolute` object.
     #[must_use]
-    pub fn new(_joint_model: &JointModelRevolute) -> Self {
+    pub fn new() -> Self {
         JointDataRevolute {
             joint_q: Configuration::zeros(1),
             joint_v: Configuration::zeros(1),
             placement: SE3::identity(),
             joint_velocity: SpatialMotion::zero(),
         }
+    }
+}
+
+impl Default for JointDataRevolute {
+    fn default() -> Self {
+        JointDataRevolute::new()
     }
 }
 

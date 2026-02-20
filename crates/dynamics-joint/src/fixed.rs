@@ -33,7 +33,7 @@ impl JointModel for JointModelFixed {
     }
 
     fn create_joint_data(&self) -> JointDataWrapper {
-        JointDataWrapper::fixed(JointDataFixed::new(self))
+        JointDataWrapper::fixed(JointDataFixed::new())
     }
 
     fn random_configuration(&self, _rng: &mut ThreadRng) -> Configuration {
@@ -96,13 +96,19 @@ impl JointDataFixed {
     /// # Returns
     /// A new [`JointDataFixed`] object.
     #[must_use]
-    pub fn new(_joint_model: &JointModelFixed) -> Self {
+    pub fn new() -> Self {
         JointDataFixed {
             joint_q: Configuration::zeros(0),
             joint_v: Configuration::zeros(0),
             placement: SE3::identity(),
             joint_velocity: SpatialMotion::zero(),
         }
+    }
+}
+
+impl Default for JointDataFixed {
+    fn default() -> Self {
+        JointDataFixed::new()
     }
 }
 

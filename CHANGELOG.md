@@ -42,6 +42,7 @@ This file is used to track changes made to the project over time.
 - Compute joint subspace constraint.
 - Compute joint bias (Coriolis and centrifugal effects).
 - Refactor the `get_axis` method signature to return a reference to the joint axis.
+- Refactor the data creation methods.
 
 ### Spatial
 - Added Python bindings for `SpatialMotion` type.

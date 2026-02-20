@@ -45,7 +45,7 @@ pub trait JointData {
     /// Updates the joint data with the current position and velocity configurations.
     fn update(
         &mut self,
-        joint_model: &JointWrapper, // TODO: remove this argument
+        joint_model: &JointWrapper,
         joint_q: &Configuration,
         joint_v: Option<&Configuration>,
     ) -> Result<(), JointError>;
