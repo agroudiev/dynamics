@@ -41,6 +41,7 @@ This file is used to track changes made to the project over time.
 - Joint data now stores the joint configurations and velocity vector, as well as the joint velocities and accelerations.
 - Compute joint subspace constraint.
 - Compute joint bias (Coriolis and centrifugal effects).
+- Refactor the `get_axis` method signature to return a reference to the joint axis.
 
 ### Spatial
 - Added Python bindings for `SpatialMotion` type.

@@ -191,7 +191,7 @@ pub fn forward_dynamics_local<'a>(
                 .map_err(AlgorithmError::ConfigurationError)?;
 
             // set intermediate quantities
-            let axis = &joint_model.get_axis()[0];
+            let axis = joint_model.get_axis();
             let u = &aba_inertias[joint_id] * axis;
             joint_u[joint_id] = Vector6D::from_slice(u.0.as_slice().try_into().unwrap());
             joint_dinv[joint_id] = 1.0 / axis.0.dot(&joint_u[joint_id].0);

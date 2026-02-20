@@ -28,7 +28,7 @@ use crate::{
 #[derive(Clone, Debug)]
 pub struct JointModelContinuous {
     /// The axis of rotation expressed in the local frame of the joint.
-    pub axis: Vector3D,
+    pub axis: SpatialMotion,
     /// The joint limits.
     pub limits: JointLimits,
 }
@@ -52,7 +52,10 @@ impl JointModelContinuous {
         limits.min_configuration[1] = -1.01;
         limits.max_configuration[1] = 1.01;
 
-        JointModelContinuous { axis, limits }
+        JointModelContinuous {
+            axis: SpatialMotion::from_rotational_axis(&axis),
+            limits,
+        }
     }
 
     /// Creates a new continuous joint model with `x` as axis of rotation.
@@ -100,8 +103,8 @@ impl JointModel for JointModelContinuous {
         Configuration::from_row_slice(&[1.0, 0.0])
     }
 
-    fn get_axis(&self) -> Vec<SpatialMotion> {
-        vec![SpatialMotion::from_rotational_axis(&self.axis)]
+    fn get_axis(&self) -> &SpatialMotion {
+        &self.axis
     }
 
     fn create_joint_data(&self) -> crate::joint_data::JointDataWrapper {
@@ -119,16 +122,16 @@ impl JointModel for JointModelContinuous {
             1,
             "Continuous joint model expects a single velocity value."
         );
-        SpatialMotion::from_rotational_axis(&(v[0] * self.axis))
+        SpatialMotion::from_rotational_axis(&(v[0] * self.axis.rotation()))
     }
 
     fn subspace_dual(&self, f: &SpatialForce) -> Configuration {
-        Configuration::from_row_slice(&[f.rotation().dot(&self.axis)])
+        Configuration::from_row_slice(&[f.rotation().dot(&self.axis.rotation())])
     }
 
     fn subspace_se3(&self, se3: &SE3) -> SpatialMotion {
         let rot = se3.rotation();
-        let v = rot * &self.axis;
+        let v = rot * &self.axis.rotation();
         SpatialMotion::from_rotational_axis(&v)
     }
 
@@ -228,20 +231,14 @@ impl JointData for JointDataContinuous {
         self.joint_q = joint_q.clone();
         if let Some(joint_v) = joint_v {
             self.joint_v = joint_v.clone();
-            self.joint_velocity = self.joint_v[0] * joint_model.get_axis()[0].clone();
+            self.joint_velocity = self.joint_v[0] * joint_model.get_axis().clone();
         }
 
         // compute angle from cosine and sine
         let angle = self.sin().atan2(self.cos());
 
-        // get axis
-        let axis = match joint_model.get_axis().len() {
-            1 => &joint_model.get_axis()[0],
-            _ => return Err(JointError::MissingAttributeError("axis".to_string())),
-        };
-
         // compute placement
-        let rot = SpatialRotation::from_axis_angle(&axis.rotation(), angle);
+        let rot = SpatialRotation::from_axis_angle(&joint_model.get_axis().rotation(), angle);
         self.placement = rot.to_se3(&Vector3D::zeros());
 
         Ok(())

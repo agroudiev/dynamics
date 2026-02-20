@@ -40,8 +40,8 @@ impl JointModel for JointModelFixed {
         Configuration::zeros(0)
     }
 
-    fn get_axis(&self) -> Vec<SpatialMotion> {
-        Vec::new()
+    fn get_axis(&self) -> &SpatialMotion {
+        panic!("Fixed joint model does not have an axis of motion.")
     }
 
     fn subspace(&self, v: &Configuration) -> SpatialMotion {

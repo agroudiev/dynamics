@@ -22,7 +22,7 @@ use crate::{
 #[derive(Clone, Debug)]
 pub struct JointModelPrismatic {
     /// The axis of translation expressed in the local frame of the joint.
-    pub axis: Vector3D,
+    pub axis: SpatialMotion,
     /// The joint limits.
     pub limits: JointLimits,
 }
@@ -41,7 +41,7 @@ impl JointModelPrismatic {
     #[must_use]
     pub fn new(axis: Vector3D) -> Self {
         JointModelPrismatic {
-            axis,
+            axis: SpatialMotion::from_translational_axis(&axis),
             limits: JointLimits::new_unbounded(1),
         }
     }
@@ -95,8 +95,8 @@ impl JointModel for JointModelPrismatic {
         JointDataWrapper::prismatic(JointDataPrismatic::new(self))
     }
 
-    fn get_axis(&self) -> Vec<SpatialMotion> {
-        vec![SpatialMotion::from_translational_axis(&self.axis)]
+    fn get_axis(&self) -> &SpatialMotion {
+        &self.axis
     }
 
     fn random_configuration(&self, rng: &mut ThreadRng) -> Configuration {
@@ -114,16 +114,16 @@ impl JointModel for JointModelPrismatic {
             1,
             "Prismatic joint model expects a single velocity value."
         );
-        SpatialMotion::from_translational_axis(&(v[0] * self.axis))
+        SpatialMotion::from_translational_axis(&(v[0] * self.axis.translation()))
     }
 
     fn subspace_dual(&self, f: &dynamics_spatial::force::SpatialForce) -> Configuration {
-        Configuration::from_row_slice(&[f.translation().dot(&self.axis)])
+        Configuration::from_row_slice(&[f.translation().dot(&self.axis.translation())])
     }
 
     fn subspace_se3(&self, se3: &SE3) -> SpatialMotion {
         let trans = se3.translation();
-        let v = trans.dot(&self.axis) * self.axis;
+        let v = trans.dot(&self.axis.translation()) * self.axis.translation();
         SpatialMotion::from_translational_axis(&v)
     }
 
@@ -203,20 +203,17 @@ impl JointData for JointDataPrismatic {
             );
         }
 
-        let axis = match joint_model.get_axis().len() {
-            1 => &joint_model.get_axis()[0],
-            _ => return Err(JointError::MissingAttributeError("axis".to_string())),
-        };
-
         // store q and v
         self.joint_q = joint_q.clone();
         if let Some(joint_v) = joint_v {
             self.joint_v = joint_v.clone();
-            self.joint_velocity = self.joint_v[0] * joint_model.get_axis()[0].clone();
+            self.joint_velocity = self.joint_v[0] * joint_model.get_axis().clone();
         }
 
-        self.placement =
-            SE3::from_parts(axis.translation() * joint_q[0], SpatialRotation::identity());
+        self.placement = SE3::from_parts(
+            joint_model.get_axis().translation() * joint_q[0],
+            SpatialRotation::identity(),
+        );
         Ok(())
     }
 

@@ -125,7 +125,7 @@ impl JointModel for JointWrapper {
         }
     }
 
-    fn get_axis(&self) -> Vec<SpatialMotion> {
+    fn get_axis(&self) -> &SpatialMotion {
         match &self.inner {
             JointModelImpl::Continuous(joint) => joint.get_axis(),
             JointModelImpl::Prismatic(joint) => joint.get_axis(),
@@ -203,7 +203,7 @@ pub trait JointModel {
     fn create_joint_data(&self) -> JointDataWrapper;
 
     /// Returns the axis of the joint, if applicable.
-    fn get_axis(&self) -> Vec<SpatialMotion>; // TODO: modify signature
+    fn get_axis(&self) -> &SpatialMotion;
 
     /// Returns a random configuration for the joint.
     fn random_configuration(&self, rng: &mut ThreadRng) -> Configuration;
