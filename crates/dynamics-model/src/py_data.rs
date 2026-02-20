@@ -11,7 +11,7 @@ use dynamics_spatial::{
 };
 use pyo3::prelude::*;
 
-/// A Python wrapper for the `Data` struct.
+/// Structure containing the mutable properties of the robot.
 #[pyclass(name = "Data")]
 pub struct PyData {
     pub inner: Data,
@@ -67,6 +67,7 @@ impl PyData {
         self.joint_placements()
     }
 
+    /// The local joint placements in the parent frame (liMi)
     #[getter]
     pub fn local_joint_placements(&self) -> Vec<PySE3> {
         self.inner
@@ -76,6 +77,7 @@ impl PyData {
             .collect()
     }
 
+    /// The local joint placements in the parent frame (liMi)
     #[getter]
     #[allow(non_snake_case)]
     pub fn liMi(&self) -> Vec<PySE3> {
@@ -138,7 +140,7 @@ impl PyData {
     }
 
     #[getter]
-    /// Returns the joint accelerations without gravity.
+    /// Accelerations of the joints due to the gravity field (a_gf)
     pub fn joint_accelerations_gravity_field(&self) -> Vec<PySpatialMotion> {
         self.inner
             .joint_accelerations_gravity_field
@@ -148,14 +150,13 @@ impl PyData {
     }
 
     #[getter]
-    /// Returns the joint accelerations without gravity.
-    ///
-    /// This is an alias for `joint_accelerations_gravity_field` to match the Pinocchio API.
+    /// Accelerations of the joints due to the gravity field (a_gf)
     pub fn a_gf(&self) -> Vec<PySpatialMotion> {
         self.joint_accelerations_gravity_field()
     }
 
     #[getter]
+    /// Accelerations of the joints in the world frame including the gravity field (oa_gf)
     pub fn world_accelerations_gravity_field(&self) -> Vec<PySpatialMotion> {
         self.inner
             .world_accelerations_gravity_field
@@ -165,11 +166,13 @@ impl PyData {
     }
 
     #[getter]
+    /// Accelerations of the joints in the world frame including the gravity field (oa_gf)
     pub fn oa_gf(&self) -> Vec<PySpatialMotion> {
         self.world_accelerations_gravity_field()
     }
 
     #[getter]
+    /// The spatial momenta of the joint in the local frame (h), inertia times velocity
     pub fn joint_momenta(&self) -> Vec<PySpatialForce> {
         self.inner
             .joint_momenta
@@ -179,11 +182,13 @@ impl PyData {
     }
 
     #[getter]
+    /// The spatial momenta of the joint in the local frame (h), inertia times velocity
     pub fn h(&self) -> Vec<PySpatialForce> {
         self.joint_momenta()
     }
 
     #[getter]
+    /// The spatial momenta of the joint in the world frame (oh), inertia times velocity
     pub fn world_joint_momenta(&self) -> Vec<PySpatialForce> {
         self.inner
             .world_joint_momenta
@@ -193,11 +198,13 @@ impl PyData {
     }
 
     #[getter]
+    /// The spatial momenta of the joint in the world frame (oh), inertia times velocity
     pub fn oh(&self) -> Vec<PySpatialForce> {
         self.world_joint_momenta()
     }
 
     #[getter]
+    /// The spatial forces of the joint in the local frame (f), inertia times acceleration plus the Coriolis term
     pub fn joint_forces(&self) -> Vec<PySpatialForce> {
         self.inner
             .joint_forces
@@ -207,11 +214,13 @@ impl PyData {
     }
 
     #[getter]
+    /// The spatial forces of the joint in the local frame (f), inertia times acceleration plus the Coriolis term
     pub fn f(&self) -> Vec<PySpatialForce> {
         self.joint_forces()
     }
 
     #[getter]
+    /// The spatial forces of the joint in the world frame (of), inertia times acceleration plus the Coriolis term
     pub fn world_joint_forces(&self) -> Vec<PySpatialForce> {
         self.inner
             .world_joint_forces
@@ -221,21 +230,25 @@ impl PyData {
     }
 
     #[getter]
+    /// The spatial forces of the joint in the world frame (of), inertia times acceleration plus the Coriolis term
     pub fn of(&self) -> Vec<PySpatialForce> {
         self.world_joint_forces()
     }
 
     #[getter]
+    /// The configuration of torques/forces applied to the joints (tau)
     pub fn tau(&self) -> PyConfiguration {
         PyConfiguration(self.inner.tau.clone())
     }
 
     #[getter]
+    /// The joint accelerations of the joints computed by the forward dynamics (ddq)
     pub fn ddq(&self) -> PyConfiguration {
         PyConfiguration(self.inner.ddq.clone())
     }
 
     #[getter]
+    /// The Jacobian matrix of the joint placements (J)
     pub fn jacobian(&self) -> PyJacobian {
         PyJacobian {
             inner: self.inner.jacobian.clone(),
@@ -243,12 +256,14 @@ impl PyData {
     }
 
     #[allow(non_snake_case)]
+    /// The Jacobian matrix of the joint placements (J)
     #[getter]
     pub fn J(&self) -> PyJacobian {
         self.jacobian()
     }
 
     #[getter]
+    /// The rigid body inertia of the joints in the world frame (oinertias)
     pub fn world_inertias(&self) -> Vec<PyInertia> {
         self.inner
             .world_inertias
@@ -258,11 +273,13 @@ impl PyData {
     }
 
     #[getter]
+    /// The rigid body inertia of the joints in the world frame (oinertias)
     pub fn oinertias(&self) -> Vec<PyInertia> {
         self.world_inertias()
     }
 
     #[getter]
+    /// The composite rigid body inertia of the joints in the world frame (oYcrb)
     pub fn composite_inertias(&self) -> Vec<PyInertia> {
         self.inner
             .composite_inertias
@@ -272,6 +289,7 @@ impl PyData {
     }
 
     #[getter]
+    /// The composite rigid body inertia of the joints in the world frame (oYcrb)
     #[allow(non_snake_case)]
     pub fn oYcrb(&self) -> Vec<PyInertia> {
         self.composite_inertias()
