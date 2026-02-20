@@ -12,6 +12,8 @@ This file is used to track changes made to the project over time.
 
 #### Joints
 - Python binding for revolute unaligned joints (`JointModelRevoluteUnaligned`).
+- Refactor the `get_axis` method signature to return a reference to the joint axis.
+- Refactor the data creation methods.
 
 #### Spatial
 - Added `action_matrix`, `dual_matrix`, and `inv_matrix` methods to SE3 transforms to compute the action, dual action, and inverse action matrices.
@@ -23,6 +25,7 @@ This file is used to track changes made to the project over time.
 - Better display for spatial types.
 - Fix the way that skew matrices are computed.
 - Fix the way that inertia matrices are computed.
+- Implemented `__array__` method for spatial types to allow simpler conversion to NumPy arrays in Python.
 
 ## [0.0.2] - 2026-02-08
 ### Added
@@ -41,8 +44,6 @@ This file is used to track changes made to the project over time.
 - Joint data now stores the joint configurations and velocity vector, as well as the joint velocities and accelerations.
 - Compute joint subspace constraint.
 - Compute joint bias (Coriolis and centrifugal effects).
-- Refactor the `get_axis` method signature to return a reference to the joint axis.
-- Refactor the data creation methods.
 
 ### Spatial
 - Added Python bindings for `SpatialMotion` type.

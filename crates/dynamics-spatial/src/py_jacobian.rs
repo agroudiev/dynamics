@@ -26,6 +26,10 @@ impl PyJacobian {
             .unbind()
     }
 
+    pub fn __array__(&self, py: Python) -> Py<PyAny> {
+        self.to_numpy(py)
+    }
+
     pub fn update_column(&mut self, v_offset: usize, column_data: [f64; 6]) {
         self.inner.update_column(v_offset, &column_data);
     }

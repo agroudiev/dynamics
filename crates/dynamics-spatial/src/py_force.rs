@@ -91,6 +91,10 @@ impl PySpatialForce {
             .unbind()
     }
 
+    pub fn __array__(&self, py: Python) -> Py<PyAny> {
+        self.to_numpy(py)
+    }
+
     /// Computes the cross product of this spatial force with another spatial force.
     pub fn cross(&self, other: &PySpatialForce) -> PySpatialForce {
         PySpatialForce {

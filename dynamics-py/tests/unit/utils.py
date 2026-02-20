@@ -226,13 +226,12 @@ def assert_joint_datas_equals(
     # Check the joint configuration vector
     test_case.assertTrue(
         np.isinf(pin_joint_data.joint_q).any()  # skip if unitialized
-        or np.linalg.norm(dyn_joint_data.joint_q.to_numpy() - pin_joint_data.joint_q)
-        < 1e-14,
+        or np.linalg.norm(dyn_joint_data.joint_q - pin_joint_data.joint_q) < 1e-14,
     )
 
     # Check the joint velocity vector
     # test_case.assertTrue(
-    #     np.linalg.norm(dyn_joint_data.joint_v.to_numpy() - pin_joint_data.joint_v)
+    #     np.linalg.norm(dyn_joint_data.joint_v - pin_joint_data.joint_v)
     #     < 1e-15,
     # )
     # disabled since pinocchio is not consistent for unaligned joints
@@ -305,7 +304,7 @@ def assert_datas_equals(
         test_case.assertTrue(
             np.isnan(pin_data.oa_gf[i]).any()  # skip if unitialized
             or np.linalg.norm(dyn_data.oa_gf[i].to_numpy() - pin_data.oa_gf[i]) < 1e-4,
-            f"Joint {i}: {dyn_data.oa_gf[i].to_numpy()} vs {pin_data.oa_gf[i]}",
+            f"Joint {i}: {dyn_data.oa_gf[i]} vs {pin_data.oa_gf[i]}",
         )
 
     # Check local momenta
@@ -344,13 +343,13 @@ def assert_datas_equals(
     # Check tau
     test_case.assertTrue(
         np.isnan(pin_data.tau).any()  # skip if unitialized
-        or np.linalg.norm(dyn_data.tau.to_numpy() - pin_data.tau) < 1e-6
+        or np.linalg.norm(dyn_data.tau - pin_data.tau) < 1e-6
     )
 
     # Check ddq
     test_case.assertTrue(
         np.isnan(pin_data.ddq).any()  # skip if unitialized
-        or np.linalg.norm(dyn_data.ddq.to_numpy() - pin_data.ddq)
+        or np.linalg.norm(dyn_data.ddq - pin_data.ddq)
         / (1 + np.linalg.norm(pin_data.ddq))
         < 1e-6
     )
@@ -358,7 +357,7 @@ def assert_datas_equals(
     # Check Jacobian
     test_case.assertTrue(
         np.isnan(pin_data.J).any()  # skip if unitialized
-        or np.linalg.norm(dyn_data.J.to_numpy() - pin_data.J) < 1e-6
+        or np.linalg.norm(dyn_data.J - pin_data.J) < 1e-6
     )
 
     # Check world inertias

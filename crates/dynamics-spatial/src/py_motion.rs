@@ -94,6 +94,10 @@ impl PySpatialMotion {
             .unbind()
     }
 
+    pub fn __array__(&self, py: Python) -> Py<PyAny> {
+        self.to_numpy(py)
+    }
+
     /// Computes the cross product of this `SpatialMotion` with another `SpatialMotion`.
     pub fn cross(&self, other: &PySpatialMotion) -> PySpatialMotion {
         PySpatialMotion {
