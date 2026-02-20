@@ -41,6 +41,10 @@ impl PyConfiguration {
             .into_any()
             .unbind()
     }
+
+    pub fn __array__(&self, py: Python) -> Py<PyAny> {
+        self.to_numpy(py)
+    }
 }
 
 #[derive(FromPyObject)]
