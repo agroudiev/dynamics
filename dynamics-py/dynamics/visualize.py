@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 import xml.etree.ElementTree as Et
 import base64
+import warnings
 
 
 class GeometryType(Enum):
@@ -411,6 +412,9 @@ class MeshcatVisualizer:
         """Display the robot in the given configuration."""
 
         if q is not None:
+            if np.isnan(q).any():
+                warnings.warn("Configuration contains NaN values, cannot display.")
+
             dynamics.forward_kinematics(self.model, self.data, q)
 
         self.update_placements(GeometryType.VISUAL)
