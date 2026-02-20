@@ -80,4 +80,8 @@ impl PyVector3D {
             ))),
         }
     }
+
+    pub fn __len__(&self) -> usize {
+        3
+    }
 }

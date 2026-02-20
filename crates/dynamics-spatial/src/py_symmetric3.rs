@@ -86,11 +86,15 @@ impl PySymmetric3 {
         self.to_numpy(py)
     }
 
-    fn __getitem__(&self, index: (usize, usize)) -> f64 {
+    pub fn __getitem__(&self, index: (usize, usize)) -> f64 {
         self.inner[index]
     }
 
-    fn __repr__(&self) -> String {
+    pub fn __len__(&self) -> usize {
+        3
+    }
+
+    pub fn __repr__(&self) -> String {
         format!(
             "Symmetric3(\n  [{:.4}, {:.4}, {:.4}],\n  [{:.4}, {:.4}, {:.4}],\n  [{:.4}, {:.4}, {:.4}]\n)",
             self.inner[(0, 0)],
