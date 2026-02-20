@@ -10,7 +10,7 @@ use crate::{
     py_joint::PyJointWrapper,
 };
 
-/// A Python wrapper for the `JointDataWrapper` type.
+/// Mutable properties of the joints.
 #[pyclass(name = "JointData")]
 pub struct PyJointDataWrapper {
     pub inner: JointDataWrapper,
@@ -53,6 +53,7 @@ impl PyJointDataWrapper {
     }
 
     #[pyo3(text_signature = "(joint_model, joint_q, joint_v=None)")]
+    /// Updates the joint data with the current position and velocity configurations.
     pub fn update(
         &mut self,
         joint_model: &PyJointWrapper,
@@ -76,6 +77,7 @@ impl PyJointDataWrapper {
     }
 
     #[getter]
+    /// Returns the joint velocity as a spatial motion.
     pub fn get_joint_velocity(&self) -> PySpatialMotion {
         PySpatialMotion {
             inner: self.inner.get_joint_velocity().clone(),
@@ -83,7 +85,7 @@ impl PyJointDataWrapper {
     }
 
     #[getter]
-    /// Alias for `get_joint_velocity` method.
+    /// Returns the joint velocity as a spatial motion.
     pub fn get_v(&self) -> PySpatialMotion {
         self.get_joint_velocity()
     }

@@ -42,7 +42,7 @@ pub trait JointData {
     /// Returns the placement of the joint in the world frame.
     fn get_joint_placement(&self) -> SE3;
 
-    /// Updates the joint data with the given model and angle.
+    /// Updates the joint data with the current position and velocity configurations.
     fn update(
         &mut self,
         joint_model: &JointWrapper, // TODO: remove this argument

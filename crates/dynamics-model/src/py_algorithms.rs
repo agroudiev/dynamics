@@ -25,6 +25,22 @@ pub fn py_neutral(model: &mut PyModel) -> PyResult<PyConfiguration> {
 }
 
 #[pyfunction(name = "forward_kinematics", signature=(model, data, q, v=None, a=None))]
+/// Computes the forward kinematics of the robot model.
+///
+/// It updates the joint data and placements in the world frame.
+///
+/// # Arguments
+///
+/// * `model` - The robot model.
+/// * `data` - The data structure that contains the joint data.
+/// * `q` - The configuration of the robot of size `nq`.
+/// * `v` - The velocity configuration of the robot of size `nv` (optional).
+/// * `a` - The acceleration configuration of the robot of size `nv` (optional).
+///
+/// # Returns
+///
+/// * Updates `data.joint_data` and `data.joint_placements` in place if successful.
+/// * Returns an `AlgorithmError` if there was an error.
 pub fn py_forward_kinematics(
     model: &PyModel,
     data: &mut PyData,
@@ -52,11 +68,30 @@ pub fn py_forward_kinematics(
 }
 
 #[pyfunction(name = "update_frame_placements", signature=(model, data))]
+/// Updates the placements of all frames in the world frame, based on the current joint placements.
+///
+/// This function must be called after `forward_kinematics`.
+///
+/// # Arguments
+/// * `model` - The robot model.
+/// * `data` - The data structure that contains the joint data.
+///
+/// # Returns
+///
+/// Updates `data.frame_placements` in place if successful.
 pub fn py_update_frame_placements(model: &PyModel, data: &mut PyData) {
     update_frame_placements(&model.inner, &mut data.inner);
 }
 
 #[pyfunction(name = "frames_forward_kinematics", signature=(model, data, q))]
+/// Computes the forward kinematics and updates the frame placements in one call.
+///
+/// This is a convenience function that calls `forward_kinematics` followed by `update_frame_placements`.
+///
+/// # Arguments
+/// * `model` - The robot model.
+/// * `data` - The data structure that contains the joint data.
+/// * `q` - The configuration of the robot of size `nq`.
 pub fn py_frames_forward_kinematics(
     model: &PyModel,
     data: &mut PyData,
@@ -70,6 +105,19 @@ pub fn py_frames_forward_kinematics(
 }
 
 #[pyfunction(name = "inverse_dynamics", signature=(model, data, q, v, a, f_ext=None))]
+/// Computes the inverse dynamics using the Recursive Newton-Euler Algorithm (RNEA).
+///
+/// # Arguments
+/// * `model` - The robot model.
+/// * `data` - The data structure that contains the joint data.
+/// * `q` - The configuration of the robot.
+/// * `v` - The velocity of the robot.
+/// * `a` - The acceleration of the robot.
+/// * `f_ext` - The external forces applied to the robot (optional).
+///
+/// # Returns
+/// * `Ok(tau)` if the inverse dynamics was successful. In this case, the fields `tau`, `local_joint_placements`, `joint_velocities`, `joint_accelerations_gravity_field`, `joint_momenta` and `joint_forces` of the `data` structure are updated with the results of the algorithm.
+/// * `Err(ConfigurationError)` if there was an error.
 pub fn py_inverse_dynamics(
     model: &PyModel,
     data: &mut PyData,
@@ -92,6 +140,19 @@ pub fn py_inverse_dynamics(
 
 // Pinocchio alias (Recursive Newton-Euler Algorithm)
 #[pyfunction(name = "rnea", signature=(model, data, q, v, a, f_ext=None))]
+/// Computes the inverse dynamics using the Recursive Newton-Euler Algorithm (RNEA).
+///
+/// # Arguments
+/// * `model` - The robot model.
+/// * `data` - The data structure that contains the joint data.
+/// * `q` - The configuration of the robot.
+/// * `v` - The velocity of the robot.
+/// * `a` - The acceleration of the robot.
+/// * `f_ext` - The external forces applied to the robot (optional).
+///
+/// # Returns
+/// * `Ok(tau)` if the inverse dynamics was successful. In this case, the fields `tau`, `local_joint_placements`, `joint_velocities`, `joint_accelerations_gravity_field`, `joint_momenta` and `joint_forces` of the `data` structure are updated with the results of the algorithm.
+/// * `Err(ConfigurationError)` if there was an error.
 pub fn py_rnea(
     model: &PyModel,
     data: &mut PyData,
@@ -104,6 +165,22 @@ pub fn py_rnea(
 }
 
 #[pyfunction(name = "forward_dynamics", signature=(model, data, q, v, tau, f_ext=None, convention=None))]
+/// Computes the forward dynamics of the robot model using the Articulated Body Algorithm (ABA) in the specified convention.
+///
+/// # Arguments
+///
+/// * `model` - The robot model.
+/// * `data` - The data structure that contains the joint data.
+/// * `q` - The configuration of the robot.
+/// * `v` - The velocity of the robot.
+/// * `tau` - The joint torques.
+/// * `convention` - The convention to use for the ABA algorithm. If `Local`, the algorithm will be executed in the local frame of each joint. If `World`, the algorithm will be executed in the world frame.
+///
+/// # Returns
+///
+/// * `Ok(ddq)` if the forward dynamics was successful. The following fields of the `data` structure will be updated:
+///     - **TODO**
+/// * `Err(ConfigurationError)` if there was an error.
 pub fn py_forward_dynamics(
     model: &PyModel,
     data: &mut PyData,
@@ -134,6 +211,22 @@ pub fn py_forward_dynamics(
 }
 
 #[pyfunction(name = "aba", signature=(model, data, q, v, tau, f_ext=None, convention=None))]
+/// Computes the forward dynamics of the robot model using the Articulated Body Algorithm (ABA) in the specified convention.
+///
+/// # Arguments
+///
+/// * `model` - The robot model.
+/// * `data` - The data structure that contains the joint data.
+/// * `q` - The configuration of the robot.
+/// * `v` - The velocity of the robot.
+/// * `tau` - The joint torques.
+/// * `convention` - The convention to use for the ABA algorithm. If `Local`, the algorithm will be executed in the local frame of each joint. If `World`, the algorithm will be executed in the world frame.
+///
+/// # Returns
+///
+/// * `Ok(ddq)` if the forward dynamics was successful. The following fields of the `data` structure will be updated:
+///     - **TODO**
+/// * `Err(ConfigurationError)` if there was an error.
 pub fn py_aba(
     model: &PyModel,
     data: &mut PyData,
