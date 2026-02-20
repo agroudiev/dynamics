@@ -2,8 +2,7 @@ import dynamics as dyn
 import dynamics.collider as col  # type: ignore
 import numpy as np
 import math
-
-# import time
+import time
 
 model = dyn.Model()
 geom_model = dyn.GeometryModel()
@@ -74,24 +73,23 @@ data_sim = model.create_data()
 
 t = 0.0
 q = dyn.random_configuration(model)
-print(q)
 v = np.zeros(model.nv)
 tau_control = np.zeros(model.nv)
 damping_value = 0.1
 
-# for k in range(N):
-#     tic = time.time()
-#     tau_control = -damping_value * v  # small damping
-#     a = dyn.aba(model, data_sim, q, v, tau_control)  # Forward dynamics
+for k in range(N):
+    tic = time.time()
+    tau_control = -damping_value * v  # small damping
+    a = dyn.aba(model, data_sim, q, v, tau_control)  # Forward dynamics
 
-#     # Semi-explicit integration
-#     v += a * dt
-#     q = dyn.integrate(model, q, v * dt)  # Configuration integration
+    # Semi-explicit integration
+    v += a * dt
+    q = dyn.integrate(model, q, v * dt)  # Configuration integration
 
-#     viz.display(q)
-#     toc = time.time()
-#     ellapsed = toc - tic
+    viz.display(q)
+    toc = time.time()
+    ellapsed = toc - tic
 
-#     dt_sleep = max(0, dt - (ellapsed))
-#     time.sleep(dt_sleep)
-#     t += dt
+    dt_sleep = max(0, dt - (ellapsed))
+    time.sleep(dt_sleep)
+    t += dt
