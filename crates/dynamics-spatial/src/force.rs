@@ -6,6 +6,7 @@ use nalgebra::{Matrix6, Vector6};
 
 use crate::{
     se3::{ActSE3, SE3},
+    so3::SO3,
     vector3d::Vector3D,
     vector6d::Vector6D,
 };
@@ -35,22 +36,27 @@ impl SpatialForce {
         Self(data)
     }
 
+    /// Creates a new [`SpatialForce`] with zeros components.
     pub fn zero() -> Self {
         Self(Vector6::zeros())
     }
 
+    /// Creates a new [`SpatialForce`] from the given [`nalgebra::Vector6`]
     pub fn from_vector6(vector: Vector6<f64>) -> Self {
         Self(vector)
     }
 
+    /// Creates a new [`SpatialForce`] from the given [`Vector6D`]
     pub fn from_vector6d(vector: Vector6D) -> Self {
         Self(vector.0)
     }
 
+    /// Returns the force's rotation (last 3 components)
     pub fn rotation(&self) -> Vector3D {
         Vector3D(self.0.fixed_rows::<3>(3).into())
     }
 
+    /// Returns the force's translation (first 3 components)
     pub fn translation(&self) -> Vector3D {
         Vector3D(self.0.fixed_rows::<3>(0).into())
     }
@@ -65,8 +71,8 @@ impl SpatialForce {
     /// A 6x6 matrix representing the cross product operation.
     fn cross_matrix(angular: Vector3D, linear: Vector3D) -> Matrix6<f64> {
         let mut cross_matrix = Matrix6::zeros();
-        let angular_so3 = crate::so3::SO3::from_vector3d(&angular);
-        let linear_so3 = crate::so3::SO3::from_vector3d(&linear);
+        let angular_so3 = SO3::from_vector3d(&angular);
+        let linear_so3 = SO3::from_vector3d(&linear);
         cross_matrix
             .view_mut((0, 0), (3, 3))
             .copy_from(&angular_so3.0);

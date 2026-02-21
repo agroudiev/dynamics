@@ -289,6 +289,7 @@ impl SpatialRotation {
     }
 
     #[must_use]
+    /// Construct a [`SpatialRotation`] from the given Euler angles.
     pub fn from_euler_angles(roll: f64, pitch: f64, yaw: f64) -> Self {
         Self(Rotation3::from_euler_angles(roll, pitch, yaw))
     }

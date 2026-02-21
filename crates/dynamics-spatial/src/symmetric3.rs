@@ -111,6 +111,7 @@ impl Symmetric3 {
     }
 
     #[must_use]
+    /// Constructs the skew symmetric matrix associated to the given 3D vector.
     pub fn skew_square(v: &Vector3D) -> Symmetric3 {
         let x = v.0[0];
         let y = v.0[1];

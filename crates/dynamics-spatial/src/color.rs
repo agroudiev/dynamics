@@ -32,6 +32,7 @@ impl Color {
     }
 
     #[must_use]
+    /// Return the color vector as a slice.
     pub fn as_slice(&self) -> &[f64; 4] {
         self.0.as_slice().try_into().unwrap()
     }

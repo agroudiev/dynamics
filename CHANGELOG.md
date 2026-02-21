@@ -14,6 +14,7 @@ This file is used to track changes made to the project over time.
 - Python binding for revolute unaligned joints (`JointModelRevoluteUnaligned`).
 - Refactor the `get_axis` method signature to return a reference to the joint axis.
 - Refactor the data creation methods.
+- Refactor error handling.
 
 #### Spatial
 - Added `action_matrix`, `dual_matrix`, and `inv_matrix` methods to SE3 transforms to compute the action, dual action, and inverse action matrices.
