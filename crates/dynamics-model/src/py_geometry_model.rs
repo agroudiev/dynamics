@@ -73,6 +73,7 @@ impl PyGeometryModel {
 
     #[getter]
     #[must_use]
+    /// Number of geometry objects in the model.
     pub fn ngeoms(&self) -> usize {
         self.inner.objects.len()
     }

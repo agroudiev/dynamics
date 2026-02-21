@@ -1,3 +1,6 @@
+//! Shared utilities for dynamics tests.
+
+/// List of URDF files in `examples-robot-data` that can be used for testing.
 pub static EXAMPLE_ROBOT_DATA_URDFS: &[&str] = &[
     "a1_description/urdf/a1.urdf",
     //

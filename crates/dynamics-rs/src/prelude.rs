@@ -1,3 +1,5 @@
+//! A prelude for the `dynamics-rs` crate, re-exporting commonly used items for easy access.
+
 // Model
 pub use crate::model::data::Data;
 pub use crate::model::model::Model;

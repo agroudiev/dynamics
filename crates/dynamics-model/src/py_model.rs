@@ -38,26 +38,31 @@ impl PyModel {
     }
 
     #[getter]
+    /// Name of the model.
     fn name(&self) -> &str {
         &self.inner.name
     }
 
     #[setter]
+    /// Sets the name of the model.
     fn set_name(&mut self, name: String) {
         self.inner.name = name;
     }
 
     #[getter]
+    /// Number of configuration variables in the model.
     fn nq(&self) -> usize {
         self.inner.nq
     }
 
     #[getter]
+    /// Number of velocity variables in the model.
     fn nv(&self) -> usize {
         self.inner.nv
     }
 
     #[getter]
+    /// Gravity vector of the model.
     fn gravity(&self, py: Python) -> Py<PyAny> {
         Array1::from_shape_vec([3], self.inner.gravity.as_slice().to_vec())
             .unwrap()
@@ -91,6 +96,17 @@ impl PyModel {
         }
     }
 
+    /// Appends a body of given inertia to the joint with given id.
+    ///
+    /// # Arguments
+    ///
+    /// * `joint_id` - The identifier of the joint to append the body to.
+    /// * `inertia` - The inertia of the body to append.
+    /// * `placement` - The placement of the body in the joint frame.
+    ///
+    /// # Returns
+    ///
+    /// A result indicating success or failure.
     fn append_body_to_joint(
         &mut self,
         joint_id: usize,
@@ -107,37 +123,43 @@ impl PyModel {
     }
 
     #[getter]
+    /// Number of joints in the model.
     fn njoints(&self) -> usize {
         self.inner.njoints()
     }
 
     #[getter]
+    /// Number of frames in the model.
     fn nframes(&self) -> usize {
         self.inner.nframes()
     }
 
     #[pyo3(signature = (name))]
+    /// Returns the index of the joint with the given name.
     fn get_joint_id(&self, name: &str) -> Option<usize> {
         self.inner.get_joint_id(name)
     }
 
-    #[pyo3(signature = ())]
+    /// Creates a new [`Data`] structure for this model.
     fn create_data(&self) -> PyData {
         let data = self.inner.create_data();
         PyData { inner: data }
     }
 
     #[getter]
+    /// Names of the joints.
     fn get_joint_names(&self) -> &[String] {
         &self.inner.joint_names
     }
 
     #[getter]
+    /// Parent joint indices for each joint. The root joint is its own parent.
     fn get_joint_parents(&self) -> &[usize] {
         &self.inner.joint_parents
     }
 
     #[getter]
+    /// Placements of the joints in the parent frame.
     fn get_joint_placements(&self) -> Vec<Py<PySE3>> {
         Python::with_gil(|py| {
             self.inner
@@ -149,6 +171,7 @@ impl PyModel {
     }
 
     #[getter]
+    /// Joint models.
     fn get_joint_models(&self) -> Vec<PyJointWrapper> {
         self.inner
             .joint_models
@@ -160,6 +183,7 @@ impl PyModel {
     }
 
     #[getter]
+    /// Inertias of the bodies at each joint.
     fn get_inertias(&self) -> Vec<PyInertia> {
         self.inner
             .inertias
@@ -171,6 +195,7 @@ impl PyModel {
     }
 
     #[getter]
+    /// Operational frames at each joint
     fn get_frames(&self) -> Vec<PyFrame> {
         self.inner
             .frames
@@ -181,6 +206,16 @@ impl PyModel {
             .collect()
     }
 
+    /// Adds a frame (fixed joint) to the model.
+    ///
+    /// # Arguments
+    ///
+    /// * `placement` - The placement of the frame in the parent frame.
+    /// * `name` - The name of the frame.
+    ///
+    /// # Returns
+    ///
+    /// The identifier of the frame.
     fn add_frame(&mut self, frame: PyFrame, append_inertia: bool) -> PyResult<usize> {
         match self.inner.add_frame(frame.inner, append_inertia) {
             Ok(id) => Ok(id),
@@ -193,10 +228,12 @@ impl PyModel {
     }
 
     #[pyo3(signature = (name, frame_type=None))]
+    /// Returns the index of the frame with the given name.
     pub fn get_frame_id(&self, name: &str, frame_type: Option<FrameType>) -> Option<usize> {
         self.inner.get_frame_id(name, frame_type.as_ref())
     }
 
+    /// Prints the joint tree of the model.
     pub fn print_joint_tree(&self) -> PyResult<()> {
         match self.inner.print_joint_tree() {
             Ok(()) => Ok(()),

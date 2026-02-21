@@ -144,6 +144,7 @@ impl JointData for JointDataWrapper {
 /// Error type for joint data operations.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum JointError {
+    /// A required attribute is missing from the joint model.
     MissingAttributeError(String),
 }
 

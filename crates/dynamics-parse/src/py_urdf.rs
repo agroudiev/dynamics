@@ -1,3 +1,5 @@
+//! This module provides Python bindings for parsing URDF files.
+
 use dynamics_model::py_geometry_model::PyGeometryModel;
 use dynamics_model::py_model::PyModel;
 use pyo3::exceptions::PyValueError;
