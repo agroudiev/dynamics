@@ -4,7 +4,7 @@ use std::fmt::Display;
 
 use crate::{
     joint::{JointModel, JointType, JointWrapper},
-    joint_data::{JointData, JointDataWrapper, JointError},
+    joint_data::{JointData, JointDataWrapper},
     limits::JointLimits,
 };
 use dynamics_spatial::{
@@ -198,7 +198,7 @@ impl JointData for JointDataRevolute {
         joint_model: &JointWrapper,
         joint_q: &Configuration,
         joint_v: Option<&Configuration>,
-    ) -> Result<(), JointError> {
+    ) {
         assert_eq!(
             joint_q.len(),
             1,
@@ -222,7 +222,6 @@ impl JointData for JointDataRevolute {
         let rot =
             SpatialRotation::from_axis_angle(&joint_model.get_axis().rotation(), self.joint_q[0]);
         self.placement = rot.to_se3(&Vector3D::zeros());
-        Ok(())
     }
 
     fn get_joint_velocity(&self) -> &SpatialMotion {
@@ -253,9 +252,7 @@ mod tests {
         let joint_model = JointModelRevolute::new(Vector3D::new(1.0, 0.0, 0.0));
         let mut joint_data = joint_model.create_joint_data();
         let q = Configuration::ones(1);
-        joint_data
-            .update(&JointWrapper::revolute(joint_model), &q, None)
-            .unwrap();
+        joint_data.update(&JointWrapper::revolute(joint_model), &q, None);
 
         assert_relative_eq!(joint_data.get_joint_placement().rotation().angle(), q[0]);
         assert_eq!(

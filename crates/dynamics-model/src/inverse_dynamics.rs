@@ -76,9 +76,7 @@ pub fn inverse_dynamics<'a>(
         let joint_v = v.rows(v_offset, joint_model.nv());
         let joint_a = a.rows(v_offset, joint_model.nv());
 
-        joint_data
-            .update(joint_model, &joint_q, Some(&joint_v))
-            .unwrap();
+        joint_data.update(joint_model, &joint_q, Some(&joint_v));
 
         // update the local joint placement
         data.local_joint_placements[joint_id] =

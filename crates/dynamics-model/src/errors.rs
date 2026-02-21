@@ -4,7 +4,6 @@
 
 use std::fmt::Display;
 
-use dynamics_joint::joint_data::JointError;
 use dynamics_spatial::configuration::ConfigurationError;
 
 #[derive(Debug)]
@@ -12,8 +11,6 @@ use dynamics_spatial::configuration::ConfigurationError;
 pub enum AlgorithmError {
     /// An error related to the configuration of the system.
     ConfigurationError(ConfigurationError),
-    /// An error related to a specific joint, identified by its name.
-    JointError(String, JointError),
     /// An error indicating that an argument has an incorrect size.
     IncorrectSize {
         name: String,
@@ -26,9 +23,6 @@ impl Display for AlgorithmError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             AlgorithmError::ConfigurationError(e) => write!(f, "Configuration error: {e}"),
-            AlgorithmError::JointError(joint_name, e) => {
-                write!(f, "Joint '{joint_name}' error: {e}")
-            }
             AlgorithmError::IncorrectSize {
                 name,
                 expected,

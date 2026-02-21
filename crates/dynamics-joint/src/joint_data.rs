@@ -1,7 +1,5 @@
 //! Structure containing the mutable properties of a joint.
 
-use std::fmt::Display;
-
 use crate::{
     continuous::JointDataContinuous, fixed::JointDataFixed, joint::JointWrapper,
     prismatic::JointDataPrismatic, revolute::JointDataRevolute,
@@ -48,7 +46,7 @@ pub trait JointData {
         joint_model: &JointWrapper,
         joint_q: &Configuration,
         joint_v: Option<&Configuration>,
-    ) -> Result<(), JointError>;
+    );
 
     /// Returns the joint velocity as a spatial motion.
     fn get_joint_velocity(&self) -> &SpatialMotion;
@@ -118,7 +116,7 @@ impl JointData for JointDataWrapper {
         joint_model: &JointWrapper,
         joint_q: &Configuration,
         joint_v: Option<&Configuration>,
-    ) -> Result<(), JointError> {
+    ) {
         match &mut self.inner {
             JointDataImpl::Continuous(joint_data) => {
                 joint_data.update(joint_model, joint_q, joint_v)
@@ -137,23 +135,6 @@ impl JointData for JointDataWrapper {
             JointDataImpl::Prismatic(joint_data) => joint_data.get_joint_velocity(),
             JointDataImpl::Revolute(joint_data) => joint_data.get_joint_velocity(),
             JointDataImpl::Fixed(joint_data) => joint_data.get_joint_velocity(),
-        }
-    }
-}
-
-/// Error type for joint data operations.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub enum JointError {
-    /// A required attribute is missing from the joint model.
-    MissingAttributeError(String),
-}
-
-impl Display for JointError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            JointError::MissingAttributeError(attr) => {
-                write!(f, "Missing attribute: {attr}")
-            }
         }
     }
 }

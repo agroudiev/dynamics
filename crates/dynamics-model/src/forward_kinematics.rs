@@ -78,15 +78,7 @@ pub fn forward_kinematics(
         let a_joint = a.as_ref().map(|a| a.rows(v_offset, joint_model.nv()));
 
         // update the joint data
-        match joint_data.update(joint_model, &q_joint, v_joint.as_ref()) {
-            Ok(()) => {}
-            Err(e) => {
-                return Err(AlgorithmError::JointError(
-                    model.joint_names[joint_id].clone(),
-                    e,
-                ));
-            }
-        }
+        joint_data.update(joint_model, &q_joint, v_joint.as_ref());
 
         // update the data velocity
         if v.is_some() {

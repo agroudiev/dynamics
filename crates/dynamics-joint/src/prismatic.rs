@@ -12,7 +12,7 @@ use rand::rngs::ThreadRng;
 
 use crate::{
     joint::{JointModel, JointType, JointWrapper},
-    joint_data::{JointData, JointDataWrapper, JointError},
+    joint_data::{JointData, JointDataWrapper},
     limits::JointLimits,
 };
 
@@ -199,7 +199,7 @@ impl JointData for JointDataPrismatic {
         joint_model: &JointWrapper,
         joint_q: &Configuration,
         joint_v: Option<&Configuration>,
-    ) -> Result<(), JointError> {
+    ) {
         assert_eq!(
             joint_q.len(),
             1,
@@ -224,7 +224,6 @@ impl JointData for JointDataPrismatic {
             joint_model.get_axis().translation() * joint_q[0],
             SpatialRotation::identity(),
         );
-        Ok(())
     }
 
     fn get_joint_velocity(&self) -> &SpatialMotion {

@@ -18,7 +18,7 @@ use rand::Rng;
 
 use crate::{
     joint::{JointModel, JointType, JointWrapper},
-    joint_data::{JointData, JointDataWrapper, JointError},
+    joint_data::{JointData, JointDataWrapper},
     limits::JointLimits,
 };
 
@@ -222,7 +222,7 @@ impl JointData for JointDataContinuous {
         joint_model: &JointWrapper,
         joint_q: &Configuration,
         joint_v: Option<&Configuration>,
-    ) -> Result<(), JointError> {
+    ) {
         // TODO: optimize this method to avoid computing the angle
 
         assert_eq!(
@@ -251,8 +251,6 @@ impl JointData for JointDataContinuous {
         // compute placement
         let rot = SpatialRotation::from_axis_angle(&joint_model.get_axis().rotation(), angle);
         self.placement = rot.to_se3(&Vector3D::zeros());
-
-        Ok(())
     }
 
     fn get_joint_placement(&self) -> SE3 {

@@ -4,7 +4,7 @@ use std::fmt::Display;
 
 use crate::{
     joint::{JointModel, JointType, JointWrapper},
-    joint_data::{JointData, JointDataWrapper, JointError},
+    joint_data::{JointData, JointDataWrapper},
 };
 use dynamics_spatial::{
     configuration::Configuration, force::SpatialForce, motion::SpatialMotion, se3::SE3,
@@ -134,8 +134,7 @@ impl JointData for JointDataFixed {
         _joint_model: &JointWrapper,
         _joint_q: &Configuration,
         _joint_v: Option<&Configuration>,
-    ) -> Result<(), JointError> {
-        Ok(())
+    ) {
     }
 
     fn get_joint_velocity(&self) -> &SpatialMotion {

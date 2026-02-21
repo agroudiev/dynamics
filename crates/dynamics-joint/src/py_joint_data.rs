@@ -3,7 +3,7 @@ use dynamics_spatial::{
     py_motion::PySpatialMotion,
     py_se3::PySE3,
 };
-use pyo3::{exceptions::PyValueError, prelude::*};
+use pyo3::prelude::*;
 
 use crate::{
     joint_data::{JointData, JointDataWrapper},
@@ -65,15 +65,9 @@ impl PyJointDataWrapper {
             .map(|v| v.to_configuration(joint_model.nv()))
             .transpose()?;
 
-        match self
-            .inner
-            .update(&joint_model.inner, &joint_q, joint_v.as_ref())
-        {
-            Ok(()) => Ok(()),
-            Err(e) => Err(PyValueError::new_err(format!(
-                "Failed to update joint data: {e:?}"
-            ))),
-        }
+        self.inner
+            .update(&joint_model.inner, &joint_q, joint_v.as_ref());
+        Ok(())
     }
 
     #[getter]
