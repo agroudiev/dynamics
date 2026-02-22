@@ -13,7 +13,19 @@ use rand::rngs::ThreadRng;
 
 /// Model of a fixed joint.
 #[derive(Clone, Debug, Default)]
-pub struct JointModelFixed {}
+pub struct JointModelFixed {
+    bias: SpatialMotion,
+}
+
+impl JointModelFixed {
+    /// Creates a new [`JointModelFixed`].
+    #[must_use]
+    pub fn new() -> Self {
+        JointModelFixed {
+            bias: SpatialMotion::zero(),
+        }
+    }
+}
 
 impl JointModel for JointModelFixed {
     fn get_joint_type(&self) -> JointType {
@@ -62,8 +74,8 @@ impl JointModel for JointModelFixed {
         panic!("Fixed joint model does not have a subspace constraint in SE3.")
     }
 
-    fn bias(&self) -> SpatialMotion {
-        SpatialMotion::zero()
+    fn bias(&self) -> &SpatialMotion {
+        &self.bias
     }
 
     fn integrate(&self, _q: &Configuration, _v: &Configuration) -> Configuration {

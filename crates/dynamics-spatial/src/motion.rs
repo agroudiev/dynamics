@@ -192,6 +192,14 @@ impl Add<&SpatialMotion> for SpatialMotion {
     }
 }
 
+impl Add<SpatialMotion> for &SpatialMotion {
+    type Output = SpatialMotion;
+
+    fn add(self, rhs: SpatialMotion) -> Self::Output {
+        SpatialMotion(self.0 + rhs.0)
+    }
+}
+
 impl AddAssign for SpatialMotion {
     fn add_assign(&mut self, rhs: Self) {
         self.0 += rhs.0;

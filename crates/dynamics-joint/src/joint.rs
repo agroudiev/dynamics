@@ -161,7 +161,7 @@ impl JointModel for JointWrapper {
         }
     }
 
-    fn bias(&self) -> SpatialMotion {
+    fn bias(&self) -> &SpatialMotion {
         match &self.inner {
             JointModelImpl::Continuous(joint) => joint.bias(),
             JointModelImpl::Prismatic(joint) => joint.bias(),
@@ -224,7 +224,7 @@ pub trait JointModel {
     fn subspace_dual(&self, f: &SpatialForce) -> Configuration;
 
     /// Returns the joint bias (Coriolis and centrifugal effects).
-    fn bias(&self) -> SpatialMotion;
+    fn bias(&self) -> &SpatialMotion;
 
     /// Applies the joint subspace constraint to a given SE3 transformation, returning the resulting spatial motion.
     fn subspace_se3(&self, se3: &SE3) -> SpatialMotion;

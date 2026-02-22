@@ -31,6 +31,8 @@ pub struct JointModelContinuous {
     pub axis: SpatialMotion,
     /// The joint limits.
     pub limits: JointLimits,
+    /// The (null) bias of the joint.
+    pub bias: SpatialMotion,
 }
 
 impl JointModelContinuous {
@@ -55,6 +57,7 @@ impl JointModelContinuous {
         JointModelContinuous {
             axis: SpatialMotion::from_rotational_axis(&axis),
             limits,
+            bias: SpatialMotion::zero(),
         }
     }
 
@@ -135,8 +138,8 @@ impl JointModel for JointModelContinuous {
         SpatialMotion::from_rotational_axis(&v)
     }
 
-    fn bias(&self) -> SpatialMotion {
-        SpatialMotion::zero()
+    fn bias(&self) -> &SpatialMotion {
+        &self.bias
     }
 
     fn integrate(&self, q: &Configuration, v: &Configuration) -> Configuration {

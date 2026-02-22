@@ -24,6 +24,8 @@ pub struct JointModelRevolute {
     pub axis: SpatialMotion,
     /// The joint limits.
     pub limits: JointLimits,
+    /// The (null) bias of the joint.
+    pub bias: SpatialMotion,
 }
 
 impl JointModelRevolute {
@@ -42,6 +44,7 @@ impl JointModelRevolute {
         JointModelRevolute {
             axis: SpatialMotion::from_rotational_axis(&axis),
             limits: JointLimits::new_unbounded(1),
+            bias: SpatialMotion::zero(),
         }
     }
 
@@ -126,8 +129,8 @@ impl JointModel for JointModelRevolute {
         SpatialMotion::from_rotational_axis(&v)
     }
 
-    fn bias(&self) -> SpatialMotion {
-        SpatialMotion::zero()
+    fn bias(&self) -> &SpatialMotion {
+        &self.bias
     }
 
     fn integrate(&self, q: &Configuration, v: &Configuration) -> Configuration {

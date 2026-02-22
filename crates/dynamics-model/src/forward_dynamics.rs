@@ -368,7 +368,7 @@ pub fn forward_dynamics_world<'a>(
 
         // update the global joint acceleration
         data.world_accelerations_gravity_field[joint_id] =
-            data.joint_placements[joint_id].act(&joint_model.bias());
+            data.joint_placements[joint_id].act(joint_model.bias());
         if parent_id != WORLD_ID {
             data.world_accelerations_gravity_field[joint_id] +=
                 data.world_joint_velocities[joint_id].cross(&data.world_joint_velocities[joint_id]);

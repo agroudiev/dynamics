@@ -25,6 +25,8 @@ pub struct JointModelPrismatic {
     pub axis: SpatialMotion,
     /// The joint limits.
     pub limits: JointLimits,
+    /// The (null) bias of the joint.
+    pub bias: SpatialMotion,
 }
 
 impl JointModelPrismatic {
@@ -43,6 +45,7 @@ impl JointModelPrismatic {
         JointModelPrismatic {
             axis: SpatialMotion::from_translational_axis(&axis),
             limits: JointLimits::new_unbounded(1),
+            bias: SpatialMotion::zero(),
         }
     }
 
@@ -127,8 +130,8 @@ impl JointModel for JointModelPrismatic {
         SpatialMotion::from_translational_axis(&v)
     }
 
-    fn bias(&self) -> SpatialMotion {
-        SpatialMotion::zero()
+    fn bias(&self) -> &SpatialMotion {
+        &self.bias
     }
 
     fn integrate(&self, q: &Configuration, v: &Configuration) -> Configuration {
