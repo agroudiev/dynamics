@@ -28,7 +28,9 @@ use dynamics_spatial::vector6d::Vector6D;
 #[cfg(feature = "python")]
 #[pyo3::pyclass(name = "ABAConvention")]
 pub enum ABAConvention {
+    /// Compute the quantities expressed in the local frame of each joint (default).
     Local,
+    /// Compute the quantities expressed in the world frame.
     World,
 }
 

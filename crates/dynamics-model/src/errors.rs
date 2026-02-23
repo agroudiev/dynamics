@@ -13,8 +13,11 @@ pub enum AlgorithmError {
     ConfigurationError(ConfigurationError),
     /// An error indicating that an argument has an incorrect size.
     IncorrectSize {
+        /// The name of the argument that has an incorrect size.
         name: String,
+        /// The expected size of the argument.
         expected: usize,
+        /// The actual size of the argument that was provided.
         got: usize,
     },
 }

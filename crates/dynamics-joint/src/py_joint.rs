@@ -19,18 +19,21 @@ pub struct PyJointWrapper {
 impl PyJointWrapper {
     #[getter]
     #[must_use]
+    /// The type of the joint.
     pub fn joint_type(&self) -> JointType {
         self.inner.get_joint_type()
     }
 
     #[getter]
     #[must_use]
+    /// The number of configuration variables associated with this joint.
     pub fn nq(&self) -> usize {
         self.inner.nq()
     }
 
     #[getter]
     #[must_use]
+    /// The number of velocity variables associated with this joint.
     pub fn nv(&self) -> usize {
         self.inner.nv()
     }

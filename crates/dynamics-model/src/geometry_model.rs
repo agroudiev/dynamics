@@ -38,6 +38,14 @@ impl GeometryModel {
     }
 
     #[must_use]
+    /// Returns the index of a geometry object with the given name, if it exists.
+    ///
+    /// # Arguments
+    /// * `name` - The name of the geometry object to search for.
+    ///
+    /// # Returns
+    /// - `Some(usize)` - The index of the geometry object if found.
+    /// - `None` - If no geometry object with the given name exists.
     pub fn get_geometry_id(&self, name: &str) -> Option<usize> {
         self.objects.iter().position(|o| o.name == name)
     }

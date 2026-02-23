@@ -237,9 +237,13 @@ pub trait JointModel {
 #[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum JointType {
+    /// A continuous joint, which allows for rotation around a specified axis without limits.
     Continuous,
+    /// A fixed joint, which does not allow for any relative motion between the connected bodies.
     Fixed,
+    /// A prismatic joint, which allows for translation along a specified axis.
     Prismatic,
+    /// A revolute joint, which allows for rotation around a specified axis, usually with limits.
     Revolute,
 }
 

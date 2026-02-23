@@ -247,7 +247,9 @@ impl Model {
         self.frames.len()
     }
 
+    /// Prints the joint tree of the model to the standard output.
     pub fn print_joint_tree(&self) -> std::io::Result<()> {
+        // TODO: allow the user to specify an output stream
         fn process_joint(
             model: &Model,
             children: &Vec<Vec<usize>>,
