@@ -2,7 +2,7 @@
 
 This file is used to track changes made to the project over time.
 
-## [Unreleased]
+## [0.0.3] - 2026-02-27
 ### Added
 #### Algorithms
 - Added `forward_dynamics` function implementing the ABA algorithm for forward dynamics computation.

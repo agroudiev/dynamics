@@ -3,7 +3,7 @@ resolver = "2"
 members = ["crates/*", "dynamics-py"]
 
 [workspace.package]
-version = "0.0.2"
+version = "0.0.3"
 edition = "2024"
 authors = ["Antoine Groudiev <antoine.groudiev@ens.psl.eu>"]
 readme = "README.md"
@@ -23,14 +23,14 @@ pyo3 = { version = "0.24.1", features = ["extension-module"] }
 rand = { version = "0.9.1" }
 
 # collider-rs = { path = "../collider/crates/collider-rs" } # for local development
-# collider-rs = { git = "https://github.com/agroudiev/collider", version = "0.0.2" } # for release (specify version)
-collider-rs = { git = "https://github.com/agroudiev/collider", version = "0.0.2" }
+# collider-rs = { git = "https://github.com/agroudiev/collider", version = "0.0.3" } # for release (specify version)
+collider-rs = { git = "https://github.com/agroudiev/collider", version = "0.0.3" }
 
-dynamics-inertia = { path = "crates/dynamics-inertia", version = "0.0.2" }
-dynamics-joint = { path = "crates/dynamics-joint", version = "0.0.2" }
-dynamics-model = { path = "crates/dynamics-model", version = "0.0.2" }
-dynamics-parse = { path = "crates/dynamics-parse", version = "0.0.2" }
-dynamics-spatial = { path = "crates/dynamics-spatial", version = "0.0.2" }
-dynamics-rs = { path = "crates/dynamics-rs", version = "0.0.2" }
+dynamics-inertia = { path = "crates/dynamics-inertia", version = "0.0.3" }
+dynamics-joint = { path = "crates/dynamics-joint", version = "0.0.3" }
+dynamics-model = { path = "crates/dynamics-model", version = "0.0.3" }
+dynamics-parse = { path = "crates/dynamics-parse", version = "0.0.3" }
+dynamics-spatial = { path = "crates/dynamics-spatial", version = "0.0.3" }
+dynamics-rs = { path = "crates/dynamics-rs", version = "0.0.3" }
 
 approx = { version = "0.5.1" }

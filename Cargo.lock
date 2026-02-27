@@ -194,8 +194,8 @@ checksum = "c3e64b0cc0439b12df2fa678eae89a1c56a529fd067a9115f7827f1fffd22b32"
 
 [[package]]
 name = "collider-mesh"
-version = "0.0.2"
-source = "git+https://github.com/agroudiev/collider#d3fe70da2b623a6198d9be7a0a581096609b4bc1"
+version = "0.0.3"
+source = "git+https://github.com/agroudiev/collider#bfac64c38d65839026a680a2865556d1ef24ce9c"
 dependencies = [
  "collider-shape",
  "nalgebra",
@@ -205,8 +205,8 @@ dependencies = [
 
 [[package]]
 name = "collider-rs"
-version = "0.0.2"
-source = "git+https://github.com/agroudiev/collider#d3fe70da2b623a6198d9be7a0a581096609b4bc1"
+version = "0.0.3"
+source = "git+https://github.com/agroudiev/collider#bfac64c38d65839026a680a2865556d1ef24ce9c"
 dependencies = [
  "collider-mesh",
  "collider-shape",
@@ -214,8 +214,8 @@ dependencies = [
 
 [[package]]
 name = "collider-shape"
-version = "0.0.2"
-source = "git+https://github.com/agroudiev/collider#d3fe70da2b623a6198d9be7a0a581096609b4bc1"
+version = "0.0.3"
+source = "git+https://github.com/agroudiev/collider#bfac64c38d65839026a680a2865556d1ef24ce9c"
 dependencies = [
  "nalgebra",
  "numpy",
@@ -397,7 +397,7 @@ dependencies = [
 
 [[package]]
 name = "dynamics-inertia"
-version = "0.0.2"
+version = "0.0.3"
 dependencies = [
  "dynamics-spatial",
  "nalgebra",
@@ -407,7 +407,7 @@ dependencies = [
 
 [[package]]
 name = "dynamics-joint"
-version = "0.0.2"
+version = "0.0.3"
 dependencies = [
  "approx",
  "dynamics-spatial",
@@ -417,7 +417,7 @@ dependencies = [
 
 [[package]]
 name = "dynamics-model"
-version = "0.0.2"
+version = "0.0.3"
 dependencies = [
  "collider-rs",
  "dynamics-inertia",
@@ -431,7 +431,7 @@ dependencies = [
 
 [[package]]
 name = "dynamics-parse"
-version = "0.0.2"
+version = "0.0.3"
 dependencies = [
  "collider-rs",
  "dynamics-inertia",
@@ -445,7 +445,7 @@ dependencies = [
 
 [[package]]
 name = "dynamics-py"
-version = "0.0.2"
+version = "0.0.3"
 dependencies = [
  "collider-rs",
  "dynamics-inertia",
@@ -459,7 +459,7 @@ dependencies = [
 
 [[package]]
 name = "dynamics-rs"
-version = "0.0.2"
+version = "0.0.3"
 dependencies = [
  "collider-rs",
  "dynamics-inertia",
@@ -471,7 +471,7 @@ dependencies = [
 
 [[package]]
 name = "dynamics-spatial"
-version = "0.0.2"
+version = "0.0.3"
 dependencies = [
  "approx",
  "nalgebra",
@@ -482,7 +482,7 @@ dependencies = [
 
 [[package]]
 name = "dynamics-tests"
-version = "0.0.2"
+version = "0.0.3"
 dependencies = [
  "approx",
  "criterion",
