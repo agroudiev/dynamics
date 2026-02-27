@@ -1,5 +1,16 @@
 # dynamics
 An experimental implementation of Rigid Body Dynamics algorithms.
+<div align="center">
+  <a href="https://crates.io/crates/dynamics-rs">
+    <img src="https://img.shields.io/crates/v/dynamics-rs.svg" alt="crates.io Latest Release"/>
+  </a>
+  <a href="https://pypi.org/project/rdynamics-py/">
+    <img src="https://img.shields.io/pypi/v/rdynamics-py.svg" alt="PyPi Latest Release"/>
+  </a>
+  <a href="https://docs.rs/dynamics-rs/latest/dynamics_rs/">
+    <img src="https://img.shields.io/docsrs/dynamics-rs" alt="Docs.rs Documentation"/>
+  </a>
+</div>
 
 ## API
 The API is designed to be close to the [Pinocchio](https://github.com/stack-of-tasks/pinocchio) library. This project is not a direct port of Pinocchio, but rather an experimental attempt to create a similar API in Rust. The goal is to provide a high-level interface for rigid body dynamics, while also allowing for low-level access to the underlying algorithms. Examples of the Python API can be found in the [`examples/python`](https://github.com/agroudiev/dynamics/tree/main/examples/python) directory.
