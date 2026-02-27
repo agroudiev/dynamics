@@ -25,8 +25,7 @@ use dynamics_spatial::vector6d::Vector6D;
 
 /// Convention for the ABA algorithm.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[cfg(feature = "python")]
-#[pyo3::pyclass(name = "ABAConvention")]
+#[cfg_attr(feature = "python", pyo3::prelude::pyclass)]
 pub enum ABAConvention {
     /// Compute the quantities expressed in the local frame of each joint (default).
     Local,
